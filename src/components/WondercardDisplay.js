@@ -6,8 +6,38 @@ export default function WondercardDisplay({ wcData }) {
     const baseUrl = '/img/large/pokemon';
     const shinyPath = wcData.canBeShiny === 'Always' ? '/shiny/' : '/regular/';
     const formSuffix = wcData.formName !== 'None' ? `-${wcData.formId}` : '';
-    return `${baseUrl}${shinyPath}${wcData.dexNo}${formSuffix}.png`;
+    return `${baseUrl}${shinyPath}${wcData.dexNo || wcData.pokemon?.species || '0'}${formSuffix}.png`;
   };
+
+  // Safely get values with fallbacks
+  const getBallSpritePath = () => {
+    if (!wcData.ball) return null;
+    return `/img/balls/ball-${wcData.ball.toLowerCase().replace(' ', '-')}.png`;
+  };
+
+  const getRibbonSpritePath = () => {
+    if (!wcData.Ribbon || wcData.Ribbon === 'None') return null;
+    return `/img/ribbons/ribbon-${wcData.Ribbon.toLowerCase().replace(' ', '-')}.png`;
+  };
+
+  const getItemSpritePath = () => {
+    if (!wcData.heldItem || wcData.heldItem === 'None') return null;
+    return `/img/items/item-${wcData.heldItem.toLowerCase().replace(' ', '-')}.png`;
+  };
+
+  // Handle both WC6 and WC6 Full formats
+  const pokemonName = wcData.pokemonName || `Pokemon #${wcData.pokemon?.species}`;
+  const formName = wcData.formName || 'None';
+  const nature = wcData.nature || 'Unknown';
+  const ability = wcData.abilityType || 'Unknown';
+  const ivs = wcData.ivType || 'Unknown';
+  const gender = wcData.gender || 'Unknown';
+  const moves = [
+    wcData.move1Name || wcData.pokemon?.moves?.[0],
+    wcData.move2Name || wcData.pokemon?.moves?.[1],
+    wcData.move3Name || wcData.pokemon?.moves?.[2],
+    wcData.move4Name || wcData.pokemon?.moves?.[3]
+  ].filter(Boolean);
 
   return (
     <div className="bg-gray-800 rounded-lg p-6 mb-6">
@@ -16,8 +46,8 @@ export default function WondercardDisplay({ wcData }) {
 
       {/* Title and Description */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-red-400 mb-4">{wcData.wcTitle}</h1>
-        <p className="text-lg text-gray-300">{wcData.cardText}</p>
+        <h1 className="text-3xl font-bold text-red-400 mb-4">{wcData.wcTitle || wcData.cardTitle}</h1>
+        <p className="text-lg text-gray-300">{wcData.cardText || wcData.redemptionText}</p>
       </div>
 
       {/* Pokemon Image and Basic Info */}
@@ -25,34 +55,36 @@ export default function WondercardDisplay({ wcData }) {
         <div className="flex-shrink-0 w-64 h-64 relative">
           <img
             src={getPokemonSpritePath()}
-            alt={wcData.pokemonName}
+            alt={pokemonName}
             className="w-full h-full object-contain"
           />
         </div>
         
         <div className="flex flex-col justify-center space-y-4">
           <div className="flex items-center gap-4">
-            <h2 className="text-2xl font-bold">{wcData.pokemonName}</h2>
-            {wcData.formName !== 'None' && (
-              <span className="text-gray-400">({wcData.formName})</span>
+            <h2 className="text-2xl font-bold">{pokemonName}</h2>
+            {formName !== 'None' && (
+              <span className="text-gray-400">({formName})</span>
             )}
           </div>
           
           <div className="flex items-center gap-4">
             {/* Ball Sprite */}
-            <div className="w-8 h-8">
-              <img
-                src={`/img/balls/ball-${wcData.ball.toLowerCase().replace(' ', '-')}.png`}
-                alt={wcData.ball}
-                className="w-full h-full object-contain"
-              />
-            </div>
-            
-            {/* Ribbon Display */}
-            {wcData.Ribbon !== 'None' && (
+            {getBallSpritePath() && (
               <div className="w-8 h-8">
                 <img
-                  src={`/img/ribbons/ribbon-${wcData.Ribbon.toLowerCase().replace(' ', '-')}.png`}
+                  src={getBallSpritePath()}
+                  alt={wcData.ball}
+                  className="w-full h-full object-contain"
+                />
+              </div>
+            )}
+            
+            {/* Ribbon Display */}
+            {getRibbonSpritePath() && (
+              <div className="w-8 h-8">
+                <img
+                  src={getRibbonSpritePath()}
                   alt={wcData.Ribbon}
                   className="w-full h-full object-contain"
                 />
@@ -60,10 +92,10 @@ export default function WondercardDisplay({ wcData }) {
             )}
             
             {/* Held Item */}
-            {wcData.heldItem !== 'None' && (
+            {getItemSpritePath() && (
               <div className="w-8 h-8">
                 <img
-                  src={`/img/items/item-${wcData.heldItem.toLowerCase().replace(' ', '-')}.png`}
+                  src={getItemSpritePath()}
                   alt={wcData.heldItem}
                   className="w-full h-full object-contain"
                 />
@@ -79,13 +111,13 @@ export default function WondercardDisplay({ wcData }) {
         <div className="space-y-6">
           <div className="space-y-2">
             <h3 className="text-xl font-semibold text-gray-400">Pokémon Details</h3>
-            <p><span className="text-gray-400">Nature:</span> {wcData.nature}</p>
-            <p><span className="text-gray-400">Ability:</span> {wcData.abilityType}</p>
-            <p><span className="text-gray-400">IVs:</span> {wcData.ivType}</p>
+            <p><span className="text-gray-400">Nature:</span> {nature}</p>
+            <p><span className="text-gray-400">Ability:</span> {ability}</p>
+            <p><span className="text-gray-400">IVs:</span> {ivs}</p>
             <p>
               <span className="text-gray-400">Gender:</span>{' '}
-              <span className={wcData.gender === 'Male' ? 'text-blue-400' : wcData.gender === 'Female' ? 'text-pink-400' : 'text-gray-300'}>
-                {wcData.gender}
+              <span className={gender === 'Male' ? 'text-blue-400' : gender === 'Female' ? 'text-pink-400' : 'text-gray-300'}>
+                {gender}
               </span>
             </p>
           </div>
@@ -93,11 +125,9 @@ export default function WondercardDisplay({ wcData }) {
           <div className="space-y-2">
             <h4 className="text-lg font-semibold text-gray-400">Moves:</h4>
             <ul className="list-disc list-inside pl-4">
-              {[wcData.move1Name, wcData.move2Name, wcData.move3Name, wcData.move4Name]
-                .filter(move => move)
-                .map((move, index) => (
-                  <li key={index} className="text-gray-300">{move}</li>
-                ))}
+              {moves.map((move, index) => (
+                <li key={index} className="text-gray-300">{move}</li>
+              ))}
             </ul>
           </div>
         </div>
