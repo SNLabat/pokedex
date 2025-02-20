@@ -1,7 +1,7 @@
 // pages/pokemon/[name].js
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 
 // Add the SpriteToggleGroup component at the top
 const SpriteToggleGroup = ({ isAnimated, isShiny, onAnimatedChange, onShinyChange, hasAnimated, hasShiny }) => (
@@ -92,24 +92,62 @@ const formatStatName = (statName) => {
   return properCase(statName);
 };
 
-// Add PokemonCry component at the top
+// Add enhanced PokemonCry component at the top
 const PokemonCry = ({ src, label }) => {
   const [error, setError] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const audioRef = useRef(null);
+
+  const handlePlay = async () => {
+    try {
+      setIsPlaying(true);
+      await audioRef.current.play();
+    } catch (err) {
+      console.error('Audio playback error:', err);
+      setError(true);
+    }
+  };
+
+  const handleEnded = () => {
+    setIsPlaying(false);
+  };
+
+  const handleError = (e) => {
+    console.error('Audio error:', e);
+    setError(true);
+  };
 
   if (!src || error) return null;
 
   return (
     <div className="bg-gray-700 p-4 rounded-lg">
       <p className="text-gray-400 mb-2">{label}</p>
+      
+      {/* Custom play button for mobile */}
+      <div className="flex items-center gap-2">
+        <button
+          onClick={handlePlay}
+          disabled={isPlaying}
+          className={`px-4 py-2 rounded-lg ${
+            isPlaying 
+              ? 'bg-gray-600 text-gray-400' 
+              : 'bg-red-600 hover:bg-red-700 text-white'
+          } transition-colors`}
+        >
+          {isPlaying ? 'Playing...' : 'Play Cry'}
+        </button>
+      </div>
+
+      {/* Hidden audio element */}
       <audio
-        controls
+        ref={audioRef}
         src={src}
-        className="w-full"
-        onError={() => setError(true)}
+        onEnded={handleEnded}
+        onError={handleError}
+        controls={false}
         preload="none"
-      >
-        Your browser does not support audio playback.
-      </audio>
+        style={{ display: 'none' }}
+      />
     </div>
   );
 };
@@ -323,7 +361,7 @@ export default function PokemonDetail({ pokemon, species }) {
         </div>
 
         {/* Combined Pokédex Entry and Cries section */}
-        {(englishEntry || (cries && (cries.latest || cries.legacy))) && (
+        {cries && (cries.latest || cries.legacy) && (
           <div className="bg-gray-800 rounded-lg p-6 mb-6">
             {englishEntry && (
               <>
@@ -335,8 +373,8 @@ export default function PokemonDetail({ pokemon, species }) {
             <div className="space-y-4">
               <h3 className="text-xl font-bold text-gray-400">Cries</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <PokemonCry src={cries.latest} label="Latest Cry" />
-                <PokemonCry src={cries.legacy} label="Legacy Cry" />
+                {cries.latest && <PokemonCry src={cries.latest} label="Latest Cry" />}
+                {cries.legacy && <PokemonCry src={cries.legacy} label="Legacy Cry" />}
               </div>
             </div>
           </div>
