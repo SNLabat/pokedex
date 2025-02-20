@@ -3,6 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 export default function PokemonDetail({ pokemon, species }) {
+  // Data from /pokemon endpoint
   const {
     id,
     name,
@@ -17,6 +18,7 @@ export default function PokemonDetail({ pokemon, species }) {
     cries,
   } = pokemon;
 
+  // Data from /pokemon-species endpoint
   const {
     catch_rate,
     base_happiness,
@@ -28,275 +30,216 @@ export default function PokemonDetail({ pokemon, species }) {
     genera,
   } = species;
 
-  const officialArtwork = sprites.other?.['official-artwork']?.front_default || sprites.front_default;
+  // Official artwork (falling back to front_default)
+  const officialArtwork =
+    sprites.other?.['official-artwork']?.front_default || sprites.front_default;
+
+  // Convert height (decimeters) to meters and weight (hectograms) to kg.
   const heightMeters = (height / 10).toFixed(1);
   const weightKg = (weight / 10).toFixed(1);
+
+  // Get the English genus (e.g. "Paradox Pokémon")
   const englishGenus = genera?.find((g) => g.language.name === 'en')?.genus;
-  const englishEntry = flavor_text_entries?.find((entry) => entry.language.name === 'en')?.flavor_text.replace(/\f/g, ' ');
+
+  // Get one English Pokédex entry
+  const englishEntry =
+    flavor_text_entries?.find((entry) => entry.language.name === 'en')?.flavor_text.replace(/\f/g, ' ');
+
+  // Sum of EV yield from stats (each stat's "effort")
   const totalEVYield = stats.reduce((sum, s) => sum + s.effort, 0);
 
-  // Gender calculation
+  // Gender info calculation
   let genderInfo;
   if (gender_rate === -1) {
     genderInfo = "Genderless";
   } else {
     const femaleChance = (gender_rate / 8) * 100;
     const maleChance = 100 - femaleChance;
-    genderInfo = `♂ ${maleChance}% / ♀ ${femaleChance}%`;
+    genderInfo = `Male: ${maleChance.toFixed(0)}%, Female: ${femaleChance.toFixed(0)}%`;
   }
 
-  // Type colors mapping
-  const typeColors = {
-    normal: 'bg-gray-400',
-    fire: 'bg-red-500',
-    water: 'bg-blue-500',
-    electric: 'bg-yellow-400',
-    grass: 'bg-green-500',
-    ice: 'bg-blue-200',
-    fighting: 'bg-red-700',
-    poison: 'bg-purple-500',
-    ground: 'bg-yellow-600',
-    flying: 'bg-blue-300',
-    psychic: 'bg-pink-500',
-    bug: 'bg-green-400',
-    rock: 'bg-yellow-700',
-    ghost: 'bg-purple-700',
-    dragon: 'bg-purple-600',
-    dark: 'bg-gray-700',
-    steel: 'bg-gray-500',
-    fairy: 'bg-pink-300',
-  };
-
-  // Get level-up moves
-  const levelUpMoves = moves
-    .filter(move => 
-      move.version_group_details.some(
-        d => d.move_learn_method.name === 'level-up' && d.level_learned_at > 0
-      )
+  // Sample Level-Up Moves:
+  // Filter moves with level-up method and a level greater than 0; take first 10 for brevity.
+  const levelUpMoves = moves.filter(move => 
+    move.version_group_details.some(
+      d => d.move_learn_method.name === 'level-up' && d.level_learned_at > 0
     )
-    .sort((a, b) => {
-      const levelA = Math.min(...a.version_group_details.map(d => d.level_learned_at));
-      const levelB = Math.min(...b.version_group_details.map(d => d.level_learned_at));
-      return levelA - levelB;
-    })
-    .slice(0, 10);
+  ).slice(0, 10);
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
-      <div className="max-w-7xl mx-auto p-4">
-        {/* Top Navigation */}
-        <Link href="/">
-          <a className="inline-flex items-center text-red-400 hover:text-red-300 mb-6">
-            ← Back to National Pokédex
-          </a>
-        </Link>
-
-        {/* Main Content Card */}
-        <div className="bg-gray-800 rounded-lg shadow-xl overflow-hidden">
-          {/* Header with Pokemon Image and Basic Info */}
-          <div className="bg-red-600 p-6">
-            <div className="flex flex-col md:flex-row items-center gap-8">
-              <div className="md:w-1/3">
-                {officialArtwork && (
-                  <div className="relative w-64 h-64">
-                    <Image
-                      src={officialArtwork}
-                      alt={`${name} artwork`}
-                      layout="fill"
-                      objectFit="contain"
-                      className="drop-shadow-2xl"
-                    />
-                  </div>
-                )}
-              </div>
-              
-              <div className="md:w-2/3 text-center md:text-left">
-                <p className="text-gray-300 mb-2">#{id.toString().padStart(3, '0')}</p>
-                <h1 className="text-4xl font-bold capitalize mb-2">{name}</h1>
-                {englishGenus && <p className="text-xl text-gray-200 mb-4">{englishGenus}</p>}
-                
-                <div className="flex flex-wrap gap-2 justify-center md:justify-start">
-                  {types.map((type) => (
-                    <span
-                      key={type.type.name}
-                      className={`${typeColors[type.type.name]} px-4 py-1 rounded-full text-white capitalize`}
-                    >
-                      {type.type.name}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Content Sections */}
-          <div className="p-6">
-            {/* Pokédex Entry */}
-            {englishEntry && (
-              <div className="bg-gray-700 rounded-lg p-6 mb-6">
-                <p className="text-gray-200 italic">{englishEntry}</p>
-              </div>
-            )}
-
-            {/* Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              <div className="bg-gray-700 rounded-lg p-6">
-                <h2 className="text-xl font-semibold mb-4">Base Stats</h2>
-                {stats.map((stat) => (
-                  <div key={stat.stat.name} className="mb-4">
-                    <div className="flex justify-between mb-1">
-                      <span className="capitalize text-gray-300">{stat.stat.name}</span>
-                      <span className="text-white">{stat.base_stat}</span>
-                    </div>
-                    <div className="w-full bg-gray-600 rounded-full h-2">
-                      <div
-                        className="bg-red-500 rounded-full h-2"
-                        style={{ width: `${(stat.base_stat / 255) * 100}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Training Info */}
-              <div className="bg-gray-700 rounded-lg p-6">
-                <h2 className="text-xl font-semibold mb-4">Training</h2>
-                <div className="space-y-2">
-                  <p><span className="text-gray-300">Base EXP:</span> {base_experience}</p>
-                  <p><span className="text-gray-300">Catch Rate:</span> {catch_rate} ({(catch_rate / 255 * 100).toFixed(1)}%)</p>
-                  <p><span className="text-gray-300">Base Happiness:</span> {base_happiness}</p>
-                  <p><span className="text-gray-300">Growth Rate:</span> {growth_rate.name}</p>
-                  <p><span className="text-gray-300">EV Yield:</span> {totalEVYield}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Physical Characteristics & Breeding */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              <div className="bg-gray-700 rounded-lg p-6">
-                <h2 className="text-xl font-semibold mb-4 flex items-center">
-                  <Shield className="mr-2" />
-                  Physical Characteristics
-                </h2>
-                <div className="space-y-2">
-                  <p><span className="text-gray-300">Height:</span> {heightMeters} m</p>
-                  <p><span className="text-gray-300">Weight:</span> {weightKg} kg</p>
-                  <p><span className="text-gray-300">Abilities:</span></p>
-                  <ul className="list-disc ml-5">
-                    {abilities.map((ability) => (
-                      <li key={ability.ability.name} className="capitalize">
-                        {ability.ability.name} {ability.is_hidden && <span className="text-gray-400">(Hidden)</span>}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-
-              <div className="bg-gray-700 rounded-lg p-6">
-                <h2 className="text-xl font-semibold mb-4 flex items-center">
-                  <Heart className="mr-2" />
-                  Breeding
-                </h2>
-                <div className="space-y-2">
-                  <p>
-                    <span className="text-gray-300">Gender Ratio:</span> {genderInfo}
-                  </p>
-                  <p>
-                    <span className="text-gray-300">Egg Groups:</span>{" "}
-                    {egg_groups.map(group => group.name).join(', ')}
-                  </p>
-                  <p>
-                    <span className="text-gray-300">Hatch Steps:</span>{" "}
-                    {hatch_counter * 255}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Moves */}
-            <div className="bg-gray-700 rounded-lg p-6 mb-8">
-              <h2 className="text-xl font-semibold mb-4">Level-up Moves</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                {levelUpMoves.map(move => {
-                  const detail = move.version_group_details.find(
-                    d => d.move_learn_method.name === 'level-up' && d.level_learned_at > 0
-                  );
-                  return (
-                    <div key={move.move.name} className="bg-gray-600 rounded p-3">
-                      <p className="text-sm text-gray-300">Level {detail?.level_learned_at}</p>
-                      <p className="capitalize">{move.move.name.replace('-', ' ')}</p>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Sprites Gallery */}
-            <div className="bg-gray-700 rounded-lg p-6 mb-8">
-              <h2 className="text-xl font-semibold mb-4">Sprites</h2>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                {sprites.front_default && (
-                  <div className="flex flex-col items-center bg-gray-600 rounded p-4">
-                    <img src={sprites.front_default} alt={`${name} front`} className="w-20 h-20 object-contain" />
-                    <p className="text-sm mt-2">Front Default</p>
-                  </div>
-                )}
-                {sprites.back_default && (
-                  <div className="flex flex-col items-center bg-gray-600 rounded p-4">
-                    <img src={sprites.back_default} alt={`${name} back`} className="w-20 h-20 object-contain" />
-                    <p className="text-sm mt-2">Back Default</p>
-                  </div>
-                )}
-                {sprites.front_shiny && (
-                  <div className="flex flex-col items-center bg-gray-600 rounded p-4">
-                    <img src={sprites.front_shiny} alt={`${name} front shiny`} className="w-20 h-20 object-contain" />
-                    <p className="text-sm mt-2">Front Shiny</p>
-                  </div>
-                )}
-                {sprites.back_shiny && (
-                  <div className="flex flex-col items-center bg-gray-600 rounded p-4">
-                    <img src={sprites.back_shiny} alt={`${name} back shiny`} className="w-20 h-20 object-contain" />
-                    <p className="text-sm mt-2">Back Shiny</p>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Cries */}
-            {cries && (cries.latest || cries.legacy) && (
-              <div className="bg-gray-700 rounded-lg p-6">
-                <h2 className="text-xl font-semibold mb-4 flex items-center">
-                  <Volume2 className="mr-2" />
-                  Pokémon Cries
-                </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {cries.latest && (
-                    <div className="bg-gray-600 rounded p-4">
-                      <p className="mb-2">Latest Cry</p>
-                      <audio controls src={cries.latest} className="w-full">
-                        Your browser does not support audio.
-                      </audio>
-                    </div>
-                  )}
-                  {cries.legacy && (
-                    <div className="bg-gray-600 rounded p-4">
-                      <p className="mb-2">Classic Cry</p>
-                      <audio controls src={cries.legacy} className="w-full">
-                        Your browser does not support audio.
-                      </audio>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
+    <div className="max-w-5xl mx-auto p-4">
+      {/* Header: Artwork and Basic Info */}
+      <div className="flex flex-col md:flex-row items-center border-b pb-4 mb-4">
+        <div className="md:w-1/3 flex justify-center">
+          {officialArtwork && (
+            <Image
+              src={officialArtwork}
+              alt={`${name} artwork`}
+              width={300}
+              height={300}
+              className="object-contain"
+            />
+          )}
+        </div>
+        <div className="md:w-2/3 md:pl-8">
+          <h1 className="text-4xl font-bold capitalize">
+            {name} <span className="text-gray-500">#{id}</span>
+          </h1>
+          {englishGenus && <p className="italic text-gray-600">{englishGenus}</p>}
+          <p className="mt-2">
+            <span className="font-semibold">Type:</span> {types.map(t => t.type.name).join(' / ')}
+          </p>
+          <p>
+            <span className="font-semibold">Height:</span> {heightMeters} m
+          </p>
+          <p>
+            <span className="font-semibold">Weight:</span> {weightKg} kg
+          </p>
+          <p>
+            <span className="font-semibold">Abilities:</span>{" "}
+            {abilities.map(a => a.ability.name + (a.is_hidden ? " (Hidden)" : "")).join(', ')}
+          </p>
         </div>
       </div>
+
+      {/* Training and Breeding Information */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        {/* Training */}
+        <div className="border p-4 rounded">
+          <h2 className="text-2xl font-semibold mb-2">Training</h2>
+          <p>
+            <span className="font-semibold">Base Exp:</span> {base_experience}
+          </p>
+          <p>
+            <span className="font-semibold">Catch Rate:</span> {catch_rate} (≈ {(catch_rate / 255 * 100).toFixed(1)}%)
+          </p>
+          <p>
+            <span className="font-semibold">Base Friendship:</span> {base_happiness}
+          </p>
+          <p>
+            <span className="font-semibold">Growth Rate:</span> {growth_rate.name}
+          </p>
+          <p>
+            <span className="font-semibold">Total EV Yield:</span> {totalEVYield}
+          </p>
+        </div>
+        {/* Breeding */}
+        <div className="border p-4 rounded">
+          <h2 className="text-2xl font-semibold mb-2">Breeding</h2>
+          <p>
+            <span className="font-semibold">Egg Groups:</span>{" "}
+            {egg_groups.map(group => group.name).join(', ')}
+          </p>
+          <p>
+            <span className="font-semibold">Gender:</span> {genderInfo}
+          </p>
+          <p>
+            <span className="font-semibold">Egg Cycles:</span> {hatch_counter} (hatch counter)
+          </p>
+        </div>
+      </div>
+
+      {/* Base Stats */}
+      <div className="mb-4">
+        <h2 className="text-2xl font-semibold mb-2">Base Stats</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          {stats.map(stat => (
+            <div key={stat.stat.name} className="flex justify-between bg-gray-100 p-2 rounded">
+              <span className="capitalize">{stat.stat.name}</span>
+              <span>{stat.base_stat} (EV: {stat.effort})</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Pokédex Entry */}
+      {englishEntry && (
+        <div className="mb-4 border p-4 rounded bg-gray-50">
+          <h2 className="text-2xl font-semibold mb-2">Pokédex Entry</h2>
+          <p>{englishEntry}</p>
+        </div>
+      )}
+
+      {/* Sample Level-Up Moves */}
+      <div className="mb-4">
+        <h2 className="text-2xl font-semibold mb-2">Level-Up Moves (Sample)</h2>
+        <ul className="list-disc ml-5">
+          {levelUpMoves.map(move => {
+            const detail = move.version_group_details.find(
+              d => d.move_learn_method.name === 'level-up' && d.level_learned_at > 0
+            );
+            return (
+              <li key={move.move.name} className="capitalize">
+                Lv. {detail ? detail.level_learned_at : '?'} – {move.move.name}
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+
+      {/* Cries */}
+      {cries && (cries.latest || cries.legacy) && (
+        <div className="mb-4">
+          <h2 className="text-2xl font-semibold mb-2">Cry</h2>
+          {cries.latest && (
+            <div>
+              <p>Latest Cry:</p>
+              <audio controls src={cries.latest}>
+                Your browser does not support audio.
+              </audio>
+            </div>
+          )}
+          {cries.legacy && (
+            <div>
+              <p>Legacy Cry:</p>
+              <audio controls src={cries.legacy}>
+                Your browser does not support audio.
+              </audio>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Sprites Gallery */}
+      <div className="mb-4">
+        <h2 className="text-2xl font-semibold mb-2">Sprites</h2>
+        <div className="flex flex-wrap gap-4">
+          {sprites.front_default && (
+            <div className="flex flex-col items-center">
+              <img src={sprites.front_default} alt={`${name} front`} className="w-20 h-20 object-contain" />
+              <p className="text-sm">Front</p>
+            </div>
+          )}
+          {sprites.back_default && (
+            <div className="flex flex-col items-center">
+              <img src={sprites.back_default} alt={`${name} back`} className="w-20 h-20 object-contain" />
+              <p className="text-sm">Back</p>
+            </div>
+          )}
+          {sprites.front_shiny && (
+            <div className="flex flex-col items-center">
+              <img src={sprites.front_shiny} alt={`${name} front shiny`} className="w-20 h-20 object-contain" />
+              <p className="text-sm">Front Shiny</p>
+            </div>
+          )}
+          {sprites.back_shiny && (
+            <div className="flex flex-col items-center">
+              <img src={sprites.back_shiny} alt={`${name} back shiny`} className="w-20 h-20 object-contain" />
+              <p className="text-sm">Back Shiny</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <Link href="/">
+        <a className="text-blue-500 hover:underline">← Back to National Pokédex</a>
+      </Link>
     </div>
   );
 }
 
 export async function getStaticPaths() {
+  // Pre-render only Pokémon from generation 1 (first 151) for now.
   const res = await fetch('https://pokeapi.co/api/v2/pokemon?limit=151');
   const data = await res.json();
   const paths = data.results.map(p => ({
@@ -306,30 +249,19 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps({ params }) {
-  try {
-    const [resPokemon, resSpecies] = await Promise.all([
-      fetch(`https://pokeapi.co/api/v2/pokemon/${params.name}`),
-      fetch(`https://pokeapi.co/api/v2/pokemon-species/${params.name}`)
-    ]);
-
-    if (!resPokemon.ok || !resSpecies.ok) {
-      return { notFound: true };
-    }
-
-    const [pokemon, species] = await Promise.all([
-      resPokemon.json(), resSpecies.json()
-    ]);
-
-    return {
-      props: {
-        pokemon,
-        species,
-      },
-      // Revalidate once per hour
-      revalidate: 3600,
-    };
-  } catch (error) {
-    console.error('Error fetching Pokemon data:', error);
+  // Fetch /pokemon data
+  const resPokemon = await fetch(`https://pokeapi.co/api/v2/pokemon/${params.name}`);
+  if (!resPokemon.ok) {
     return { notFound: true };
   }
+  const pokemon = await resPokemon.json();
+  
+  // Fetch /pokemon-species data for additional details
+  const resSpecies = await fetch(pokemon.species.url);
+  const species = await resSpecies.json();
+
+  return {
+    props: { pokemon, species },
+    revalidate: 60,
+  };
 }
