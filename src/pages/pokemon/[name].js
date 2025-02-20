@@ -3,8 +3,85 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 
+// Add the SpriteToggleGroup component at the top
+const SpriteToggleGroup = ({ isAnimated, isShiny, onAnimatedChange, onShinyChange, hasAnimated, hasShiny }) => (
+  <div className="flex flex-col gap-2">
+    {/* Main sprite type toggles */}
+    <div className="inline-flex rounded-md shadow-sm" role="group">
+      <button
+        onClick={() => onShinyChange(false)}
+        className={`px-4 py-2 text-sm font-medium rounded-l-lg border border-gray-600 
+          ${!isShiny 
+            ? 'bg-gray-700 text-white'
+            : 'bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white'
+          }
+          focus:z-10 focus:ring-2 focus:ring-gray-500`}
+      >
+        Regular
+      </button>
+      {hasShiny && (
+        <button
+          onClick={() => onShinyChange(true)}
+          className={`px-4 py-2 text-sm font-medium rounded-r-lg border border-gray-600 
+            ${isShiny 
+              ? 'bg-yellow-500 text-black'
+              : 'bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white'
+            }
+            focus:z-10 focus:ring-2 focus:ring-yellow-500`}
+        >
+          <span className="flex items-center gap-1">
+            Shiny
+            <svg 
+              viewBox="0 0 24 24" 
+              className="w-4 h-4"
+              fill="currentColor"
+            >
+              <path d="M12 3L14.39 8.25L20 9.24L16 13.47L17.15 19L12 16.42L6.85 19L8 13.47L4 9.24L9.61 8.25L12 3Z" />
+            </svg>
+          </span>
+        </button>
+      )}
+    </div>
+
+    {/* Animation toggle */}
+    {hasAnimated && (
+      <div className="inline-flex rounded-md shadow-sm" role="group">
+        <button
+          onClick={() => onAnimatedChange(false)}
+          className={`px-4 py-2 text-sm font-medium rounded-l-lg border border-gray-600 
+            ${!isAnimated 
+              ? 'bg-gray-700 text-white'
+              : 'bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white'
+            }
+            focus:z-10 focus:ring-2 focus:ring-gray-500`}
+        >
+          Static
+        </button>
+        <button
+          onClick={() => onAnimatedChange(true)}
+          className={`px-4 py-2 text-sm font-medium rounded-r-lg border border-gray-600 
+            ${isAnimated 
+              ? 'bg-blue-500 text-white'
+              : 'bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white'
+            }
+            focus:z-10 focus:ring-2 focus:ring-blue-500`}
+        >
+          <span className="flex items-center gap-1">
+            Animated
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </span>
+        </button>
+      </div>
+    )}
+  </div>
+);
+
 export default function PokemonDetail({ pokemon, species }) {
   const [isShiny, setIsShiny] = useState(false);
+  const [isAnimated, setIsAnimated] = useState(false);
 
   const {
     id,
@@ -31,9 +108,20 @@ export default function PokemonDetail({ pokemon, species }) {
     genera,
   } = species;
 
-  const regularArtwork = sprites.other?.['official-artwork']?.front_default || sprites.front_default;
-  const shinyArtwork = sprites.other?.['official-artwork']?.front_shiny || sprites.front_shiny;
-  const displayArtwork = (isShiny && shinyArtwork) ? shinyArtwork : regularArtwork;
+  // Get all sprite variations
+  const regularStatic = sprites.other?.['official-artwork']?.front_default || sprites.front_default;
+  const shinyStatic = sprites.other?.['official-artwork']?.front_shiny || sprites.front_shiny;
+  const regularAnimated = sprites.versions?.['generation-v']?.['black-white']?.animated?.front_default;
+  const shinyAnimated = sprites.versions?.['generation-v']?.['black-white']?.animated?.front_shiny;
+
+  // Determine which sprite to display
+  const displaySprite = isAnimated 
+    ? (isShiny ? shinyAnimated : regularAnimated) 
+    : (isShiny ? shinyStatic : regularStatic);
+
+  // Check if this Pokémon has animated/shiny sprites
+  const hasAnimatedSprites = Boolean(regularAnimated);
+  const hasShinySprites = Boolean(shinyStatic || shinyAnimated);
 
   const heightMeters = (height / 10).toFixed(1);
   const weightKg = (weight / 10).toFixed(1);
@@ -100,52 +188,22 @@ export default function PokemonDetail({ pokemon, species }) {
         <div className="bg-gray-800 rounded-lg p-6 mb-6 flex flex-col md:flex-row items-center">
           <div className="md:w-1/3 flex flex-col items-center mb-6 md:mb-0">
             <div className="relative w-64 h-64 mb-4">
-              {displayArtwork && (
-                <Image
-                  src={displayArtwork}
-                  alt={`${name} ${isShiny ? 'shiny' : ''} artwork`}
-                  layout="fill"
-                  objectFit="contain"
-                  className="drop-shadow-lg"
-                />
-              )}
+              <Image
+                src={displaySprite}
+                alt={`${name} ${isShiny ? 'shiny' : ''} ${isAnimated ? 'animated' : ''} artwork`}
+                layout="fill"
+                objectFit="contain"
+                className="drop-shadow-lg"
+              />
             </div>
-            {/* Replace the single toggle button with side by side buttons */}
-            {shinyArtwork && (
-              <div className="inline-flex rounded-md shadow-sm" role="group">
-                <button
-                  onClick={() => setIsShiny(false)}
-                  className={`px-4 py-2 text-sm font-medium rounded-l-lg border border-gray-600 
-                    ${!isShiny 
-                      ? 'bg-gray-700 text-white'
-                      : 'bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white'
-                    }
-                    focus:z-10 focus:ring-2 focus:ring-gray-500`}
-                  >
-                    Regular
-                  </button>
-                <button
-                  onClick={() => setIsShiny(true)}
-                  className={`px-4 py-2 text-sm font-medium rounded-r-lg border border-gray-600 
-                    ${isShiny 
-                      ? 'bg-yellow-500 text-black'
-                      : 'bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white'
-                    }
-                    focus:z-10 focus:ring-2 focus:ring-yellow-500`}
-                  >
-                    <span className="flex items-center gap-1">
-                      Shiny
-                      <svg 
-                        viewBox="0 0 24 24" 
-                        className="w-4 h-4"
-                        fill="currentColor"
-                      >
-                        <path d="M12 3L14.39 8.25L20 9.24L16 13.47L17.15 19L12 16.42L6.85 19L8 13.47L4 9.24L9.61 8.25L12 3Z" />
-                      </svg>
-                    </span>
-                  </button>
-                </div>
-              )}
+            <SpriteToggleGroup
+              isAnimated={isAnimated}
+              isShiny={isShiny}
+              onAnimatedChange={setIsAnimated}
+              onShinyChange={setIsShiny}
+              hasAnimated={hasAnimatedSprites}
+              hasShiny={hasShinySprites}
+            />
           </div>
           <div className="md:w-2/3 md:pl-8">
             <div className="flex items-center mb-2">
@@ -348,56 +406,71 @@ export default function PokemonDetail({ pokemon, species }) {
           </div>
         </div>
 
-        {/* Sprites Gallery */}
+        {/* Updated Sprites section */}
         <div className="bg-gray-800 rounded-lg p-6">
           <h2 className="text-2xl font-bold mb-4 text-red-400">Sprites</h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
-            {sprites.front_default && (
-              <div className="flex flex-col items-center">
-                <div className="bg-gray-700 p-4 rounded-lg">
-                  <img
-                    src={sprites.front_default}
-                    alt={`${name} front`}
-                    className="w-20 h-20 object-contain"
-                  />
-                </div>
-                <p className="mt-2 text-gray-400">Front</p>
+            {/* Static Sprites */}
+            <div className="space-y-6">
+              <h3 className="text-xl font-semibold text-gray-400">Static</h3>
+              <div className="grid grid-cols-2 gap-4">
+                {sprites.front_default && (
+                  <div className="flex flex-col items-center">
+                    <div className="bg-gray-700 p-4 rounded-lg">
+                      <img
+                        src={sprites.front_default}
+                        alt={`${name} front`}
+                        className="w-20 h-20 object-contain"
+                      />
+                    </div>
+                    <p className="mt-2 text-gray-400">Front</p>
+                  </div>
+                )}
+                {sprites.front_shiny && (
+                  <div className="flex flex-col items-center">
+                    <div className="bg-gray-700 p-4 rounded-lg">
+                      <img
+                        src={sprites.front_shiny}
+                        alt={`${name} front shiny`}
+                        className="w-20 h-20 object-contain"
+                      />
+                    </div>
+                    <p className="mt-2 text-gray-400">Shiny</p>
+                  </div>
+                )}
               </div>
-            )}
-            {sprites.back_default && (
-              <div className="flex flex-col items-center">
-                <div className="bg-gray-700 p-4 rounded-lg">
-                  <img
-                    src={sprites.back_default}
-                    alt={`${name} back`}
-                    className="w-20 h-20 object-contain"
-                  />
+            </div>
+
+            {/* Animated Sprites */}
+            {hasAnimatedSprites && (
+              <div className="space-y-6">
+                <h3 className="text-xl font-semibold text-gray-400">Animated</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  {regularAnimated && (
+                    <div className="flex flex-col items-center">
+                      <div className="bg-gray-700 p-4 rounded-lg">
+                        <img
+                          src={regularAnimated}
+                          alt={`${name} animated`}
+                          className="w-20 h-20 object-contain"
+                        />
+                      </div>
+                      <p className="mt-2 text-gray-400">Regular</p>
+                    </div>
+                  )}
+                  {shinyAnimated && (
+                    <div className="flex flex-col items-center">
+                      <div className="bg-gray-700 p-4 rounded-lg">
+                        <img
+                          src={shinyAnimated}
+                          alt={`${name} animated shiny`}
+                          className="w-20 h-20 object-contain"
+                        />
+                      </div>
+                      <p className="mt-2 text-gray-400">Shiny</p>
+                    </div>
+                  )}
                 </div>
-                <p className="mt-2 text-gray-400">Back</p>
-              </div>
-            )}
-            {sprites.front_shiny && (
-              <div className="flex flex-col items-center">
-                <div className="bg-gray-700 p-4 rounded-lg">
-                  <img
-                    src={sprites.front_shiny}
-                    alt={`${name} front shiny`}
-                    className="w-20 h-20 object-contain"
-                  />
-                </div>
-                <p className="mt-2 text-gray-400">Shiny Front</p>
-              </div>
-            )}
-            {sprites.back_shiny && (
-              <div className="flex flex-col items-center">
-                <div className="bg-gray-700 p-4 rounded-lg">
-                  <img
-                    src={sprites.back_shiny}
-                    alt={`${name} back shiny`}
-                    className="w-20 h-20 object-contain"
-                  />
-                </div>
-                <p className="mt-2 text-gray-400">Back Shiny</p>
               </div>
             )}
           </div>
