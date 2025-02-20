@@ -2,6 +2,18 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
+import { 
+  BeakerIcon, 
+  HeartIcon, 
+  SparklesIcon,
+  ScaleIcon,
+  ChartBarIcon,
+  StarIcon,
+  ClockIcon,
+  UserGroupIcon,
+  GenderIcon,
+  EggIcon
+} from '@heroicons/react/24/outline';
 
 // Add the SpriteToggleGroup component at the top
 const SpriteToggleGroup = ({ isAnimated, isShiny, onAnimatedChange, onShinyChange, hasAnimated, hasShiny }) => (
@@ -468,25 +480,34 @@ export default function PokemonDetail({ pokemon, species, alternativeForms }) {
           <div className="bg-gray-800 rounded-lg p-6">
             <h2 className="text-2xl font-bold mb-4 text-red-400">Training</h2>
             <div className="space-y-3">
-              <div>
+              <div className="flex items-center gap-2">
+                <SparklesIcon className="w-5 h-5 text-yellow-400" />
                 <p className="text-gray-400">Base Experience</p>
                 <p className="text-xl">{base_experience}</p>
               </div>
-              <div>
+              <div className="flex items-center gap-2">
+                <img 
+                  src="/img/pokeball.png" 
+                  alt="Catch Rate" 
+                  className="w-5 h-5"
+                />
                 <p className="text-gray-400">Catch Rate</p>
                 <p className="text-xl">
                   {catch_rate} ({catchRatePercentage}% with a Poké Ball at full HP)
                 </p>
               </div>
-              <div>
+              <div className="flex items-center gap-2">
+                <HeartIcon className="w-5 h-5 text-red-400" />
                 <p className="text-gray-400">Base Friendship</p>
                 <p className="text-xl">{base_happiness}</p>
               </div>
-              <div>
+              <div className="flex items-center gap-2">
+                <ChartBarIcon className="w-5 h-5 text-blue-400" />
                 <p className="text-gray-400">Growth Rate</p>
                 <p className="text-xl capitalize">{growth_rate.name.replace('-', ' ')}</p>
               </div>
-              <div>
+              <div className="flex items-center gap-2">
+                <StarIcon className="w-5 h-5 text-purple-400" />
                 <p className="text-gray-400">EV Yield</p>
                 <p className="text-xl">{totalEVYield}</p>
               </div>
@@ -497,19 +518,22 @@ export default function PokemonDetail({ pokemon, species, alternativeForms }) {
           <div className="bg-gray-800 rounded-lg p-6">
             <h2 className="text-2xl font-bold mb-4 text-red-400">Breeding</h2>
             <div className="space-y-3">
-              <div>
+              <div className="flex items-center gap-2">
+                <UserGroupIcon className="w-5 h-5 text-green-400" />
                 <p className="text-gray-400">Egg Groups</p>
                 <p className="text-xl capitalize">
                   {egg_groups.map(group => group.name).join(', ')}
                 </p>
               </div>
-              <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xl">⚥</span>
                 <p className="text-gray-400">Gender Distribution</p>
                 <p className="text-xl">{genderInfo}</p>
               </div>
-              <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xl">🥚</span>
                 <p className="text-gray-400">Egg Cycles</p>
-                <p className="text-xl">{hatch_counter}</p>
+                <p className="text-xl">{hatch_counter} ({hatch_counter * 257} steps)</p>
               </div>
             </div>
           </div>
@@ -517,14 +541,26 @@ export default function PokemonDetail({ pokemon, species, alternativeForms }) {
 
         {/* Base Stats */}
         <div className="bg-gray-800 rounded-lg p-6 mb-6">
-          <h2 className="text-2xl font-bold mb-4 text-red-400">Base Stats</h2>
+          <div className="flex items-center gap-2 mb-4">
+            <ScaleIcon className="w-6 h-6 text-red-400" />
+            <h2 className="text-2xl font-bold text-red-400">Base Stats</h2>
+          </div>
           <div className="grid gap-4">
             {stats.map(stat => {
               const percentage = (stat.base_stat / 255) * 100;
+              const statIcons = {
+                hp: "❤️",
+                attack: "⚔️",
+                defense: "🛡️",
+                "special-attack": "✨",
+                "special-defense": "🔮",
+                speed: "⚡"
+              };
               return (
                 <div key={stat.stat.name}>
                   <div className="flex justify-between mb-1">
-                    <span className="capitalize text-gray-400">
+                    <span className="capitalize text-gray-400 flex items-center gap-2">
+                      {statIcons[stat.stat.name]}
                       {formatStatName(stat.stat.name)}
                     </span>
                     <span>{stat.base_stat}</span>
@@ -543,9 +579,12 @@ export default function PokemonDetail({ pokemon, species, alternativeForms }) {
 
         {/* Level-Up Moves */}
         <div className="bg-gray-800 rounded-lg p-6 mb-6">
-          <h2 className="text-2xl font-bold mb-4 text-red-400">
-            Level-Up Moves (First 10)
-          </h2>
+          <div className="flex items-center gap-2 mb-4">
+            <span className="text-2xl">⚡</span>
+            <h2 className="text-2xl font-bold text-red-400">
+              Level-Up Moves
+            </h2>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {levelUpMoves.map(move => (
               <div
