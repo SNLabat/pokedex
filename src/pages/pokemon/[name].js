@@ -143,6 +143,10 @@ const PokemonCry = ({ src, label }) => {
 export default function PokemonDetail({ pokemon, species }) {
   const [isShiny, setIsShiny] = useState(false);
   const [isAnimated, setIsAnimated] = useState(false);
+  const [caughtStatus, setCaughtStatus] = useState({
+    regular: false,
+    shiny: false
+  });
 
   const {
     id,
@@ -259,6 +263,74 @@ export default function PokemonDetail({ pokemon, species }) {
     dark: 'bg-gray-700',
     steel: 'bg-gray-500',
     fairy: 'bg-pink-300'
+  };
+
+  // Load caught status from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('caughtPokemon');
+    if (saved) {
+      const savedData = JSON.parse(saved);
+      if (savedData[id]) {
+        setCaughtStatus(savedData[id]);
+      }
+    }
+  }, [id]);
+
+  // Save to localStorage whenever status changes
+  const updateCaughtStatus = (type) => {
+    const newStatus = {
+      ...caughtStatus,
+      [type]: !caughtStatus[type]
+    };
+    setCaughtStatus(newStatus);
+
+    const saved = localStorage.getItem('caughtPokemon');
+    const savedData = saved ? JSON.parse(saved) : {};
+    savedData[id] = newStatus;
+    localStorage.setItem('caughtPokemon', JSON.stringify(savedData));
+  };
+
+  // Export function that includes all Pokemon data
+  const exportToCSV = () => {
+    const saved = localStorage.getItem('caughtPokemon');
+    const caughtData = saved ? JSON.parse(saved) : {};
+
+    const headers = [
+      'Pokedex Number',
+      'Name',
+      'Regular Caught',
+      'Shiny Caught',
+      'Types',
+      'Height',
+      'Weight',
+      'Base Stats (HP/Atk/Def/SpA/SpD/Spd)',
+      'Abilities'
+    ];
+
+    const row = [
+      id.toString().padStart(3, '0'),
+      name,
+      caughtData[id]?.regular ? 'Yes' : 'No',
+      caughtData[id]?.shiny ? 'Yes' : 'No',
+      types.map(t => t.type.name).join('/'),
+      heightMeters,
+      weightKg,
+      stats.map(s => s.base_stat).join('/'),
+      abilities.map(a => a.ability.name).join(', ')
+    ];
+
+    const csvContent = [
+      headers.join(','),
+      row.join(',')
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `pokemon_${id}_${name}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -621,6 +693,48 @@ export default function PokemonDetail({ pokemon, species }) {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Catch Status */}
+        <div className="bg-gray-800 rounded-lg p-6">
+          <h2 className="text-2xl font-bold mb-4 text-red-400">Catch Status</h2>
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => updateCaughtStatus('regular')}
+                className={`px-6 py-3 rounded-lg flex items-center gap-2 ${
+                  caughtStatus.regular 
+                    ? 'bg-green-500 hover:bg-green-600' 
+                    : 'bg-gray-700 hover:bg-gray-600'
+                }`}
+              >
+                <span>{caughtStatus.regular ? '✓' : '○'}</span>
+                Regular Form
+              </button>
+              <button
+                onClick={() => updateCaughtStatus('shiny')}
+                className={`px-6 py-3 rounded-lg flex items-center gap-2 ${
+                  caughtStatus.shiny 
+                    ? 'bg-yellow-500 hover:bg-yellow-600' 
+                    : 'bg-gray-700 hover:bg-gray-600'
+                }`}
+              >
+                <span>{caughtStatus.shiny ? '✓' : '○'}</span>
+                Shiny Form
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Export Data */}
+        <div className="bg-gray-800 rounded-lg p-6">
+          <h2 className="text-2xl font-bold mb-4 text-red-400">Export Data</h2>
+          <button
+            onClick={exportToCSV}
+            className="bg-white text-red-600 px-4 py-2 rounded hover:bg-gray-100 transition-colors"
+          >
+            Export Data
+          </button>
         </div>
       </div>
     </div>
