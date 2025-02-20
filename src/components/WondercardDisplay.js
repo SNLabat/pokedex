@@ -20,7 +20,7 @@ export default function WondercardDisplay({ wcData }) {
             <h3 className="text-xl font-semibold text-gray-400">Pokémon Details</h3>
             <p><span className="text-gray-400">Pokémon:</span> {wcData.pokemonName}</p>
             <p><span className="text-gray-400">Form:</span> {wcData.formName}</p>
-            <p><span className="text-gray-400">Nickname:</span> {wcData.nickname}</p>
+            <p><span className="text-gray-400">Nickname:</span> {wcData.nickname || 'None'}</p>
             <p><span className="text-gray-400">Nature:</span> {wcData.nature}</p>
             <p><span className="text-gray-400">Ability:</span> {wcData.abilityType}</p>
             <p><span className="text-gray-400">IVs:</span> {wcData.ivType}</p>
@@ -57,7 +57,7 @@ export default function WondercardDisplay({ wcData }) {
         </div>
       </div>
 
-      {/* Debug Section - Full JSON Output */}
+      {/* Debug Section */}
       <div className="mt-8 pt-8 border-t border-gray-700">
         <h3 className="text-xl font-semibold text-gray-400 mb-4">Full Output</h3>
         <pre className="bg-gray-900 p-4 rounded-lg overflow-x-auto text-sm text-gray-300">

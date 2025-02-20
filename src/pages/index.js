@@ -44,6 +44,10 @@ export default function Home({ generations }) {
       const buffer = await file.arrayBuffer();
       const wcBuffer = new Uint8Array(buffer);
       const parsedData = parseWCBuffer(wcBuffer);
+      
+      // Add fileName to parsed data
+      parsedData.fileName = file.name;
+      
       setWCData(parsedData);
       setWCError({ message: '', details: null });
     } catch (error) {
@@ -130,7 +134,15 @@ export default function Home({ generations }) {
 
         {/* Render either Wondercard or Pokemon List */}
         {wcData ? (
-          <WondercardDisplay wcData={wcData} />
+          <div className="mb-8">
+            <button 
+              onClick={() => setWCData(null)}
+              className="mb-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors"
+            >
+              ← Back to Pokédex
+            </button>
+            <WondercardDisplay wcData={wcData} />
+          </div>
         ) : (
           <>
             {loading && (
