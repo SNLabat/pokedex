@@ -86,7 +86,7 @@ export default function Home({ generations }) {
                 <input
                   type="file"
                   onChange={handleWondercardUpload}
-                  accept=".wc*,.pgt,.pcd"
+                  accept=".wc6,.wc7,.wc6full,.wc7full,.pgf,.pgt,.pcd,.wc4,.wc5,.bin,.wcx"
                   className="block w-full text-sm text-gray-400
                     file:mr-4 file:py-2 file:px-4
                     file:rounded-full file:border-0
