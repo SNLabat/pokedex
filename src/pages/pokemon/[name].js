@@ -1,7 +1,7 @@
 // pages/pokemon/[name].js
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 // Add the SpriteToggleGroup component at the top
 const SpriteToggleGroup = ({ isAnimated, isShiny, onAnimatedChange, onShinyChange, hasAnimated, hasShiny }) => (
@@ -92,28 +92,49 @@ const formatStatName = (statName) => {
   return properCase(statName);
 };
 
-// Add enhanced PokemonCry component with multiple formats
+// Add enhanced PokemonCry component with iOS detection
 const PokemonCry = ({ src, label }) => {
-  const [error, setError] = useState(false);
+  const [isIOS, setIsIOS] = useState(false);
 
-  // If no source or already errored, don't render
-  if (!src || error) return null;
+  useEffect(() => {
+    // Detect iOS
+    const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    setIsIOS(iOS);
+  }, []);
+
+  if (!src) return null;
+
+  if (isIOS) {
+    return (
+      <div className="bg-gray-700 p-4 rounded-lg">
+        <p className="text-gray-400 mb-2">{label}</p>
+        <a 
+          href={src}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-center"
+        >
+          Listen to Cry
+        </a>
+        <p className="text-xs text-gray-400 mt-2">
+          Note: On iOS devices, cries will open in a new tab
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-gray-700 p-4 rounded-lg">
       <p className="text-gray-400 mb-2">{label}</p>
       <audio
-        className="w-full"
-        onError={() => setError(true)}
         controls
+        className="w-full"
         preload="none"
       >
-        {/* Try multiple audio formats */}
         <source src={src} type="audio/mpeg" />
-        <source src={src} type="audio/wav" />
         <source src={src} type="audio/ogg" />
-        <source src={src} type="audio/aac" />
-        Download cry: <a href={src} className="text-blue-400 hover:text-blue-300">Download</a>
+        Your browser does not support audio playback.
       </audio>
     </div>
   );
