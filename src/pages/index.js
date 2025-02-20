@@ -36,7 +36,16 @@ export default function Home({ generations }) {
     <div className="min-h-screen bg-gray-900 text-white">
       {/* Top Red Bar */}
       <div className="bg-red-600 h-16 flex items-center justify-center shadow-lg">
-        <h1 className="text-4xl font-bold">National Pokédex</h1>
+        <div className="container mx-auto px-4 flex justify-between items-center">
+          <h1 className="text-4xl font-bold">National Pokédex</h1>
+          <nav>
+            <Link href="/wondercard">
+              <a className="text-white hover:text-gray-200 transition-colors">
+                Wondercard Viewer
+              </a>
+            </Link>
+          </nav>
+        </div>
       </div>
 
       {/* Main Content */}
