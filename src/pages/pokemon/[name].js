@@ -110,26 +110,42 @@ export default function PokemonDetail({ pokemon, species }) {
                 />
               )}
             </div>
-            {/* Add Shiny Toggle Button */}
+            {/* Replace the single toggle button with side by side buttons */}
             {shinyArtwork && (
-              <button
-                onClick={() => setIsShiny(!isShiny)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-full transition-colors ${
-                  isShiny 
-                    ? 'bg-yellow-500 text-black hover:bg-yellow-400' 
-                    : 'bg-gray-700 hover:bg-gray-600'
-                }`}
-              >
-                <svg 
-                  viewBox="0 0 24 24" 
-                  className="w-5 h-5"
-                  fill="currentColor"
-                >
-                  <path d="M12 3L14.39 8.25L20 9.24L16 13.47L17.15 19L12 16.42L6.85 19L8 13.47L4 9.24L9.61 8.25L12 3Z" />
-                </svg>
-                {isShiny ? 'Shiny' : 'Regular'}
-              </button>
-            )}
+              <div className="inline-flex rounded-md shadow-sm" role="group">
+                <button
+                  onClick={() => setIsShiny(false)}
+                  className={`px-4 py-2 text-sm font-medium rounded-l-lg border border-gray-600 
+                    ${!isShiny 
+                      ? 'bg-gray-700 text-white'
+                      : 'bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white'
+                    }
+                    focus:z-10 focus:ring-2 focus:ring-gray-500`}
+                  >
+                    Regular
+                  </button>
+                <button
+                  onClick={() => setIsShiny(true)}
+                  className={`px-4 py-2 text-sm font-medium rounded-r-lg border border-gray-600 
+                    ${isShiny 
+                      ? 'bg-yellow-500 text-black'
+                      : 'bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white'
+                    }
+                    focus:z-10 focus:ring-2 focus:ring-yellow-500`}
+                  >
+                    <span className="flex items-center gap-1">
+                      Shiny
+                      <svg 
+                        viewBox="0 0 24 24" 
+                        className="w-4 h-4"
+                        fill="currentColor"
+                      >
+                        <path d="M12 3L14.39 8.25L20 9.24L16 13.47L17.15 19L12 16.42L6.85 19L8 13.47L4 9.24L9.61 8.25L12 3Z" />
+                      </svg>
+                    </span>
+                  </button>
+                </div>
+              )}
           </div>
           <div className="md:w-2/3 md:pl-8">
             <div className="flex items-center mb-2">
