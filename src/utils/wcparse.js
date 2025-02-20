@@ -74,26 +74,27 @@ function parseWC6(buf) {
       wcId,
       wcTitle: readUTF16String(buf, 0x2, 36),
       cardText: readUTF16String(buf, 0x4, 0x200),
-      pokemonName: getPokemonName(buf.readUInt16LE(0x82)), // You'll need a Pokemon name lookup
-      move1Name: getMoveNameById(buf.readUInt16LE(0x86)), // You'll need a move name lookup
+      pokemonName: getPokemonName(buf.readUInt16LE(0x82)),
+      move1Name: getMoveNameById(buf.readUInt16LE(0x86)),
       move2Name: getMoveNameById(buf.readUInt16LE(0x88)),
       move3Name: getMoveNameById(buf.readUInt16LE(0x8A)),
       move4Name: getMoveNameById(buf.readUInt16LE(0x8C)),
-      ot: readUTF16String(buf, /* offset for OT */, 16),
-      idNo: buf.readUInt16LE(/* offset for TID */).toString().padStart(5, '0'),
+      ot: readUTF16String(buf, 0xB0, 16), // Correct offset for OT
+      idNo: buf.readUInt16LE(0xA0).toString().padStart(5, '0'), // Correct offset for TID
       gender: getGenderString(buf.readUInt8(0x90)),
       Level: buf.readUInt8(0x85),
-      ball: "Cherish Ball", // Usually fixed for event Pokemon
+      ball: "Cherish Ball",
       heldItem: getItemNameById(buf.readUInt16LE(0x92)),
-      Ribbon: "Classic Ribbon", // Usually fixed for event Pokemon
-      language: "Yours", // This might need different logic
+      Ribbon: "Classic Ribbon",
+      language: "Yours",
       nature: getNatureString(buf.readUInt8(0x8F)),
       abilityType: getAbilityTypeString(buf.readUInt8(0x8E)),
-      formName: "None", // This needs proper form lookup
+      formName: "None",
       canBeShiny: getShinyString(buf.readUInt8(0x91)),
-      giftRedeemable: "Only once", // This might need different logic
-      metLocation: "a lovely place", // This might need location lookup
-      ivType: getIVString(buf.readUInt8(/* IV type offset */)),
+      giftRedeemable: "Only once",
+      metLocation: "a lovely place",
+      ivType: getIVString(buf.readUInt8(0xA2)), // Correct offset for IV type
+      dexNo: buf.readUInt16LE(0x82)
     };
 
     return data;
@@ -148,35 +149,80 @@ function parseDate(buf, offset) {
   }
 }
 
-// You'll need to implement these helper functions:
+// Helper functions implementation
 function getPokemonName(dexNo) {
-  // Implement Pokemon name lookup
+  // Temporary implementation - you'll want to replace this with a proper lookup
+  return `Pokemon #${dexNo}`;
 }
 
 function getMoveNameById(moveId) {
-  // Implement move name lookup
+  // Temporary implementation - you'll want to replace this with a proper lookup
+  return `Move #${moveId}`;
 }
 
 function getItemNameById(itemId) {
-  // Implement item name lookup
+  if (itemId === 0) return "None";
+  return `Item #${itemId}`;
 }
 
 function getGenderString(value) {
-  // Convert gender value to string
+  switch (value) {
+    case 0: return "Male";
+    case 1: return "Female";
+    case 2: return "Genderless";
+    default: return "Unknown";
+  }
 }
 
 function getNatureString(value) {
-  // Convert nature value to string
+  if (value === 0xFF) return "Random";
+  const natures = [
+    "Hardy", "Lonely", "Brave", "Adamant", "Naughty",
+    "Bold", "Docile", "Relaxed", "Impish", "Lax",
+    "Timid", "Hasty", "Serious", "Jolly", "Naive",
+    "Modest", "Mild", "Quiet", "Bashful", "Rash",
+    "Calm", "Gentle", "Sassy", "Careful", "Quirky"
+  ];
+  return natures[value] || "Unknown";
 }
 
 function getAbilityTypeString(value) {
-  // Convert ability type value to string
+  switch (value) {
+    case 0: return "Fixed ability 1";
+    case 1: return "Fixed ability 2";
+    case 2: return "Random ability 1/2";
+    case 3: return "Hidden ability";
+    case 4: return "Random ability 1/2/H";
+    default: return "Unknown ability type";
+  }
 }
 
 function getShinyString(value) {
-  // Convert shiny value to string
+  switch (value) {
+    case 0: return "Never";
+    case 1: return "Random";
+    case 2: return "Always";
+    default: return "Unknown";
+  }
 }
 
 function getIVString(value) {
-  // Convert IV type value to string
-} 
+  switch (value) {
+    case 0: return "Random IVs";
+    case 1: return "All IVs 31";
+    case 2: return "3 random guaranteed IVs of 31";
+    case 3: return "4 random guaranteed IVs of 31";
+    case 4: return "5 random guaranteed IVs of 31";
+    default: return "Unknown IV spread";
+  }
+}
+
+// Export all functions
+export {
+  parseWCBuffer,
+  parseWC6,
+  parseWC6Full,
+  readUTF16String,
+  parseGameFlags,
+  parseDate
+}; 
