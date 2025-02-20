@@ -65,31 +65,40 @@ function parseWC6Full(buf) {
 
 function parseWC6(buf) {
   try {
-    console.log('Starting WC6 parse');
+    const fileName = "Unknown.wc6"; // You'll need to pass this from the file input
+    const wcId = buf.readUInt16LE(0x0);
+    
     const data = {
-      type: 'WC6',
-      cardID: buf.readUInt16LE(0x0),
-      pokemon: {
-        species: buf.readUInt16LE(0x82),
-        form: buf.readUInt8(0x84),
-        level: buf.readUInt8(0x85),
-        moves: [
-          buf.readUInt16LE(0x86),
-          buf.readUInt16LE(0x88),
-          buf.readUInt16LE(0x8A),
-          buf.readUInt16LE(0x8C)
-        ],
-        ability: buf.readUInt8(0x8E),
-        nature: buf.readUInt8(0x8F),
-        gender: buf.readUInt8(0x90),
-        shiny: buf.readUInt8(0x91) === 2,
-        heldItem: buf.readUInt16LE(0x92),
-      }
+      fileName,
+      wcType: "wc6",
+      wcId,
+      wcTitle: readUTF16String(buf, 0x2, 36),
+      cardText: readUTF16String(buf, 0x4, 0x200),
+      pokemonName: getPokemonName(buf.readUInt16LE(0x82)), // You'll need a Pokemon name lookup
+      move1Name: getMoveNameById(buf.readUInt16LE(0x86)), // You'll need a move name lookup
+      move2Name: getMoveNameById(buf.readUInt16LE(0x88)),
+      move3Name: getMoveNameById(buf.readUInt16LE(0x8A)),
+      move4Name: getMoveNameById(buf.readUInt16LE(0x8C)),
+      ot: readUTF16String(buf, /* offset for OT */, 16),
+      idNo: buf.readUInt16LE(/* offset for TID */).toString().padStart(5, '0'),
+      gender: getGenderString(buf.readUInt8(0x90)),
+      Level: buf.readUInt8(0x85),
+      ball: "Cherish Ball", // Usually fixed for event Pokemon
+      heldItem: getItemNameById(buf.readUInt16LE(0x92)),
+      Ribbon: "Classic Ribbon", // Usually fixed for event Pokemon
+      language: "Yours", // This might need different logic
+      nature: getNatureString(buf.readUInt8(0x8F)),
+      abilityType: getAbilityTypeString(buf.readUInt8(0x8E)),
+      formName: "None", // This needs proper form lookup
+      canBeShiny: getShinyString(buf.readUInt8(0x91)),
+      giftRedeemable: "Only once", // This might need different logic
+      metLocation: "a lovely place", // This might need location lookup
+      ivType: getIVString(buf.readUInt8(/* IV type offset */)),
     };
-    console.log('Parsed WC6 data:', data);
+
     return data;
   } catch (error) {
-    console.error('Error in parseWC6:', error);
+    console.error('Error parsing WC6:', error);
     throw error;
   }
 }
@@ -137,4 +146,37 @@ function parseDate(buf, offset) {
     console.error('Error in parseDate:', error);
     throw error;
   }
+}
+
+// You'll need to implement these helper functions:
+function getPokemonName(dexNo) {
+  // Implement Pokemon name lookup
+}
+
+function getMoveNameById(moveId) {
+  // Implement move name lookup
+}
+
+function getItemNameById(itemId) {
+  // Implement item name lookup
+}
+
+function getGenderString(value) {
+  // Convert gender value to string
+}
+
+function getNatureString(value) {
+  // Convert nature value to string
+}
+
+function getAbilityTypeString(value) {
+  // Convert ability type value to string
+}
+
+function getShinyString(value) {
+  // Convert shiny value to string
+}
+
+function getIVString(value) {
+  // Convert IV type value to string
 } 
