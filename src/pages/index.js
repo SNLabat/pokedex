@@ -91,50 +91,6 @@ export default function Home({ generations }) {
           </select>
         </div>
 
-        {/* Wondercard Upload Section - Now conditionally rendered */}
-        {showWCUpload && (
-          <div className="mb-8">
-            <div className="bg-gray-800 rounded-lg p-6">
-              <h2 className="text-2xl font-bold mb-4 text-red-400">Wondercard Upload (Beta)</h2>
-              <div className="flex flex-col items-center gap-4">
-                <label className="w-full max-w-xs">
-                  <input
-                    type="file"
-                    onChange={handleWondercardUpload}
-                    accept=".wc6,.wc7,.wc6full,.wc7full,.pgf,.pgt,.pcd,.wc4,.wc5,.bin,.wcx"
-                    className="block w-full text-sm text-gray-400
-                      file:mr-4 file:py-2 file:px-4
-                      file:rounded-full file:border-0
-                      file:text-sm file:font-semibold
-                      file:bg-red-600 file:text-white
-                      hover:file:bg-red-700
-                      cursor-pointer"
-                  />
-                </label>
-                {wcError.message && (
-                  <div className="w-full max-w-xl bg-red-900/50 border border-red-700 rounded-lg p-4">
-                    <p className="text-red-400 font-semibold mb-2">{wcError.message}</p>
-                    {wcError.details && (
-                      <div className="text-sm text-gray-300 space-y-1">
-                        <p>File: {wcError.details.fileName}</p>
-                        <p>Size: {wcError.details.fileSize} bytes</p>
-                        <p>Error: {wcError.details.errorMessage}</p>
-                        {wcError.details.bufferLength && (
-                          <p>Buffer Length: {wcError.details.bufferLength} bytes</p>
-                        )}
-                        <p className="text-xs text-gray-400 mt-2">
-                          Expected formats: WC6 (264 bytes), WC6 Full (784 bytes), 
-                          WC5 (204 bytes), WC4 (856 or 260 bytes)
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Render either Wondercard or Pokemon List */}
         {wcData ? (
           <div className="mb-8">
@@ -192,6 +148,50 @@ export default function Home({ generations }) {
                 Please select a generation to view Pokémon.
               </div>
             )}
+
+            {/* Wondercard Upload Section - Moved below generation message */}
+            {showWCUpload && (
+              <div className="mt-8">
+                <div className="bg-gray-800 rounded-lg p-6">
+                  <h2 className="text-2xl font-bold mb-4 text-red-400">Wondercard Upload (Beta)</h2>
+                  <div className="flex flex-col items-center gap-4">
+                    <label className="w-full max-w-xs">
+                      <input
+                        type="file"
+                        onChange={handleWondercardUpload}
+                        accept=".wc6,.wc7,.wc6full,.wc7full,.pgf,.pgt,.pcd,.wc4,.wc5,.bin,.wcx"
+                        className="block w-full text-sm text-gray-400
+                          file:mr-4 file:py-2 file:px-4
+                          file:rounded-full file:border-0
+                          file:text-sm file:font-semibold
+                          file:bg-red-600 file:text-white
+                          hover:file:bg-red-700
+                          cursor-pointer"
+                      />
+                    </label>
+                    {wcError.message && (
+                      <div className="w-full max-w-xl bg-red-900/50 border border-red-700 rounded-lg p-4">
+                        <p className="text-red-400 font-semibold mb-2">{wcError.message}</p>
+                        {wcError.details && (
+                          <div className="text-sm text-gray-300 space-y-1">
+                            <p>File: {wcError.details.fileName}</p>
+                            <p>Size: {wcError.details.fileSize} bytes</p>
+                            <p>Error: {wcError.details.errorMessage}</p>
+                            {wcError.details.bufferLength && (
+                              <p>Buffer Length: {wcError.details.bufferLength} bytes</p>
+                            )}
+                            <p className="text-xs text-gray-400 mt-2">
+                              Expected formats: WC6 (264 bytes), WC6 Full (784 bytes), 
+                              WC5 (204 bytes), WC4 (856 or 260 bytes)
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
           </>
         )}
       </div>
@@ -204,7 +204,7 @@ export default function Home({ generations }) {
       >
         <div className="relative w-full h-full">
           <img
-            src="/img/balls/ball-cherish.png"
+            src="/img/cherishball.png"
             alt="Cherish Ball"
             className={`w-full h-full transition-transform duration-300 ${
               showWCUpload ? 'rotate-180' : ''
