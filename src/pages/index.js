@@ -36,7 +36,7 @@ export default function Home({ generations }) {
     <div className="min-h-screen bg-gray-900 text-white">
       {/* Top Red Bar */}
       <div className="bg-red-600 h-16 flex items-center justify-center shadow-lg">
-        <h1 className="text-4xl font-bold">National Pokédex</h1>
+        <h1 className="text-4xl font-bold">Labat's Pokémon Database</h1>
       </div>
 
       {/* Main Content */}
