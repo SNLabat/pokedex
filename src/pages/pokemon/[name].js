@@ -79,6 +79,19 @@ const SpriteToggleGroup = ({ isAnimated, isShiny, onAnimatedChange, onShinyChang
   </div>
 );
 
+// Add utility functions at the top
+const properCase = (str) => {
+  return str
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
+
+const formatStatName = (statName) => {
+  if (statName === 'hp') return 'HP';
+  return properCase(statName);
+};
+
 export default function PokemonDetail({ pokemon, species }) {
   const [isShiny, setIsShiny] = useState(false);
   const [isAnimated, setIsAnimated] = useState(false);
@@ -156,13 +169,27 @@ export default function PokemonDetail({ pokemon, species }) {
     genderInfo = `Male: ${maleChance.toFixed(0)}%, Female: ${femaleChance.toFixed(0)}%`;
   }
 
+  // Sort level up moves by level
   const levelUpMoves = moves
     .filter(move => 
       move.version_group_details.some(
         d => d.move_learn_method.name === 'level-up' && d.level_learned_at > 0
       )
     )
+    .map(move => {
+      const detail = move.version_group_details.find(
+        d => d.move_learn_method.name === 'level-up' && d.level_learned_at > 0
+      );
+      return {
+        ...move,
+        level: detail.level_learned_at
+      };
+    })
+    .sort((a, b) => a.level - b.level)
     .slice(0, 10);
+
+  // Calculate catch rate percentage
+  const catchRatePercentage = (catch_rate / 255 * 100).toFixed(1);
 
   // Type color mapping for badges
   const typeColors = {
@@ -264,7 +291,7 @@ export default function PokemonDetail({ pokemon, species }) {
                       a.is_hidden ? 'border border-red-400' : ''
                     }`}
                   >
-                    {a.ability.name.replace('-', ' ')}
+                    {properCase(a.ability.name)}
                     {a.is_hidden && <span className="text-red-400 ml-1">(Hidden)</span>}
                   </span>
                 ))}
@@ -294,8 +321,11 @@ export default function PokemonDetail({ pokemon, species }) {
                         controls
                         src={cries.latest}
                         className="w-full"
+                        controlsList="noplaybackrate nodownload"
+                        preload="metadata"
                       >
-                        Your browser does not support audio.
+                        <source src={cries.latest} type="audio/ogg" />
+                        Your browser does not support audio playback.
                       </audio>
                     </div>
                   )}
@@ -306,8 +336,11 @@ export default function PokemonDetail({ pokemon, species }) {
                         controls
                         src={cries.legacy}
                         className="w-full"
+                        controlsList="noplaybackrate nodownload"
+                        preload="metadata"
                       >
-                        Your browser does not support audio.
+                        <source src={cries.legacy} type="audio/ogg" />
+                        Your browser does not support audio playback.
                       </audio>
                     </div>
                   )}
@@ -330,7 +363,7 @@ export default function PokemonDetail({ pokemon, species }) {
               <div>
                 <p className="text-gray-400">Catch Rate</p>
                 <p className="text-xl">
-                  {catch_rate} (≈ {(catch_rate / 255 * 100).toFixed(1)}%)
+                  {catch_rate} ({catchRatePercentage}% with a Poké Ball at full HP)
                 </p>
               </div>
               <div>
@@ -380,7 +413,7 @@ export default function PokemonDetail({ pokemon, species }) {
                 <div key={stat.stat.name}>
                   <div className="flex justify-between mb-1">
                     <span className="capitalize text-gray-400">
-                      {stat.stat.name.replace('-', ' ')}
+                      {formatStatName(stat.stat.name)}
                     </span>
                     <span>{stat.base_stat}</span>
                   </div>
@@ -402,24 +435,19 @@ export default function PokemonDetail({ pokemon, species }) {
             Level-Up Moves (First 10)
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {levelUpMoves.map(move => {
-              const detail = move.version_group_details.find(
-                d => d.move_learn_method.name === 'level-up' && d.level_learned_at > 0
-              );
-              return (
-                <div
-                  key={move.move.name}
-                  className="bg-gray-700 p-3 rounded-lg flex justify-between items-center"
-                >
-                  <span className="capitalize">
-                    {move.move.name.replace('-', ' ')}
-                  </span>
-                  <span className="text-red-400">
-                    Lv. {detail ? detail.level_learned_at : '?'}
-                  </span>
-                </div>
-              );
-            })}
+            {levelUpMoves.map(move => (
+              <div
+                key={move.move.name}
+                className="bg-gray-700 p-3 rounded-lg flex justify-between items-center"
+              >
+                <span className="capitalize">
+                  {properCase(move.move.name)}
+                </span>
+                <span className="text-red-400">
+                  Lv. {move.level}
+                </span>
+              </div>
+            ))}
           </div>
         </div>
 
