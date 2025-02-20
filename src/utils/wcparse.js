@@ -1,15 +1,27 @@
 export const parseWCBuffer = (buf) => {
-  // Check buffer length to determine wondercard type
-  if (buf.length === 784) { // WC6 Full
-    return parseWC6Full(buf);
-  } else if (buf.length === 264) { // WC6
-    return parseWC6(buf);
-  } else if (buf.length === 204) { // WC5
-    return parseWC5(buf);
-  } else if (buf.length === 856 || buf.length === 260) { // WC4 (PCD: 856, PGT: 260)
-    return parseWC4(buf);
-  } else {
-    throw new Error('Invalid wondercard format');
+  console.log('Buffer length:', buf.length);
+  console.log('Buffer:', buf);
+
+  try {
+    // Check buffer length to determine wondercard type
+    if (buf.length === 784) { // WC6 Full
+      console.log('Parsing WC6 Full');
+      return parseWC6Full(buf);
+    } else if (buf.length === 264) { // WC6
+      console.log('Parsing WC6');
+      return parseWC6(buf);
+    } else if (buf.length === 204) { // WC5
+      console.log('Parsing WC5');
+      return parseWC5(buf);
+    } else if (buf.length === 856 || buf.length === 260) { // WC4 (PCD: 856, PGT: 260)
+      console.log('Parsing WC4');
+      return parseWC4(buf);
+    } else {
+      throw new Error(`Invalid wondercard format: unexpected length ${buf.length}`);
+    }
+  } catch (error) {
+    console.error('Parsing error:', error);
+    throw error;
   }
 };
 
@@ -52,52 +64,77 @@ function parseWC6Full(buf) {
 }
 
 function parseWC6(buf) {
-  const data = {
-    type: 'WC6',
-    cardID: buf.readUInt16LE(0x0),
-    pokemon: {
-      species: buf.readUInt16LE(0x82),
-      form: buf.readUInt8(0x84),
-      level: buf.readUInt8(0x85),
-      moves: [
-        buf.readUInt16LE(0x86),
-        buf.readUInt16LE(0x88),
-        buf.readUInt16LE(0x8A),
-        buf.readUInt16LE(0x8C)
-      ],
-      ability: buf.readUInt8(0x8E),
-      nature: buf.readUInt8(0x8F),
-      gender: buf.readUInt8(0x90),
-      shiny: buf.readUInt8(0x91) === 2,
-      heldItem: buf.readUInt16LE(0x92),
-    }
-  };
-  return data;
+  try {
+    console.log('Starting WC6 parse');
+    const data = {
+      type: 'WC6',
+      cardID: buf.readUInt16LE(0x0),
+      pokemon: {
+        species: buf.readUInt16LE(0x82),
+        form: buf.readUInt8(0x84),
+        level: buf.readUInt8(0x85),
+        moves: [
+          buf.readUInt16LE(0x86),
+          buf.readUInt16LE(0x88),
+          buf.readUInt16LE(0x8A),
+          buf.readUInt16LE(0x8C)
+        ],
+        ability: buf.readUInt8(0x8E),
+        nature: buf.readUInt8(0x8F),
+        gender: buf.readUInt8(0x90),
+        shiny: buf.readUInt8(0x91) === 2,
+        heldItem: buf.readUInt16LE(0x92),
+      }
+    };
+    console.log('Parsed WC6 data:', data);
+    return data;
+  } catch (error) {
+    console.error('Error in parseWC6:', error);
+    throw error;
+  }
 }
 
-// Helper functions
+// Helper functions with added error handling
 function readUTF16String(buf, offset, maxLength) {
-  let str = '';
-  for (let i = 0; i < maxLength; i += 2) {
-    const code = buf.readUInt16LE(offset + i);
-    if (code === 0) break;
-    str += String.fromCharCode(code);
+  try {
+    let str = '';
+    for (let i = 0; i < maxLength && (offset + i + 1) < buf.length; i += 2) {
+      const code = buf.readUInt16LE(offset + i);
+      if (code === 0) break;
+      str += String.fromCharCode(code);
+    }
+    return str.trim();
+  } catch (error) {
+    console.error('Error in readUTF16String:', error);
+    throw error;
   }
-  return str.trim();
 }
 
 function parseGameFlags(flags) {
-  const games = [];
-  if (flags & 0x1) games.push('X');
-  if (flags & 0x2) games.push('Y');
-  if (flags & 0x4) games.push('OR');
-  if (flags & 0x8) games.push('AS');
-  return games;
+  try {
+    const games = [];
+    if (flags & 0x1) games.push('X');
+    if (flags & 0x2) games.push('Y');
+    if (flags & 0x4) games.push('OR');
+    if (flags & 0x8) games.push('AS');
+    return games;
+  } catch (error) {
+    console.error('Error in parseGameFlags:', error);
+    throw error;
+  }
 }
 
 function parseDate(buf, offset) {
-  const year = buf.readUInt16LE(offset);
-  const month = buf.readUInt8(offset + 2);
-  const day = buf.readUInt8(offset + 3);
-  return new Date(year, month - 1, day);
+  try {
+    if (offset + 4 > buf.length) {
+      throw new Error('Buffer too short for date parsing');
+    }
+    const year = buf.readUInt16LE(offset);
+    const month = buf.readUInt8(offset + 2);
+    const day = buf.readUInt8(offset + 3);
+    return new Date(year, month - 1, day);
+  } catch (error) {
+    console.error('Error in parseDate:', error);
+    throw error;
+  }
 } 
