@@ -896,8 +896,36 @@ export async function getStaticPaths() {
 
 export async function getStaticProps({ params }) {
   try {
+    // Handle special cases where the base form has a suffix
+    const specialCases = {
+      'deoxys': 'deoxys-normal',
+      'wormadam': 'wormadam-plant',
+      'giratina': 'giratina-altered',
+      'shaymin': 'shaymin-land',
+      'basculin': 'basculin-red-striped',
+      'darmanitan': 'darmanitan-standard',
+      'tornadus': 'tornadus-incarnate',
+      'thundurus': 'thundurus-incarnate',
+      'landorus': 'landorus-incarnate',
+      'keldeo': 'keldeo-ordinary',
+      'meloetta': 'meloetta-aria',
+      'meowstic': 'meowstic-male',
+      'aegislash': 'aegislash-shield',
+      'pumpkaboo': 'pumpkaboo-average',
+      'gourgeist': 'gourgeist-average',
+      'urshifu': 'urshifu-single-strike',
+      'enamorus': 'enamorus-incarnate',
+      'oricorio': 'oricorio-baile',
+      'lycanroc': 'lycanroc-midday',
+      'wishiwashi': 'wishiwashi-solo',
+      'minior': 'minior-red-meteor',
+      'toxtricity': 'toxtricity-amped',
+    };
+
+    const pokemonName = specialCases[params.name] || params.name;
+
     // Fetch base Pokémon data
-    const resPokemon = await fetch(`https://pokeapi.co/api/v2/pokemon/${params.name}`);
+    const resPokemon = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonName}`);
     if (!resPokemon.ok) {
       return { notFound: true };
     }
