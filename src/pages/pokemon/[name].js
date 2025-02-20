@@ -92,62 +92,29 @@ const formatStatName = (statName) => {
   return properCase(statName);
 };
 
-// Add enhanced PokemonCry component at the top
+// Add enhanced PokemonCry component with multiple formats
 const PokemonCry = ({ src, label }) => {
   const [error, setError] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const audioRef = useRef(null);
 
-  const handlePlay = async () => {
-    try {
-      setIsPlaying(true);
-      await audioRef.current.play();
-    } catch (err) {
-      console.error('Audio playback error:', err);
-      setError(true);
-    }
-  };
-
-  const handleEnded = () => {
-    setIsPlaying(false);
-  };
-
-  const handleError = (e) => {
-    console.error('Audio error:', e);
-    setError(true);
-  };
-
+  // If no source or already errored, don't render
   if (!src || error) return null;
 
   return (
     <div className="bg-gray-700 p-4 rounded-lg">
       <p className="text-gray-400 mb-2">{label}</p>
-      
-      {/* Custom play button for mobile */}
-      <div className="flex items-center gap-2">
-        <button
-          onClick={handlePlay}
-          disabled={isPlaying}
-          className={`px-4 py-2 rounded-lg ${
-            isPlaying 
-              ? 'bg-gray-600 text-gray-400' 
-              : 'bg-red-600 hover:bg-red-700 text-white'
-          } transition-colors`}
-        >
-          {isPlaying ? 'Playing...' : 'Play Cry'}
-        </button>
-      </div>
-
-      {/* Hidden audio element */}
       <audio
-        ref={audioRef}
-        src={src}
-        onEnded={handleEnded}
-        onError={handleError}
-        controls={false}
+        className="w-full"
+        onError={() => setError(true)}
+        controls
         preload="none"
-        style={{ display: 'none' }}
-      />
+      >
+        {/* Try multiple audio formats */}
+        <source src={src} type="audio/mpeg" />
+        <source src={src} type="audio/wav" />
+        <source src={src} type="audio/ogg" />
+        <source src={src} type="audio/aac" />
+        Download cry: <a href={src} className="text-blue-400 hover:text-blue-300">Download</a>
+      </audio>
     </div>
   );
 };
