@@ -7,24 +7,20 @@ export default function Home({ generations }) {
   const [pokemonSpecies, setPokemonSpecies] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Fetch Pokémon species for the selected generation
+  // When a generation is selected, fetch its Pokémon species.
   useEffect(() => {
     if (selectedGeneration) {
       setLoading(true);
       const url = `https://pokeapi.co/api/v2/generation/${selectedGeneration}/`;
-      console.log("Fetching generation data from:", url);
       fetch(url)
-        .then((res) => {
-          if (!res.ok) {
-            throw new Error(`HTTP error! status: ${res.status}`);
-          }
-          return res.json();
-        })
+        .then((res) => res.json())
         .then((data) => {
-          // Sort species alphabetically (or use a custom sort if needed)
-          const sortedSpecies = data.pokemon_species.sort((a, b) =>
-            a.name.localeCompare(b.name)
-          );
+          // Sort species by their national dex number (extracted from the URL)
+          const sortedSpecies = data.pokemon_species.sort((a, b) => {
+            const idA = parseInt(a.url.split('/').slice(-2)[0]);
+            const idB = parseInt(b.url.split('/').slice(-2)[0]);
+            return idA - idB;
+          });
           setPokemonSpecies(sortedSpecies);
           setLoading(false);
         })
@@ -38,18 +34,15 @@ export default function Home({ generations }) {
   }, [selectedGeneration]);
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
-      <h1>Pokédex</h1>
-      <div style={{ marginBottom: '20px' }}>
-        <label htmlFor="generation-select" style={{ marginRight: '10px' }}>
-          Select Generation:
-        </label>
+    <div className="p-4">
+      <h1 className="text-4xl font-bold text-center mb-4">National Pokédex</h1>
+      <div className="mb-6 flex justify-center">
         <select
-          id="generation-select"
+          className="border p-2 rounded"
           value={selectedGeneration}
           onChange={(e) => setSelectedGeneration(e.target.value)}
         >
-          <option value="">--Please choose an option--</option>
+          <option value="">Select Generation</option>
           {generations.map((gen) => (
             <option key={gen.id} value={gen.id}>
               {gen.name.toUpperCase()}
@@ -57,31 +50,38 @@ export default function Home({ generations }) {
           ))}
         </select>
       </div>
-      <hr />
-      {loading && <p>Loading Pokémon...</p>}
+      {loading && <p className="text-center">Loading Pokémon...</p>}
       {!loading && selectedGeneration && pokemonSpecies.length === 0 && (
-        <p>No Pokémon found for this generation.</p>
+        <p className="text-center">No Pokémon found for this generation.</p>
       )}
-      <ul>
-        {pokemonSpecies.map((species) => (
-          <li key={species.name}>
-            <Link href={`/pokemon/${species.name}`}>
-              {species.name}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        {pokemonSpecies.map((species) => {
+          // Extract the national dex number from the species URL.
+          const id = species.url.split('/').slice(-2)[0];
+          // Use the official artwork image URL from the PokeAPI sprites.
+          const imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`;
+          return (
+            <Link key={species.name} href={`/pokemon/${species.name}`}>
+              <a className="bg-white shadow rounded p-4 flex flex-col items-center hover:shadow-lg transition">
+                <img src={imageUrl} alt={species.name} className="w-20 h-20 object-contain mb-2" />
+                <p className="font-semibold text-center capitalize">{species.name}</p>
+                <p className="text-sm text-gray-500">#{id}</p>
+              </a>
             </Link>
-          </li>
-        ))}
-      </ul>
-      {!selectedGeneration && <p>Please select a generation.</p>}
+          );
+        })}
+      </div>
+      {!selectedGeneration && <p className="text-center mt-4">Please select a generation.</p>}
     </div>
   );
 }
 
 export async function getStaticProps() {
-  // Fetch the list of generations from the PokéAPI
+  // Fetch the list of generations
   const res = await fetch('https://pokeapi.co/api/v2/generation');
   const data = await res.json();
 
-  // Extract generation IDs from the URLs (e.g., "/generation/1/")
+  // Extract generation IDs from the URLs (e.g. "/generation/1/")
   const generations = data.results.map((gen) => {
     const idMatch = gen.url.match(/\/generation\/(\d+)\//);
     return {
