@@ -12,7 +12,7 @@ export default function Home({ generations }) {
   const [wcData, setWCData] = useState(null);
   const [wcError, setWCError] = useState({ message: '', details: null });
   const [showWCUpload, setShowWCUpload] = useState(false);
-  const [caughtPokemon, setCaughtPokemon] = useState({});
+  const [caughtData, setCaughtData] = useState({});
 
   useEffect(() => {
     if (selectedGeneration) {
@@ -38,18 +38,13 @@ export default function Home({ generations }) {
     }
   }, [selectedGeneration]);
 
-  // Load caught Pokemon from localStorage on mount
+  // Load caught data from localStorage on mount
   useEffect(() => {
     const saved = localStorage.getItem('caughtPokemon');
     if (saved) {
-      setCaughtPokemon(JSON.parse(saved));
+      setCaughtData(JSON.parse(saved));
     }
   }, []);
-
-  // Save to localStorage whenever caughtPokemon changes
-  useEffect(() => {
-    localStorage.setItem('caughtPokemon', JSON.stringify(caughtPokemon));
-  }, [caughtPokemon]);
 
   const handleWondercardUpload = async (event) => {
     const file = event.target.files[0];
@@ -80,41 +75,6 @@ export default function Home({ generations }) {
     }
   };
 
-  const toggleCaught = (id) => {
-    setCaughtPokemon(prev => ({
-      ...prev,
-      [id]: !prev[id]
-    }));
-  };
-
-  const exportToCSV = () => {
-    // Create CSV content
-    const headers = ['Pokedex Number', 'Name', 'Caught'];
-    const rows = Object.entries(caughtPokemon).map(([id, caught]) => {
-      const pokemon = pokemonSpecies.find(p => p.url.split('/').slice(-2)[0] === id);
-      return [
-        id.padStart(3, '0'),
-        pokemon ? pokemon.name.replace('-', ' ') : 'Unknown',
-        caught ? 'Yes' : 'No'
-      ];
-    });
-
-    // Combine headers and rows
-    const csvContent = [
-      headers.join(','),
-      ...rows.map(row => row.join(','))
-    ].join('\n');
-
-    // Create and trigger download
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = 'caught_pokemon.csv';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       {/* Top Red Bar */}
@@ -138,15 +98,6 @@ export default function Home({ generations }) {
               </option>
             ))}
           </select>
-
-          {/* Export Button */}
-          <button
-            onClick={exportToCSV}
-            className="bg-red-600 text-white px-6 py-3 rounded-lg text-lg hover:bg-red-700 transition-colors"
-            title="Export caught Pokémon to CSV"
-          >
-            Export Caught Pokémon
-          </button>
         </div>
 
         {/* Render either Wondercard or Pokemon List */}
@@ -178,43 +129,29 @@ export default function Home({ generations }) {
               {pokemonSpecies.map((species) => {
                 const id = species.url.split('/').slice(-2)[0];
                 const imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`;
-                const isCaught = caughtPokemon[id];
+                const pokemonCaught = caughtData[id];
+                const isCaught = pokemonCaught?.regular || pokemonCaught?.shiny;
                 
                 return (
-                  <div key={species.name} className="relative">
-                    <Link href={`/pokemon/${species.name}`}>
-                      <a className={`bg-gray-800 rounded-lg p-4 flex flex-col items-center transform hover:scale-105 transition-transform duration-200 border ${
-                        isCaught ? 'border-green-500' : 'border-gray-700 hover:border-red-500'
-                      }`}>
-                        <div className="relative w-32 h-32 mb-4">
-                          <Image
-                            src={imageUrl}
-                            alt={species.name}
-                            layout="fill"
-                            objectFit="contain"
-                            className="drop-shadow-lg"
-                          />
-                        </div>
-                        <p className="font-semibold text-lg text-center capitalize mb-1">
-                          {species.name.replace('-', ' ')}
-                        </p>
-                        <p className="text-red-400 font-mono">#{id.padStart(3, '0')}</p>
-                      </a>
-                    </Link>
-                    {/* Caught Toggle Button */}
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        toggleCaught(id);
-                      }}
-                      className={`absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
-                        isCaught ? 'bg-green-500' : 'bg-gray-700 hover:bg-gray-600'
-                      }`}
-                      title={isCaught ? 'Mark as uncaught' : 'Mark as caught'}
-                    >
-                      {isCaught ? '✓' : '○'}
-                    </button>
-                  </div>
+                  <Link key={species.name} href={`/pokemon/${species.name}`}>
+                    <a className={`bg-gray-800 rounded-lg p-4 flex flex-col items-center transform hover:scale-105 transition-transform duration-200 border ${
+                      isCaught ? 'border-green-500' : 'border-gray-700 hover:border-red-500'
+                    }`}>
+                      <div className="relative w-32 h-32 mb-4">
+                        <Image
+                          src={imageUrl}
+                          alt={species.name}
+                          layout="fill"
+                          objectFit="contain"
+                          className="drop-shadow-lg"
+                        />
+                      </div>
+                      <p className="font-semibold text-lg text-center capitalize mb-1">
+                        {species.name.replace('-', ' ')}
+                      </p>
+                      <p className="text-red-400 font-mono">#{id.padStart(3, '0')}</p>
+                    </a>
+                  </Link>
                 );
               })}
             </div>
