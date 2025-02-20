@@ -61,7 +61,23 @@ export default function Home({ generations }) {
 
       {/* Main Content */}
       <div className="container mx-auto p-4">
-        {/* Wondercard Upload Section */}
+        {/* Generation Selector */}
+        <div className="mb-8 flex justify-center">
+          <select
+            className="bg-gray-800 text-white border border-red-500 p-3 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+            value={selectedGeneration}
+            onChange={(e) => setSelectedGeneration(e.target.value)}
+          >
+            <option value="">Select Generation</option>
+            {generations.map((gen) => (
+              <option key={gen.id} value={gen.id}>
+                Generation {gen.id.toUpperCase()} - {gen.name.replace('-', ' ').toUpperCase()}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Wondercard Upload Section - Moved here */}
         <div className="mb-8">
           <div className="bg-gray-800 rounded-lg p-6">
             <h2 className="text-2xl font-bold mb-4 text-red-400">Wondercard Upload</h2>
@@ -92,21 +108,6 @@ export default function Home({ generations }) {
           <WondercardDisplay wcData={wcData} />
         ) : (
           <>
-            <div className="mb-8 flex justify-center">
-              <select
-                className="bg-gray-800 text-white border border-red-500 p-3 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-                value={selectedGeneration}
-                onChange={(e) => setSelectedGeneration(e.target.value)}
-              >
-                <option value="">Select Generation</option>
-                {generations.map((gen) => (
-                  <option key={gen.id} value={gen.id}>
-                    Generation {gen.id.toUpperCase()} - {gen.name.replace('-', ' ').toUpperCase()}
-                  </option>
-                ))}
-              </select>
-            </div>
-
             {loading && (
               <div className="text-center text-xl text-red-400">
                 Loading Pokémon...
