@@ -1,4 +1,4 @@
-export const parseWCBuffer = (buf) => {
+const parseWCBuffer = (buf) => {
   console.log('Buffer length:', buf.length);
   console.log('Buffer:', buf);
 
@@ -217,7 +217,7 @@ function getIVString(value) {
   }
 }
 
-// Export all functions
+// Single export statement at the end
 export {
   parseWCBuffer,
   parseWC6,
