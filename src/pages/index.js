@@ -210,10 +210,6 @@ export default function Home({ generations }) {
               showWCUpload ? 'rotate-180' : ''
             }`}
           />
-          {/* Beta Badge */}
-          <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1 rounded-full">
-            β
-          </div>
         </div>
       </button>
     </div>
