@@ -1,8 +1,11 @@
 // pages/pokemon/[name].js
 import Image from 'next/image';
 import Link from 'next/link';
+import { useState } from 'react';
 
 export default function PokemonDetail({ pokemon, species }) {
+  const [isShiny, setIsShiny] = useState(false);
+
   const {
     id,
     name,
@@ -28,8 +31,9 @@ export default function PokemonDetail({ pokemon, species }) {
     genera,
   } = species;
 
-  const officialArtwork =
-    sprites.other?.['official-artwork']?.front_default || sprites.front_default;
+  const regularArtwork = sprites.other?.['official-artwork']?.front_default || sprites.front_default;
+  const shinyArtwork = sprites.other?.['official-artwork']?.front_shiny || sprites.front_shiny;
+  const displayArtwork = (isShiny && shinyArtwork) ? shinyArtwork : regularArtwork;
 
   const heightMeters = (height / 10).toFixed(1);
   const weightKg = (weight / 10).toFixed(1);
@@ -94,17 +98,37 @@ export default function PokemonDetail({ pokemon, species }) {
       <div className="container mx-auto p-4">
         {/* Header: Artwork and Basic Info */}
         <div className="bg-gray-800 rounded-lg p-6 mb-6 flex flex-col md:flex-row items-center">
-          <div className="md:w-1/3 flex justify-center mb-6 md:mb-0">
-            {officialArtwork && (
-              <div className="relative w-64 h-64">
+          <div className="md:w-1/3 flex flex-col items-center mb-6 md:mb-0">
+            <div className="relative w-64 h-64 mb-4">
+              {displayArtwork && (
                 <Image
-                  src={officialArtwork}
-                  alt={`${name} artwork`}
+                  src={displayArtwork}
+                  alt={`${name} ${isShiny ? 'shiny' : ''} artwork`}
                   layout="fill"
                   objectFit="contain"
                   className="drop-shadow-lg"
                 />
-              </div>
+              )}
+            </div>
+            {/* Add Shiny Toggle Button */}
+            {shinyArtwork && (
+              <button
+                onClick={() => setIsShiny(!isShiny)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-full transition-colors ${
+                  isShiny 
+                    ? 'bg-yellow-500 text-black hover:bg-yellow-400' 
+                    : 'bg-gray-700 hover:bg-gray-600'
+                }`}
+              >
+                <svg 
+                  viewBox="0 0 24 24" 
+                  className="w-5 h-5"
+                  fill="currentColor"
+                >
+                  <path d="M12 3L14.39 8.25L20 9.24L16 13.47L17.15 19L12 16.42L6.85 19L8 13.47L4 9.24L9.61 8.25L12 3Z" />
+                </svg>
+                {isShiny ? 'Shiny' : 'Regular'}
+              </button>
             )}
           </div>
           <div className="md:w-2/3 md:pl-8">
