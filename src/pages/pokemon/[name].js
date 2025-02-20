@@ -92,6 +92,28 @@ const formatStatName = (statName) => {
   return properCase(statName);
 };
 
+// Add PokemonCry component at the top
+const PokemonCry = ({ src, label }) => {
+  const [error, setError] = useState(false);
+
+  if (!src || error) return null;
+
+  return (
+    <div className="bg-gray-700 p-4 rounded-lg">
+      <p className="text-gray-400 mb-2">{label}</p>
+      <audio
+        controls
+        src={src}
+        className="w-full"
+        onError={() => setError(true)}
+        preload="none"
+      >
+        Your browser does not support audio playback.
+      </audio>
+    </div>
+  );
+};
+
 export default function PokemonDetail({ pokemon, species }) {
   const [isShiny, setIsShiny] = useState(false);
   const [isAnimated, setIsAnimated] = useState(false);
@@ -310,43 +332,13 @@ export default function PokemonDetail({ pokemon, species }) {
               </>
             )}
             
-            {cries && (cries.latest || cries.legacy) && (
-              <div className="space-y-4">
-                <h3 className="text-xl font-bold text-gray-400">Cries</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {cries.latest && (
-                    <div className="bg-gray-700 p-4 rounded-lg">
-                      <p className="text-gray-400 mb-2">Latest Cry</p>
-                      <audio
-                        controls
-                        src={cries.latest}
-                        className="w-full"
-                        controlsList="noplaybackrate nodownload"
-                        preload="metadata"
-                      >
-                        <source src={cries.latest} type="audio/ogg" />
-                        Your browser does not support audio playback.
-                      </audio>
-                    </div>
-                  )}
-                  {cries.legacy && (
-                    <div className="bg-gray-700 p-4 rounded-lg">
-                      <p className="text-gray-400 mb-2">Legacy Cry</p>
-                      <audio
-                        controls
-                        src={cries.legacy}
-                        className="w-full"
-                        controlsList="noplaybackrate nodownload"
-                        preload="metadata"
-                      >
-                        <source src={cries.legacy} type="audio/ogg" />
-                        Your browser does not support audio playback.
-                      </audio>
-                    </div>
-                  )}
-                </div>
+            <div className="space-y-4">
+              <h3 className="text-xl font-bold text-gray-400">Cries</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <PokemonCry src={cries.latest} label="Latest Cry" />
+                <PokemonCry src={cries.legacy} label="Legacy Cry" />
               </div>
-            )}
+            </div>
           </div>
         )}
 
