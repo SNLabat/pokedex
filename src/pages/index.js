@@ -10,7 +10,7 @@ export default function Home({ generations }) {
   const [pokemonSpecies, setPokemonSpecies] = useState([]);
   const [loading, setLoading] = useState(false);
   const [wcData, setWCData] = useState(null);
-  const [wcError, setWCError] = useState(null);
+  const [wcError, setWCError] = useState({ message: '', details: null });
 
   useEffect(() => {
     if (selectedGeneration) {
@@ -45,10 +45,19 @@ export default function Home({ generations }) {
       const wcBuffer = new Uint8Array(buffer);
       const parsedData = parseWCBuffer(wcBuffer);
       setWCData(parsedData);
-      setWCError(null);
+      setWCError({ message: '', details: null });
     } catch (error) {
       console.error('Error parsing wondercard:', error);
-      setWCError('Failed to parse wondercard. Please ensure this is a valid wondercard file.');
+      setWCError({
+        message: 'Failed to parse wondercard',
+        details: {
+          fileName: file.name,
+          fileSize: file.size,
+          errorMessage: error.message,
+          bufferLength: buffer?.byteLength,
+        }
+      });
+      setWCData(null);
     }
   };
 
@@ -96,8 +105,24 @@ export default function Home({ generations }) {
                     cursor-pointer"
                 />
               </label>
-              {wcError && (
-                <p className="text-red-400 text-sm">{wcError}</p>
+              {wcError.message && (
+                <div className="w-full max-w-xl bg-red-900/50 border border-red-700 rounded-lg p-4">
+                  <p className="text-red-400 font-semibold mb-2">{wcError.message}</p>
+                  {wcError.details && (
+                    <div className="text-sm text-gray-300 space-y-1">
+                      <p>File: {wcError.details.fileName}</p>
+                      <p>Size: {wcError.details.fileSize} bytes</p>
+                      <p>Error: {wcError.details.errorMessage}</p>
+                      {wcError.details.bufferLength && (
+                        <p>Buffer Length: {wcError.details.bufferLength} bytes</p>
+                      )}
+                      <p className="text-xs text-gray-400 mt-2">
+                        Expected formats: WC6 (264 bytes), WC6 Full (784 bytes), 
+                        WC5 (204 bytes), WC4 (856 or 260 bytes)
+                      </p>
+                    </div>
+                  )}
+                </div>
               )}
             </div>
           </div>
