@@ -109,19 +109,36 @@ export default function PokemonDetail({ pokemon, species }) {
   } = species;
 
   // Get all sprite variations
-  const regularStatic = sprites.other?.['official-artwork']?.front_default || sprites.front_default;
-  const shinyStatic = sprites.other?.['official-artwork']?.front_shiny || sprites.front_shiny;
-  const regularAnimated = sprites.versions?.['generation-v']?.['black-white']?.animated?.front_default;
-  const shinyAnimated = sprites.versions?.['generation-v']?.['black-white']?.animated?.front_shiny;
+  const staticSprites = {
+    regular: sprites.other?.['official-artwork']?.front_default || sprites.front_default,
+    shiny: sprites.other?.['official-artwork']?.front_shiny || sprites.front_shiny
+  };
 
-  // Determine which sprite to display
-  const displaySprite = isAnimated 
-    ? (isShiny ? shinyAnimated : regularAnimated) 
-    : (isShiny ? shinyStatic : regularStatic);
+  // Get 3D animated models (Gen VI+)
+  const animatedSprites = {
+    regular: sprites.other?.['showdown']?.front_default || 
+            sprites.versions?.['generation-viii']?.['icons']?.front_default ||
+            sprites.versions?.['generation-vii']?.['ultra-sun-ultra-moon']?.front_default,
+    shiny: sprites.other?.['showdown']?.front_shiny ||
+           sprites.versions?.['generation-viii']?.['icons']?.front_shiny ||
+           sprites.versions?.['generation-vii']?.['ultra-sun-ultra-moon']?.front_shiny
+  };
 
-  // Check if this Pokémon has animated/shiny sprites
-  const hasAnimatedSprites = Boolean(regularAnimated);
-  const hasShinySprites = Boolean(shinyStatic || shinyAnimated);
+  // Home 3D Models
+  const homeSprites = {
+    regular: sprites.other?.['home']?.front_default,
+    shiny: sprites.other?.['home']?.front_shiny
+  };
+
+  // Determine which sprite to display based on state
+  const displaySprite = isAnimated
+    ? (isShiny ? animatedSprites.shiny : animatedSprites.regular)
+    : (isShiny ? staticSprites.shiny : staticSprites.regular);
+
+  // Check sprite availability
+  const hasAnimatedSprites = Boolean(animatedSprites.regular);
+  const hasShinySprites = Boolean(staticSprites.shiny || animatedSprites.shiny);
+  const hasHomeModels = Boolean(homeSprites.regular);
 
   const heightMeters = (height / 10).toFixed(1);
   const weightKg = (weight / 10).toFixed(1);
@@ -408,31 +425,31 @@ export default function PokemonDetail({ pokemon, species }) {
 
         {/* Updated Sprites section */}
         <div className="bg-gray-800 rounded-lg p-6">
-          <h2 className="text-2xl font-bold mb-4 text-red-400">Sprites</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
-            {/* Static Sprites */}
-            <div className="space-y-6">
-              <h3 className="text-xl font-semibold text-gray-400">Static</h3>
+          <h2 className="text-2xl font-bold mb-4 text-red-400">Sprites & Models</h2>
+          <div className="space-y-8">
+            {/* Static Official Artwork */}
+            <div>
+              <h3 className="text-xl font-semibold text-gray-400 mb-4">Official Artwork</h3>
               <div className="grid grid-cols-2 gap-4">
-                {sprites.front_default && (
+                {staticSprites.regular && (
                   <div className="flex flex-col items-center">
                     <div className="bg-gray-700 p-4 rounded-lg">
                       <img
-                        src={sprites.front_default}
-                        alt={`${name} front`}
-                        className="w-20 h-20 object-contain"
+                        src={staticSprites.regular}
+                        alt={`${name} official artwork`}
+                        className="w-32 h-32 object-contain"
                       />
                     </div>
-                    <p className="mt-2 text-gray-400">Front</p>
+                    <p className="mt-2 text-gray-400">Regular</p>
                   </div>
                 )}
-                {sprites.front_shiny && (
+                {staticSprites.shiny && (
                   <div className="flex flex-col items-center">
                     <div className="bg-gray-700 p-4 rounded-lg">
                       <img
-                        src={sprites.front_shiny}
-                        alt={`${name} front shiny`}
-                        className="w-20 h-20 object-contain"
+                        src={staticSprites.shiny}
+                        alt={`${name} shiny official artwork`}
+                        className="w-32 h-32 object-contain"
                       />
                     </div>
                     <p className="mt-2 text-gray-400">Shiny</p>
@@ -441,30 +458,28 @@ export default function PokemonDetail({ pokemon, species }) {
               </div>
             </div>
 
-            {/* Animated Sprites */}
-            {hasAnimatedSprites && (
-              <div className="space-y-6">
-                <h3 className="text-xl font-semibold text-gray-400">Animated</h3>
+            {/* Home 3D Models */}
+            {hasHomeModels && (
+              <div>
+                <h3 className="text-xl font-semibold text-gray-400 mb-4">HOME 3D Models</h3>
                 <div className="grid grid-cols-2 gap-4">
-                  {regularAnimated && (
-                    <div className="flex flex-col items-center">
-                      <div className="bg-gray-700 p-4 rounded-lg">
-                        <img
-                          src={regularAnimated}
-                          alt={`${name} animated`}
-                          className="w-20 h-20 object-contain"
-                        />
-                      </div>
-                      <p className="mt-2 text-gray-400">Regular</p>
+                  <div className="flex flex-col items-center">
+                    <div className="bg-gray-700 p-4 rounded-lg">
+                      <img
+                        src={homeSprites.regular}
+                        alt={`${name} HOME model`}
+                        className="w-32 h-32 object-contain"
+                      />
                     </div>
-                  )}
-                  {shinyAnimated && (
+                    <p className="mt-2 text-gray-400">Regular</p>
+                  </div>
+                  {homeSprites.shiny && (
                     <div className="flex flex-col items-center">
                       <div className="bg-gray-700 p-4 rounded-lg">
                         <img
-                          src={shinyAnimated}
-                          alt={`${name} animated shiny`}
-                          className="w-20 h-20 object-contain"
+                          src={homeSprites.shiny}
+                          alt={`${name} shiny HOME model`}
+                          className="w-32 h-32 object-contain"
                         />
                       </div>
                       <p className="mt-2 text-gray-400">Shiny</p>
@@ -473,6 +488,92 @@ export default function PokemonDetail({ pokemon, species }) {
                 </div>
               </div>
             )}
+
+            {/* Game Sprites */}
+            {hasAnimatedSprites && (
+              <div>
+                <h3 className="text-xl font-semibold text-gray-400 mb-4">Game Models</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex flex-col items-center">
+                    <div className="bg-gray-700 p-4 rounded-lg">
+                      <img
+                        src={animatedSprites.regular}
+                        alt={`${name} game model`}
+                        className="w-32 h-32 object-contain"
+                      />
+                    </div>
+                    <p className="mt-2 text-gray-400">Regular</p>
+                  </div>
+                  {animatedSprites.shiny && (
+                    <div className="flex flex-col items-center">
+                      <div className="bg-gray-700 p-4 rounded-lg">
+                        <img
+                          src={animatedSprites.shiny}
+                          alt={`${name} shiny game model`}
+                          className="w-32 h-32 object-contain"
+                        />
+                      </div>
+                      <p className="mt-2 text-gray-400">Shiny</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Classic Sprites */}
+            <div>
+              <h3 className="text-xl font-semibold text-gray-400 mb-4">Classic Sprites</h3>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                {sprites.front_default && (
+                  <div className="flex flex-col items-center">
+                    <div className="bg-gray-700 p-4 rounded-lg">
+                      <img
+                        src={sprites.front_default}
+                        alt={`${name} front sprite`}
+                        className="w-20 h-20 object-contain"
+                      />
+                    </div>
+                    <p className="mt-2 text-gray-400">Front</p>
+                  </div>
+                )}
+                {sprites.back_default && (
+                  <div className="flex flex-col items-center">
+                    <div className="bg-gray-700 p-4 rounded-lg">
+                      <img
+                        src={sprites.back_default}
+                        alt={`${name} back sprite`}
+                        className="w-20 h-20 object-contain"
+                      />
+                    </div>
+                    <p className="mt-2 text-gray-400">Back</p>
+                  </div>
+                )}
+                {sprites.front_shiny && (
+                  <div className="flex flex-col items-center">
+                    <div className="bg-gray-700 p-4 rounded-lg">
+                      <img
+                        src={sprites.front_shiny}
+                        alt={`${name} shiny front sprite`}
+                        className="w-20 h-20 object-contain"
+                      />
+                    </div>
+                    <p className="mt-2 text-gray-400">Shiny Front</p>
+                  </div>
+                )}
+                {sprites.back_shiny && (
+                  <div className="flex flex-col items-center">
+                    <div className="bg-gray-700 p-4 rounded-lg">
+                      <img
+                        src={sprites.back_shiny}
+                        alt={`${name} shiny back sprite`}
+                        className="w-20 h-20 object-contain"
+                      />
+                    </div>
+                    <p className="mt-2 text-gray-400">Shiny Back</p>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </div>
