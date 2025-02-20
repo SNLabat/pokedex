@@ -2,18 +2,22 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
-import { 
-  BeakerIcon, 
-  HeartIcon, 
-  SparklesIcon,
-  ScaleIcon,
-  ChartBarIcon,
-  StarIcon,
-  ClockIcon,
-  UserGroupIcon,
-  GenderIcon,
-  EggIcon
-} from '@heroicons/react/24/outline';
+
+// Remove the Heroicons import and use this custom IconSet component
+const IconSet = {
+  Experience: () => <span className="text-xl">✨</span>,
+  CatchRate: () => <span className="text-xl">🎯</span>,
+  Friendship: () => <span className="text-xl">❤️</span>,
+  GrowthRate: () => <span className="text-xl">📈</span>,
+  EVYield: () => <span className="text-xl">⭐</span>,
+  EggGroups: () => <span className="text-xl">👥</span>,
+  Gender: () => <span className="text-xl">⚥</span>,
+  EggCycles: () => <span className="text-xl">🥚</span>,
+  Stats: () => <span className="text-xl">📊</span>,
+  Moves: () => <span className="text-xl">⚡</span>,
+  Height: () => <span className="text-xl">📏</span>,
+  Weight: () => <span className="text-xl">⚖️</span>
+};
 
 // Add the SpriteToggleGroup component at the top
 const SpriteToggleGroup = ({ isAnimated, isShiny, onAnimatedChange, onShinyChange, hasAnimated, hasShiny }) => (
@@ -481,33 +485,29 @@ export default function PokemonDetail({ pokemon, species, alternativeForms }) {
             <h2 className="text-2xl font-bold mb-4 text-red-400">Training</h2>
             <div className="space-y-3">
               <div className="flex items-center gap-2">
-                <SparklesIcon className="w-5 h-5 text-yellow-400" />
+                <IconSet.Experience />
                 <p className="text-gray-400">Base Experience</p>
                 <p className="text-xl">{base_experience}</p>
               </div>
               <div className="flex items-center gap-2">
-                <img 
-                  src="/img/pokeball.png" 
-                  alt="Catch Rate" 
-                  className="w-5 h-5"
-                />
+                <IconSet.CatchRate />
                 <p className="text-gray-400">Catch Rate</p>
                 <p className="text-xl">
                   {catch_rate} ({catchRatePercentage}% with a Poké Ball at full HP)
                 </p>
               </div>
               <div className="flex items-center gap-2">
-                <HeartIcon className="w-5 h-5 text-red-400" />
+                <IconSet.Friendship />
                 <p className="text-gray-400">Base Friendship</p>
                 <p className="text-xl">{base_happiness}</p>
               </div>
               <div className="flex items-center gap-2">
-                <ChartBarIcon className="w-5 h-5 text-blue-400" />
+                <IconSet.GrowthRate />
                 <p className="text-gray-400">Growth Rate</p>
                 <p className="text-xl capitalize">{growth_rate.name.replace('-', ' ')}</p>
               </div>
               <div className="flex items-center gap-2">
-                <StarIcon className="w-5 h-5 text-purple-400" />
+                <IconSet.EVYield />
                 <p className="text-gray-400">EV Yield</p>
                 <p className="text-xl">{totalEVYield}</p>
               </div>
@@ -519,19 +519,19 @@ export default function PokemonDetail({ pokemon, species, alternativeForms }) {
             <h2 className="text-2xl font-bold mb-4 text-red-400">Breeding</h2>
             <div className="space-y-3">
               <div className="flex items-center gap-2">
-                <UserGroupIcon className="w-5 h-5 text-green-400" />
+                <IconSet.EggGroups />
                 <p className="text-gray-400">Egg Groups</p>
                 <p className="text-xl capitalize">
                   {egg_groups.map(group => group.name).join(', ')}
                 </p>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-xl">⚥</span>
+                <IconSet.Gender />
                 <p className="text-gray-400">Gender Distribution</p>
                 <p className="text-xl">{genderInfo}</p>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-xl">🥚</span>
+                <IconSet.EggCycles />
                 <p className="text-gray-400">Egg Cycles</p>
                 <p className="text-xl">{hatch_counter} ({hatch_counter * 257} steps)</p>
               </div>
@@ -542,7 +542,7 @@ export default function PokemonDetail({ pokemon, species, alternativeForms }) {
         {/* Base Stats */}
         <div className="bg-gray-800 rounded-lg p-6 mb-6">
           <div className="flex items-center gap-2 mb-4">
-            <ScaleIcon className="w-6 h-6 text-red-400" />
+            <IconSet.Stats />
             <h2 className="text-2xl font-bold text-red-400">Base Stats</h2>
           </div>
           <div className="grid gap-4">
@@ -580,7 +580,7 @@ export default function PokemonDetail({ pokemon, species, alternativeForms }) {
         {/* Level-Up Moves */}
         <div className="bg-gray-800 rounded-lg p-6 mb-6">
           <div className="flex items-center gap-2 mb-4">
-            <span className="text-2xl">⚡</span>
+            <IconSet.Moves />
             <h2 className="text-2xl font-bold text-red-400">
               Level-Up Moves
             </h2>
