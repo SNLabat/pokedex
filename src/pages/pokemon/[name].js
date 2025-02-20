@@ -140,7 +140,7 @@ const PokemonCry = ({ src, label }) => {
   );
 };
 
-export default function PokemonDetail({ pokemon, species }) {
+export default function PokemonDetail({ pokemon, species, alternativeForms }) {
   const [isShiny, setIsShiny] = useState(false);
   const [isAnimated, setIsAnimated] = useState(false);
   const [caughtStatus, setCaughtStatus] = useState({
@@ -331,6 +331,28 @@ export default function PokemonDetail({ pokemon, species }) {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  // Helper function to get form name
+  const getFormDisplayName = (formName) => {
+    const baseName = pokemon.name;
+    const formSpecific = formName.replace(baseName + '-', '');
+    
+    // Special cases
+    if (formSpecific.includes('mega')) return 'Mega';
+    if (formSpecific.includes('mega-x')) return 'Mega X';
+    if (formSpecific.includes('mega-y')) return 'Mega Y';
+    if (formSpecific.includes('gmax')) return 'Gigantamax';
+    if (formSpecific.includes('alola')) return 'Alolan Form';
+    if (formSpecific.includes('galar')) return 'Galarian Form';
+    if (formSpecific.includes('hisui')) return 'Hisuian Form';
+    if (formSpecific.includes('paldea')) return 'Paldean Form';
+
+    // Capitalize and clean up remaining cases
+    return formSpecific
+      .split('-')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ') + ' Form';
   };
 
   return (
@@ -695,6 +717,83 @@ export default function PokemonDetail({ pokemon, species }) {
           </div>
         </div>
 
+        {/* Alternative Forms Section */}
+        {alternativeForms.length > 0 && (
+          <div className="bg-gray-800 rounded-lg p-6 mt-6">
+            <h2 className="text-2xl font-bold mb-6 text-red-400">Alternative Forms</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {alternativeForms.map((form) => {
+                const formSprite = form.sprites.other?.['official-artwork']?.front_default || 
+                                 form.sprites.front_default;
+                const shinySprite = form.sprites.other?.['official-artwork']?.front_shiny ||
+                                  form.sprites.front_shiny;
+                
+                return (
+                  <div key={form.formName} className="bg-gray-700 rounded-lg p-4">
+                    <h3 className="text-xl font-semibold mb-4 text-center">
+                      {getFormDisplayName(form.formName)}
+                    </h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      {formSprite && (
+                        <div className="flex flex-col items-center">
+                          <div className="bg-gray-800 p-4 rounded-lg">
+                            <img
+                              src={formSprite}
+                              alt={`${form.formName} regular`}
+                              className="w-32 h-32 object-contain"
+                            />
+                          </div>
+                          <p className="mt-2 text-gray-400">Regular</p>
+                        </div>
+                      )}
+                      {shinySprite && (
+                        <div className="flex flex-col items-center">
+                          <div className="bg-gray-800 p-4 rounded-lg">
+                            <img
+                              src={shinySprite}
+                              alt={`${form.formName} shiny`}
+                              className="w-32 h-32 object-contain"
+                            />
+                          </div>
+                          <p className="mt-2 text-gray-400">Shiny</p>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Form-specific catch status */}
+                    <div className="mt-4 flex justify-center gap-4">
+                      <button
+                        onClick={() => updateCaughtStatus('regular', form.formName)}
+                        className={`px-4 py-2 rounded-lg flex items-center gap-2 ${
+                          caughtStatus[form.formName]?.regular 
+                            ? 'bg-green-500 hover:bg-green-600' 
+                            : 'bg-gray-600 hover:bg-gray-500'
+                        }`}
+                      >
+                        <span>{caughtStatus[form.formName]?.regular ? '✓' : '○'}</span>
+                        Regular
+                      </button>
+                      {shinySprite && (
+                        <button
+                          onClick={() => updateCaughtStatus('shiny', form.formName)}
+                          className={`px-4 py-2 rounded-lg flex items-center gap-2 ${
+                            caughtStatus[form.formName]?.shiny 
+                              ? 'bg-yellow-500 hover:bg-yellow-600' 
+                              : 'bg-gray-600 hover:bg-gray-500'
+                          }`}
+                        >
+                          <span>{caughtStatus[form.formName]?.shiny ? '✓' : '○'}</span>
+                          Shiny
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {/* Catch Status */}
         <div className="bg-gray-800 rounded-lg p-6">
           <h2 className="text-2xl font-bold mb-4 text-red-400">Catch Status</h2>
@@ -758,7 +857,7 @@ export async function getStaticPaths() {
 
 export async function getStaticProps({ params }) {
   try {
-    // Fetch Pokémon data
+    // Fetch base Pokémon data
     const resPokemon = await fetch(`https://pokeapi.co/api/v2/pokemon/${params.name}`);
     if (!resPokemon.ok) {
       return { notFound: true };
@@ -772,12 +871,31 @@ export async function getStaticProps({ params }) {
     }
     const species = await resSpecies.json();
 
+    // Fetch all forms data
+    const forms = await Promise.all(
+      species.varieties.map(async (variety) => {
+        const resForm = await fetch(variety.pokemon.url);
+        if (!resForm.ok) return null;
+        const formData = await resForm.json();
+        return {
+          ...formData,
+          formName: variety.pokemon.name
+        };
+      })
+    );
+
+    // Filter out null responses and the default form
+    const alternativeForms = forms.filter(
+      form => form && form.formName !== params.name
+    );
+
     return {
       props: { 
         pokemon,
-        species
+        species,
+        alternativeForms
       },
-      revalidate: 86400, // Revalidate once per day
+      revalidate: 86400,
     };
   } catch (error) {
     console.error('Error fetching Pokémon data:', error);
