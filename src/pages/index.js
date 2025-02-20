@@ -61,7 +61,7 @@ export default function Home({ generations }) {
 
       {/* Main Content */}
       <div className="container mx-auto p-4">
-        {/* Add Wondercard Upload Section */}
+        {/* Wondercard Upload Section */}
         <div className="mb-8">
           <div className="bg-gray-800 rounded-lg p-6">
             <h2 className="text-2xl font-bold mb-4 text-red-400">Wondercard Upload</h2>
@@ -87,71 +87,71 @@ export default function Home({ generations }) {
           </div>
         </div>
 
-        <div className="mb-8 flex justify-center">
-          <select
-            className="bg-gray-800 text-white border border-red-500 p-3 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-            value={selectedGeneration}
-            onChange={(e) => setSelectedGeneration(e.target.value)}
-          >
-            <option value="">Select Generation</option>
-            {generations.map((gen) => (
-              <option key={gen.id} value={gen.id}>
-                Generation {gen.id.toUpperCase()} - {gen.name.replace('-', ' ').toUpperCase()}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {loading && (
-          <div className="text-center text-xl text-red-400">
-            Loading Pokémon...
-          </div>
-        )}
-
-        {!loading && selectedGeneration && pokemonSpecies.length === 0 && (
-          <div className="text-center text-xl text-red-400">
-            No Pokémon found for this generation.
-          </div>
-        )}
-
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-          {pokemonSpecies.map((species) => {
-            const id = species.url.split('/').slice(-2)[0];
-            const imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`;
-            
-            return (
-              <Link key={species.name} href={`/pokemon/${species.name}`}>
-                <a className="bg-gray-800 rounded-lg p-4 flex flex-col items-center transform hover:scale-105 transition-transform duration-200 border border-gray-700 hover:border-red-500">
-                  <div className="relative w-32 h-32 mb-4">
-                    <Image
-                      src={imageUrl}
-                      alt={species.name}
-                      layout="fill"
-                      objectFit="contain"
-                      className="drop-shadow-lg"
-                    />
-                  </div>
-                  <p className="font-semibold text-lg text-center capitalize mb-1">
-                    {species.name.replace('-', ' ')}
-                  </p>
-                  <p className="text-red-400 font-mono">#{id.padStart(3, '0')}</p>
-                </a>
-              </Link>
-            );
-          })}
-        </div>
-
-        {!selectedGeneration && (
-          <div className="text-center mt-8 text-xl text-red-400">
-            Please select a generation to view Pokémon.
-          </div>
-        )}
-
+        {/* Render either Wondercard or Pokemon List */}
         {wcData ? (
           <WondercardDisplay wcData={wcData} />
         ) : (
-          // Your existing Pokemon generation selection and display
-          // ... existing code ...
+          <>
+            <div className="mb-8 flex justify-center">
+              <select
+                className="bg-gray-800 text-white border border-red-500 p-3 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                value={selectedGeneration}
+                onChange={(e) => setSelectedGeneration(e.target.value)}
+              >
+                <option value="">Select Generation</option>
+                {generations.map((gen) => (
+                  <option key={gen.id} value={gen.id}>
+                    Generation {gen.id.toUpperCase()} - {gen.name.replace('-', ' ').toUpperCase()}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {loading && (
+              <div className="text-center text-xl text-red-400">
+                Loading Pokémon...
+              </div>
+            )}
+
+            {!loading && selectedGeneration && pokemonSpecies.length === 0 && (
+              <div className="text-center text-xl text-red-400">
+                No Pokémon found for this generation.
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+              {pokemonSpecies.map((species) => {
+                const id = species.url.split('/').slice(-2)[0];
+                const imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`;
+                
+                return (
+                  <Link key={species.name} href={`/pokemon/${species.name}`}>
+                    <a className="bg-gray-800 rounded-lg p-4 flex flex-col items-center transform hover:scale-105 transition-transform duration-200 border border-gray-700 hover:border-red-500">
+                      <div className="relative w-32 h-32 mb-4">
+                        <Image
+                          src={imageUrl}
+                          alt={species.name}
+                          layout="fill"
+                          objectFit="contain"
+                          className="drop-shadow-lg"
+                        />
+                      </div>
+                      <p className="font-semibold text-lg text-center capitalize mb-1">
+                        {species.name.replace('-', ' ')}
+                      </p>
+                      <p className="text-red-400 font-mono">#{id.padStart(3, '0')}</p>
+                    </a>
+                  </Link>
+                );
+              })}
+            </div>
+
+            {!selectedGeneration && (
+              <div className="text-center mt-8 text-xl text-red-400">
+                Please select a generation to view Pokémon.
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
