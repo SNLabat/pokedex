@@ -1,0 +1,18 @@
+/* styles/Pokemon.module.css */
+.container {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+  }
+  
+  .header {
+    margin-bottom: 20px;
+  }
+  
+  .spriteGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 10px;
+  }
+  
+  /* Add more styles as needed */
+  
