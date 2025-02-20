@@ -1,7 +1,6 @@
 // pages/index.js
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Search, ChevronDown } from 'lucide-react';
 
 export default function Home({ generations }) {
   const [selectedGeneration, setSelectedGeneration] = useState('');
@@ -50,27 +49,25 @@ export default function Home({ generations }) {
               <input
                 type="text"
                 placeholder="Search Pokémon..."
-                className="w-full pl-10 pr-4 py-2 rounded bg-gray-800 border border-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500"
+                className="w-full pl-4 pr-4 py-2 rounded bg-gray-800 border border-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
-              <Search className="absolute left-3 top-2.5 text-gray-400" size={20} />
             </div>
             
             <div className="relative w-full sm:w-64">
               <select
-                className="w-full pl-4 pr-10 py-2 rounded bg-gray-800 border border-gray-700 text-white appearance-none focus:outline-none focus:ring-2 focus:ring-red-500"
+                className="w-full px-4 py-2 rounded bg-gray-800 border border-gray-700 text-white appearance-none focus:outline-none focus:ring-2 focus:ring-red-500"
                 value={selectedGeneration}
                 onChange={(e) => setSelectedGeneration(e.target.value)}
               >
                 <option value="">Select Generation</option>
                 {generations.map((gen) => (
                   <option key={gen.id} value={gen.id}>
-                    Generation {gen.id.toUpperCase()}
+                    Generation {gen.id}
                   </option>
                 ))}
               </select>
-              <ChevronDown className="absolute right-3 top-2.5 text-gray-400" size={20} />
             </div>
           </div>
         </div>

@@ -1,7 +1,6 @@
 // pages/pokemon/[name].js
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowLeft, Heart, Shield, Zap, Activity, Volume2 } from 'lucide-react';
 
 export default function PokemonDetail({ pokemon, species }) {
   const {
@@ -88,8 +87,7 @@ export default function PokemonDetail({ pokemon, species }) {
         {/* Top Navigation */}
         <Link href="/">
           <a className="inline-flex items-center text-red-400 hover:text-red-300 mb-6">
-            <ArrowLeft className="mr-2" />
-            Back to National Pokédex
+            ← Back to National Pokédex
           </a>
         </Link>
 
@@ -143,10 +141,7 @@ export default function PokemonDetail({ pokemon, species }) {
             {/* Stats */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               <div className="bg-gray-700 rounded-lg p-6">
-                <h2 className="text-xl font-semibold mb-4 flex items-center">
-                  <Activity className="mr-2" />
-                  Base Stats
-                </h2>
+                <h2 className="text-xl font-semibold mb-4">Base Stats</h2>
                 {stats.map((stat) => (
                   <div key={stat.stat.name} className="mb-4">
                     <div className="flex justify-between mb-1">
@@ -165,10 +160,7 @@ export default function PokemonDetail({ pokemon, species }) {
 
               {/* Training Info */}
               <div className="bg-gray-700 rounded-lg p-6">
-                <h2 className="text-xl font-semibold mb-4 flex items-center">
-                  <Zap className="mr-2" />
-                  Training
-                </h2>
+                <h2 className="text-xl font-semibold mb-4">Training</h2>
                 <div className="space-y-2">
                   <p><span className="text-gray-300">Base EXP:</span> {base_experience}</p>
                   <p><span className="text-gray-300">Catch Rate:</span> {catch_rate} ({(catch_rate / 255 * 100).toFixed(1)}%)</p>
