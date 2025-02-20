@@ -1,21 +1,40 @@
+// Helper function to read binary data
+function createDataView(buffer) {
+  return new DataView(buffer instanceof ArrayBuffer ? buffer : buffer.buffer);
+}
+
+function readUInt8(dataView, offset) {
+  return dataView.getUint8(offset);
+}
+
+function readUInt16LE(dataView, offset) {
+  return dataView.getUint16(offset, true);
+}
+
+function readUInt32LE(dataView, offset) {
+  return dataView.getUint32(offset, true);
+}
+
 const parseWCBuffer = (buf) => {
   console.log('Buffer length:', buf.length);
   console.log('Buffer:', buf);
 
   try {
+    const dataView = createDataView(buf);
+
     // Check buffer length to determine wondercard type
     if (buf.length === 784) { // WC6 Full
       console.log('Parsing WC6 Full');
-      return parseWC6Full(buf);
+      return parseWC6Full(dataView);
     } else if (buf.length === 264) { // WC6
       console.log('Parsing WC6');
-      return parseWC6(buf);
+      return parseWC6(dataView);
     } else if (buf.length === 204) { // WC5
       console.log('Parsing WC5');
-      return parseWC5(buf);
+      return parseWC5(dataView);
     } else if (buf.length === 856 || buf.length === 260) { // WC4 (PCD: 856, PGT: 260)
       console.log('Parsing WC4');
-      return parseWC4(buf);
+      return parseWC4(dataView);
     } else {
       throw new Error(`Invalid wondercard format: unexpected length ${buf.length}`);
     }
@@ -25,37 +44,37 @@ const parseWCBuffer = (buf) => {
   }
 };
 
-function parseWC6Full(buf) {
+function parseWC6Full(dataView) {
   const data = {
     type: 'WC6 Full',
-    cardID: buf.readUInt16LE(0x0),
-    cardTitle: readUTF16String(buf, 0x2, 36),
-    gamesSupported: parseGameFlags(buf.readUInt32LE(0x4C)),
+    cardID: readUInt16LE(dataView, 0x0),
+    cardTitle: readUTF16String(dataView, 0x2, 36),
+    gamesSupported: parseGameFlags(readUInt32LE(dataView, 0x4C)),
     pokemon: {
-      species: buf.readUInt16LE(0x82),
-      form: buf.readUInt8(0x84),
-      level: buf.readUInt8(0x85),
+      species: readUInt16LE(dataView, 0x82),
+      form: readUInt8(dataView, 0x84),
+      level: readUInt8(dataView, 0x85),
       moves: [
-        buf.readUInt16LE(0x86),
-        buf.readUInt16LE(0x88),
-        buf.readUInt16LE(0x8A),
-        buf.readUInt16LE(0x8C)
+        readUInt16LE(dataView, 0x86),
+        readUInt16LE(dataView, 0x88),
+        readUInt16LE(dataView, 0x8A),
+        readUInt16LE(dataView, 0x8C)
       ],
-      ability: buf.readUInt8(0x8E),
-      nature: buf.readUInt8(0x8F),
-      gender: buf.readUInt8(0x90),
-      shiny: buf.readUInt8(0x91) === 2,
-      heldItem: buf.readUInt16LE(0x92),
+      ability: readUInt8(dataView, 0x8E),
+      nature: readUInt8(dataView, 0x8F),
+      gender: readUInt8(dataView, 0x90),
+      shiny: readUInt8(dataView, 0x91) === 2,
+      heldItem: readUInt16LE(dataView, 0x92),
     },
     metadata: {
-      flags: buf.readUInt32LE(0x94),
-      distributionStart: parseDate(buf, 0x98),
-      distributionEnd: parseDate(buf, 0x9C),
+      flags: readUInt32LE(dataView, 0x94),
+      distributionStart: parseDate(dataView, 0x98),
+      distributionEnd: parseDate(dataView, 0x9C),
     }
   };
 
   // Add redemption text if present
-  const redemptionText = readUTF16String(buf, 0x104, 0x200);
+  const redemptionText = readUTF16String(dataView, 0x104, 0x200);
   if (redemptionText) {
     data.redemptionText = redemptionText;
   }
@@ -63,38 +82,38 @@ function parseWC6Full(buf) {
   return data;
 }
 
-function parseWC6(buf) {
+function parseWC6(dataView) {
   try {
     const fileName = "Unknown.wc6"; // You'll need to pass this from the file input
-    const wcId = buf.readUInt16LE(0x0);
+    const wcId = readUInt16LE(dataView, 0x0);
     
     const data = {
       fileName,
       wcType: "wc6",
       wcId,
-      wcTitle: readUTF16String(buf, 0x2, 36),
-      cardText: readUTF16String(buf, 0x4, 0x200),
-      pokemonName: getPokemonName(buf.readUInt16LE(0x82)),
-      move1Name: getMoveNameById(buf.readUInt16LE(0x86)),
-      move2Name: getMoveNameById(buf.readUInt16LE(0x88)),
-      move3Name: getMoveNameById(buf.readUInt16LE(0x8A)),
-      move4Name: getMoveNameById(buf.readUInt16LE(0x8C)),
-      ot: readUTF16String(buf, 0xB0, 16), // Correct offset for OT
-      idNo: buf.readUInt16LE(0xA0).toString().padStart(5, '0'), // Correct offset for TID
-      gender: getGenderString(buf.readUInt8(0x90)),
-      Level: buf.readUInt8(0x85),
+      wcTitle: readUTF16String(dataView, 0x2, 36),
+      cardText: readUTF16String(dataView, 0x4, 0x200),
+      pokemonName: getPokemonName(readUInt16LE(dataView, 0x82)),
+      move1Name: getMoveNameById(readUInt16LE(dataView, 0x86)),
+      move2Name: getMoveNameById(readUInt16LE(dataView, 0x88)),
+      move3Name: getMoveNameById(readUInt16LE(dataView, 0x8A)),
+      move4Name: getMoveNameById(readUInt16LE(dataView, 0x8C)),
+      ot: readUTF16String(dataView, 0xB0, 16), // Correct offset for OT
+      idNo: readUInt16LE(dataView, 0xA0).toString().padStart(5, '0'), // Correct offset for TID
+      gender: getGenderString(readUInt8(dataView, 0x90)),
+      Level: readUInt8(dataView, 0x85),
       ball: "Cherish Ball",
-      heldItem: getItemNameById(buf.readUInt16LE(0x92)),
+      heldItem: getItemNameById(readUInt16LE(dataView, 0x92)),
       Ribbon: "Classic Ribbon",
       language: "Yours",
-      nature: getNatureString(buf.readUInt8(0x8F)),
-      abilityType: getAbilityTypeString(buf.readUInt8(0x8E)),
+      nature: getNatureString(readUInt8(dataView, 0x8F)),
+      abilityType: getAbilityTypeString(readUInt8(dataView, 0x8E)),
       formName: "None",
-      canBeShiny: getShinyString(buf.readUInt8(0x91)),
+      canBeShiny: getShinyString(readUInt8(dataView, 0x91)),
       giftRedeemable: "Only once",
       metLocation: "a lovely place",
-      ivType: getIVString(buf.readUInt8(0xA2)), // Correct offset for IV type
-      dexNo: buf.readUInt16LE(0x82)
+      ivType: getIVString(readUInt8(dataView, 0xA2)), // Correct offset for IV type
+      dexNo: readUInt16LE(dataView, 0x82)
     };
 
     return data;
@@ -104,12 +123,12 @@ function parseWC6(buf) {
   }
 }
 
-// Helper functions with added error handling
-function readUTF16String(buf, offset, maxLength) {
+// Helper function to read UTF-16 strings from DataView
+function readUTF16String(dataView, offset, maxLength) {
   try {
     let str = '';
-    for (let i = 0; i < maxLength && (offset + i + 1) < buf.length; i += 2) {
-      const code = buf.readUInt16LE(offset + i);
+    for (let i = 0; i < maxLength && (offset + i + 1) < dataView.byteLength; i += 2) {
+      const code = dataView.getUint16(offset + i, true);
       if (code === 0) break;
       str += String.fromCharCode(code);
     }
@@ -134,14 +153,14 @@ function parseGameFlags(flags) {
   }
 }
 
-function parseDate(buf, offset) {
+function parseDate(dataView, offset) {
   try {
-    if (offset + 4 > buf.length) {
+    if (offset + 4 > dataView.byteLength) {
       throw new Error('Buffer too short for date parsing');
     }
-    const year = buf.readUInt16LE(offset);
-    const month = buf.readUInt8(offset + 2);
-    const day = buf.readUInt8(offset + 3);
+    const year = readUInt16LE(dataView, offset);
+    const month = readUInt8(dataView, offset + 2);
+    const day = readUInt8(dataView, offset + 3);
     return new Date(year, month - 1, day);
   } catch (error) {
     console.error('Error in parseDate:', error);

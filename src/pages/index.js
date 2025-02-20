@@ -41,8 +41,8 @@ export default function Home({ generations }) {
     if (!file) return;
 
     try {
-      const buffer = await file.arrayBuffer();
-      const wcBuffer = new Uint8Array(buffer);
+      const arrayBuffer = await file.arrayBuffer();
+      const wcBuffer = new Uint8Array(arrayBuffer);
       const parsedData = parseWCBuffer(wcBuffer);
       
       // Add fileName to parsed data
@@ -58,7 +58,7 @@ export default function Home({ generations }) {
           fileName: file.name,
           fileSize: file.size,
           errorMessage: error.message,
-          bufferLength: buffer?.byteLength,
+          bufferLength: wcBuffer?.length,
         }
       });
       setWCData(null);
