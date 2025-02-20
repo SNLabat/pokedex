@@ -198,6 +198,50 @@ export default function PokemonDetail({ pokemon, species }) {
           </div>
         </div>
 
+        {/* Combined Pokédex Entry and Cries section */}
+        {(englishEntry || (cries && (cries.latest || cries.legacy))) && (
+          <div className="bg-gray-800 rounded-lg p-6 mb-6">
+            {englishEntry && (
+              <>
+                <h2 className="text-2xl font-bold mb-4 text-red-400">Pokédex Entry</h2>
+                <p className="text-lg leading-relaxed mb-6">{englishEntry}</p>
+              </>
+            )}
+            
+            {cries && (cries.latest || cries.legacy) && (
+              <div className="space-y-4">
+                <h3 className="text-xl font-bold text-gray-400">Cries</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {cries.latest && (
+                    <div className="bg-gray-700 p-4 rounded-lg">
+                      <p className="text-gray-400 mb-2">Latest Cry</p>
+                      <audio
+                        controls
+                        src={cries.latest}
+                        className="w-full"
+                      >
+                        Your browser does not support audio.
+                      </audio>
+                    </div>
+                  )}
+                  {cries.legacy && (
+                    <div className="bg-gray-700 p-4 rounded-lg">
+                      <p className="text-gray-400 mb-2">Legacy Cry</p>
+                      <audio
+                        controls
+                        src={cries.legacy}
+                        className="w-full"
+                      >
+                        Your browser does not support audio.
+                      </audio>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Info Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           {/* Training */}
@@ -277,14 +321,6 @@ export default function PokemonDetail({ pokemon, species }) {
           </div>
         </div>
 
-        {/* Pokédex Entry */}
-        {englishEntry && (
-          <div className="bg-gray-800 rounded-lg p-6 mb-6">
-            <h2 className="text-2xl font-bold mb-4 text-red-400">Pokédex Entry</h2>
-            <p className="text-lg leading-relaxed">{englishEntry}</p>
-          </div>
-        )}
-
         {/* Level-Up Moves */}
         <div className="bg-gray-800 rounded-lg p-6 mb-6">
           <h2 className="text-2xl font-bold mb-4 text-red-400">
@@ -311,39 +347,6 @@ export default function PokemonDetail({ pokemon, species }) {
             })}
           </div>
         </div>
-
-        {/* Cries */}
-        {cries && (cries.latest || cries.legacy) && (
-          <div className="bg-gray-800 rounded-lg p-6 mb-6">
-            <h2 className="text-2xl font-bold mb-4 text-red-400">Cries</h2>
-            <div className="space-y-4">
-              {cries.latest && (
-                <div>
-                  <p className="text-gray-400 mb-2">Latest Cry</p>
-                  <audio
-                    controls
-                    src={cries.latest}
-                    className="w-full"
-                  >
-                    Your browser does not support audio.
-                  </audio>
-                </div>
-              )}
-              {cries.legacy && (
-                <div>
-                  <p className="text-gray-400 mb-2">Legacy Cry</p>
-                  <audio
-                    controls
-                    src={cries.legacy}
-                    className="w-full"
-                  >
-                    Your browser does not support audio.
-                  </audio>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
 
         {/* Sprites Gallery */}
         <div className="bg-gray-800 rounded-lg p-6">
