@@ -376,11 +376,13 @@ export default function PokemonDetail({ pokemon, species, alternativeForms }) {
       {/* Top Red Bar with Navigation */}
       <div className="bg-red-600 p-4 shadow-lg flex items-center">
         <Link href="/">
-          <a className="text-white hover:text-gray-200 flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            Back to National Pokédex
+          <a className="text-white hover:text-gray-200 flex items-center gap-2">
+            <img 
+              src="/img/pokeball.png" 
+              alt="Home" 
+              className="w-6 h-6 hover:rotate-12 transition-transform"
+            />
+            <span>Back to National Pokédex</span>
           </a>
         </Link>
       </div>
