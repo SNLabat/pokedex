@@ -2,7 +2,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
-import pokeballOutline from '../../../public/img/pokeballoutline.png';
+import pokeballOutline from '/public/img/pokeballoutline.png';
 
 // Remove the Heroicons import and use this custom IconSet component
 const IconSet = {
@@ -1038,6 +1038,7 @@ export async function getStaticProps({ params }) {
     const resPokemon = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonName}`);
     if (!resPokemon.ok) {
       return { notFound: true };
+    }
     const pokemon = await resPokemon.json();
     
     // Fetch species data
@@ -1046,6 +1047,13 @@ export async function getStaticProps({ params }) {
       return { notFound: true };
     }
     const species = await resSpecies.json();
+
+    // Fetch evolution chain data
+    const evolutionChainRes = await fetch(species.evolution_chain.url);
+    if (!evolutionChainRes.ok) {
+      throw new Error('Failed to fetch evolution chain');
+    }
+    const evolutionChainData = await evolutionChainRes.json();
 
     // Fetch all forms data
     const forms = await Promise.all(
@@ -1064,13 +1072,6 @@ export async function getStaticProps({ params }) {
     const alternativeForms = forms.filter(
       form => form && form.formName !== params.name
     );
-
-    // Fetch evolution chain data
-    const evolutionChainRes = await fetch(species.evolution_chain.url);
-    if (!evolutionChainRes.ok) {
-      throw new Error('Failed to fetch evolution chain');
-    }
-    const evolutionChainData = await evolutionChainRes.json();
 
     return {
       props: { 
