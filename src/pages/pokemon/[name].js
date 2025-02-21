@@ -1080,8 +1080,9 @@ export async function getStaticProps({ params }) {
         alternativeForms,
         evolutionChain: evolutionChainData.chain
       },
-      revalidate: 86400,
+      revalidate: 86400
     };
+
   } catch (error) {
     console.error('Error fetching Pokémon data:', error);
     return { notFound: true };
