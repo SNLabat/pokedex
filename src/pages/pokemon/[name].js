@@ -19,19 +19,40 @@ const IconSet = {
   Weight: () => <span className="text-xl">⚖️</span>
 };
 
+// Add the enhanced typeColors object
+const typeColors = {
+  normal: { bg: 'bg-gray-700', text: 'text-gray-100', accent: 'bg-gray-500' },
+  fire: { bg: 'bg-orange-900', text: 'text-orange-50', accent: 'bg-orange-600' },
+  water: { bg: 'bg-blue-900', text: 'text-blue-50', accent: 'bg-blue-600' },
+  electric: { bg: 'bg-yellow-700', text: 'text-yellow-50', accent: 'bg-yellow-500' },
+  grass: { bg: 'bg-green-800', text: 'text-green-50', accent: 'bg-green-600' },
+  ice: { bg: 'bg-cyan-800', text: 'text-cyan-50', accent: 'bg-cyan-500' },
+  fighting: { bg: 'bg-red-900', text: 'text-red-50', accent: 'bg-red-600' },
+  poison: { bg: 'bg-purple-900', text: 'text-purple-50', accent: 'bg-purple-600' },
+  ground: { bg: 'bg-amber-900', text: 'text-amber-50', accent: 'bg-amber-600' },
+  flying: { bg: 'bg-indigo-800', text: 'text-indigo-50', accent: 'bg-indigo-500' },
+  psychic: { bg: 'bg-pink-800', text: 'text-pink-50', accent: 'bg-pink-500' },
+  bug: { bg: 'bg-lime-800', text: 'text-lime-50', accent: 'bg-lime-600' },
+  rock: { bg: 'bg-stone-800', text: 'text-stone-50', accent: 'bg-stone-600' },
+  ghost: { bg: 'bg-purple-950', text: 'text-purple-50', accent: 'bg-purple-700' },
+  dragon: { bg: 'bg-violet-900', text: 'text-violet-50', accent: 'bg-violet-600' },
+  dark: { bg: 'bg-neutral-900', text: 'text-neutral-50', accent: 'bg-neutral-700' },
+  steel: { bg: 'bg-zinc-800', text: 'text-zinc-50', accent: 'bg-zinc-600' },
+  fairy: { bg: 'bg-pink-700', text: 'text-pink-50', accent: 'bg-pink-500' }
+};
+
 // Add the SpriteToggleGroup component at the top
-const SpriteToggleGroup = ({ isAnimated, isShiny, onAnimatedChange, onShinyChange, hasAnimated, hasShiny }) => (
+const SpriteToggleGroup = ({ isAnimated, isShiny, onAnimatedChange, onShinyChange, hasAnimated, hasShiny, theme }) => (
   <div className="flex flex-col gap-2">
     {/* Main sprite type toggles */}
-    <div className="inline-flex rounded-md shadow-sm" role="group">
+    <div className="inline-flex rounded-lg shadow-lg" role="group">
       <button
         onClick={() => onShinyChange(false)}
-        className={`px-4 py-2 text-sm font-medium rounded-l-lg border border-gray-600 
+        className={`px-4 py-2 text-sm font-medium rounded-l-lg border-2 transition-colors
           ${!isShiny 
-            ? 'bg-gray-700 text-white'
-            : 'bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white'
-          }
-          focus:z-10 focus:ring-2 focus:ring-gray-500`}
+            ? `${theme.accent} ${theme.text}`
+            : `${theme.bg} opacity-75 hover:opacity-100`
+          }`}
       >
         Regular
       </button>
@@ -109,7 +130,7 @@ const formatStatName = (statName) => {
 };
 
 // Add enhanced PokemonCry component with iOS detection
-const PokemonCry = ({ src, label }) => {
+const PokemonCry = ({ src, label, theme }) => {
   const [isIOS, setIsIOS] = useState(false);
 
   useEffect(() => {
@@ -123,8 +144,8 @@ const PokemonCry = ({ src, label }) => {
 
   if (isIOS) {
     return (
-      <div className="bg-gray-700 p-4 rounded-lg">
-        <p className="text-gray-400 mb-2">{label}</p>
+      <div className={`${theme.bg} bg-opacity-50 p-4 rounded-lg shadow-lg`}>
+        <p className={`${theme.text} opacity-75 mb-2`}>{label}</p>
         <a 
           href={src}
           target="_blank"
@@ -141,8 +162,8 @@ const PokemonCry = ({ src, label }) => {
   }
 
   return (
-    <div className="bg-gray-700 p-4 rounded-lg">
-      <p className="text-gray-400 mb-2">{label}</p>
+    <div className={`${theme.bg} bg-opacity-50 p-4 rounded-lg shadow-lg`}>
+      <p className={`${theme.text} opacity-75 mb-2`}>{label}</p>
       <audio
         controls
         className="w-full"
@@ -259,27 +280,9 @@ export default function PokemonDetail({ pokemon, species, alternativeForms }) {
   // Calculate catch rate percentage
   const catchRatePercentage = (catch_rate / 255 * 100).toFixed(1);
 
-  // Type color mapping for badges
-  const typeColors = {
-    normal: 'bg-gray-400',
-    fire: 'bg-red-500',
-    water: 'bg-blue-500',
-    electric: 'bg-yellow-400',
-    grass: 'bg-green-500',
-    ice: 'bg-blue-200',
-    fighting: 'bg-red-700',
-    poison: 'bg-purple-500',
-    ground: 'bg-yellow-600',
-    flying: 'bg-indigo-400',
-    psychic: 'bg-pink-500',
-    bug: 'bg-green-400',
-    rock: 'bg-yellow-800',
-    ghost: 'bg-purple-700',
-    dragon: 'bg-indigo-600',
-    dark: 'bg-gray-700',
-    steel: 'bg-gray-500',
-    fairy: 'bg-pink-300'
-  };
+  // Add theme selection based on primary type
+  const primaryType = pokemon.types[0].type.name;
+  const theme = typeColors[primaryType] || typeColors.normal;
 
   // Load caught status from localStorage on mount
   useEffect(() => {
@@ -372,24 +375,20 @@ export default function PokemonDetail({ pokemon, species, alternativeForms }) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
+    <div className={`min-h-screen ${theme.bg} ${theme.text}`}>
       {/* Top Red Bar with Navigation */}
-      <div className="bg-red-600 p-4 shadow-lg flex items-center">
+      <div className={`${theme.accent} p-4 shadow-lg`}>
         <Link href="/">
-          <a className="text-white hover:text-gray-200 flex items-center gap-2">
-            <img 
-              src="/img/pokeball.png" 
-              alt="Home" 
-              className="w-6 h-6 hover:rotate-12 transition-transform"
-            />
-            <span>Back to National Pokédex</span>
+          <a className="flex items-center gap-2 opacity-90 hover:opacity-100 transition-opacity">
+            <span className="text-2xl">←</span>
+            <span>National Pokédex</span>
           </a>
         </Link>
       </div>
 
       <div className="container mx-auto p-4">
         {/* Header: Artwork and Basic Info */}
-        <div className="bg-gray-800 rounded-lg p-6 mb-6 flex flex-col md:flex-row items-center">
+        <div className={`${theme.bg} bg-opacity-50 rounded-lg p-6 mb-6 flex flex-col md:flex-row items-center`}>
           <div className="md:w-1/3 flex flex-col items-center mb-6 md:mb-0">
             <div className="relative w-64 h-64 mb-4">
               <Image
@@ -407,6 +406,7 @@ export default function PokemonDetail({ pokemon, species, alternativeForms }) {
               onShinyChange={setIsShiny}
               hasAnimated={hasAnimatedSprites}
               hasShiny={hasShinySprites}
+              theme={theme}
             />
           </div>
           <div className="md:w-2/3 md:pl-8">
@@ -425,7 +425,7 @@ export default function PokemonDetail({ pokemon, species, alternativeForms }) {
               {types.map(t => (
                 <span
                   key={t.type.name}
-                  className={`${typeColors[t.type.name]} px-3 py-1 rounded-full text-white capitalize`}
+                  className={`${typeColors[t.type.name].accent} px-3 py-1 rounded-full text-white capitalize`}
                 >
                   {t.type.name}
                 </span>
@@ -462,10 +462,10 @@ export default function PokemonDetail({ pokemon, species, alternativeForms }) {
 
         {/* Combined Pokédex Entry and Cries section */}
         {cries && (cries.latest || cries.legacy) && (
-          <div className="bg-gray-800 rounded-lg p-6 mb-6">
+          <div className={`${theme.bg} bg-opacity-50 rounded-lg p-6 mb-6`}>
             {englishEntry && (
               <>
-                <h2 className="text-2xl font-bold mb-4 text-red-400">Pokédex Entry</h2>
+                <h2 className={`text-2xl font-bold mb-4 ${theme.accent}`}>Pokédex Entry</h2>
                 <p className="text-lg leading-relaxed mb-6">{englishEntry}</p>
               </>
             )}
@@ -473,8 +473,8 @@ export default function PokemonDetail({ pokemon, species, alternativeForms }) {
             <div className="space-y-4">
               <h3 className="text-xl font-bold text-gray-400">Cries</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {cries.latest && <PokemonCry src={cries.latest} label="Latest Cry" />}
-                {cries.legacy && <PokemonCry src={cries.legacy} label="Legacy Cry" />}
+                {cries.latest && <PokemonCry src={cries.latest} label="Latest Cry" theme={theme} />}
+                {cries.legacy && <PokemonCry src={cries.legacy} label="Legacy Cry" theme={theme} />}
               </div>
             </div>
           </div>
@@ -483,8 +483,8 @@ export default function PokemonDetail({ pokemon, species, alternativeForms }) {
         {/* Info Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           {/* Training */}
-          <div className="bg-gray-800 rounded-lg p-6">
-            <h2 className="text-2xl font-bold mb-4 text-red-400">Training</h2>
+          <div className={`${theme.bg} bg-opacity-50 rounded-lg p-6`}>
+            <h2 className={`text-2xl font-bold mb-4 ${theme.accent}`}>Training</h2>
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <IconSet.Experience />
@@ -517,8 +517,8 @@ export default function PokemonDetail({ pokemon, species, alternativeForms }) {
           </div>
 
           {/* Breeding */}
-          <div className="bg-gray-800 rounded-lg p-6">
-            <h2 className="text-2xl font-bold mb-4 text-red-400">Breeding</h2>
+          <div className={`${theme.bg} bg-opacity-50 rounded-lg p-6`}>
+            <h2 className={`text-2xl font-bold mb-4 ${theme.accent}`}>Breeding</h2>
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <IconSet.EggGroups />
@@ -542,10 +542,10 @@ export default function PokemonDetail({ pokemon, species, alternativeForms }) {
         </div>
 
         {/* Base Stats */}
-        <div className="bg-gray-800 rounded-lg p-6 mb-6">
+        <div className={`${theme.bg} bg-opacity-50 rounded-lg p-6 mb-6`}>
           <div className="flex items-center gap-2 mb-4">
             <IconSet.Stats />
-            <h2 className="text-2xl font-bold text-red-400">Base Stats</h2>
+            <h2 className={`text-2xl font-bold ${theme.accent}`}>Base Stats</h2>
           </div>
           <div className="grid gap-4">
             {stats.map(stat => {
@@ -580,10 +580,10 @@ export default function PokemonDetail({ pokemon, species, alternativeForms }) {
         </div>
 
         {/* Level-Up Moves */}
-        <div className="bg-gray-800 rounded-lg p-6 mb-6">
+        <div className={`${theme.bg} bg-opacity-50 rounded-lg p-6 mb-6`}>
           <div className="flex items-center gap-2 mb-4">
             <IconSet.Moves />
-            <h2 className="text-2xl font-bold text-red-400">
+            <h2 className={`text-2xl font-bold ${theme.accent}`}>
               Level-Up Moves
             </h2>
           </div>
@@ -605,8 +605,8 @@ export default function PokemonDetail({ pokemon, species, alternativeForms }) {
         </div>
 
         {/* Updated Sprites section */}
-        <div className="bg-gray-800 rounded-lg p-6">
-          <h2 className="text-2xl font-bold mb-4 text-red-400">Sprites & Models</h2>
+        <div className={`${theme.bg} bg-opacity-50 rounded-lg p-6`}>
+          <h2 className={`text-2xl font-bold mb-4 ${theme.accent}`}>Sprites & Models</h2>
           <div className="space-y-8">
             {/* Static Official Artwork */}
             <div>
@@ -760,8 +760,8 @@ export default function PokemonDetail({ pokemon, species, alternativeForms }) {
 
         {/* Alternative Forms Section */}
         {alternativeForms.length > 0 && (
-          <div className="bg-gray-800 rounded-lg p-6 mt-6">
-            <h2 className="text-2xl font-bold mb-6 text-red-400">Alternative Forms</h2>
+          <div className={`${theme.bg} bg-opacity-50 rounded-lg p-6 mt-6`}>
+            <h2 className={`text-2xl font-bold mb-6 ${theme.accent}`}>Alternative Forms</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {alternativeForms.map((form) => {
                 const formSprite = form.sprites.other?.['official-artwork']?.front_default || 
@@ -770,7 +770,7 @@ export default function PokemonDetail({ pokemon, species, alternativeForms }) {
                                   form.sprites.front_shiny;
                 
                 return (
-                  <div key={form.formName} className="bg-gray-700 rounded-lg p-4">
+                  <div key={form.formName} className={`${theme.bg} bg-opacity-50 rounded-lg p-4`}>
                     <h3 className="text-xl font-semibold mb-4 text-center">
                       {getFormDisplayName(form.formName)}
                     </h3>
@@ -836,8 +836,8 @@ export default function PokemonDetail({ pokemon, species, alternativeForms }) {
         )}
 
         {/* Catch Status */}
-        <div className="bg-gray-800 rounded-lg p-6">
-          <h2 className="text-2xl font-bold mb-4 text-red-400">Catch Status</h2>
+        <div className={`${theme.bg} bg-opacity-50 rounded-lg p-6`}>
+          <h2 className={`text-2xl font-bold mb-4 ${theme.accent}`}>Catch Status</h2>
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-4">
               <button
@@ -867,8 +867,8 @@ export default function PokemonDetail({ pokemon, species, alternativeForms }) {
         </div>
 
         {/* Export Data */}
-        <div className="bg-gray-800 rounded-lg p-6">
-          <h2 className="text-2xl font-bold mb-4 text-red-400">Export Data</h2>
+        <div className={`${theme.bg} bg-opacity-50 rounded-lg p-6`}>
+          <h2 className={`text-2xl font-bold mb-4 ${theme.accent}`}>Export Data</h2>
           <button
             onClick={exportToCSV}
             className="bg-white text-red-600 px-4 py-2 rounded hover:bg-gray-100 transition-colors"
