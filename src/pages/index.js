@@ -260,13 +260,38 @@ export default function Home({ generations }) {
 const PokemonCard = ({ pokemon, caughtStatus }) => {
   const id = pokemon.url.split('/').slice(-2)[0];
   const imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`;
-  const isCaught = caughtStatus?.regular || caughtStatus?.shiny;
+  const isCaught = caughtStatus?.regular;
+  const isShiny = caughtStatus?.shiny;
   
   return (
     <Link href={`/pokemon/${pokemon.name}`}>
-      <a className={`bg-gray-800 rounded-lg p-4 flex flex-col items-center transform hover:scale-105 transition-transform duration-200 border ${
+      <a className={`bg-gray-800 rounded-lg p-4 flex flex-col items-center transform hover:scale-105 transition-transform duration-200 relative ${
         isCaught ? 'border-green-500' : 'border-gray-700 hover:border-red-500'
       }`}>
+        {/* Add Pokeball indicator */}
+        <div className="absolute top-2 right-2 w-6 h-6 relative">
+          {/* Base outline pokeball */}
+          <img
+            src="/img/pokeballoutline.png"
+            alt="Pokeball"
+            className={`absolute inset-0 w-full h-full ${!isCaught && !isShiny ? 'opacity-50' : 'opacity-0'}`}
+          />
+          {/* Regular caught pokeball */}
+          <img
+            src="/img/pokeballoutline.png"
+            alt="Caught"
+            className={`absolute inset-0 w-full h-full ${isCaught ? 'opacity-100 filter-red' : 'opacity-0'}`}
+            style={{ filter: 'invert(23%) sepia(90%) saturate(7048%) hue-rotate(356deg) brightness(97%) contrast(121%)' }}
+          />
+          {/* Shiny caught pokeball */}
+          <img
+            src="/img/pokeballoutline.png"
+            alt="Shiny"
+            className={`absolute inset-0 w-full h-full ${isShiny ? 'opacity-100 filter-yellow' : 'opacity-0'}`}
+            style={{ filter: 'invert(73%) sepia(89%) saturate(1242%) hue-rotate(359deg) brightness(103%) contrast(105%)' }}
+          />
+        </div>
+
         <div className="relative w-32 h-32 mb-4">
           <Image
             src={imageUrl}
@@ -280,9 +305,6 @@ const PokemonCard = ({ pokemon, caughtStatus }) => {
           {pokemon.name.replace('-', ' ')}
         </p>
         <p className="text-red-400 font-mono">#{id.padStart(3, '0')}</p>
-        {caughtStatus?.shiny && (
-          <span className="text-yellow-400 mt-1">✨ Shiny</span>
-        )}
       </a>
     </Link>
   );

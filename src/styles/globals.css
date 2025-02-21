@@ -23,3 +23,12 @@ body {
 .font-rounded {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
+
+/* Add these utility classes for the pokeball filters */
+.filter-red {
+  filter: invert(23%) sepia(90%) saturate(7048%) hue-rotate(356deg) brightness(97%) contrast(121%);
+}
+
+.filter-yellow {
+  filter: invert(73%) sepia(89%) saturate(1242%) hue-rotate(359deg) brightness(103%) contrast(105%);
+}
