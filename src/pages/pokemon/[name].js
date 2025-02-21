@@ -202,25 +202,56 @@ const EvolutionChain = ({ chain, currentPokemonId }) => {
             )}
           </a>
         </Link>
+        
         {evolution.evolves_to?.length > 0 && (
-          <div className="flex items-center mt-4">
-            <span className="text-2xl">↓</span>
+          <div className="flex items-center mx-4">
+            <span className="text-2xl">→</span>
           </div>
         )}
-        <div className="flex gap-8 mt-4">
-          {evolution.evolves_to.map((evo, index) => (
-            <div key={index}>
+      </div>
+    );
+  };
+
+  const renderEvolutionLine = (evolution) => {
+    const evolutions = [];
+    let currentEvo = evolution;
+
+    while (currentEvo) {
+      evolutions.push(renderEvolution(currentEvo));
+      currentEvo = currentEvo.evolves_to[0]; // Follow the first evolution path
+    }
+
+    // For split evolutions (like Eevee), render them in rows
+    const splitEvolutions = evolution.evolves_to.slice(1);
+    if (splitEvolutions.length > 0) {
+      return (
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center justify-center gap-4">
+            {evolutions}
+          </div>
+          {splitEvolutions.map((evo, index) => (
+            <div key={index} className="flex items-center justify-center gap-4">
+              <div className="invisible">
+                {renderEvolution(evolution)} {/* Placeholder for alignment */}
+              </div>
+              <span className="text-2xl">→</span>
               {renderEvolution(evo)}
             </div>
           ))}
         </div>
+      );
+    }
+
+    return (
+      <div className="flex items-center justify-center gap-4">
+        {evolutions}
       </div>
     );
   };
 
   return (
-    <div className="flex justify-center">
-      {renderEvolution(chain)}
+    <div className="flex justify-center overflow-x-auto">
+      {renderEvolutionLine(chain)}
     </div>
   );
 };
