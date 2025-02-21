@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { parseWCBuffer } from '../utils/wcparse';
 import { useRouter } from 'next/router';
-import pokeballOutline from '../../public/img/pokeballoutline.png';
+import pokeballOutline from '../public/img/pokeballoutline.png';
 
 export default function Home({ generations }) {
   const router = useRouter();

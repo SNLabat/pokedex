@@ -2,7 +2,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
-import pokeballOutline from '../../public/img/pokeballoutline.png';
+import pokeballOutline from '../../../public/img/pokeballoutline.png';
 
 // Remove the Heroicons import and use this custom IconSet component
 const IconSet = {
@@ -1038,7 +1038,6 @@ export async function getStaticProps({ params }) {
     const resPokemon = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonName}`);
     if (!resPokemon.ok) {
       return { notFound: true };
-    }
     const pokemon = await resPokemon.json();
     
     // Fetch species data
