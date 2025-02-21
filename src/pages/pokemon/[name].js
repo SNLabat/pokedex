@@ -1044,12 +1044,14 @@ export async function getStaticProps({ params }) {
     const resPokemon = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonName}`);
     if (!resPokemon.ok) {
       return { notFound: true };
+    }
     const pokemon = await resPokemon.json();
     
     // Fetch species data
     const resSpecies = await fetch(pokemon.species.url);
     if (!resSpecies.ok) {
       return { notFound: true };
+    }
     const species = await resSpecies.json();
 
     // Fetch evolution chain data
