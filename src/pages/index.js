@@ -102,7 +102,24 @@ export default function Home({ generations }) {
       <div className="bg-red-600 shadow-lg">
         <div className="container mx-auto px-4 py-4">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <h1 className="text-4xl font-bold">Labat's Pokémon Database</h1>
+            {/* Add home button and centered title container */}
+            <div className="w-full flex items-center justify-between md:justify-center relative">
+              {/* Persistent home button */}
+              <Link href="/">
+                <a className="absolute left-0">
+                  <img 
+                    src="/img/pokeball.png" 
+                    alt="Home" 
+                    className="w-8 h-8 hover:rotate-12 transition-transform"
+                  />
+                </a>
+              </Link>
+              
+              {/* Centered title */}
+              <h1 className="text-4xl font-bold text-center">
+                Labat's Pokémon Database
+              </h1>
+            </div>
             
             {/* View Mode Toggles */}
             <div className="flex gap-2">
