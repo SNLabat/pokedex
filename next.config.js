@@ -7,9 +7,6 @@ const nextConfig = {
     deviceSizes: [640, 750, 828, 1080, 1200], // Limit device sizes
     imageSizes: [16, 32, 48, 64, 96, 128, 256], // Limit image sizes
     formats: ['image/webp'],
-  },
-  // Add remote patterns for security
-  images: {
     remotePatterns: [
       {
         protocol: 'https',
