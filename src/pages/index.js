@@ -268,27 +268,25 @@ const PokemonCard = ({ pokemon, caughtStatus }) => {
       <a className={`bg-gray-800 rounded-lg p-4 flex flex-col items-center transform hover:scale-105 transition-transform duration-200 relative ${
         isCaught ? 'border-green-500' : 'border-gray-700 hover:border-red-500'
       }`}>
-        {/* Add Pokeball indicator */}
-        <div className="absolute top-2 right-2 w-6 h-6 relative">
-          {/* Base outline pokeball */}
+        {/* Adjusted Pokeball indicator position */}
+        <div className="absolute -top-2 -right-2 w-8 h-8">
+          {/* Base white pokeball */}
           <img
             src="/img/pokeballoutline.png"
             alt="Pokeball"
-            className={`absolute inset-0 w-full h-full ${!isCaught && !isShiny ? 'opacity-50' : 'opacity-0'}`}
+            className={`w-full h-full ${!isCaught && !isShiny ? 'opacity-75 filter-white' : 'opacity-0'}`}
           />
           {/* Regular caught pokeball */}
           <img
             src="/img/pokeballoutline.png"
             alt="Caught"
-            className={`absolute inset-0 w-full h-full ${isCaught ? 'opacity-100 filter-red' : 'opacity-0'}`}
-            style={{ filter: 'invert(23%) sepia(90%) saturate(7048%) hue-rotate(356deg) brightness(97%) contrast(121%)' }}
+            className={`absolute top-0 left-0 w-full h-full ${isCaught ? 'opacity-100 filter-red' : 'opacity-0'}`}
           />
           {/* Shiny caught pokeball */}
           <img
             src="/img/pokeballoutline.png"
             alt="Shiny"
-            className={`absolute inset-0 w-full h-full ${isShiny ? 'opacity-100 filter-yellow' : 'opacity-0'}`}
-            style={{ filter: 'invert(73%) sepia(89%) saturate(1242%) hue-rotate(359deg) brightness(103%) contrast(105%)' }}
+            className={`absolute top-0 left-0 w-full h-full ${isShiny ? 'opacity-100 filter-yellow' : 'opacity-0'}`}
           />
         </div>
 
