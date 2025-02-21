@@ -2,6 +2,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
+import pokeballOutline from '../../public/img/pokeballoutline.png';
 
 // Remove the Heroicons import and use this custom IconSet component
 const IconSet = {
@@ -493,10 +494,12 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
             <div className="relative w-64 h-64 mb-4">
               <Image
                 src={displaySprite}
-                alt={`${name} ${isShiny ? 'shiny' : ''} ${isAnimated ? 'animated' : ''} artwork`}
-                layout="fill"
-                objectFit="contain"
-                className="drop-shadow-lg"
+                alt={`${name} sprite`}
+                width={256}
+                height={256}
+                className="drop-shadow-2xl"
+                priority
+                sizes="(max-width: 640px) 256px, 512px"
               />
             </div>
             <SpriteToggleGroup
@@ -1035,14 +1038,12 @@ export async function getStaticProps({ params }) {
     const resPokemon = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonName}`);
     if (!resPokemon.ok) {
       return { notFound: true };
-    }
     const pokemon = await resPokemon.json();
     
     // Fetch species data
     const resSpecies = await fetch(pokemon.species.url);
     if (!resSpecies.ok) {
       return { notFound: true };
-    }
     const species = await resSpecies.json();
 
     // Fetch all forms data

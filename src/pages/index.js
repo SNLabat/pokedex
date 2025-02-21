@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { parseWCBuffer } from '../utils/wcparse';
 import { useRouter } from 'next/router';
+import pokeballOutline from '../../public/img/pokeballoutline.png';
 
 export default function Home({ generations }) {
   const router = useRouter();
@@ -268,28 +269,35 @@ const PokemonCard = ({ pokemon, caughtStatus }) => {
       <a className={`bg-gray-800 rounded-lg p-4 flex flex-col items-center transform hover:scale-105 transition-transform duration-200 relative ${
         isCaught ? 'border-green-500' : 'border-gray-700 hover:border-red-500'
       }`}>
-        {/* Adjusted Pokeball indicator position */}
+        {/* Pokeball indicator with static import */}
         <div className="absolute -top-2 -right-2 w-8 h-8">
-          {/* Base white pokeball */}
-          <img
-            src="/img/pokeballoutline.png"
+          <Image
+            src={pokeballOutline}
             alt="Pokeball"
-            className={`w-full h-full ${!isCaught && !isShiny ? 'opacity-75 filter-white' : 'opacity-0'}`}
+            width={32}
+            height={32}
+            className={`${!isCaught && !isShiny ? 'opacity-75 filter-white' : 'opacity-0'}`}
+            unoptimized // Since it's a small icon
           />
-          {/* Regular caught pokeball */}
-          <img
-            src="/img/pokeballoutline.png"
+          <Image
+            src={pokeballOutline}
             alt="Caught"
-            className={`absolute top-0 left-0 w-full h-full ${isCaught ? 'opacity-100 filter-red' : 'opacity-0'}`}
+            width={32}
+            height={32}
+            className={`absolute top-0 left-0 ${isCaught ? 'opacity-100 filter-red' : 'opacity-0'}`}
+            unoptimized
           />
-          {/* Shiny caught pokeball */}
-          <img
-            src="/img/pokeballoutline.png"
+          <Image
+            src={pokeballOutline}
             alt="Shiny"
-            className={`absolute top-0 left-0 w-full h-full ${isShiny ? 'opacity-100 filter-yellow' : 'opacity-0'}`}
+            width={32}
+            height={32}
+            className={`absolute top-0 left-0 ${isShiny ? 'opacity-100 filter-yellow' : 'opacity-0'}`}
+            unoptimized
           />
         </div>
 
+        {/* Pokemon artwork with optimization */}
         <div className="relative w-32 h-32 mb-4">
           <Image
             src={imageUrl}
@@ -297,6 +305,8 @@ const PokemonCard = ({ pokemon, caughtStatus }) => {
             layout="fill"
             objectFit="contain"
             className="drop-shadow-lg"
+            sizes="(max-width: 640px) 128px, 256px" // Limit size variations
+            priority={parseInt(id) <= 151} // Prioritize loading for first gen Pokemon
           />
         </div>
         <p className="font-semibold text-lg text-center capitalize mb-1">
