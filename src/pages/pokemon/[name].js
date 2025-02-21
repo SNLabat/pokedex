@@ -177,7 +177,76 @@ const PokemonCry = ({ src, label, theme }) => {
   );
 };
 
-export default function PokemonDetail({ pokemon, species, alternativeForms }) {
+const EvolutionChain = ({ chain, currentPokemonId }) => {
+  const renderEvolution = (evolution) => {
+    const isCurrentPokemon = evolution.species.url.split('/').slice(-2, -1)[0] === currentPokemonId.toString();
+    
+    return (
+      <div className="flex flex-col items-center">
+        <Link href={`/pokemon/${evolution.species.name}`}>
+          <a className={`flex flex-col items-center p-2 rounded-lg transition-transform hover:scale-105 
+            ${isCurrentPokemon ? 'ring-2 ring-current' : ''}`}>
+            <div className="w-20 h-20 relative">
+              <Image
+                src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${evolution.species.url.split('/').slice(-2, -1)[0]}.png`}
+                alt={evolution.species.name}
+                layout="fill"
+                objectFit="contain"
+              />
+            </div>
+            <span className="mt-2 capitalize text-sm">
+              {evolution.species.name.replace(/-/g, ' ')}
+            </span>
+            {evolution.min_level && (
+              <span className="text-xs opacity-75">Level {evolution.min_level}</span>
+            )}
+          </a>
+        </Link>
+        {evolution.evolves_to?.length > 0 && (
+          <div className="flex items-center mt-4">
+            <span className="text-2xl">↓</span>
+          </div>
+        )}
+        <div className="flex gap-8 mt-4">
+          {evolution.evolves_to.map((evo, index) => (
+            <div key={index}>
+              {renderEvolution(evo)}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="flex justify-center">
+      {renderEvolution(chain)}
+    </div>
+  );
+};
+
+const moveTypeColors = {
+  normal: 'bg-gray-500',
+  fire: 'bg-orange-500',
+  water: 'bg-blue-500',
+  electric: 'bg-yellow-400',
+  grass: 'bg-green-500',
+  ice: 'bg-cyan-400',
+  fighting: 'bg-red-600',
+  poison: 'bg-purple-500',
+  ground: 'bg-amber-600',
+  flying: 'bg-indigo-400',
+  psychic: 'bg-pink-500',
+  bug: 'bg-lime-500',
+  rock: 'bg-stone-500',
+  ghost: 'bg-purple-700',
+  dragon: 'bg-violet-600',
+  dark: 'bg-neutral-700',
+  steel: 'bg-zinc-500',
+  fairy: 'bg-pink-400'
+};
+
+export default function PokemonDetail({ pokemon, species, alternativeForms, evolutionChain }) {
   const [isShiny, setIsShiny] = useState(false);
   const [isAnimated, setIsAnimated] = useState(false);
   const [caughtStatus, setCaughtStatus] = useState({
@@ -375,7 +444,7 @@ export default function PokemonDetail({ pokemon, species, alternativeForms }) {
   };
 
   return (
-    <div className={`min-h-screen ${theme.bg} ${theme.text}`}>
+    <div className={`min-h-screen ${theme.bg} ${theme.text} font-rounded`}>
       {/* Top Red Bar with Navigation */}
       <div className={`${theme.accent} p-4 shadow-lg`}>
         <Link href="/">
@@ -386,7 +455,7 @@ export default function PokemonDetail({ pokemon, species, alternativeForms }) {
         </Link>
       </div>
 
-      <div className="container mx-auto p-4">
+      <div className="container mx-auto p-4 space-y-8">
         {/* Header: Artwork and Basic Info */}
         <div className={`${theme.bg} bg-opacity-50 rounded-lg p-6 mb-6 flex flex-col md:flex-row items-center`}>
           <div className="md:w-1/3 flex flex-col items-center mb-6 md:mb-0">
@@ -579,30 +648,35 @@ export default function PokemonDetail({ pokemon, species, alternativeForms }) {
           </div>
         </div>
 
-        {/* Level-Up Moves */}
-        <div className={`${theme.bg} bg-opacity-50 rounded-lg p-6 mb-6`}>
-          <div className="flex items-center gap-2 mb-4">
-            <IconSet.Moves />
-            <h2 className={`text-2xl font-bold ${theme.accent}`}>
-              Level-Up Moves
-            </h2>
-          </div>
+        {/* Evolution Chain */}
+        {evolutionChain && (
+          <section className={`${theme.bg} bg-opacity-50 rounded-lg p-6 shadow-lg`}>
+            <h2 className={`text-3xl font-bold mb-6 ${theme.accent}`}>Evolution Chain</h2>
+            <EvolutionChain chain={evolutionChain} currentPokemonId={pokemon.id} />
+          </section>
+        )}
+
+        {/* Update the moves section to use the new styling */}
+        <section className={`${theme.bg} bg-opacity-50 rounded-lg p-6 shadow-lg`}>
+          <h2 className={`text-3xl font-bold mb-6 ${theme.accent}`}>Moves</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {levelUpMoves.map(move => (
               <div
                 key={move.move.name}
-                className="bg-gray-700 p-3 rounded-lg flex justify-between items-center"
+                className={`${theme.bg} bg-opacity-90 p-4 rounded-xl flex justify-between items-center shadow-lg border border-current`}
               >
-                <span className="capitalize">
-                  {properCase(move.move.name)}
-                </span>
-                <span className="text-red-400">
+                <div>
+                  <span className="text-lg font-semibold capitalize">
+                    {move.move.name.replace('-', ' ')}
+                  </span>
+                </div>
+                <span className={`text-xl font-bold ${theme.accent}`}>
                   Lv. {move.level}
                 </span>
               </div>
             ))}
           </div>
-        </div>
+        </section>
 
         {/* Updated Sprites section */}
         <div className={`${theme.bg} bg-opacity-50 rounded-lg p-6`}>
@@ -958,11 +1032,19 @@ export async function getStaticProps({ params }) {
       form => form && form.formName !== params.name
     );
 
+    // Fetch evolution chain data
+    const evolutionChainRes = await fetch(species.evolution_chain.url);
+    if (!evolutionChainRes.ok) {
+      throw new Error('Failed to fetch evolution chain');
+    }
+    const evolutionChainData = await evolutionChainRes.json();
+
     return {
       props: { 
         pokemon,
         species,
-        alternativeForms
+        alternativeForms,
+        evolutionChain: evolutionChainData.chain
       },
       revalidate: 86400,
     };
