@@ -185,8 +185,7 @@ const EvolutionChain = ({ chain, currentPokemonId }) => {
     return (
       <div className="flex flex-col items-center">
         <Link href={`/pokemon/${evolution.species.name}`}>
-          <a className={`flex flex-col items-center p-2 rounded-lg transition-transform hover:scale-105 
-            ${isCurrentPokemon ? 'ring-2 ring-current' : ''}`}>
+          <a className="flex flex-col items-center p-2 rounded-lg transition-transform hover:scale-105">
             <div className="w-20 h-20 relative">
               <Image
                 src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${evolution.species.url.split('/').slice(-2, -1)[0]}.png`}
@@ -195,7 +194,7 @@ const EvolutionChain = ({ chain, currentPokemonId }) => {
                 objectFit="contain"
               />
             </div>
-            <span className="mt-2 capitalize text-sm">
+            <span className={`mt-2 capitalize text-sm ${isCurrentPokemon ? 'border-b-2 border-current' : ''}`}>
               {evolution.species.name.replace(/-/g, ' ')}
             </span>
             {evolution.min_level && (
@@ -257,25 +256,26 @@ const EvolutionChain = ({ chain, currentPokemonId }) => {
   );
 };
 
+// Update the moveTypeColors object with more vibrant colors
 const moveTypeColors = {
   normal: 'bg-gray-500',
-  fire: 'bg-orange-500',
-  water: 'bg-blue-500',
-  electric: 'bg-yellow-400',
-  grass: 'bg-green-500',
-  ice: 'bg-cyan-400',
-  fighting: 'bg-red-600',
-  poison: 'bg-purple-500',
-  ground: 'bg-amber-600',
-  flying: 'bg-indigo-400',
-  psychic: 'bg-pink-500',
-  bug: 'bg-lime-500',
-  rock: 'bg-stone-500',
-  ghost: 'bg-purple-700',
-  dragon: 'bg-violet-600',
-  dark: 'bg-neutral-700',
-  steel: 'bg-zinc-500',
-  fairy: 'bg-pink-400'
+  fire: 'bg-orange-600',
+  water: 'bg-blue-600',
+  electric: 'bg-yellow-500',
+  grass: 'bg-green-600',
+  ice: 'bg-cyan-500',
+  fighting: 'bg-red-700',
+  poison: 'bg-purple-600',
+  ground: 'bg-amber-700',
+  flying: 'bg-indigo-500',
+  psychic: 'bg-pink-600',
+  bug: 'bg-lime-600',
+  rock: 'bg-stone-600',
+  ghost: 'bg-purple-800',
+  dragon: 'bg-violet-700',
+  dark: 'bg-neutral-800',
+  steel: 'bg-zinc-600',
+  fairy: 'bg-pink-500'
 };
 
 export default function PokemonDetail({ pokemon, species, alternativeForms, evolutionChain }) {
@@ -694,21 +694,27 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
         <section className={`${theme.bg} bg-opacity-50 rounded-lg p-6 shadow-lg`}>
           <h2 className={`text-3xl font-bold mb-6 ${theme.accent}`}>Moves</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {levelUpMoves.map(move => (
-              <div
-                key={move.move.name}
-                className={`${theme.bg} bg-opacity-90 p-4 rounded-xl flex justify-between items-center shadow-lg border border-current`}
-              >
-                <div>
-                  <span className="text-lg font-semibold capitalize">
-                    {move.move.name.replace('-', ' ')}
+            {levelUpMoves.map(move => {
+              const moveType = move.move.type || 'normal'; // Default to normal if type is unknown
+              return (
+                <div
+                  key={move.move.name}
+                  className={`${moveTypeColors[moveType]} bg-opacity-90 p-4 rounded-xl flex justify-between items-center shadow-lg text-white`}
+                >
+                  <div>
+                    <span className="text-lg font-semibold capitalize">
+                      {move.move.name.replace('-', ' ')}
+                    </span>
+                    <div className="text-sm opacity-90">
+                      {moveType}
+                    </div>
+                  </div>
+                  <span className="text-xl font-bold">
+                    Lv. {move.level}
                   </span>
                 </div>
-                <span className={`text-xl font-bold ${theme.accent}`}>
-                  Lv. {move.level}
-                </span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </section>
 
@@ -1038,14 +1044,12 @@ export async function getStaticProps({ params }) {
     const resPokemon = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonName}`);
     if (!resPokemon.ok) {
       return { notFound: true };
-    }
     const pokemon = await resPokemon.json();
     
     // Fetch species data
     const resSpecies = await fetch(pokemon.species.url);
     if (!resSpecies.ok) {
       return { notFound: true };
-    }
     const species = await resSpecies.json();
 
     // Fetch evolution chain data
