@@ -333,9 +333,17 @@ const FormCatchButton = ({ formName, type, caughtStatus, updateCaughtStatus, the
   );
 };
 
-// Add this helper function
+// Update the hasAlphaForm helper function to include Hisuian form check
 const hasAlphaForm = (pokemonName) => {
   return guaranteedAlphas.includes(pokemonName.toLowerCase());
+};
+
+// Add helper to get Hisuian sprite
+const getHisuianSprite = (form) => {
+  const hisuianForm = alternativeForms?.find(f => 
+    f.formName.toLowerCase().includes('hisui')
+  );
+  return hisuianForm?.sprites.other?.['official-artwork'] || form.sprites.other?.['official-artwork'];
 };
 
 export default function PokemonDetail({ pokemon, species, alternativeForms, evolutionChain }) {
@@ -1007,7 +1015,7 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
                     <div className="bg-gray-700 p-4 rounded-lg relative">
                       <div className="relative">
                         <img
-                          src={staticSprites.regular}
+                          src={getHisuianSprite(pokemon)?.front_default || staticSprites.regular}
                           alt={`${name} alpha form`}
                           className="w-32 h-32 object-contain"
                         />
@@ -1029,7 +1037,7 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
                       <div className="bg-gray-700 p-4 rounded-lg relative">
                         <div className="relative">
                           <img
-                            src={staticSprites.shiny}
+                            src={getHisuianSprite(pokemon)?.front_shiny || staticSprites.shiny}
                             alt={`${name} shiny alpha form`}
                             className="w-32 h-32 object-contain"
                           />
