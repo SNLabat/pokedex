@@ -199,6 +199,7 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
   const [isAnimated, setIsAnimated] = useState(false);
   const [activeSprite, setActiveSprite] = useState(null);
   const [user, setUser] = useState(null);
+  const [activeTab, setActiveTab] = useState('info');
   const id = pokemon.id;
   const name = pokemon.name.replace(/-/g, ' ');
   const types = pokemon.types.map(t => t.type.name);
@@ -461,7 +462,7 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
     }
   };
 
-  // Tabs for different sections
+  // Define all tabs including the new sprites tab
   const tabs = [
     { id: 'info', label: 'Info' },
     { id: 'forms', label: 'Forms' },
