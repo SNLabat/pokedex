@@ -425,7 +425,7 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
     const newStatus = {
       ...caughtStatus,
       [formName]: {
-        ...caughtStatus[formName],
+        ...caughtStatus[formName] || { regular: false, shiny: false },
         [type]: !caughtStatus[formName]?.[type]
       }
     };
