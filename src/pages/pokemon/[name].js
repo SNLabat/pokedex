@@ -33,8 +33,12 @@ const typeColors = {
   fairy: { bg: 'bg-pink-700', text: 'text-pink-50', accent: 'bg-pink-500' }
 };
 
+// Default theme if no type is available
+const defaultTheme = { bg: 'bg-gray-800', text: 'text-white', accent: 'bg-gray-600' };
+
 // Add utility functions at the top
 const properCase = (str) => {
+  if (!str) return '';
   return str
     .split('-')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
@@ -43,6 +47,7 @@ const properCase = (str) => {
 
 // Format stat names for display
 const formatStatName = (statName) => {
+  if (!statName) return '';
   if (statName === 'hp') return 'HP';
   return properCase(statName);
 };
@@ -189,36 +194,37 @@ const PokemonCry = ({ src, label, theme }) => {
 };
 
 // Evolution chain visualization
-const EvolutionChain = ({ chain, currentPokemonName }) => {
-  if (!chain) return <div>No evolution data available</div>;
-
+const EvolutionChain = ({ chain, currentPokemonId }) => {
+  if (!chain) return null;
+  
   const renderEvolution = (evolution) => {
-    const speciesUrl = evolution?.species?.url || '';
-    const evolutionId = speciesUrl.split('/').slice(-2, -1)[0];
-    const isCurrentPokemon = evolutionId === currentPokemonName.toString();
+    if (!evolution || !evolution.species) return null;
+    
+    const evolutionId = evolution.species.url.split('/').slice(-2, -1)[0];
+    const isCurrentPokemon = evolutionId === currentPokemonId?.toString();
     
     return (
       <div className="flex flex-col items-center">
-        <Link href={`/pokemon/${evolution?.species?.name || ''}`}>
+        <Link href={`/pokemon/${evolution.species.name}`}>
           <a className="flex flex-col items-center p-2 rounded-lg transition-transform hover:scale-105">
             <div className="w-20 h-20 relative">
               <Image
-                src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${evolutionId || '0'}.png`}
-                alt={evolution?.species?.name || 'Unknown Pokemon'}
+                src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${evolutionId}.png`}
+                alt={evolution.species.name}
                 layout="fill"
                 objectFit="contain"
               />
             </div>
             <span className={`mt-2 capitalize text-sm ${isCurrentPokemon ? 'border-b-2 border-current' : ''}`}>
-              {(evolution?.species?.name || 'Unknown').replace(/-/g, ' ')}
+              {evolution.species.name.replace(/-/g, ' ')}
             </span>
-            {evolution?.min_level && (
+            {evolution.min_level && (
               <span className="text-xs opacity-75">Level {evolution.min_level}</span>
             )}
           </a>
         </Link>
         
-        {evolution?.evolves_to?.length > 0 && (
+        {evolution.evolves_to?.length > 0 && (
           <div className="flex items-center mx-4">
             <span className="text-2xl">→</span>
           </div>
@@ -228,17 +234,18 @@ const EvolutionChain = ({ chain, currentPokemonName }) => {
   };
 
   const renderEvolutionLine = (evolution) => {
+    if (!evolution) return null;
+    
     const evolutions = [];
     let currentEvo = evolution;
 
     while (currentEvo) {
       evolutions.push(renderEvolution(currentEvo));
-      if (currentEvo.evolves_to.length === 0) break;
-      currentEvo = currentEvo.evolves_to[0]; // Follow the first evolution path
+      currentEvo = currentEvo.evolves_to?.[0]; // Follow the first evolution path
     }
 
     // For split evolutions (like Eevee), render them in rows
-    const splitEvolutions = evolution.evolves_to.slice(1);
+    const splitEvolutions = evolution.evolves_to?.slice(1) || [];
     if (splitEvolutions.length > 0) {
       return (
         <div className="flex flex-col gap-4">
@@ -344,17 +351,17 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
               <div>
                 <h1 className="text-3xl font-bold capitalize">{name}</h1>
                 <p className="text-xl text-gray-400">#{String(id).padStart(3, '0')}</p>
-              </div>
+            </div>
               <div className="flex gap-2">
                 {pokemon.types.map(type => (
-                  <span
+                <span
                     key={type.type.name}
                     className={`${typeColors[type.type.name].accent} px-4 py-1 rounded-lg text-white capitalize`}
-                  >
+                >
                     {type.type.name}
-                  </span>
-                ))}
-              </div>
+                </span>
+              ))}
+            </div>
             </div>
             
             <EnhancedTrackingPanel
@@ -377,20 +384,20 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
                 <h3 className="text-gray-400 text-sm">Abilities</h3>
                 <div className="flex flex-wrap gap-1 mt-1">
                   {pokemon.abilities.map(ability => (
-                    <span 
+                  <span
                       key={ability.ability.name}
                       className="px-2 py-1 bg-gray-700 rounded text-sm capitalize"
                     >
                       {ability.ability.name.replace('-', ' ')}
                       {ability.is_hidden && <span className="ml-1 text-yellow-500">*</span>}
-                    </span>
-                  ))}
+                  </span>
+                ))}
                 </div>
               </div>
             </div>
           </div>
         </div>
-        
+
         {/* Tabs Navigation */}
         <div className="bg-gray-800 rounded-lg overflow-hidden mb-6">
           <div className="flex overflow-x-auto">
@@ -407,11 +414,11 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
                 {tab.label}
               </button>
             ))}
-          </div>
-        </div>
-        
+              </div>
+            </div>
+
         {/* Tab Content */}
-        <div className="bg-gray-800 rounded-lg p-6">
+          <div className="bg-gray-800 rounded-lg p-6">
           {/* Info Tab */}
           {activeTab === 'info' && (
             <div className="mt-6">
@@ -428,7 +435,7 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
                           .find(entry => entry.language.name === 'en')
                           ?.flavor_text.replace(/\f/g, ' ')}
                       </p>
-                    </div>
+              </div>
                   )}
                   
                   {/* Species info */}
@@ -438,36 +445,36 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
                       <p>
                         {species.genera?.find(g => g.language.name === 'en')?.genus || '-'}
                       </p>
-                    </div>
-                    
+          </div>
+
                     <div>
                       <h4 className="text-sm text-gray-400">Habitat</h4>
                       <p className="capitalize">
                         {species.habitat?.name?.replace('-', ' ') || 'Unknown'}
-                      </p>
-                    </div>
+                </p>
+              </div>
                     
                     <div>
                       <h4 className="text-sm text-gray-400">Base Friendship</h4>
                       <p>{species.base_happiness || '-'}</p>
-                    </div>
+              </div>
                     
                     <div>
                       <h4 className="text-sm text-gray-400">Capture Rate</h4>
                       <p>{species.capture_rate || '-'}</p>
-                    </div>
+              </div>
                     
                     <div>
                       <h4 className="text-sm text-gray-400">Growth Rate</h4>
                       <p className="capitalize">{species.growth_rate?.name?.replace('-', ' ') || '-'}</p>
-                    </div>
+            </div>
                     
                     <div>
                       <h4 className="text-sm text-gray-400">Base Experience</h4>
                       <p>{pokemon.base_experience || '-'}</p>
-                    </div>
-                  </div>
-                </div>
+          </div>
+        </div>
+          </div>
                 
                 {/* Base Stats/Physical data card - can remain */}
                 <div className="bg-gray-700 bg-opacity-50 rounded-lg p-6">
@@ -475,21 +482,21 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
                   <div className="space-y-3">
                     {pokemon.stats.map(stat => {
                       const percentage = Math.min(100, (stat.base_stat / 255) * 100);
-                      return (
-                        <div key={stat.stat.name}>
-                          <div className="flex justify-between mb-1">
+              return (
+                <div key={stat.stat.name}>
+                  <div className="flex justify-between mb-1">
                             <span className="text-gray-300">{formatStatName(stat.stat.name)}</span>
-                            <span>{stat.base_stat}</span>
-                          </div>
+                    <span>{stat.base_stat}</span>
+                  </div>
                           <div className="h-2 bg-gray-600 rounded-full">
-                            <div 
+                    <div
                               className={`${typeColors[stat.stat.name].accent} h-2 rounded-full`} 
-                              style={{ width: `${percentage}%` }}
+                      style={{ width: `${percentage}%` }}
                             ></div>
-                          </div>
-                        </div>
-                      );
-                    })}
+                  </div>
+                </div>
+              );
+            })}
                     
                     {/* Total Stats */}
                     <div className="pt-2 border-t border-gray-600">
@@ -498,8 +505,8 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
                         <span className="font-semibold">
                           {pokemon.stats.reduce((total, stat) => total + stat.base_stat, 0)}
                         </span>
-                      </div>
-                    </div>
+          </div>
+        </div>
                   </div>
                 </div>
               </div>
@@ -525,7 +532,7 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
                           layout="fill"
                           objectFit="contain"
                         />
-                      </div>
+          </div>
                       <h4 className="text-lg font-medium capitalize mb-2">
                         {form.name.replace(pokemon.name + '-', '').replace('-', ' ')}
                       </h4>
@@ -536,17 +543,17 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
                             className={`${typeColors[type.type.name].accent} px-2 py-1 rounded text-xs text-white capitalize`}
                           >
                             {type.type.name}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
+                </span>
+            ))}
+          </div>
+        </div>
                   ))}
-                </div>
+                    </div>
               ) : (
                 <p className="text-gray-400">No alternative forms available for this Pokémon.</p>
               )}
-            </div>
-          )}
+                  </div>
+                )}
           
           {/* Sprites Tab */}
           {activeTab === 'sprites' && (
@@ -567,17 +574,17 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
                           alt={label}
                           layout="fill"
                           objectFit="contain"
-                        />
-                      </div>
+                      />
+                    </div>
                     ) : (
                       <div className={`flex items-center justify-center ${large ? 'w-40 h-40' : 'w-20 h-20'} bg-gray-800 rounded`}>
                         <span className="text-gray-600">N/A</span>
-                      </div>
-                    )}
+                  </div>
+                )}
                     <span className={`mt-2 text-xs text-center ${isShiny ? 'text-yellow-400' : ''}`}>
                       {label}
                     </span>
-                  </div>
+              </div>
                 );
 
                 // Group sprites by generation and type
@@ -714,14 +721,14 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
                                 large={sprite.large}
                               />
                             ))}
-                        </div>
-                      </div>
-                    ))}
+                    </div>
                   </div>
+                    ))}
+                      </div>
                 );
               })()}
-            </div>
-          )}
+                    </div>
+                  )}
           
           {/* Moves Tab */}
           {activeTab === 'moves' && (
@@ -785,10 +792,10 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
                     ))}
                   </tbody>
                 </table>
+                </div>
               </div>
-            </div>
-          )}
-          
+            )}
+
           {/* Stats Tab */}
           {activeTab === 'stats' && (
             <div className="mt-6">
@@ -816,14 +823,14 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
                           <div className="flex justify-between mb-1">
                             <span className="font-medium">{formatStatName(stat.stat.name)}</span>
                             <span>{statValue}</span>
-                          </div>
+                    </div>
                           <div className="w-full bg-gray-700 rounded-full h-2.5">
                             <div 
                               className={`${barColor} h-2.5 rounded-full`} 
                               style={{ width: `${percentage}%` }}
                             ></div>
-                          </div>
-                        </div>
+                  </div>
+                      </div>
                       );
                     })}
                     
@@ -834,9 +841,9 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
                         <span className="font-semibold">
                           {pokemon.stats.reduce((total, stat) => total + stat.base_stat, 0)}
                         </span>
-                      </div>
                     </div>
-                  </div>
+                </div>
+              </div>
                 </div>
                 
                 {/* Training Data */}
@@ -852,7 +859,7 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
                     <div className="flex justify-between">
                       <span>Catch Rate</span>
                       <span>{species.capture_rate} ({(species.capture_rate / 255 * 100).toFixed(1)}%)</span>
-                    </div>
+                  </div>
                     
                     <div className="flex justify-between">
                       <span>Base Happiness</span>
@@ -862,7 +869,7 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
                     <div className="flex justify-between">
                       <span>Growth Rate</span>
                       <span className="capitalize">{species.growth_rate?.name?.replace('-', ' ') || '-'}</span>
-                    </div>
+                  </div>
                     
                     {/* EV Yield */}
                     <div className="pt-2 border-t border-gray-700">
@@ -872,14 +879,14 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
                           <div key={stat.stat.name} className="flex justify-between">
                             <span>{formatStatName(stat.stat.name)}</span>
                             <span>+{stat.effort}</span>
-                          </div>
+                    </div>
                         ))}
-                      </div>
+                  </div>
                     </div>
                   </div>
-                </div>
               </div>
             </div>
+          </div>
           )}
           
           {/* Abilities Tab */}
@@ -898,15 +905,15 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
                       <span className="text-sm bg-gray-600 px-2 py-1 rounded">
                         Slot {index + 1}
                       </span>
-                    </div>
+                          </div>
                     <p className="text-gray-300">
                       Ability description would appear here if available through the API.
                     </p>
-                  </div>
+                        </div>
                 ))}
-              </div>
-            </div>
-          )}
+                          </div>
+                        </div>
+                      )}
           
           {/* Locations Tab */}
           {activeTab === 'locations' && (
@@ -917,7 +924,7 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
                   ? typeColors[pokemon.types[0].type.name] 
                   : typeColors.normal} 
               />
-            </div>
+                    </div>
           )}
           
           {/* Evolution Tab */}
@@ -928,14 +935,14 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
                 {evolutionChain ? (
                   <EvolutionChain 
                     chain={evolutionChain} 
-                    currentPokemonName={pokemon?.id?.toString() || '0'} 
+                    currentPokemonId={pokemon?.id?.toString() || '0'} 
                   />
                 ) : (
                   <p>No evolution data available</p>
                 )}
-              </div>
             </div>
-          )}
+          </div>
+        )}
         </div>
       </div>
     </div>
@@ -993,7 +1000,7 @@ export async function getStaticProps({ params }) {
       throw new Error('Failed to fetch Pokemon');
     }
     const pokemon = await resPokemon.json();
-
+    
     const resSpecies = await fetch(pokemon.species.url);
     if (!resSpecies.ok) {
       throw new Error('Failed to fetch species');
@@ -1010,15 +1017,15 @@ export async function getStaticProps({ params }) {
     const forms = await Promise.all(
       species.varieties.map(async (variety) => {
         try {
-          const resForm = await fetch(variety.pokemon.url);
-          if (!resForm.ok) return null;
-          const formData = await resForm.json();
-          return {
-            ...formData,
-            formName: variety.pokemon.name
-          };
+        const resForm = await fetch(variety.pokemon.url);
+        if (!resForm.ok) return null;
+        const formData = await resForm.json();
+        return {
+          ...formData,
+          formName: variety.pokemon.name
+        };
         } catch (error) {
-          console.error(`Error fetching form ${variety.pokemon.name}:`, error);
+          console.error(`Error fetching form data for ${variety.pokemon.name}:`, error);
           return null;
         }
       })
@@ -1029,7 +1036,7 @@ export async function getStaticProps({ params }) {
     );
 
     return {
-      props: {
+      props: { 
         pokemon,
         species,
         alternativeForms,
