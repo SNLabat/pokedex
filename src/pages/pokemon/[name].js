@@ -107,7 +107,7 @@ const moveTypeColors = {
 };
 
 // Add the SpriteToggleGroup component
-const SpriteToggleGroup = ({ isAnimated, isShiny, onAnimatedChange, onShinyChange, hasAnimated, hasShiny, theme }) => (
+const SpriteToggleGroup = ({ isAnimated, isShiny, onAnimatedChange, onShinyChange, hasAnimated, hasShiny, theme = typeColors.normal }) => (
   <div className="flex flex-col gap-2">
     {/* Main sprite type toggles */}
     <div className="inline-flex rounded-lg shadow-lg" role="group">
@@ -115,8 +115,8 @@ const SpriteToggleGroup = ({ isAnimated, isShiny, onAnimatedChange, onShinyChang
         onClick={() => onShinyChange(false)}
         className={`px-4 py-2 text-sm font-medium rounded-l-lg border-2 transition-colors
           ${!isShiny 
-            ? `${theme.accent} ${theme.text}`
-            : `${theme.bg} opacity-75 hover:opacity-100`
+            ? `${theme?.accent || 'bg-gray-500'} ${theme?.text || 'text-white'}`
+            : `${theme?.bg || 'bg-gray-700'} opacity-75 hover:opacity-100`
           }`}
       >
         Regular
@@ -190,31 +190,35 @@ const PokemonCry = ({ src, label, theme }) => {
 
 // Evolution chain visualization
 const EvolutionChain = ({ chain, currentPokemonName }) => {
+  if (!chain) return <div>No evolution data available</div>;
+
   const renderEvolution = (evolution) => {
-    const isCurrentPokemon = evolution.species.name === currentPokemonName;
+    const speciesUrl = evolution?.species?.url || '';
+    const evolutionId = speciesUrl.split('/').slice(-2, -1)[0];
+    const isCurrentPokemon = evolutionId === currentPokemonName.toString();
     
     return (
       <div className="flex flex-col items-center">
-        <Link href={`/pokemon/${evolution.species.name}`}>
+        <Link href={`/pokemon/${evolution?.species?.name || ''}`}>
           <a className="flex flex-col items-center p-2 rounded-lg transition-transform hover:scale-105">
             <div className="w-20 h-20 relative">
               <Image
-                src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${evolution.species.url.split('/').slice(-2, -1)[0]}.png`}
-                alt={evolution.species.name}
+                src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${evolutionId || '0'}.png`}
+                alt={evolution?.species?.name || 'Unknown Pokemon'}
                 layout="fill"
                 objectFit="contain"
               />
             </div>
             <span className={`mt-2 capitalize text-sm ${isCurrentPokemon ? 'border-b-2 border-current' : ''}`}>
-              {evolution.species.name.replace(/-/g, ' ')}
+              {(evolution?.species?.name || 'Unknown').replace(/-/g, ' ')}
             </span>
-            {evolution.evolution_details && evolution.evolution_details[0]?.min_level && (
-              <span className="text-xs opacity-75">Level {evolution.evolution_details[0].min_level}</span>
+            {evolution?.min_level && (
+              <span className="text-xs opacity-75">Level {evolution.min_level}</span>
             )}
           </a>
         </Link>
         
-        {evolution.evolves_to?.length > 0 && (
+        {evolution?.evolves_to?.length > 0 && (
           <div className="flex items-center mx-4">
             <span className="text-2xl">→</span>
           </div>
@@ -299,8 +303,11 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
   // Set theme based on primary type with fallback
   const theme = typeColors[primaryType] || typeColors.normal;
 
+  // When passing theme to components, always provide a fallback:
+  const safeTheme = theme || typeColors.normal;
+
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
+    <div className={`min-h-screen ${safeTheme.bg || 'bg-gray-900'} ${safeTheme.text || 'text-white'}`}>
       <Head>
         <title>{properCase(name)} | Pokédex Live</title>
         <meta name="description" content={`View details for ${properCase(name)}`} />
@@ -918,7 +925,14 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
             <div className="mt-6">
               <h3 className="text-xl font-semibold mb-4">Evolution Chain</h3>
               <div className="bg-gray-700 rounded-lg p-6">
-                <EvolutionChain chain={evolutionChain} currentPokemonName={pokemon.name} />
+                {evolutionChain ? (
+                  <EvolutionChain 
+                    chain={evolutionChain} 
+                    currentPokemonName={pokemon?.id?.toString() || '0'} 
+                  />
+                ) : (
+                  <p>No evolution data available</p>
+                )}
               </div>
             </div>
           )}
