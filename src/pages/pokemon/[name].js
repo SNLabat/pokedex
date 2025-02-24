@@ -951,17 +951,10 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
 
 // Server-side data fetching
 export async function getStaticPaths() {
-  // Fetch all Pokémon for pre-rendering
-  const res = await fetch('https://pokeapi.co/api/v2/pokemon?limit=1008'); 
-  const data = await res.json();
-  
-  const paths = data.results.map(p => ({
-    params: { name: p.name },
-  }));
-
+  // Return an empty array for paths (no pages will be prerendered)
   return { 
-    paths,
-    fallback: 'blocking' // Show a loading state for new paths
+    paths: [],
+    fallback: 'blocking' // On-demand rendering for all Pokemon pages
   };
 }
 
