@@ -98,9 +98,9 @@ export const importDataFromFile = async (file) => {
 };
 
 // Placeholder for functions that would need server-side implementation
-export const getCurrentUser = () => null;
-export const syncLocalToCloud = async () => ({ success: false, error: 'Cloud sync not available' });
-export const syncCloudToLocal = async () => ({ success: false, error: 'Cloud sync not available' });
+export const getCurrentUser = function() { return null; };
+export const syncLocalToCloud = async function() { return { success: false, error: 'Cloud sync not available' }; };
+export const syncCloudToLocal = async function() { return { success: false, error: 'Cloud sync not available' }; };
 export const registerUser = async () => ({ success: false, error: 'User accounts not available' });
 export const loginUser = async () => ({ success: false, error: 'User accounts not available' });
 export const logoutUser = async () => ({ success: false, error: 'User accounts not available' });
