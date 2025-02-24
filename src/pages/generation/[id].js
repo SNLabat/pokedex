@@ -145,7 +145,9 @@ export default function GenerationPage() {
               
               return (
                 <Link key={pokemon.id} href={`/pokemon/${pokemon.name}`}>
-                  <a className="bg-gray-800 hover:bg-gray-700 rounded-lg p-4 transition-transform hover:scale-105 relative">
+                  <a className={`bg-gray-800 hover:bg-gray-700 rounded-lg p-4 transition-transform hover:scale-105 relative
+                    ${status.shiny ? 'border-2 border-yellow-500' : 
+                      status.caught ? 'border-2 border-green-500' : ''}`}>
                     <div className="relative w-full pt-[100%]">
                       <Image
                         src={pokemon.image || `/img/unknown-pokemon.png`}
@@ -170,8 +172,8 @@ export default function GenerationPage() {
                       </div>
                     </div>
                     
-                    {/* Catch Status Indicator */}
-                    <div className="absolute bottom-2 right-2 p-1 rounded-full bg-opacity-70">
+                    {/* Move Catch Status Indicator to top-right */}
+                    <div className="absolute top-2 right-2 p-1 rounded-full bg-opacity-70">
                       <div className="w-6 h-6 relative">
                         <Image
                           src={pokeballOutline}
