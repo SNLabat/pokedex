@@ -146,7 +146,7 @@ const SpriteToggleGroup = ({ isAnimated, isShiny, onAnimatedChange, onShinyChang
 );
 
 // Pokemon cry audio component
-const PokemonCry = ({ src, label, theme }) => {
+const PokemonCry = ({ src, label, theme = defaultTheme }) => {
   const [isIOS, setIsIOS] = useState(false);
 
   useEffect(() => {
@@ -160,8 +160,8 @@ const PokemonCry = ({ src, label, theme }) => {
 
   if (isIOS) {
     return (
-      <div className={`${theme.bg} bg-opacity-50 p-4 rounded-lg shadow-lg`}>
-        <p className={`${theme.text} opacity-75 mb-2`}>{label}</p>
+      <div className={`${theme?.bg || 'bg-gray-800'} bg-opacity-50 p-4 rounded-lg shadow-lg`}>
+        <p className={`${theme?.text || 'text-white'} opacity-75 mb-2`}>{label}</p>
         <a 
           href={src}
           target="_blank"
@@ -178,8 +178,8 @@ const PokemonCry = ({ src, label, theme }) => {
   }
 
   return (
-    <div className={`${theme.bg} bg-opacity-50 p-4 rounded-lg shadow-lg`}>
-      <p className={`${theme.text} opacity-75 mb-2`}>{label}</p>
+    <div className={`${theme?.bg || 'bg-gray-800'} bg-opacity-50 p-4 rounded-lg shadow-lg`}>
+      <p className={`${theme?.text || 'text-white'} opacity-75 mb-2`}>{label}</p>
       <audio
         controls
         className="w-full"
@@ -302,19 +302,19 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
     { id: 'evolution', label: 'Evolution' }
   ];
 
-  // Get primary type safely with a fallback to 'normal' if types array is empty
-  const primaryType = pokemon.types && pokemon.types.length > 0 
-    ? pokemon.types[0].type.name 
-    : 'normal';
+  // Fix type theme access
+  const safeTypes = pokemon?.types || [];
+  const primaryType = safeTypes.length > 0 ? safeTypes[0]?.type?.name : null;
   
-  // Set theme based on primary type with fallback
-  const theme = typeColors[primaryType] || typeColors.normal;
-
-  // When passing theme to components, always provide a fallback:
-  const safeTheme = theme || typeColors.normal;
+  // Create a safe theme with fallbacks for every property access
+  const safeTheme = {
+    bg: primaryType && typeColors[primaryType]?.bg ? typeColors[primaryType].bg : defaultTheme.bg,
+    text: primaryType && typeColors[primaryType]?.text ? typeColors[primaryType].text : defaultTheme.text,
+    accent: primaryType && typeColors[primaryType]?.accent ? typeColors[primaryType].accent : defaultTheme.accent
+  };
 
   return (
-    <div className={`min-h-screen ${safeTheme.bg || 'bg-gray-900'} ${safeTheme.text || 'text-white'}`}>
+    <div className={`min-h-screen ${safeTheme.bg} ${safeTheme.text} font-rounded`}>
       <Head>
         <title>{properCase(name)} | Pokédex Live</title>
         <meta name="description" content={`View details for ${properCase(name)}`} />
