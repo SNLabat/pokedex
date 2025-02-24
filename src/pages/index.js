@@ -135,7 +135,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white">
       <Head>
-        <title>Pokédex Live - Track Your Pokémon Collection</title>
+        <title>PokéTracker - Track Your Pokémon Collection</title>
         <meta name="description" content="Track your Pokémon collection across all games and generations" />
       </Head>
 
@@ -153,7 +153,9 @@ export default function Home() {
         ></div>
         
         <div className="relative z-10 text-center px-4 max-w-5xl mx-auto">
-          <h1 className="text-4xl md:text-6xl font-bold mb-2">Pokédex Live</h1>
+          <h1 className="text-5xl md:text-7xl font-bold mb-6 text-white drop-shadow-lg">
+            PokéTracker
+          </h1>
           <p className="text-xl md:text-2xl mb-8 text-gray-100 max-w-3xl mx-auto">
             Track your Pokémon collection across all games and generations.
             Mark caught, shiny, and special forms. Build teams and share your progress.
@@ -286,30 +288,55 @@ export default function Home() {
         {/* Generation Showcase */}
         <div className="mb-16">
           <h2 className="text-3xl font-bold mb-6 text-center">Explore Generations</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {generations.map(gen => (
-              <Link key={gen.id} href={`/generation/${gen.id}`}>
-                <a className="block transform transition-transform hover:scale-105">
-                  <div className={`bg-gradient-to-br ${gen.color} rounded-xl p-6 shadow-lg h-full`}>
-                    <h3 className="text-2xl font-bold mb-2">Generation {gen.id}: {gen.name}</h3>
-                    <p className="text-sm opacity-90 mb-3">{gen.years} • {gen.pokemon} Pokémon</p>
-                    
-                    <div className="flex justify-center gap-4 mt-6">
+              <div 
+                key={gen.id}
+                className="relative group rounded-xl overflow-hidden shadow-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl"
+                style={{ height: '240px' }}
+              >
+                {/* Gradient background */}
+                <div className={`absolute inset-0 bg-gradient-to-br ${gen.color} opacity-80 group-hover:opacity-90 transition-opacity`}></div>
+                
+                {/* Content */}
+                <div className="relative z-10 p-6 h-full flex flex-col justify-between">
+                  <div>
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <span className="inline-block px-3 py-1 bg-black bg-opacity-50 rounded-full text-sm mb-2">
+                          Generation {gen.id}
+                        </span>
+                        <h3 className="text-2xl font-bold">{gen.name} Region</h3>
+                      </div>
+                      <span className="text-sm bg-gray-900 bg-opacity-70 px-2 py-1 rounded">
+                        {gen.pokemon} Pokémon
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-100 mt-1">{gen.years}</p>
+                  </div>
+                  
+                  {/* Starter Pokémon */}
+                  <div>
+                    <div className="flex justify-center mt-4 space-x-2">
                       {gen.starters.map(id => (
-                        <div key={id} className="w-16 h-16">
+                        <div key={id} className="w-16 h-16 bg-white bg-opacity-20 rounded-full p-1 transform transition-transform hover:scale-110">
                           <Image
-                            src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`}
+                            src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`}
                             alt={`Starter ${id}`}
                             width={64}
                             height={64}
-                            className="object-contain"
                           />
                         </div>
                       ))}
                     </div>
+                    <Link href={`/pokedex?gen=${gen.id}`}>
+                      <a className="block text-center mt-4 py-2 bg-black bg-opacity-30 hover:bg-opacity-50 rounded-lg transition-all">
+                        Browse Gen {gen.id}
+                      </a>
+                    </Link>
                   </div>
-                </a>
-              </Link>
+                </div>
+              </div>
             ))}
           </div>
         </div>
@@ -490,7 +517,7 @@ export default function Home() {
         <div className="container mx-auto px-4 py-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-4 md:mb-0">
-              <h3 className="text-xl font-bold">Pokédex Live</h3>
+              <h3 className="text-xl font-bold">PokéTracker</h3>
               <p className="text-gray-400 text-sm">
                 A comprehensive Pokémon tracking application
               </p>
