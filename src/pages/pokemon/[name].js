@@ -1008,30 +1008,42 @@ export async function getStaticProps({ params }) {
 
     // Get alternative forms
     const forms = await Promise.all(
-      species.varieties.map(async (variety) => {
-        try {
-        const resForm = await fetch(variety.pokemon.url);
-        if (!resForm.ok) return null;
-        const formData = await resForm.json();
-        return {
-          ...formData,
-          formName: variety.pokemon.name
-        };
-        } catch (error) {
-          console.error(`Error fetching form data for ${variety.pokemon.name}:`, error);
-          return null;
-        }
-      })
+      species.varieties
+        .filter(variety => variety.pokemon.name !== params.name) // Filter out the current form
+        .map(async (variety) => {
+          try {
+            const resForm = await fetch(variety.pokemon.url);
+            if (!resForm.ok) return null;
+            const formData = await resForm.json();
+            return {
+              id: formData.id,
+              name: formData.name,
+              types: formData.types,
+              sprites: formData.sprites
+            };
+          } catch (error) {
+            console.error(`Error fetching form data for ${variety.pokemon.name}:`, error);
+            return null;
+          }
+        })
     );
 
-    const alternativeForms = forms.filter(
-      form => form && form.formName !== params.name
-    );
+    const alternativeForms = forms.filter(Boolean);
 
+    // Only return serializable data
     return {
       props: { 
-        pokemon,
-        species,
+        pokemon: {
+          ...pokemon,
+          // Remove any function properties that might exist
+          parse: undefined,
+          toJSON: undefined
+        },
+        species: {
+          ...species,
+          parse: undefined,
+          toJSON: undefined
+        },
         alternativeForms,
         evolutionChain: evolutionChainData.chain
       },
