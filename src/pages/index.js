@@ -17,6 +17,7 @@ export default function Home() {
   const [randomPokemon, setRandomPokemon] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isHovered, setIsHovered] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const heroRef = useRef(null);
   
   const generations = [
@@ -42,6 +43,23 @@ export default function Home() {
   // Daily featured - changes each day
   const dailyFeaturedIndex = new Date().getDate() % featuredPokemon.length;
   const dailyFeatured = featuredPokemon[dailyFeaturedIndex];
+
+  // Handle search submission
+  const handleSearch = () => {
+    if (!searchTerm.trim()) return;
+    
+    // Check if search term is a number
+    const isNumber = /^\d+$/.test(searchTerm.trim());
+    
+    if (isNumber) {
+      // If it's a number, navigate directly to that Pokémon ID
+      router.push(`/pokemon/${searchTerm.trim()}`);
+    } else {
+      // If it's a name, convert to lowercase and remove spaces
+      const formattedSearch = searchTerm.trim().toLowerCase().replace(/\s+/g, '-');
+      router.push(`/pokemon/${formattedSearch}`);
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -196,8 +214,12 @@ export default function Home() {
                 type="text"
                 placeholder="Enter Pokémon name or number..."
                 className="flex-1 px-4 py-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:border-blue-500 focus:outline-none"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
               />
               <button
+                onClick={handleSearch}
                 className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium transition-colors"
               >
                 Search
@@ -209,13 +231,14 @@ export default function Home() {
               {['Fire', 'Water', 'Grass', 'Electric', 'Psychic', 'Dragon'].map(type => (
                 <button
                   key={type}
+                  onClick={() => router.push(`/type/${type.toLowerCase()}`)}
                   className={`px-3 py-1 rounded-full text-xs font-medium 
                     ${type === 'Fire' ? 'bg-orange-600' : ''}
                     ${type === 'Water' ? 'bg-blue-600' : ''}
                     ${type === 'Grass' ? 'bg-green-600' : ''}
-                    ${type === 'Electric' ? 'bg-yellow-500 text-black' : ''}
+                    ${type === 'Electric' ? 'bg-yellow-500' : ''}
                     ${type === 'Psychic' ? 'bg-pink-600' : ''}
-                    ${type === 'Dragon' ? 'bg-purple-700' : ''}
+                    ${type === 'Dragon' ? 'bg-violet-600' : ''}
                   `}
                 >
                   {type}
