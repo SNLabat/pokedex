@@ -132,15 +132,46 @@ export const getTeams = async () => {
   }
 };
 
-// Add other mock functions as needed
-export const saveUserPreferences = async () => ({ success: false, error: 'Firebase not configured' });
-export const getUserPreferences = async () => ({ success: false, preferences: {} });
-export const shareCollection = async () => ({ success: false, error: 'Firebase not configured' });
-export const getSharedCollection = async () => ({ success: false, error: 'Firebase not configured' });
+// User preferences functions
+export const saveUserPreferences = async (preferences) => {
+  if (!isLocalStorageAvailable()) return { success: false, error: 'LocalStorage not available' };
+  
+  try {
+    localStorage.setItem('userPreferences', JSON.stringify(preferences));
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};
+
+export const getUserPreferences = async () => {
+  if (!isLocalStorageAvailable()) return { success: false, preferences: {} };
+  
+  try {
+    const data = localStorage.getItem('userPreferences');
+    return { success: true, preferences: data ? JSON.parse(data) : {} };
+  } catch (error) {
+    return { success: false, error: error.message, preferences: {} };
+  }
+};
+
+// Mocked social functions
+export const shareCollection = async () => ({ success: false, error: 'Sharing not available in offline mode' });
+export const getSharedCollection = async () => ({ success: false, error: 'Sharing not available in offline mode' });
 export const getPublicCollections = async () => ({ success: false, collections: [] });
-export const deleteTeam = async () => ({ success: false, error: 'Firebase not configured' });
-export const saveUserPreferences = async () => ({ success: false, error: 'Firebase not configured' });
-export const getUserPreferences = async () => ({ success: false, preferences: {} });
-export const shareCollection = async () => ({ success: false, error: 'Firebase not configured' });
-export const getSharedCollection = async () => ({ success: false, error: 'Firebase not configured' });
-export const getPublicCollections = async () => ({ success: false, collections: [] });
+export const deleteTeam = async (teamId) => {
+  if (!isLocalStorageAvailable()) return { success: false, error: 'LocalStorage not available' };
+  
+  try {
+    const teamsString = localStorage.getItem('savedTeams');
+    if (!teamsString) return { success: false, error: 'No teams found' };
+    
+    const teams = JSON.parse(teamsString);
+    const filteredTeams = teams.filter(team => team.id !== teamId);
+    
+    localStorage.setItem('savedTeams', JSON.stringify(filteredTeams));
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};
