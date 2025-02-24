@@ -333,20 +333,20 @@ const FormCatchButton = ({ formName, type, caughtStatus, updateCaughtStatus, the
   );
 };
 
-// Update the hasAlphaForm helper function to include Hisuian form check
+// Keep this outside the component
 const hasAlphaForm = (pokemonName) => {
   return guaranteedAlphas.includes(pokemonName.toLowerCase());
 };
 
-// Add helper to get Hisuian sprite
-const getHisuianSprite = (form) => {
-  const hisuianForm = alternativeForms?.find(f => 
-    f.formName.toLowerCase().includes('hisui')
-  );
-  return hisuianForm?.sprites.other?.['official-artwork'] || form.sprites.other?.['official-artwork'];
-};
-
 export default function PokemonDetail({ pokemon, species, alternativeForms, evolutionChain }) {
+  // Move getHisuianSprite inside the component
+  const getHisuianSprite = (pokemon) => {
+    const hisuianForm = alternativeForms?.find(f => 
+      f.formName.toLowerCase().includes('hisui')
+    );
+    return hisuianForm?.sprites.other?.['official-artwork'] || pokemon.sprites.other?.['official-artwork'];
+  };
+
   const [isShiny, setIsShiny] = useState(false);
   const [isAnimated, setIsAnimated] = useState(false);
   const [caughtStatus, setCaughtStatus] = useState({
@@ -1019,7 +1019,6 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
                           alt={`${name} alpha form`}
                           className="w-32 h-32 object-contain"
                         />
-                        {/* Alpha indicator */}
                         <span className="absolute top-0 right-0 text-red-500 text-xl">α</span>
                       </div>
                       <FormCatchButton
@@ -1041,7 +1040,6 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
                             alt={`${name} shiny alpha form`}
                             className="w-32 h-32 object-contain"
                           />
-                          {/* Alpha indicator */}
                           <span className="absolute top-0 right-0 text-red-500 text-xl">α</span>
                         </div>
                         <FormCatchButton
