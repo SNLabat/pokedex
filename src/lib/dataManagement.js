@@ -99,12 +99,7 @@ export const resetPassword = async (email) => {
 };
 
 export const getCurrentUser = () => {
-  return new Promise((resolve) => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      unsubscribe();
-      resolve(user);
-    });
-  });
+  return null; // No user when Firebase is not available
 };
 
 // Pokémon Collection Management Functions
@@ -344,73 +339,11 @@ export const getPublicCollections = async (limit = 10) => {
 
 // Data migration/sync function
 export const syncLocalToCloud = async (userId, localData) => {
-  try {
-    // Get existing cloud data
-    const { success, data, error } = await getPokemonCollection(userId);
-    
-    if (!success) {
-      throw new Error(error);
-    }
-    
-    let mergedData;
-    
-    if (data) {
-      // Merge strategy: For each Pokémon ID, combine caught statuses
-      // preferring the most recent data based on timestamps
-      mergedData = { ...data };
-      
-      for (const [pokemonId, localForms] of Object.entries(localData)) {
-        if (!mergedData[pokemonId]) {
-          // Cloud doesn't have this Pokémon yet
-          mergedData[pokemonId] = localForms;
-        } else {
-          // Merge forms
-          for (const [formName, localStatus] of Object.entries(localForms)) {
-            if (!mergedData[pokemonId][formName]) {
-              // Cloud doesn't have this form yet
-              mergedData[pokemonId][formName] = localStatus;
-            } else {
-              // Merge individual status flags
-              for (const [statusKey, statusValue] of Object.entries(localStatus)) {
-                // Simple strategy: local data overwrites cloud
-                mergedData[pokemonId][formName][statusKey] = statusValue;
-              }
-            }
-          }
-        }
-      }
-    } else {
-      // No existing cloud data, just use local data
-      mergedData = localData;
-    }
-    
-    // Save merged data to cloud
-    await savePokemonCollection(userId, mergedData);
-    
-    return { success: true, data: mergedData };
-  } catch (error) {
-    console.error('Error syncing data:', error);
-    return { success: false, error: error.message };
-  }
+  console.log('Cloud sync not available - Firebase not installed');
+  return { success: false, error: 'Firebase not installed' };
 };
 
 export const syncCloudToLocal = async (userId) => {
-  try {
-    const { success, data, error } = await getPokemonCollection(userId);
-    
-    if (!success) {
-      throw new Error(error);
-    }
-    
-    if (data) {
-      // Store to localStorage
-      localStorage.setItem('caughtPokemon', JSON.stringify(data));
-      return { success: true, data };
-    } else {
-      return { success: true, data: {} };
-    }
-  } catch (error) {
-    console.error('Error syncing from cloud:', error);
-    return { success: false, error: error.message };
-  }
+  console.log('Cloud sync not available - Firebase not installed');
+  return { success: false, error: 'Firebase not installed' };
 };

@@ -1,7 +1,25 @@
 // components/EnhancedTrackingPanel.js
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
-import { PlusIcon, MinusIcon, CheckIcon } from '@heroicons/react/solid';
+
+// Replace Heroicons with simple SVG components
+const PlusIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
+    <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
+  </svg>
+);
+
+const MinusIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
+    <path fillRule="evenodd" d="M5 10a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1z" clipRule="evenodd" />
+  </svg>
+);
+
+const CheckIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+  </svg>
+);
 
 const TrackingOption = ({ label, isActive, onClick, color = "green" }) => {
   const colorClasses = {
@@ -20,7 +38,7 @@ const TrackingOption = ({ label, isActive, onClick, color = "green" }) => {
       }`}
     >
       <span>{label}</span>
-      {isActive && <CheckIcon className="w-4 h-4" />}
+      {isActive && <CheckIcon />}
     </button>
   );
 };
@@ -94,9 +112,9 @@ const EnhancedTrackingPanel = ({
         >
           <span className="font-medium">Special Forms</span>
           {expandedSection === 'special' ? (
-            <MinusIcon className="w-5 h-5" />
+            <MinusIcon />
           ) : (
-            <PlusIcon className="w-5 h-5" />
+            <PlusIcon />
           )}
         </button>
         {expandedSection === 'special' && (
@@ -122,9 +140,9 @@ const EnhancedTrackingPanel = ({
         >
           <span className="font-medium">Game Versions</span>
           {expandedSection === 'games' ? (
-            <MinusIcon className="w-5 h-5" />
+            <MinusIcon />
           ) : (
-            <PlusIcon className="w-5 h-5" />
+            <PlusIcon />
           )}
         </button>
         {expandedSection === 'games' && (
@@ -150,9 +168,9 @@ const EnhancedTrackingPanel = ({
         >
           <span className="font-medium">Custom Tags</span>
           {expandedSection === 'custom' ? (
-            <MinusIcon className="w-5 h-5" />
+            <MinusIcon />
           ) : (
-            <PlusIcon className="w-5 h-5" />
+            <PlusIcon />
           )}
         </button>
         {expandedSection === 'custom' && (
