@@ -260,12 +260,36 @@ export default function PokedexPage({ initialPokemon }) {
 }
 
 export async function getStaticProps() {
-  // Fetch data
-  
-  return {
-    props: {
-      initialPokemon: pokemonData,
-      // Don't pass functions here!
-    }
-  };
+  try {
+    // Fetch basic Pokémon data from API
+    const res = await fetch('https://pokeapi.co/api/v2/pokemon?limit=151'); // Start with first 151 Pokémon
+    const data = await res.json();
+    
+    // Process Pokémon data into a more usable format
+    const pokemonList = data.results.map((pokemon, index) => {
+      const id = index + 1;
+      return {
+        id,
+        name: pokemon.name,
+        url: pokemon.url,
+        // Add image URL from GitHub repository
+        image: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`
+      };
+    });
+    
+    return {
+      props: {
+        initialPokemon: pokemonList
+      },
+      revalidate: 86400 // Revalidate once per day
+    };
+  } catch (error) {
+    console.error('Error fetching Pokémon data:', error);
+    return {
+      props: {
+        initialPokemon: [] // Return empty array if fetch fails
+      },
+      revalidate: 3600 // Try again sooner if there was an error
+    };
+  }
 } 
