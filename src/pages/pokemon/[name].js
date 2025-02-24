@@ -313,6 +313,199 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
     accent: primaryType && typeColors[primaryType]?.accent ? typeColors[primaryType].accent : defaultTheme.accent
   };
 
+  // Fixed version with serialization issues resolved
+  const [caughtStatus, setCaughtStatus] = useState({
+    default: {
+      regular: false,
+      shiny: false
+    }
+  });
+
+  // Check for iOS device
+  useEffect(() => {
+    const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    setIsIOS(iOS);
+  }, []);
+
+  // Load caught status from localStorage on mount
+  useEffect(() => {
+    if (!id) return;
+    
+    const saved = localStorage.getItem('caughtPokemon');
+    if (saved) {
+      try {
+        const savedData = JSON.parse(saved);
+        if (savedData[id]) {
+          setCaughtStatus(savedData[id]);
+        }
+      } catch (e) {
+        console.error('Error loading caught status from localStorage', e);
+      }
+    }
+  }, [id]);
+
+  // Update caught status
+  const updateCaughtStatus = (type, variant = 'default') => {
+    const newStatus = {
+      ...caughtStatus,
+      [variant]: {
+        ...(caughtStatus[variant] || {
+          regular: false,
+          shiny: false
+        }),
+        [type]: !caughtStatus[variant]?.[type]
+      }
+    };
+    setCaughtStatus(newStatus);
+
+    // Update localStorage with the new status
+    try {
+      const saved = localStorage.getItem('caughtPokemon');
+      const savedData = saved ? JSON.parse(saved) : {};
+      savedData[id] = {
+        ...savedData[id],
+        [variant]: newStatus[variant]
+      };
+      localStorage.setItem('caughtPokemon', JSON.stringify(savedData));
+    } catch (e) {
+      console.error('Error saving caught status to localStorage', e);
+    }
+  };
+
+  // Render PokemonCry component directly within the main component
+  const renderPokemonCry = (src, label) => {
+    if (!src) return null;
+
+    if (isIOS) {
+      return (
+        <div className={`${safeTheme.bg} bg-opacity-50 p-4 rounded-lg shadow-lg`}>
+          <p className={`${safeTheme.text} opacity-75 mb-2`}>{label}</p>
+          <a 
+            href={src}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-center"
+          >
+            Listen to Cry
+          </a>
+          <p className="text-xs text-gray-400 mt-2">
+            Note: On iOS devices, cries will open in a new tab
+          </p>
+        </div>
+      );
+    }
+
+    return (
+      <div className={`${safeTheme.bg} bg-opacity-50 p-4 rounded-lg shadow-lg`}>
+        <p className={`${safeTheme.text} opacity-75 mb-2`}>{label}</p>
+        <audio
+          controls
+          className="w-full"
+          preload="none"
+        >
+          <source src={src} type="audio/mpeg" />
+          <source src={src} type="audio/ogg" />
+          Your browser does not support audio playback.
+        </audio>
+      </div>
+    );
+  };
+
+  // Render evolution chain directly within the main component
+  const renderEvolutionChain = () => {
+    if (!evolutionChain) return null;
+    
+    const renderEvolution = (evolution) => {
+      if (!evolution || !evolution.species) return null;
+      
+      const evolutionId = evolution.species.url.split('/').slice(-2, -1)[0];
+      const isCurrentPokemon = evolutionId === id?.toString();
+      
+      return (
+        <div className="flex flex-col items-center">
+          <Link href={`/pokemon/${evolution.species.name}`}>
+            <a className="flex flex-col items-center p-2 rounded-lg transition-transform hover:scale-105">
+              <div className="w-20 h-20 relative">
+                <Image
+                  src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${evolutionId}.png`}
+                  alt={evolution.species.name}
+                  layout="fill"
+                  objectFit="contain"
+                />
+              </div>
+              <span className={`mt-2 capitalize text-sm ${isCurrentPokemon ? 'border-b-2 border-current' : ''}`}>
+                {evolution.species.name.replace(/-/g, ' ')}
+              </span>
+              {evolution.min_level && (
+                <span className="text-xs opacity-75">Level {evolution.min_level}</span>
+              )}
+            </a>
+          </Link>
+          
+          {evolution.evolves_to?.length > 0 && (
+            <div className="flex items-center mx-4">
+              <span className="text-2xl">→</span>
+            </div>
+          )}
+        </div>
+      );
+    };
+
+    const renderEvolutionLine = (evolution) => {
+      if (!evolution) return null;
+      
+      const evolutions = [];
+      let currentEvo = evolution;
+
+      while (currentEvo) {
+        const renderedEvo = renderEvolution(currentEvo);
+        if (renderedEvo) {
+          evolutions.push(renderedEvo);
+        }
+        currentEvo = currentEvo.evolves_to?.[0]; // Follow the first evolution path
+      }
+
+      // For split evolutions (like Eevee), render them in rows
+      const splitEvolutions = evolution.evolves_to?.slice(1) || [];
+      if (splitEvolutions.length > 0) {
+        return (
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center justify-center gap-4">
+              {evolutions}
+            </div>
+            {splitEvolutions.map((evo, index) => {
+              const renderedEvo = renderEvolution(evo);
+              if (!renderedEvo) return null;
+              
+              return (
+                <div key={index} className="flex items-center justify-center gap-4">
+                  <div className="invisible">
+                    {renderEvolution(evolution)} {/* Placeholder for alignment */}
+                  </div>
+                  <span className="text-2xl">→</span>
+                  {renderedEvo}
+                </div>
+              );
+            })}
+          </div>
+        );
+      }
+
+      return (
+        <div className="flex items-center justify-center gap-4">
+          {evolutions}
+        </div>
+      );
+    };
+
+    return (
+      <div className="flex justify-center overflow-x-auto">
+        {renderEvolutionLine(evolutionChain)}
+      </div>
+    );
+  };
+
   return (
     <div className={`min-h-screen ${safeTheme.bg} ${safeTheme.text} font-rounded`}>
       <Head>
@@ -825,7 +1018,7 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
                             <span>{statValue}</span>
                     </div>
                           <div className="w-full bg-gray-700 rounded-full h-2.5">
-                            <div 
+                            <div
                               className={`${barColor} h-2.5 rounded-full`} 
                               style={{ width: `${percentage}%` }}
                             ></div>
@@ -859,7 +1052,7 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
                     <div className="flex justify-between">
                       <span>Catch Rate</span>
                       <span>{species.capture_rate} ({(species.capture_rate / 255 * 100).toFixed(1)}%)</span>
-                  </div>
+                    </div>
                     
                     <div className="flex justify-between">
                       <span>Base Happiness</span>
@@ -869,7 +1062,7 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
                     <div className="flex justify-between">
                       <span>Growth Rate</span>
                       <span className="capitalize">{species.growth_rate?.name?.replace('-', ' ') || '-'}</span>
-                  </div>
+                    </div>
                     
                     {/* EV Yield */}
                     <div className="pt-2 border-t border-gray-700">
