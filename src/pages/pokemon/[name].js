@@ -992,13 +992,52 @@ export async function getStaticProps({ params }) {
     if (!resPokemon.ok) {
       throw new Error('Failed to fetch Pokemon');
     }
-    const pokemon = await resPokemon.json();
+    const pokemonData = await resPokemon.json();
     
+    // Extract only the properties we need from pokemon
+    const pokemon = {
+      id: pokemonData.id,
+      name: pokemonData.name,
+      height: pokemonData.height,
+      weight: pokemonData.weight,
+      types: pokemonData.types,
+      stats: pokemonData.stats,
+      abilities: pokemonData.abilities,
+      base_experience: pokemonData.base_experience,
+      sprites: pokemonData.sprites,
+      species: {
+        name: pokemonData.species.name,
+        url: pokemonData.species.url
+      },
+      moves: pokemonData.moves.map(move => ({
+        move: {
+          name: move.move.name,
+          url: move.move.url
+        },
+        version_group_details: move.version_group_details
+      }))
+    };
+
     const resSpecies = await fetch(pokemon.species.url);
     if (!resSpecies.ok) {
       throw new Error('Failed to fetch species');
     }
-    const species = await resSpecies.json();
+    const speciesData = await resSpecies.json();
+
+    // Extract only the properties we need from species
+    const species = {
+      id: speciesData.id,
+      name: speciesData.name,
+      base_happiness: speciesData.base_happiness,
+      capture_rate: speciesData.capture_rate,
+      color: speciesData.color,
+      evolution_chain: speciesData.evolution_chain,
+      flavor_text_entries: speciesData.flavor_text_entries,
+      genera: speciesData.genera,
+      growth_rate: speciesData.growth_rate,
+      habitat: speciesData.habitat,
+      varieties: speciesData.varieties
+    };
 
     const evolutionChainRes = await fetch(species.evolution_chain.url);
     if (!evolutionChainRes.ok) {
@@ -1009,7 +1048,7 @@ export async function getStaticProps({ params }) {
     // Get alternative forms
     const forms = await Promise.all(
       species.varieties
-        .filter(variety => variety.pokemon.name !== params.name) // Filter out the current form
+        .filter(variety => variety.pokemon.name !== params.name)
         .map(async (variety) => {
           try {
             const resForm = await fetch(variety.pokemon.url);
@@ -1018,8 +1057,21 @@ export async function getStaticProps({ params }) {
             return {
               id: formData.id,
               name: formData.name,
-              types: formData.types,
-              sprites: formData.sprites
+              types: formData.types.map(type => ({
+                slot: type.slot,
+                type: {
+                  name: type.type.name,
+                  url: type.type.url
+                }
+              })),
+              sprites: {
+                front_default: formData.sprites.front_default,
+                other: {
+                  'official-artwork': {
+                    front_default: formData.sprites.other?.['official-artwork']?.front_default
+                  }
+                }
+              }
             };
           } catch (error) {
             console.error(`Error fetching form data for ${variety.pokemon.name}:`, error);
@@ -1030,22 +1082,25 @@ export async function getStaticProps({ params }) {
 
     const alternativeForms = forms.filter(Boolean);
 
-    // Only return serializable data
+    // Clean up evolution chain data to ensure it's serializable
+    const cleanEvolutionChain = (chain) => {
+      if (!chain) return null;
+      return {
+        species: {
+          name: chain.species.name,
+          url: chain.species.url
+        },
+        evolves_to: chain.evolves_to.map(evo => cleanEvolutionChain(evo)),
+        evolution_details: chain.evolution_details
+      };
+    };
+
     return {
       props: { 
-        pokemon: {
-          ...pokemon,
-          // Remove any function properties that might exist
-          parse: undefined,
-          toJSON: undefined
-        },
-        species: {
-          ...species,
-          parse: undefined,
-          toJSON: undefined
-        },
+        pokemon,
+        species,
         alternativeForms,
-        evolutionChain: evolutionChainData.chain
+        evolutionChain: cleanEvolutionChain(evolutionChainData.chain)
       },
       revalidate: 86400 // Revalidate once per day
     };
