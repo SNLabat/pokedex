@@ -61,12 +61,33 @@ export default function Home({ generations }) {
     }
   }, [selectedGeneration]);
 
-  // Stats calculation
-  const stats = {
-    totalCaught: Object.values(caughtData).filter(p => p.regular || p.shiny).length,
-    totalShiny: Object.values(caughtData).filter(p => p.shiny).length,
-    completion: ((Object.values(caughtData).filter(p => p.regular || p.shiny).length / 1008) * 100).toFixed(1)
+  // Update stats calculation
+  const calculateStats = () => {
+    const totalPokemon = 1008; // Total number of unique Pokemon
+    let totalCaught = 0;
+    let totalShiny = 0;
+
+    Object.values(caughtData).forEach(pokemonForms => {
+      // Check if any form is caught
+      const isRegularCaught = pokemonForms.default?.regular || 
+        Object.values(pokemonForms).some(form => form.regular);
+      
+      const isShinyCaught = pokemonForms.default?.shiny || 
+        Object.values(pokemonForms).some(form => form.shiny);
+
+      if (isRegularCaught) totalCaught++;
+      if (isShinyCaught) totalShiny++;
+    });
+
+    return {
+      totalCaught,
+      totalShiny,
+      completion: ((totalCaught / totalPokemon) * 100).toFixed(1)
+    };
   };
+
+  // Use the new calculation in your stats view
+  const stats = calculateStats();
 
   const handleWondercardUpload = async (event) => {
     const file = event.target.files[0];
@@ -102,13 +123,10 @@ export default function Home({ generations }) {
       {/* Header */}
       <div className="bg-red-600 shadow-lg">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            {/* Simplified header with just title and view toggles */}
-            <div className="w-full flex items-center justify-between md:justify-center">
-              <h1 className="text-4xl font-bold text-center">
-                Labat's Pokémon Database
-              </h1>
-            </div>
+          <div className="flex flex-col items-center gap-4">
+            <h1 className="text-4xl font-bold">
+              Labat's Pokémon Database
+            </h1>
             
             {/* View Mode Toggles */}
             <div className="flex gap-2">
@@ -161,13 +179,14 @@ export default function Home({ generations }) {
 
         {/* View Mode Content */}
         {viewMode === 'stats' ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div className="bg-gray-800 p-6 rounded-lg">
               <h2 className="text-xl font-bold mb-2">Total Caught</h2>
-              <p className="text-4xl text-red-400">{stats.totalCaught}</p>
+              <p className="text-4xl text-green-400">{stats.totalCaught}</p>
+              <p className="text-sm text-gray-400">out of 1008</p>
             </div>
             <div className="bg-gray-800 p-6 rounded-lg">
-              <h2 className="text-xl font-bold mb-2">Shiny Collection</h2>
+              <h2 className="text-xl font-bold mb-2">Shiny Forms</h2>
               <p className="text-4xl text-yellow-400">{stats.totalShiny}</p>
             </div>
             <div className="bg-gray-800 p-6 rounded-lg">
@@ -197,7 +216,19 @@ export default function Home({ generations }) {
         ) : viewMode === 'caught' ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
             {Object.entries(caughtData)
-              .filter(([_, status]) => status.regular || status.shiny)
+              .filter(([id, status]) => {
+                // Check if any form is caught
+                const isAnyCaught = status.default?.regular || 
+                  status.default?.shiny || 
+                  Object.values(status).some(form => form.regular || form.shiny);
+                
+                // Check if Pokemon belongs to current generation
+                const pokemon = pokemonSpecies.find(p => 
+                  p.url.split('/').slice(-2)[0] === id
+                );
+                
+                return isAnyCaught && pokemon;
+              })
               .map(([id]) => {
                 const pokemon = pokemonSpecies.find(p => 
                   p.url.split('/').slice(-2)[0] === id
