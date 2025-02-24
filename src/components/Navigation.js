@@ -58,7 +58,28 @@ export default function Navigation() {
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchTerm.trim()) {
-      router.push(`/pokemon/${searchTerm.toLowerCase().trim()}`);
+      // Make sure we're routing to the correct URL format
+      const searchQuery = searchTerm.toLowerCase().trim();
+      
+      // Handle both name and ID searches
+      const isNumber = !isNaN(searchQuery) && !isNaN(parseFloat(searchQuery));
+      if (isNumber) {
+        // If it's a number, fetch the pokemon with that ID
+        fetch(`https://pokeapi.co/api/v2/pokemon/${searchQuery}`)
+          .then(res => res.json())
+          .then(data => {
+            router.push(`/pokemon/${data.name}`);
+          })
+          .catch(err => {
+            console.error("Error fetching Pokemon by ID:", err);
+            // Try direct navigation if API fails
+            router.push(`/pokemon/${searchQuery}`);
+          });
+      } else {
+        // If it's a name, navigate directly
+        router.push(`/pokemon/${searchQuery}`);
+      }
+      
       setSearchTerm('');
       setIsSearchFocused(false);
     }
@@ -129,6 +150,8 @@ export default function Navigation() {
                             onClick={() => {
                               setSearchTerm('');
                               setIsSearchFocused(false);
+                              // Force navigation to ensure it works
+                              router.push(`/pokemon/${pokemon.name}`);
                             }}
                           >
                             <span className="text-gray-400 mr-2">#{String(pokemon.id).padStart(3, '0')}</span>
@@ -202,6 +225,8 @@ export default function Navigation() {
                           onClick={() => {
                             setSearchTerm('');
                             setIsMenuOpen(false);
+                            // Force navigation to ensure it works
+                            router.push(`/pokemon/${pokemon.name}`);
                           }}
                         >
                           <span className="text-gray-400 mr-2">#{String(pokemon.id).padStart(3, '0')}</span>

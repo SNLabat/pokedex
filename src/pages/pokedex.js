@@ -123,9 +123,8 @@ export default function PokedexPage() {
                 
                 return (
                   <Link key={pokemon.id} href={`/pokemon/${pokemon.name}`}>
-                    <a className={`bg-gray-800 hover:bg-gray-700 rounded-lg p-4 transition-transform hover:scale-105 relative
-                      ${status.shiny ? 'border-2 border-yellow-500' : 
-                        status.caught ? 'border-2 border-green-500' : ''}`}>
+                    <a className={`bg-gray-800 hover:bg-gray-700 rounded-lg p-4 transition-transform hover:scale-105 relative pokemon-card
+                      ${status.shiny ? 'shiny' : status.caught ? 'caught' : ''}`}>
                       <div className="relative w-full pt-[100%]">
                         <Image
                           src={pokemon.image || `/img/unknown-pokemon.png`}

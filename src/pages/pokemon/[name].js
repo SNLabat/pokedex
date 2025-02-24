@@ -558,224 +558,225 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
       </div>
 
       {/* Now add a comprehensive sprite gallery */}
-      <div className="mt-8">
-        <h3 className="text-xl font-semibold mb-4">All Sprites</h3>
-        
-        {(() => {
-          const SpriteCard = ({ src, label, onClick, isActive, isShiny = false, isAnimated = false, large = false }) => (
-            <div 
-              className={`bg-gray-800 rounded-lg p-3 cursor-pointer transition-all ${
-                isActive ? 'ring-2 ring-red-500' : 'hover:bg-gray-700'
-              }`}
-              onClick={onClick}
-            >
-              <div className={`relative ${large ? 'h-32' : 'h-24'} flex items-center justify-center`}>
-                <img 
-                  src={src} 
-                  alt={label}
-                  className={`object-contain max-h-full ${isAnimated ? 'animate-bounce-slow' : ''}`}
-                />
-                {isShiny && (
-                  <span className="absolute top-0 right-0 text-yellow-500">✨</span>
-                )}
-              </div>
-              <p className="text-center mt-2 text-sm">{label}</p>
-            </div>
-          );
-          
-          return (
-            <>
-              {/* Official Artwork */}
-              <div className="mb-6">
-                <h4 className="text-lg font-medium mb-2">Official Artwork</h4>
-                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-4">
-                  {pokemon.sprites.other?.['official-artwork']?.front_default && (
-                    <SpriteCard
-                      src={pokemon.sprites.other['official-artwork'].front_default}
-                      label="Official Artwork"
-                      onClick={() => setActiveSprite(pokemon.sprites.other['official-artwork'].front_default)}
-                      isActive={activeSprite === pokemon.sprites.other['official-artwork'].front_default}
-                      large={true}
-                    />
-                  )}
-                  {pokemon.sprites.other?.['official-artwork']?.front_shiny && (
-                    <SpriteCard
-                      src={pokemon.sprites.other['official-artwork'].front_shiny}
-                      label="Official Shiny"
-                      onClick={() => setActiveSprite(pokemon.sprites.other['official-artwork'].front_shiny)}
-                      isActive={activeSprite === pokemon.sprites.other['official-artwork'].front_shiny}
-                      isShiny={true}
-                      large={true}
-                    />
+      {activeTab === 'sprites' && (
+        <div className="mt-6">
+          <h3 className="text-xl font-semibold mb-4">All Sprites</h3>
+          {(() => {
+            const SpriteCard = ({ src, label, onClick, isActive, isShiny = false, isAnimated = false, large = false }) => (
+              <div 
+                className={`bg-gray-800 rounded-lg p-3 cursor-pointer transition-all ${
+                  isActive ? 'ring-2 ring-red-500' : 'hover:bg-gray-700'
+                }`}
+                onClick={onClick}
+              >
+                <div className={`relative ${large ? 'h-32' : 'h-24'} flex items-center justify-center`}>
+                  <img 
+                    src={src} 
+                    alt={label}
+                    className={`object-contain max-h-full ${isAnimated ? 'animate-bounce-slow' : ''}`}
+                  />
+                  {isShiny && (
+                    <span className="absolute top-0 right-0 text-yellow-500">✨</span>
                   )}
                 </div>
+                <p className="text-center mt-2 text-sm">{label}</p>
               </div>
-              
-              {/* HOME Models */}
-              <div className="mb-6">
-                <h4 className="text-lg font-medium mb-2">Pokémon HOME</h4>
-                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-4">
-                  {pokemon.sprites.other?.home?.front_default && (
-                    <SpriteCard
-                      src={pokemon.sprites.other.home.front_default}
-                      label="HOME Model"
-                      onClick={() => setActiveSprite(pokemon.sprites.other.home.front_default)}
-                      isActive={activeSprite === pokemon.sprites.other.home.front_default}
-                      large={true}
-                    />
-                  )}
-                  {pokemon.sprites.other?.home?.front_shiny && (
-                    <SpriteCard
-                      src={pokemon.sprites.other.home.front_shiny}
-                      label="HOME Shiny"
-                      onClick={() => setActiveSprite(pokemon.sprites.other.home.front_shiny)}
-                      isActive={activeSprite === pokemon.sprites.other.home.front_shiny}
-                      isShiny={true}
-                      large={true}
-                    />
-                  )}
-                </div>
-              </div>
-              
-              {/* Generation 5 Sprites (Animated) */}
-              {pokemon.sprites.versions?.['generation-v']?.['black-white'] && (
+            );
+            
+            return (
+              <>
+                {/* Official Artwork */}
                 <div className="mb-6">
-                  <h4 className="text-lg font-medium mb-2">Generation 5 (Black/White)</h4>
+                  <h4 className="text-lg font-medium mb-2">Official Artwork</h4>
                   <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-4">
-                    {pokemon.sprites.versions['generation-v']['black-white'].front_default && (
+                    {pokemon.sprites.other?.['official-artwork']?.front_default && (
                       <SpriteCard
-                        src={pokemon.sprites.versions['generation-v']['black-white'].front_default}
-                        label="Black/White"
-                        onClick={() => setActiveSprite(pokemon.sprites.versions['generation-v']['black-white'].front_default)}
-                        isActive={activeSprite === pokemon.sprites.versions['generation-v']['black-white'].front_default}
+                        src={pokemon.sprites.other['official-artwork'].front_default}
+                        label="Official Artwork"
+                        onClick={() => setActiveSprite(pokemon.sprites.other['official-artwork'].front_default)}
+                        isActive={activeSprite === pokemon.sprites.other['official-artwork'].front_default}
+                        large={true}
                       />
                     )}
-                    
-                    {pokemon.sprites.versions['generation-v']['black-white'].front_shiny && (
+                    {pokemon.sprites.other?.['official-artwork']?.front_shiny && (
                       <SpriteCard
-                        src={pokemon.sprites.versions['generation-v']['black-white'].front_shiny}
-                        label="B/W Shiny"
-                        onClick={() => setActiveSprite(pokemon.sprites.versions['generation-v']['black-white'].front_shiny)}
-                        isActive={activeSprite === pokemon.sprites.versions['generation-v']['black-white'].front_shiny}
+                        src={pokemon.sprites.other['official-artwork'].front_shiny}
+                        label="Official Shiny"
+                        onClick={() => setActiveSprite(pokemon.sprites.other['official-artwork'].front_shiny)}
+                        isActive={activeSprite === pokemon.sprites.other['official-artwork'].front_shiny}
                         isShiny={true}
-                      />
-                    )}
-                    
-                    {pokemon.sprites.versions['generation-v']['black-white'].animated?.front_default && (
-                      <SpriteCard
-                        src={pokemon.sprites.versions['generation-v']['black-white'].animated.front_default}
-                        label="B/W Animated"
-                        onClick={() => setActiveSprite(pokemon.sprites.versions['generation-v']['black-white'].animated.front_default)}
-                        isActive={activeSprite === pokemon.sprites.versions['generation-v']['black-white'].animated.front_default}
-                        isAnimated={true}
-                      />
-                    )}
-                    
-                    {pokemon.sprites.versions['generation-v']['black-white'].animated?.front_shiny && (
-                      <SpriteCard
-                        src={pokemon.sprites.versions['generation-v']['black-white'].animated.front_shiny}
-                        label="B/W Anim. Shiny"
-                        onClick={() => setActiveSprite(pokemon.sprites.versions['generation-v']['black-white'].animated.front_shiny)}
-                        isActive={activeSprite === pokemon.sprites.versions['generation-v']['black-white'].animated.front_shiny}
-                        isAnimated={true}
-                        isShiny={true}
-                      />
-                    )}
-                    
-                    {/* Add back sprites as well */}
-                    {pokemon.sprites.versions['generation-v']['black-white'].back_default && (
-                      <SpriteCard
-                        src={pokemon.sprites.versions['generation-v']['black-white'].back_default}
-                        label="B/W Back"
-                        onClick={() => setActiveSprite(pokemon.sprites.versions['generation-v']['black-white'].back_default)}
-                        isActive={activeSprite === pokemon.sprites.versions['generation-v']['black-white'].back_default}
-                      />
-                    )}
-                    
-                    {pokemon.sprites.versions['generation-v']['black-white'].back_shiny && (
-                      <SpriteCard
-                        src={pokemon.sprites.versions['generation-v']['black-white'].back_shiny}
-                        label="B/W Back Shiny"
-                        onClick={() => setActiveSprite(pokemon.sprites.versions['generation-v']['black-white'].back_shiny)}
-                        isActive={activeSprite === pokemon.sprites.versions['generation-v']['black-white'].back_shiny}
-                        isShiny={true}
+                        large={true}
                       />
                     )}
                   </div>
                 </div>
-              )}
-
-              {/* Older generations (4, 3, 2, 1) */}
-              {pokemon.sprites.versions?.['generation-iv'] && (
+                
+                {/* HOME Models */}
                 <div className="mb-6">
-                  <h4 className="text-lg font-medium mb-2">Generation 4 (Diamond/Pearl, Platinum, HeartGold/SoulSilver)</h4>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
-                    {/* Diamond/Pearl */}
-                    {pokemon.sprites.versions['generation-iv']?.['diamond-pearl']?.front_default && (
+                  <h4 className="text-lg font-medium mb-2">Pokémon HOME</h4>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-4">
+                    {pokemon.sprites.other?.home?.front_default && (
                       <SpriteCard
-                        src={pokemon.sprites.versions['generation-iv']['diamond-pearl'].front_default}
-                        label="Diamond/Pearl"
-                        onClick={() => setActiveSprite(pokemon.sprites.versions['generation-iv']['diamond-pearl'].front_default)}
-                        isActive={activeSprite === pokemon.sprites.versions['generation-iv']['diamond-pearl'].front_default}
+                        src={pokemon.sprites.other.home.front_default}
+                        label="HOME Model"
+                        onClick={() => setActiveSprite(pokemon.sprites.other.home.front_default)}
+                        isActive={activeSprite === pokemon.sprites.other.home.front_default}
+                        large={true}
                       />
                     )}
-                    
-                    {pokemon.sprites.versions['generation-iv']?.['diamond-pearl']?.front_shiny && (
+                    {pokemon.sprites.other?.home?.front_shiny && (
                       <SpriteCard
-                        src={pokemon.sprites.versions['generation-iv']['diamond-pearl'].front_shiny}
-                        label="D/P Shiny"
-                        onClick={() => setActiveSprite(pokemon.sprites.versions['generation-iv']['diamond-pearl'].front_shiny)}
-                        isActive={activeSprite === pokemon.sprites.versions['generation-iv']['diamond-pearl'].front_shiny}
+                        src={pokemon.sprites.other.home.front_shiny}
+                        label="HOME Shiny"
+                        onClick={() => setActiveSprite(pokemon.sprites.other.home.front_shiny)}
+                        isActive={activeSprite === pokemon.sprites.other.home.front_shiny}
                         isShiny={true}
-                      />
-                    )}
-                    
-                    {/* Platinum */}
-                    {pokemon.sprites.versions['generation-iv']?.['platinum']?.front_default && (
-                      <SpriteCard
-                        src={pokemon.sprites.versions['generation-iv']['platinum'].front_default}
-                        label="Platinum"
-                        onClick={() => setActiveSprite(pokemon.sprites.versions['generation-iv']['platinum'].front_default)}
-                        isActive={activeSprite === pokemon.sprites.versions['generation-iv']['platinum'].front_default}
-                      />
-                    )}
-                    
-                    {pokemon.sprites.versions['generation-iv']?.['platinum']?.front_shiny && (
-                      <SpriteCard
-                        src={pokemon.sprites.versions['generation-iv']['platinum'].front_shiny}
-                        label="Platinum Shiny"
-                        onClick={() => setActiveSprite(pokemon.sprites.versions['generation-iv']['platinum'].front_shiny)}
-                        isActive={activeSprite === pokemon.sprites.versions['generation-iv']['platinum'].front_shiny}
-                        isShiny={true}
-                      />
-                    )}
-                    
-                    {/* HeartGold/SoulSilver */}
-                    {pokemon.sprites.versions['generation-iv']?.['heartgold-soulsilver']?.front_default && (
-                      <SpriteCard
-                        src={pokemon.sprites.versions['generation-iv']['heartgold-soulsilver'].front_default}
-                        label="HGSS"
-                        onClick={() => setActiveSprite(pokemon.sprites.versions['generation-iv']['heartgold-soulsilver'].front_default)}
-                        isActive={activeSprite === pokemon.sprites.versions['generation-iv']['heartgold-soulsilver'].front_default}
-                      />
-                    )}
-                    
-                    {pokemon.sprites.versions['generation-iv']?.['heartgold-soulsilver']?.front_shiny && (
-                      <SpriteCard
-                        src={pokemon.sprites.versions['generation-iv']['heartgold-soulsilver'].front_shiny}
-                        label="HGSS Shiny"
-                        onClick={() => setActiveSprite(pokemon.sprites.versions['generation-iv']['heartgold-soulsilver'].front_shiny)}
-                        isActive={activeSprite === pokemon.sprites.versions['generation-iv']['heartgold-soulsilver'].front_shiny}
-                        isShiny={true}
+                        large={true}
                       />
                     )}
                   </div>
                 </div>
-              )}
-            </>
-          );
-        })()}
-      </div>
+                
+                {/* Generation 5 Sprites (Animated) */}
+                {pokemon.sprites.versions?.['generation-v']?.['black-white'] && (
+                  <div className="mb-6">
+                    <h4 className="text-lg font-medium mb-2">Generation 5 (Black/White)</h4>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-4">
+                      {pokemon.sprites.versions['generation-v']['black-white'].front_default && (
+                        <SpriteCard
+                          src={pokemon.sprites.versions['generation-v']['black-white'].front_default}
+                          label="Black/White"
+                          onClick={() => setActiveSprite(pokemon.sprites.versions['generation-v']['black-white'].front_default)}
+                          isActive={activeSprite === pokemon.sprites.versions['generation-v']['black-white'].front_default}
+                        />
+                      )}
+                      
+                      {pokemon.sprites.versions['generation-v']['black-white'].front_shiny && (
+                        <SpriteCard
+                          src={pokemon.sprites.versions['generation-v']['black-white'].front_shiny}
+                          label="B/W Shiny"
+                          onClick={() => setActiveSprite(pokemon.sprites.versions['generation-v']['black-white'].front_shiny)}
+                          isActive={activeSprite === pokemon.sprites.versions['generation-v']['black-white'].front_shiny}
+                          isShiny={true}
+                        />
+                      )}
+                      
+                      {pokemon.sprites.versions['generation-v']['black-white'].animated?.front_default && (
+                        <SpriteCard
+                          src={pokemon.sprites.versions['generation-v']['black-white'].animated.front_default}
+                          label="B/W Animated"
+                          onClick={() => setActiveSprite(pokemon.sprites.versions['generation-v']['black-white'].animated.front_default)}
+                          isActive={activeSprite === pokemon.sprites.versions['generation-v']['black-white'].animated.front_default}
+                          isAnimated={true}
+                        />
+                      )}
+                      
+                      {pokemon.sprites.versions['generation-v']['black-white'].animated?.front_shiny && (
+                        <SpriteCard
+                          src={pokemon.sprites.versions['generation-v']['black-white'].animated.front_shiny}
+                          label="B/W Anim. Shiny"
+                          onClick={() => setActiveSprite(pokemon.sprites.versions['generation-v']['black-white'].animated.front_shiny)}
+                          isActive={activeSprite === pokemon.sprites.versions['generation-v']['black-white'].animated.front_shiny}
+                          isAnimated={true}
+                          isShiny={true}
+                        />
+                      )}
+                      
+                      {/* Add back sprites as well */}
+                      {pokemon.sprites.versions['generation-v']['black-white'].back_default && (
+                        <SpriteCard
+                          src={pokemon.sprites.versions['generation-v']['black-white'].back_default}
+                          label="B/W Back"
+                          onClick={() => setActiveSprite(pokemon.sprites.versions['generation-v']['black-white'].back_default)}
+                          isActive={activeSprite === pokemon.sprites.versions['generation-v']['black-white'].back_default}
+                        />
+                      )}
+                      
+                      {pokemon.sprites.versions['generation-v']['black-white'].back_shiny && (
+                        <SpriteCard
+                          src={pokemon.sprites.versions['generation-v']['black-white'].back_shiny}
+                          label="B/W Back Shiny"
+                          onClick={() => setActiveSprite(pokemon.sprites.versions['generation-v']['black-white'].back_shiny)}
+                          isActive={activeSprite === pokemon.sprites.versions['generation-v']['black-white'].back_shiny}
+                          isShiny={true}
+                        />
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Older generations (4, 3, 2, 1) */}
+                {pokemon.sprites.versions?.['generation-iv'] && (
+                  <div className="mb-6">
+                    <h4 className="text-lg font-medium mb-2">Generation 4 (Diamond/Pearl, Platinum, HeartGold/SoulSilver)</h4>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
+                      {/* Diamond/Pearl */}
+                      {pokemon.sprites.versions['generation-iv']?.['diamond-pearl']?.front_default && (
+                        <SpriteCard
+                          src={pokemon.sprites.versions['generation-iv']['diamond-pearl'].front_default}
+                          label="Diamond/Pearl"
+                          onClick={() => setActiveSprite(pokemon.sprites.versions['generation-iv']['diamond-pearl'].front_default)}
+                          isActive={activeSprite === pokemon.sprites.versions['generation-iv']['diamond-pearl'].front_default}
+                        />
+                      )}
+                      
+                      {pokemon.sprites.versions['generation-iv']?.['diamond-pearl']?.front_shiny && (
+                        <SpriteCard
+                          src={pokemon.sprites.versions['generation-iv']['diamond-pearl'].front_shiny}
+                          label="D/P Shiny"
+                          onClick={() => setActiveSprite(pokemon.sprites.versions['generation-iv']['diamond-pearl'].front_shiny)}
+                          isActive={activeSprite === pokemon.sprites.versions['generation-iv']['diamond-pearl'].front_shiny}
+                          isShiny={true}
+                        />
+                      )}
+                      
+                      {/* Platinum */}
+                      {pokemon.sprites.versions['generation-iv']?.['platinum']?.front_default && (
+                        <SpriteCard
+                          src={pokemon.sprites.versions['generation-iv']['platinum'].front_default}
+                          label="Platinum"
+                          onClick={() => setActiveSprite(pokemon.sprites.versions['generation-iv']['platinum'].front_default)}
+                          isActive={activeSprite === pokemon.sprites.versions['generation-iv']['platinum'].front_default}
+                        />
+                      )}
+                      
+                      {pokemon.sprites.versions['generation-iv']?.['platinum']?.front_shiny && (
+                        <SpriteCard
+                          src={pokemon.sprites.versions['generation-iv']['platinum'].front_shiny}
+                          label="Platinum Shiny"
+                          onClick={() => setActiveSprite(pokemon.sprites.versions['generation-iv']['platinum'].front_shiny)}
+                          isActive={activeSprite === pokemon.sprites.versions['generation-iv']['platinum'].front_shiny}
+                          isShiny={true}
+                        />
+                      )}
+                      
+                      {/* HeartGold/SoulSilver */}
+                      {pokemon.sprites.versions['generation-iv']?.['heartgold-soulsilver']?.front_default && (
+                        <SpriteCard
+                          src={pokemon.sprites.versions['generation-iv']['heartgold-soulsilver'].front_default}
+                          label="HGSS"
+                          onClick={() => setActiveSprite(pokemon.sprites.versions['generation-iv']['heartgold-soulsilver'].front_default)}
+                          isActive={activeSprite === pokemon.sprites.versions['generation-iv']['heartgold-soulsilver'].front_default}
+                        />
+                      )}
+                      
+                      {pokemon.sprites.versions['generation-iv']?.['heartgold-soulsilver']?.front_shiny && (
+                        <SpriteCard
+                          src={pokemon.sprites.versions['generation-iv']['heartgold-soulsilver'].front_shiny}
+                          label="HGSS Shiny"
+                          onClick={() => setActiveSprite(pokemon.sprites.versions['generation-iv']['heartgold-soulsilver'].front_shiny)}
+                          isActive={activeSprite === pokemon.sprites.versions['generation-iv']['heartgold-soulsilver'].front_shiny}
+                          isShiny={true}
+                        />
+                      )}
+                    </div>
+                  </div>
+                )}
+              </>
+            );
+          })()}
+        </div>
+      )}
 
       {/* Tabs */}
       <div className="container mx-auto px-4 my-6">
