@@ -45,7 +45,7 @@ export default function Home() {
   const dailyFeatured = featuredPokemon[dailyFeaturedIndex];
 
   // Handle search submission
-  const handleSearch = () => {
+  function handleSearch() {
     if (!searchTerm.trim()) return;
     
     // Check if search term is a number
@@ -59,7 +59,7 @@ export default function Home() {
       const formattedSearch = searchTerm.trim().toLowerCase().replace(/\s+/g, '-');
       router.push(`/pokemon/${formattedSearch}`);
     }
-  };
+  }
 
   useEffect(() => {
     const fetchData = async () => {
