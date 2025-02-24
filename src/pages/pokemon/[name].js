@@ -291,8 +291,12 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
     { id: 'evolution', label: 'Evolution' }
   ];
 
-  // Set theme based on primary type
-  const primaryType = pokemon.types[0].type.name;
+  // Get primary type safely with a fallback to 'normal' if types array is empty
+  const primaryType = pokemon.types && pokemon.types.length > 0 
+    ? pokemon.types[0].type.name 
+    : 'normal';
+  
+  // Set theme based on primary type with fallback
   const theme = typeColors[primaryType] || typeColors.normal;
 
   return (
@@ -900,7 +904,12 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
           {/* Locations Tab */}
           {activeTab === 'locations' && (
             <div className="mt-6">
-              <LocationEncounterData pokemon={pokemon} theme={typeColors[pokemon.types[0].type.name]} />
+              <LocationEncounterData 
+                pokemon={pokemon} 
+                theme={pokemon.types && pokemon.types.length > 0 
+                  ? typeColors[pokemon.types[0].type.name] 
+                  : typeColors.normal} 
+              />
             </div>
           )}
           
