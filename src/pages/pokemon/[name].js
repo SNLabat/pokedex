@@ -468,6 +468,8 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
     { id: 'forms', label: 'Forms' },
     { id: 'sprites', label: 'Sprites' },
     { id: 'moves', label: 'Moves' },
+    { id: 'stats', label: 'Stats' },
+    { id: 'abilities', label: 'Abilities' },
     { id: 'locations', label: 'Locations' },
     { id: 'evolution', label: 'Evolution' }
   ];
@@ -1460,6 +1462,22 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
                 </>
               );
             })()}
+          </div>
+        )}
+        
+        {/* Stats Tab */}
+        {activeTab === 'stats' && (
+          <div className="mt-6">
+            <h3 className="text-xl font-semibold mb-4">Stats & Attributes</h3>
+            {/* Detailed stats display */}
+          </div>
+        )}
+        
+        {/* Abilities Tab */}
+        {activeTab === 'abilities' && (
+          <div className="mt-6">
+            <h3 className="text-xl font-semibold mb-4">Abilities</h3>
+            {/* Abilities with descriptions */}
           </div>
         )}
       </div>
