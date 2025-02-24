@@ -4,6 +4,23 @@ import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
 import pokeballOutline from '/public/img/pokeballoutline.png';
 
+// Add this near the top of the file with other constants
+const guaranteedAlphas = [
+  'kleavor',
+  'lilligant', // Hisuian Lilligant
+  'arcanine', // Hisuian Arcanine
+  'electrode', // Hisuian Electrode
+  'avalugg', // Hisuian Avalugg
+  'goodra', // Hisuian Goodra
+  'braviary', // Hisuian Braviary
+  'zoroark', // Hisuian Zoroark
+  'wyrdeer',
+  'basculegion',
+  'sneasler',
+  'overqwil',
+  'enamorus'
+];
+
 // Remove the Heroicons import and use this custom IconSet component
 const IconSet = {
   Experience: () => <span className="text-xl">✨</span>,
@@ -279,12 +296,12 @@ const moveTypeColors = {
 };
 
 // Add this new component
-const CatchButton = ({ isCaught, isShiny, onClick, theme }) => (
+const CatchButton = ({ isCaught, isShiny, isAlpha, onClick, theme }) => (
   <button
     onClick={onClick}
     className={`absolute bottom-2 right-2 p-1 rounded-full transition-all
       ${isCaught ? 
-        (isShiny ? 'bg-yellow-500' : 'bg-green-500') : 
+        (isShiny ? 'bg-yellow-500' : isAlpha ? 'bg-red-500' : 'bg-green-500') : 
         'bg-gray-700 hover:bg-gray-600'}`}
   >
     <div className="w-6 h-6 relative">
@@ -303,15 +320,22 @@ const CatchButton = ({ isCaught, isShiny, onClick, theme }) => (
 const FormCatchButton = ({ formName, type, caughtStatus, updateCaughtStatus, theme }) => {
   const isCaught = caughtStatus[formName]?.[type] || false;
   const isShiny = type.includes('Shiny');
+  const isAlpha = type.includes('alpha');
   
   return (
     <CatchButton
       isCaught={isCaught}
       isShiny={isShiny}
+      isAlpha={isAlpha}
       onClick={() => updateCaughtStatus(type, formName)}
       theme={theme}
     />
   );
+};
+
+// Add this helper function
+const hasAlphaForm = (pokemonName) => {
+  return guaranteedAlphas.includes(pokemonName.toLowerCase());
 };
 
 export default function PokemonDetail({ pokemon, species, alternativeForms, evolutionChain }) {
@@ -324,7 +348,9 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
       mega: false,
       megaShiny: false,
       gmax: false,
-      gmaxShiny: false
+      gmaxShiny: false,
+      alpha: false,
+      alphaShiny: false
     }
   });
 
@@ -449,7 +475,9 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
           mega: false,
           megaShiny: false,
           gmax: false,
-          gmaxShiny: false
+          gmaxShiny: false,
+          alpha: false,
+          alphaShiny: false
         }),
         [type]: !caughtStatus[variant]?.[type]
       }
@@ -770,8 +798,11 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
               <li>Empty Pokéball: Not caught</li>
               <li>Red Pokéball: Regular form caught</li>
               <li>Yellow Pokéball: Shiny form caught</li>
+              <li>Crimson Pokéball: Alpha form caught</li>
             </ul>
-            <p className="mt-4 text-sm opacity-75">Note: Each form (regular, mega, gigantamax) is tracked separately.</p>
+            <p className="mt-4 text-sm opacity-75">
+              Note: Each form (regular, shiny, mega, gigantamax, alpha) is tracked separately.
+            </p>
           </div>
         </div>
 
@@ -966,6 +997,59 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
                 )}
               </div>
             </div>
+
+            {/* Alpha Forms */}
+            {hasAlphaForm(name) && (
+              <div className="mt-6">
+                <h3 className="text-xl font-semibold text-gray-400 mb-4">Alpha Forms</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex flex-col items-center">
+                    <div className="bg-gray-700 p-4 rounded-lg relative">
+                      <div className="relative">
+                        <img
+                          src={staticSprites.regular}
+                          alt={`${name} alpha form`}
+                          className="w-32 h-32 object-contain"
+                        />
+                        {/* Alpha indicator */}
+                        <span className="absolute top-0 right-0 text-red-500 text-xl">α</span>
+                      </div>
+                      <FormCatchButton
+                        formName="default"
+                        type="alpha"
+                        caughtStatus={caughtStatus}
+                        updateCaughtStatus={updateCaughtStatus}
+                        theme={theme}
+                      />
+                    </div>
+                    <p className="mt-2 text-gray-400">Alpha</p>
+                  </div>
+                  {staticSprites.shiny && (
+                    <div className="flex flex-col items-center">
+                      <div className="bg-gray-700 p-4 rounded-lg relative">
+                        <div className="relative">
+                          <img
+                            src={staticSprites.shiny}
+                            alt={`${name} shiny alpha form`}
+                            className="w-32 h-32 object-contain"
+                          />
+                          {/* Alpha indicator */}
+                          <span className="absolute top-0 right-0 text-red-500 text-xl">α</span>
+                        </div>
+                        <FormCatchButton
+                          formName="default"
+                          type="alphaShiny"
+                          caughtStatus={caughtStatus}
+                          updateCaughtStatus={updateCaughtStatus}
+                          theme={theme}
+                        />
+                      </div>
+                      <p className="mt-2 text-gray-400">Shiny Alpha</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

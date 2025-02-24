@@ -63,26 +63,36 @@ export default function Home({ generations }) {
 
   // Update stats calculation
   const calculateStats = () => {
-    const totalPokemon = 1008; // Total number of unique Pokemon
     let totalCaught = 0;
     let totalShiny = 0;
 
-    Object.values(caughtData).forEach(pokemonForms => {
-      // Check if any form is caught
-      const isRegularCaught = pokemonForms.default?.regular || 
-        Object.values(pokemonForms).some(form => form.regular);
-      
-      const isShinyCaught = pokemonForms.default?.shiny || 
-        Object.values(pokemonForms).some(form => form.shiny);
+    // Only count Pokemon from the current generation if one is selected
+    const relevantPokemon = selectedGeneration 
+      ? pokemonSpecies 
+      : Object.keys(caughtData).map(id => ({ url: `https://pokeapi.co/api/v2/pokemon-species/${id}/` }));
 
-      if (isRegularCaught) totalCaught++;
-      if (isShinyCaught) totalShiny++;
+    relevantPokemon.forEach(pokemon => {
+      const id = pokemon.url.split('/').slice(-2)[0];
+      const pokemonStatus = caughtData[id];
+      
+      if (pokemonStatus) {
+        const isRegularCaught = pokemonStatus.default?.regular || 
+          Object.values(pokemonStatus).some(form => form.regular);
+        
+        const isShinyCaught = pokemonStatus.default?.shiny || 
+          Object.values(pokemonStatus).some(form => form.shiny);
+
+        if (isRegularCaught) totalCaught++;
+        if (isShinyCaught) totalShiny++;
+      }
     });
 
+    const totalPokemon = relevantPokemon.length;
+    
     return {
       totalCaught,
       totalShiny,
-      completion: ((totalCaught / totalPokemon) * 100).toFixed(1)
+      completion: totalPokemon > 0 ? ((totalCaught / totalPokemon) * 100).toFixed(1) : '0.0'
     };
   };
 
@@ -215,29 +225,23 @@ export default function Home({ generations }) {
           </div>
         ) : viewMode === 'caught' ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-            {Object.entries(caughtData)
-              .filter(([id, status]) => {
+            {pokemonSpecies
+              .filter(pokemon => {
+                const id = pokemon.url.split('/').slice(-2)[0];
+                const status = caughtData[id];
+                
+                if (!status) return false;
+                
                 // Check if any form is caught
-                const isAnyCaught = status.default?.regular || 
+                return status.default?.regular || 
                   status.default?.shiny || 
                   Object.values(status).some(form => form.regular || form.shiny);
-                
-                // Check if Pokemon belongs to current generation
-                const pokemon = pokemonSpecies.find(p => 
-                  p.url.split('/').slice(-2)[0] === id
-                );
-                
-                return isAnyCaught && pokemon;
               })
-              .map(([id]) => {
-                const pokemon = pokemonSpecies.find(p => 
-                  p.url.split('/').slice(-2)[0] === id
-                );
-                if (!pokemon) return null;
-                
+              .map(pokemon => {
+                const id = pokemon.url.split('/').slice(-2)[0];
                 return (
                   <PokemonCard 
-                    key={id} 
+                    key={pokemon.name} 
                     pokemon={pokemon} 
                     caughtStatus={caughtData[id]} 
                   />
