@@ -97,14 +97,22 @@ export const importDataFromFile = async (file) => {
   }
 };
 
-// Placeholder for functions that would need server-side implementation
-export const getCurrentUser = function() { return null; };
-export const syncLocalToCloud = async function() { return { success: false, error: 'Cloud sync not available' }; };
-export const syncCloudToLocal = async function() { return { success: false, error: 'Cloud sync not available' }; };
-export const registerUser = async () => ({ success: false, error: 'User accounts not available' });
-export const loginUser = async () => ({ success: false, error: 'User accounts not available' });
-export const logoutUser = async () => ({ success: false, error: 'User accounts not available' });
-export const resetPassword = async () => ({ success: false, error: 'User accounts not available' });
+// Placeholder values instead of functions - prevents serialization issues
+export const currentUserPlaceholder = null;
+export const localCloudSyncStatus = { success: false, error: 'Cloud sync not available' };
+export const cloudLocalSyncStatus = { success: false, error: 'Cloud sync not available' };
+export const userAccountsStatus = { success: false, error: 'User accounts not available' };
+
+// Client-side only functions
+// These should never be imported in getStaticProps or getServerSideProps
+export const getCurrentUser = () => currentUserPlaceholder;
+export const syncLocalToCloud = async () => localCloudSyncStatus;
+export const syncCloudToLocal = async () => cloudLocalSyncStatus;
+export const registerUser = async () => userAccountsStatus;
+export const loginUser = async () => userAccountsStatus;
+export const logoutUser = async () => userAccountsStatus;
+export const resetPassword = async () => userAccountsStatus;
+
 export const saveTeam = async (_, team) => {
   if (!isLocalStorageAvailable()) return { success: false, error: 'LocalStorage not available' };
   
@@ -155,10 +163,15 @@ export const getUserPreferences = async () => {
   }
 };
 
-// Mocked social functions
-export const shareCollection = async () => ({ success: false, error: 'Sharing not available in offline mode' });
-export const getSharedCollection = async () => ({ success: false, error: 'Sharing not available in offline mode' });
-export const getPublicCollections = async () => ({ success: false, collections: [] });
+// Mocked social functions placeholder values
+export const socialSharingStatus = { success: false, error: 'Sharing not available in offline mode' };
+export const publicCollectionsDefault = { success: false, collections: [] };
+
+// Social function implementations (client-side only)
+export const shareCollection = async () => socialSharingStatus;
+export const getSharedCollection = async () => socialSharingStatus;
+export const getPublicCollections = async () => publicCollectionsDefault;
+
 export const deleteTeam = async (teamId) => {
   if (!isLocalStorageAvailable()) return { success: false, error: 'LocalStorage not available' };
   

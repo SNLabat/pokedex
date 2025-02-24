@@ -3,6 +3,7 @@ import Head from 'next/head';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
+import { currentUserPlaceholder, localCloudSyncStatus, cloudLocalSyncStatus } from '../../lib/dataManagement';
 
 // Type color mapping for visual styling
 const typeColors = {
@@ -372,7 +373,8 @@ export async function getStaticProps({ params }) {
             language: { name: g.language.name }
           }))
         },
-        alternativeForms
+        alternativeForms,
+        currentUser: currentUserPlaceholder
       })),
       revalidate: 86400
     };
