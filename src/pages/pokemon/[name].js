@@ -1044,7 +1044,6 @@ export async function getStaticPaths() {
 
 export async function getStaticProps({ params }) {
   try {
-    // Handle special cases where the base form has a suffix
     const specialCases = {
       'deoxys': 'deoxys-normal',
       'wormadam': 'wormadam-plant',
@@ -1067,31 +1066,29 @@ export async function getStaticProps({ params }) {
       'lycanroc': 'lycanroc-midday',
       'wishiwashi': 'wishiwashi-solo',
       'minior': 'minior-red-meteor',
-      'toxtricity': 'toxtricity-amped',
+      'toxtricity': 'toxtricity-amped'
     };
 
     const pokemonName = specialCases[params.name] || params.name;
 
-    // Fetch base Pokémon data
     const resPokemon = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonName}`);
     if (!resPokemon.ok) {
-      return { notFound: true };
+      throw new Error('Failed to fetch Pokemon');
+    }
     const pokemon = await resPokemon.json();
-    
-    // Fetch species data
+
     const resSpecies = await fetch(pokemon.species.url);
     if (!resSpecies.ok) {
-      return { notFound: true };
+      throw new Error('Failed to fetch species');
+    }
     const species = await resSpecies.json();
 
-    // Fetch evolution chain data
     const evolutionChainRes = await fetch(species.evolution_chain.url);
     if (!evolutionChainRes.ok) {
       throw new Error('Failed to fetch evolution chain');
     }
     const evolutionChainData = await evolutionChainRes.json();
 
-    // Fetch all forms data
     const forms = await Promise.all(
       species.varieties.map(async (variety) => {
         const resForm = await fetch(variety.pokemon.url);
@@ -1104,13 +1101,12 @@ export async function getStaticProps({ params }) {
       })
     );
 
-    // Filter out null responses and the default form
     const alternativeForms = forms.filter(
       form => form && form.formName !== params.name
     );
 
     return {
-      props: { 
+      props: {
         pokemon,
         species,
         alternativeForms,
@@ -1118,7 +1114,6 @@ export async function getStaticProps({ params }) {
       },
       revalidate: 86400
     };
-
   } catch (error) {
     console.error('Error fetching Pokémon data:', error);
     return { notFound: true };
