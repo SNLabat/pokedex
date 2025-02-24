@@ -22,7 +22,69 @@ const CalendarIcon = () => (
   </svg>
 );
 
-const GameCard = ({ icon, name, isSelected, onClick }) => (
+// Add a comprehensive game version list with local image paths
+const gameVersionImages = {
+  // Gen 1
+  'red': '/img/games/red.png',
+  'blue': '/img/games/blue.png',
+  'yellow': '/img/games/yellow.png',
+  
+  // Gen 2
+  'gold': '/img/games/gold.png',
+  'silver': '/img/games/silver.png',
+  'crystal': '/img/games/crystal.png',
+  
+  // Gen 3
+  'ruby': '/img/games/ruby.png',
+  'sapphire': '/img/games/sapphire.png',
+  'emerald': '/img/games/emerald.png',
+  'firered': '/img/games/firered.png',
+  'leafgreen': '/img/games/leafgreen.png',
+  
+  // Gen 4
+  'diamond': '/img/games/diamond.png',
+  'pearl': '/img/games/pearl.png',
+  'platinum': '/img/games/platinum.png',
+  'heartgold': '/img/games/heartgold.png',
+  'soulsilver': '/img/games/soulsilver.png',
+  
+  // Gen 5
+  'black': '/img/games/black.png',
+  'white': '/img/games/white.png',
+  'black-2': '/img/games/black2.png',
+  'white-2': '/img/games/white2.png',
+  
+  // Gen 6
+  'x': '/img/games/x.png',
+  'y': '/img/games/y.png',
+  'omega-ruby': '/img/games/omegaruby.png',
+  'alpha-sapphire': '/img/games/alphasapphire.png',
+  
+  // Gen 7
+  'sun': '/img/games/sun.png',
+  'moon': '/img/games/moon.png',
+  'ultra-sun': '/img/games/ultrasun.png',
+  'ultra-moon': '/img/games/ultramoon.png',
+  'lets-go-pikachu': '/img/games/letsgopikachu.png',
+  'lets-go-eevee': '/img/games/letsgoeevee.png',
+  
+  // Gen 8
+  'sword': '/img/games/sword.png',
+  'shield': '/img/games/shield.png',
+  'brilliant-diamond': '/img/games/brilliantdiamond.png',
+  'shining-pearl': '/img/games/shiningpearl.png',
+  'legends-arceus': '/img/games/legendsarceus.png',
+  
+  // Gen 9
+  'scarlet': '/img/games/scarlet.png',
+  'violet': '/img/games/violet.png',
+  
+  // Fallback image
+  'default': '/img/pokeball.png'
+};
+
+// Update the GameCard component
+const GameCard = ({ game, isSelected, onClick }) => (
   <div 
     onClick={onClick}
     className={`p-4 rounded-lg cursor-pointer transition-all ${
@@ -31,14 +93,15 @@ const GameCard = ({ icon, name, isSelected, onClick }) => (
   >
     <div className="flex items-center justify-center mb-2">
       <Image
-        src={icon}
-        alt={name}
+        src={gameVersionImages[game.id] || gameVersionImages.default}
+        alt={game.name}
         width={48}
         height={48}
         className="object-contain"
+        unoptimized
       />
     </div>
-    <p className="text-center text-sm font-medium">{name}</p>
+    <p className="text-center text-sm font-medium">{game.name}</p>
   </div>
 );
 
@@ -348,8 +411,7 @@ const LocationEncounterData = ({ pokemon, theme }) => {
           {gameVersions.map(game => (
             <GameCard
               key={game.id}
-              icon={game.icon}
-              name={game.name}
+              game={game}
               isSelected={selectedGame === game.id}
               onClick={() => encounterData[game.id] && setSelectedGame(game.id)}
             />
