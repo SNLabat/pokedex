@@ -278,12 +278,36 @@ const moveTypeColors = {
   fairy: 'bg-pink-500'
 };
 
+// Add this new component
+const CatchButton = ({ isCaught, isShiny, onClick, theme }) => (
+  <button
+    onClick={onClick}
+    className={`absolute bottom-2 right-2 p-1 rounded-full transition-all
+      ${isCaught ? 
+        (isShiny ? 'bg-yellow-500' : 'bg-green-500') : 
+        'bg-gray-700 hover:bg-gray-600'}`}
+  >
+    <div className="w-6 h-6 relative">
+      <Image
+        src={pokeballOutline}
+        alt="Catch status"
+        layout="fill"
+        className={`transition-transform ${isCaught ? 'scale-100' : 'scale-90'}`}
+        unoptimized
+      />
+    </div>
+  </button>
+);
+
 export default function PokemonDetail({ pokemon, species, alternativeForms, evolutionChain }) {
   const [isShiny, setIsShiny] = useState(false);
   const [isAnimated, setIsAnimated] = useState(false);
   const [caughtStatus, setCaughtStatus] = useState({
-    regular: false,
-    shiny: false
+    default: {
+      regular: false,
+      shiny: false
+    },
+    forms: {}
   });
 
   const {
@@ -397,10 +421,13 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
   }, [id]);
 
   // Save to localStorage whenever status changes
-  const updateCaughtStatus = (type) => {
+  const updateCaughtStatus = (type, formName = 'default') => {
     const newStatus = {
       ...caughtStatus,
-      [type]: !caughtStatus[type]
+      [formName]: {
+        ...caughtStatus[formName],
+        [type]: !caughtStatus[formName]?.[type]
+      }
     };
     setCaughtStatus(newStatus);
 
@@ -728,11 +755,17 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
               <div className="grid grid-cols-2 gap-4">
                 {staticSprites.regular && (
                   <div className="flex flex-col items-center">
-                    <div className="bg-gray-700 p-4 rounded-lg">
+                    <div className="bg-gray-700 p-4 rounded-lg relative">
                       <img
                         src={staticSprites.regular}
                         alt={`${name} official artwork`}
                         className="w-32 h-32 object-contain"
+                      />
+                      <CatchButton
+                        isCaught={caughtStatus.default.regular}
+                        isShiny={false}
+                        onClick={() => updateCaughtStatus('regular')}
+                        theme={theme}
                       />
                     </div>
                     <p className="mt-2 text-gray-400">Regular</p>
@@ -740,11 +773,17 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
                 )}
                 {staticSprites.shiny && (
                   <div className="flex flex-col items-center">
-                    <div className="bg-gray-700 p-4 rounded-lg">
+                    <div className="bg-gray-700 p-4 rounded-lg relative">
                       <img
                         src={staticSprites.shiny}
                         alt={`${name} shiny official artwork`}
                         className="w-32 h-32 object-contain"
+                      />
+                      <CatchButton
+                        isCaught={caughtStatus.default.shiny}
+                        isShiny={true}
+                        onClick={() => updateCaughtStatus('shiny')}
+                        theme={theme}
                       />
                     </div>
                     <p className="mt-2 text-gray-400">Shiny</p>
@@ -759,22 +798,34 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
                 <h3 className="text-xl font-semibold text-gray-400 mb-4">HOME 3D Models</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex flex-col items-center">
-                    <div className="bg-gray-700 p-4 rounded-lg">
+                    <div className="bg-gray-700 p-4 rounded-lg relative">
                       <img
                         src={homeSprites.regular}
                         alt={`${name} HOME model`}
                         className="w-32 h-32 object-contain"
+                      />
+                      <CatchButton
+                        isCaught={caughtStatus.default.regular}
+                        isShiny={false}
+                        onClick={() => updateCaughtStatus('regular')}
+                        theme={theme}
                       />
                     </div>
                     <p className="mt-2 text-gray-400">Regular</p>
                   </div>
                   {homeSprites.shiny && (
                     <div className="flex flex-col items-center">
-                      <div className="bg-gray-700 p-4 rounded-lg">
+                      <div className="bg-gray-700 p-4 rounded-lg relative">
                         <img
                           src={homeSprites.shiny}
                           alt={`${name} shiny HOME model`}
                           className="w-32 h-32 object-contain"
+                        />
+                        <CatchButton
+                          isCaught={caughtStatus.default.shiny}
+                          isShiny={true}
+                          onClick={() => updateCaughtStatus('shiny')}
+                          theme={theme}
                         />
                       </div>
                       <p className="mt-2 text-gray-400">Shiny</p>
@@ -790,22 +841,34 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
                 <h3 className="text-xl font-semibold text-gray-400 mb-4">Game Models</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex flex-col items-center">
-                    <div className="bg-gray-700 p-4 rounded-lg">
+                    <div className="bg-gray-700 p-4 rounded-lg relative">
                       <img
                         src={animatedSprites.regular}
                         alt={`${name} game model`}
                         className="w-32 h-32 object-contain"
+                      />
+                      <CatchButton
+                        isCaught={caughtStatus.default.regular}
+                        isShiny={false}
+                        onClick={() => updateCaughtStatus('regular')}
+                        theme={theme}
                       />
                     </div>
                     <p className="mt-2 text-gray-400">Regular</p>
                   </div>
                   {animatedSprites.shiny && (
                     <div className="flex flex-col items-center">
-                      <div className="bg-gray-700 p-4 rounded-lg">
+                      <div className="bg-gray-700 p-4 rounded-lg relative">
                         <img
                           src={animatedSprites.shiny}
                           alt={`${name} shiny game model`}
                           className="w-32 h-32 object-contain"
+                        />
+                        <CatchButton
+                          isCaught={caughtStatus.default.shiny}
+                          isShiny={true}
+                          onClick={() => updateCaughtStatus('shiny')}
+                          theme={theme}
                         />
                       </div>
                       <p className="mt-2 text-gray-400">Shiny</p>
@@ -949,37 +1012,6 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
           </div>
         )}
 
-        {/* Catch Status */}
-        <div className={`${theme.bg} bg-opacity-50 rounded-lg p-6`}>
-          <h2 className={`text-2xl font-bold mb-4 ${theme.accent}`}>Catch Status</h2>
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => updateCaughtStatus('regular')}
-                className={`px-6 py-3 rounded-lg flex items-center gap-2 ${
-                  caughtStatus.regular 
-                    ? 'bg-green-500 hover:bg-green-600' 
-                    : 'bg-gray-700 hover:bg-gray-600'
-                }`}
-              >
-                <span>{caughtStatus.regular ? '✓' : '○'}</span>
-                Regular Form
-              </button>
-              <button
-                onClick={() => updateCaughtStatus('shiny')}
-                className={`px-6 py-3 rounded-lg flex items-center gap-2 ${
-                  caughtStatus.shiny 
-                    ? 'bg-yellow-500 hover:bg-yellow-600' 
-                    : 'bg-gray-700 hover:bg-gray-600'
-                }`}
-              >
-                <span>{caughtStatus.shiny ? '✓' : '○'}</span>
-                Shiny Form
-              </button>
-            </div>
-          </div>
-        </div>
-
         {/* Export Data */}
         <div className={`${theme.bg} bg-opacity-50 rounded-lg p-6`}>
           <h2 className={`text-2xl font-bold mb-4 ${theme.accent}`}>Export Data</h2>
@@ -1044,14 +1076,12 @@ export async function getStaticProps({ params }) {
     const resPokemon = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonName}`);
     if (!resPokemon.ok) {
       return { notFound: true };
-    }
     const pokemon = await resPokemon.json();
     
     // Fetch species data
     const resSpecies = await fetch(pokemon.species.url);
     if (!resSpecies.ok) {
       return { notFound: true };
-    }
     const species = await resSpecies.json();
 
     // Fetch evolution chain data
