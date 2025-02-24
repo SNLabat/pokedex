@@ -438,7 +438,7 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
     }
   }, [id]);
 
-  // Save to localStorage whenever status changes
+  // Update the updateCaughtStatus function
   const updateCaughtStatus = (type, variant = 'default') => {
     const newStatus = {
       ...caughtStatus,
@@ -456,53 +456,44 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
     };
     setCaughtStatus(newStatus);
 
+    // Update localStorage with the new status
     const saved = localStorage.getItem('caughtPokemon');
     const savedData = saved ? JSON.parse(saved) : {};
-    savedData[id] = newStatus;
+    savedData[id] = {
+      ...savedData[id],
+      [variant]: newStatus[variant]
+    };
     localStorage.setItem('caughtPokemon', JSON.stringify(savedData));
   };
 
-  // Export function that includes all Pokemon data
+  // Add exportToCSV function if not already present
   const exportToCSV = () => {
     const saved = localStorage.getItem('caughtPokemon');
-    const caughtData = saved ? JSON.parse(saved) : {};
+    if (!saved) return;
 
-    const headers = [
-      'Pokedex Number',
-      'Name',
-      'Regular Caught',
-      'Shiny Caught',
-      'Types',
-      'Height',
-      'Weight',
-      'Base Stats (HP/Atk/Def/SpA/SpD/Spd)',
-      'Abilities'
-    ];
+    const pokemonData = JSON.parse(saved);
+    const rows = [['ID', 'Name', 'Form', 'Regular', 'Shiny']];
 
-    const row = [
-      id.toString().padStart(3, '0'),
-      name,
-      caughtData[id]?.regular ? 'Yes' : 'No',
-      caughtData[id]?.shiny ? 'Yes' : 'No',
-      types.map(t => t.type.name).join('/'),
-      heightMeters,
-      weightKg,
-      stats.map(s => s.base_stat).join('/'),
-      abilities.map(a => a.ability.name).join(', ')
-    ];
+    Object.entries(pokemonData).forEach(([pokemonId, forms]) => {
+      Object.entries(forms).forEach(([formName, status]) => {
+        rows.push([
+          pokemonId,
+          name,
+          formName,
+          status.regular ? 'Yes' : 'No',
+          status.shiny ? 'Yes' : 'No'
+        ]);
+      });
+    });
 
-    const csvContent = [
-      headers.join(','),
-      row.join(',')
-    ].join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `pokemon_${id}_${name}.csv`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const csvContent = rows.map(row => row.join(',')).join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'pokemon_collection.csv';
+    a.click();
+    window.URL.revokeObjectURL(url);
   };
 
   // Helper function to get form name
@@ -769,6 +760,20 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
             })}
           </div>
         </section>
+
+        {/* Add instructions section */}
+        <div className={`${theme.bg} bg-opacity-50 rounded-lg p-6 mb-6`}>
+          <h2 className={`text-2xl font-bold mb-4 ${theme.accent}`}>Tracking Instructions</h2>
+          <div className="space-y-2 text-gray-200">
+            <p>Click the Pokéball icon on any sprite to mark it as caught:</p>
+            <ul className="list-disc list-inside ml-4 space-y-1">
+              <li>Empty Pokéball: Not caught</li>
+              <li>Red Pokéball: Regular form caught</li>
+              <li>Yellow Pokéball: Shiny form caught</li>
+            </ul>
+            <p className="mt-4 text-sm opacity-75">Note: Each form (regular, mega, gigantamax) is tracked separately.</p>
+          </div>
+        </div>
 
         {/* Updated Sprites section */}
         <div className={`${theme.bg} bg-opacity-50 rounded-lg p-6`}>

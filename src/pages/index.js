@@ -249,8 +249,10 @@ export default function Home({ generations }) {
 const PokemonCard = ({ pokemon, caughtStatus }) => {
   const id = pokemon.url.split('/').slice(-2)[0];
   const imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`;
-  const isCaught = caughtStatus?.regular;
-  const isShiny = caughtStatus?.shiny;
+  
+  // Check both default and form variants for caught status
+  const isCaught = caughtStatus?.default?.regular || Object.values(caughtStatus || {}).some(form => form.regular);
+  const isShiny = caughtStatus?.default?.shiny || Object.values(caughtStatus || {}).some(form => form.shiny);
   
   return (
     <Link href={`/pokemon/${pokemon.name}`}>
