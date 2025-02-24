@@ -194,17 +194,10 @@ const PokemonCry = ({ src, label, theme }) => {
 };
 
 export default function PokemonDetail({ pokemon, species, alternativeForms, evolutionChain }) {
-  // Move getHisuianSprite inside the component
-  const getHisuianSprite = (pokemon) => {
-    const hisuianForm = alternativeForms?.find(f => 
-      f.formName.toLowerCase().includes('hisui')
-    );
-    return hisuianForm?.sprites.other?.['official-artwork'] || pokemon.sprites.other?.['official-artwork'];
-  };
-
   const router = useRouter();
   const [isShiny, setIsShiny] = useState(false);
   const [isAnimated, setIsAnimated] = useState(false);
+  const [activeSprite, setActiveSprite] = useState(null);
   const [user, setUser] = useState(null);
   const id = pokemon.id;
   const name = pokemon.name.replace(/-/g, ' ');
@@ -260,27 +253,32 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
     border: 'border-gray-500'
   };
 
-  // Format the sprites
-  const staticSprites = {
-    regular: pokemon.sprites.other['official-artwork'].front_default,
-    shiny: pokemon.sprites.other['official-artwork'].front_shiny
+  // Get appropriate sprite based on current toggle states
+  const getMainSprite = () => {
+    // If a specific sprite is selected, use that
+    if (activeSprite) return activeSprite;
+    
+    // Otherwise, build the sprite URL based on current toggle states
+    if (isAnimated) {
+      // For animated sprites
+      if (isShiny) {
+        return pokemon.sprites.versions['generation-v']['black-white'].animated?.front_shiny || 
+               pokemon.sprites.front_shiny;
+      } else {
+        return pokemon.sprites.versions['generation-v']['black-white'].animated?.front_default || 
+               pokemon.sprites.front_default;
+      }
+    } else {
+      // For static sprites
+      if (isShiny) {
+        return pokemon.sprites.other['official-artwork'].front_shiny || 
+               pokemon.sprites.front_shiny;
+      } else {
+        return pokemon.sprites.other['official-artwork'].front_default || 
+               pokemon.sprites.front_default;
+      }
+    }
   };
-
-  const animatedSprites = {
-    regular: pokemon.sprites.versions?.['generation-v']?.['black-white']?.animated?.front_default,
-    shiny: pokemon.sprites.versions?.['generation-v']?.['black-white']?.animated?.front_shiny
-  };
-
-  const homeSprites = {
-    regular: pokemon.sprites.other?.home?.front_default,
-    shiny: pokemon.sprites.other?.home?.front_shiny
-  };
-
-  const hasAnimated = animatedSprites?.regular !== null;
-
-  // Determine which sprites to show
-  const currentSprites = isAnimated ? (animatedSprites || staticSprites) : staticSprites;
-  const displayedSprite = isShiny ? (currentSprites.shiny || currentSprites.regular) : currentSprites.regular;
 
   // Get level-up moves only, sorted by level
   const levelUpMoves = pokemon.moves
@@ -490,62 +488,43 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
       {/* Pokemon Header Section */}
       <div className={`${theme.bg} py-8`}>
         <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row items-center gap-6">
-            <div className="w-40 h-40 bg-gray-800 bg-opacity-50 rounded-full flex items-center justify-center p-4 relative">
-              <img 
-                src={staticSprites.regular} 
-                alt={name} 
-                className="w-32 h-32 object-contain" 
-              />
-              {/* ID Badge */}
-              <div className="absolute -bottom-2 -right-2 bg-red-600 text-white text-sm px-2 py-1 rounded-full font-mono">
-                #{id.toString().padStart(3, '0')}
-              </div>
-            </div>
-            
-            <div className="text-center md:text-left flex-1">
-              <h1 className="text-4xl font-bold mb-2 capitalize">{name}</h1>
-              <p className="text-lg mb-4 text-gray-300 italic">{category}</p>
-              
-              <div className="flex flex-wrap gap-2 justify-center md:justify-start mb-4">
-                {types.map(type => (
-                  <span 
-                    key={type} 
-                    className={`${typeColors[type].accent} px-3 py-1 rounded-full text-sm uppercase font-semibold`}
-                  >
-                    {type}
-                  </span>
-                ))}
-              </div>
-
-              <p className="text-gray-300">{flavorText}</p>
-            </div>
-            
-            {/* Right side options for desktop */}
-            <div className="hidden md:block">
-              <SpriteToggleGroup 
-                isAnimated={isAnimated}
-                isShiny={isShiny}
-                onAnimatedChange={onAnimatedChange}
-                onShinyChange={onShinyChange}
-                hasAnimated={hasAnimated}
-                hasShiny={!!staticSprites.shiny}
-                theme={theme}
+          <div className="flex flex-col md:flex-row items-center gap-8 mb-8">
+            <div className="relative w-48 h-48">
+              <img
+                src={getMainSprite()}
+                alt={`${name} sprite`}
+                className="w-full h-full object-contain"
               />
             </div>
-          </div>
-          
-          {/* Mobile sprite toggle */}
-          <div className="mt-6 flex justify-center md:hidden">
-            <SpriteToggleGroup 
+            
+            {/* Sprite toggle controls */}
+            <SpriteToggleGroup
               isAnimated={isAnimated}
               isShiny={isShiny}
-              onAnimatedChange={onAnimatedChange}
-              onShinyChange={onShinyChange}
-              hasAnimated={hasAnimated}
-              hasShiny={!!staticSprites.shiny}
+              onAnimatedChange={setIsAnimated}
+              onShinyChange={setIsShiny}
+              hasAnimated={!!pokemon.sprites.versions?.['generation-v']?.['black-white']?.animated?.front_default}
+              hasShiny={!!pokemon.sprites.front_shiny}
               theme={theme}
             />
+          </div>
+          
+          <div className="text-center md:text-left flex-1">
+            <h1 className="text-4xl font-bold mb-2 capitalize">{name}</h1>
+            <p className="text-lg mb-4 text-gray-300 italic">{category}</p>
+            
+            <div className="flex flex-wrap gap-2 justify-center md:justify-start mb-4">
+              {types.map(type => (
+                <span 
+                  key={type} 
+                  className={`${typeColors[type].accent} px-3 py-1 rounded-full text-sm uppercase font-semibold`}
+                >
+                  {type}
+                </span>
+              ))}
+            </div>
+
+            <p className="text-gray-300">{flavorText}</p>
           </div>
         </div>
       </div>
@@ -622,8 +601,8 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
                   <div className="flex flex-col items-center">
                     <div className="bg-gray-700 p-4 rounded-lg relative">
                       <img
-                        src={isAnimated ? (animatedSprites?.regular || staticSprites.regular) : staticSprites.regular}
-                        alt={`${name} regular`}
+                        src={getMainSprite()}
+                        alt={`${name} sprite`}
                         className="w-32 h-32 object-contain"
                       />
                       <FormCatchButton
@@ -637,11 +616,11 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
                     <p className="mt-2 text-gray-400">Regular</p>
                   </div>
                   
-                  {staticSprites.shiny && (
+                  {pokemon.sprites.front_shiny && (
                     <div className="flex flex-col items-center">
                       <div className="bg-gray-700 p-4 rounded-lg relative">
                         <img
-                          src={isAnimated ? (animatedSprites?.shiny || staticSprites.shiny) : staticSprites.shiny}
+                          src={pokemon.sprites.front_shiny}
                           alt={`${name} shiny`}
                           className="w-32 h-32 object-contain"
                         />
@@ -659,14 +638,14 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
                 </div>
                 
                 {/* Home Sprites if available */}
-                {homeSprites?.regular && (
+                {pokemon.sprites.home?.front_default && (
                   <div className="mt-6">
                     <h3 className="text-xl font-semibold text-gray-400 mb-4">HOME</h3>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="flex flex-col items-center">
                         <div className="bg-gray-700 p-4 rounded-lg">
                           <img
-                            src={homeSprites.regular}
+                            src={pokemon.sprites.home.front_default}
                             alt={`${name} HOME model`}
                             className="w-32 h-32 object-contain"
                           />
@@ -674,11 +653,11 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
                         <p className="mt-2 text-gray-400">Regular</p>
                       </div>
                       
-                      {homeSprites.shiny && (
+                      {pokemon.sprites.home?.front_shiny && (
                         <div className="flex flex-col items-center">
                           <div className="bg-gray-700 p-4 rounded-lg">
                             <img
-                              src={homeSprites.shiny}
+                              src={pokemon.sprites.home.front_shiny}
                               alt={`${name} HOME shiny model`}
                               className="w-32 h-32 object-contain"
                             />
@@ -709,7 +688,7 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
                         <div className="bg-gray-700 p-4 rounded-lg relative">
                           <div className="relative">
                             <img
-                              src={getHisuianSprite(pokemon)?.front_default || staticSprites.regular}
+                              src={pokemon.sprites.other?.['official-artwork']?.front_default || pokemon.sprites.front_default}
                               alt={`${name} alpha form`}
                               className="w-32 h-32 object-contain"
                             />
@@ -726,12 +705,12 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
                         </div>
                         <p className="mt-2 text-gray-400">Alpha</p>
                       </div>
-                      {staticSprites.shiny && (
+                      {pokemon.sprites.front_shiny && (
                         <div className="flex flex-col items-center">
                           <div className="bg-gray-700 p-4 rounded-lg relative">
                             <div className="relative">
                               <img
-                                src={getHisuianSprite(pokemon)?.front_shiny || staticSprites.shiny}
+                                src={pokemon.sprites.front_shiny}
                                 alt={`${name} shiny alpha form`}
                                 className="w-32 h-32 object-contain"
                               />
