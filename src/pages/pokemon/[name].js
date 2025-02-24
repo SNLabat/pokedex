@@ -6,10 +6,10 @@ import pokeballOutline from '/public/img/pokeballoutline.png';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 
-// Fix the import paths
-import EnhancedTrackingPanel from '../../../components/EnhancedTrackingPanel';
-import LocationEncounterData from '../../../components/LocationEncounterData';
-import { syncLocalToCloud, syncCloudToLocal, getCurrentUser } from '../../../lib/dataManagement';
+// Fix the import paths - components are now in src/components
+import EnhancedTrackingPanel from '../../components/EnhancedTrackingPanel';
+import LocationEncounterData from '../../components/LocationEncounterData';
+import { syncLocalToCloud, syncCloudToLocal, getCurrentUser } from '../../lib/dataManagement';
 
 // Add this near the top of the file with other constants
 const guaranteedAlphas = [
