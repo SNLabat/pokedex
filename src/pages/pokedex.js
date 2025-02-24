@@ -5,13 +5,15 @@ import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { getPokemonCollection } from '../lib/dataManagement';
 import pokeballOutline from '/public/img/pokeballoutline.png';
+import AdvancedSearch from '../components/AdvancedSearch';
 
-export default function PokedexPage() {
+export default function PokedexPage({ initialPokemon }) {
   const router = useRouter();
-  const [pokemonData, setPokemonData] = useState({});
+  const [pokemonData, setPokemonData] = useState(initialPokemon);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedGen, setSelectedGen] = useState('all');
   const [caughtStatus, setCaughtStatus] = useState({});
+  const [filteredPokemon, setFilteredPokemon] = useState(initialPokemon);
   
   const generations = [
     { id: 'all', name: 'All Generations' },
@@ -203,6 +205,17 @@ export default function PokedexPage() {
     return colors[type] || 'bg-gray-500';
   };
 
+  // Client-side search handler (safe because it's not used in getStaticProps)
+  const handleSearch = (filters) => {
+    // Filter logic here
+    const filtered = initialPokemon.filter(pokemon => {
+      // Apply filters and return matches
+      // ...
+    });
+    
+    setFilteredPokemon(filtered);
+  };
+
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       <Head>
@@ -232,9 +245,27 @@ export default function PokedexPage() {
           </div>
         </div>
         
+        {/* Pass initial values and client-side function */}
+        <AdvancedSearch 
+          initialFilters={{}} 
+          onSearchClient={handleSearch} 
+          pokemonData={initialPokemon} 
+        />
+        
         {/* Pokemon list */}
         {renderPokemonList()}
       </main>
     </div>
   );
+}
+
+export async function getStaticProps() {
+  // Fetch data
+  
+  return {
+    props: {
+      initialPokemon: pokemonData,
+      // Don't pass functions here!
+    }
+  };
 } 

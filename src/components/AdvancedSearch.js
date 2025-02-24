@@ -1,5 +1,5 @@
 // components/AdvancedSearch.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { SearchIcon, AdjustmentsIcon, XIcon } from '@heroicons/react/outline';
 
 const typeColors = {
@@ -49,19 +49,19 @@ const TypeButton = ({ type, isSelected, onClick }) => (
   </button>
 );
 
-const AdvancedSearch = ({ onSearch, allPokemon = [] }) => {
-  const [searchTerm, setSearchTerm] = useState('');
+const AdvancedSearch = ({ initialFilters = {}, onSearchClient, pokemonData = [] }) => {
+  // Initialize with provided filters or defaults
+  const [searchTerm, setSearchTerm] = useState(initialFilters.searchTerm || '');
   const [showFilters, setShowFilters] = useState(false);
+  const [selectedTypes, setSelectedTypes] = useState(initialFilters.types || []);
+  const [catchStatus, setCatchStatus] = useState(initialFilters.catchStatus || 'all');
+  const [shinyStatus, setShinyStatus] = useState(initialFilters.shinyStatus || 'all');
+  const [sortBy, setSortBy] = useState(initialFilters.sortBy || 'id');
   
-  // Filters
-  const [selectedTypes, setSelectedTypes] = useState([]);
-  const [catchStatus, setCatchStatus] = useState('all'); // 'all', 'caught', 'uncaught'
-  const [shinyStatus, setShinyStatus] = useState('all'); // 'all', 'shiny', 'not-shiny'
-  const [sortBy, setSortBy] = useState('id'); // 'id', 'name', 'type'
-  
-  // This would need to be populated with all available types in your data
+  // Get all available types from the data
   const allTypes = Object.keys(typeColors);
   
+  // Toggle type selection
   const toggleType = (type) => {
     setSelectedTypes(prev => 
       prev.includes(type) 
@@ -70,6 +70,7 @@ const AdvancedSearch = ({ onSearch, allPokemon = [] }) => {
     );
   };
   
+  // Clear all filters
   const clearFilters = () => {
     setSearchTerm('');
     setSelectedTypes([]);
@@ -78,8 +79,8 @@ const AdvancedSearch = ({ onSearch, allPokemon = [] }) => {
     setSortBy('id');
   };
   
-  // Effect to trigger search when filters change
-  useEffect(() => {
+  // Use callback to prevent recreation on every render
+  const handleSearch = useCallback(() => {
     const filters = {
       searchTerm,
       types: selectedTypes,
@@ -88,8 +89,19 @@ const AdvancedSearch = ({ onSearch, allPokemon = [] }) => {
       sortBy
     };
     
-    onSearch(filters);
-  }, [searchTerm, selectedTypes, catchStatus, shinyStatus, sortBy, onSearch]);
+    // Only call onSearchClient if it's a function (client-side)
+    if (typeof onSearchClient === 'function') {
+      onSearchClient(filters);
+    }
+  }, [searchTerm, selectedTypes, catchStatus, shinyStatus, sortBy, onSearchClient]);
+  
+  // Trigger search when filters change
+  useEffect(() => {
+    // Only run on client side
+    if (typeof window !== 'undefined') {
+      handleSearch();
+    }
+  }, [handleSearch]);
   
   return (
     <div className="bg-gray-800 rounded-lg shadow-lg p-4 mb-6">
