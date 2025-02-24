@@ -299,15 +299,33 @@ const CatchButton = ({ isCaught, isShiny, onClick, theme }) => (
   </button>
 );
 
+// Add this new component for form variants
+const FormCatchButton = ({ formName, type, caughtStatus, updateCaughtStatus, theme }) => {
+  const isCaught = caughtStatus[formName]?.[type] || false;
+  const isShiny = type.includes('Shiny');
+  
+  return (
+    <CatchButton
+      isCaught={isCaught}
+      isShiny={isShiny}
+      onClick={() => updateCaughtStatus(type, formName)}
+      theme={theme}
+    />
+  );
+};
+
 export default function PokemonDetail({ pokemon, species, alternativeForms, evolutionChain }) {
   const [isShiny, setIsShiny] = useState(false);
   const [isAnimated, setIsAnimated] = useState(false);
   const [caughtStatus, setCaughtStatus] = useState({
     default: {
       regular: false,
-      shiny: false
-    },
-    forms: {}
+      shiny: false,
+      mega: false,
+      megaShiny: false,
+      gmax: false,
+      gmaxShiny: false
+    }
   });
 
   const {
@@ -421,12 +439,19 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
   }, [id]);
 
   // Save to localStorage whenever status changes
-  const updateCaughtStatus = (type, formName = 'default') => {
+  const updateCaughtStatus = (type, variant = 'default') => {
     const newStatus = {
       ...caughtStatus,
-      [formName]: {
-        ...caughtStatus[formName] || { regular: false, shiny: false },
-        [type]: !caughtStatus[formName]?.[type]
+      [variant]: {
+        ...(caughtStatus[variant] || {
+          regular: false,
+          shiny: false,
+          mega: false,
+          megaShiny: false,
+          gmax: false,
+          gmaxShiny: false
+        }),
+        [type]: !caughtStatus[variant]?.[type]
       }
     };
     setCaughtStatus(newStatus);
@@ -753,24 +778,23 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
             <div>
               <h3 className="text-xl font-semibold text-gray-400 mb-4">Official Artwork</h3>
               <div className="grid grid-cols-2 gap-4">
-                {staticSprites.regular && (
-                  <div className="flex flex-col items-center">
-                    <div className="bg-gray-700 p-4 rounded-lg relative">
-                      <img
-                        src={staticSprites.regular}
-                        alt={`${name} official artwork`}
-                        className="w-32 h-32 object-contain"
-                      />
-                      <CatchButton
-                        isCaught={caughtStatus.default.regular}
-                        isShiny={false}
-                        onClick={() => updateCaughtStatus('regular')}
-                        theme={theme}
-                      />
-                    </div>
-                    <p className="mt-2 text-gray-400">Regular</p>
+                <div className="flex flex-col items-center">
+                  <div className="bg-gray-700 p-4 rounded-lg relative">
+                    <img
+                      src={staticSprites.regular}
+                      alt={`${name} official artwork`}
+                      className="w-32 h-32 object-contain"
+                    />
+                    <FormCatchButton
+                      formName="default"
+                      type="regular"
+                      caughtStatus={caughtStatus}
+                      updateCaughtStatus={updateCaughtStatus}
+                      theme={theme}
+                    />
                   </div>
-                )}
+                  <p className="mt-2 text-gray-400">Regular</p>
+                </div>
                 {staticSprites.shiny && (
                   <div className="flex flex-col items-center">
                     <div className="bg-gray-700 p-4 rounded-lg relative">
@@ -779,10 +803,11 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
                         alt={`${name} shiny official artwork`}
                         className="w-32 h-32 object-contain"
                       />
-                      <CatchButton
-                        isCaught={caughtStatus.default.shiny}
-                        isShiny={true}
-                        onClick={() => updateCaughtStatus('shiny')}
+                      <FormCatchButton
+                        formName="default"
+                        type="shiny"
+                        caughtStatus={caughtStatus}
+                        updateCaughtStatus={updateCaughtStatus}
                         theme={theme}
                       />
                     </div>
@@ -804,10 +829,11 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
                         alt={`${name} HOME model`}
                         className="w-32 h-32 object-contain"
                       />
-                      <CatchButton
-                        isCaught={caughtStatus.default.regular}
-                        isShiny={false}
-                        onClick={() => updateCaughtStatus('regular')}
+                      <FormCatchButton
+                        formName="default"
+                        type="regular"
+                        caughtStatus={caughtStatus}
+                        updateCaughtStatus={updateCaughtStatus}
                         theme={theme}
                       />
                     </div>
@@ -821,10 +847,11 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
                           alt={`${name} shiny HOME model`}
                           className="w-32 h-32 object-contain"
                         />
-                        <CatchButton
-                          isCaught={caughtStatus.default.shiny}
-                          isShiny={true}
-                          onClick={() => updateCaughtStatus('shiny')}
+                        <FormCatchButton
+                          formName="default"
+                          type="shiny"
+                          caughtStatus={caughtStatus}
+                          updateCaughtStatus={updateCaughtStatus}
                           theme={theme}
                         />
                       </div>
@@ -847,10 +874,11 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
                         alt={`${name} game model`}
                         className="w-32 h-32 object-contain"
                       />
-                      <CatchButton
-                        isCaught={caughtStatus.default.regular}
-                        isShiny={false}
-                        onClick={() => updateCaughtStatus('regular')}
+                      <FormCatchButton
+                        formName="default"
+                        type="regular"
+                        caughtStatus={caughtStatus}
+                        updateCaughtStatus={updateCaughtStatus}
                         theme={theme}
                       />
                     </div>
@@ -864,10 +892,11 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
                           alt={`${name} shiny game model`}
                           className="w-32 h-32 object-contain"
                         />
-                        <CatchButton
-                          isCaught={caughtStatus.default.shiny}
-                          isShiny={true}
-                          onClick={() => updateCaughtStatus('shiny')}
+                        <FormCatchButton
+                          formName="default"
+                          type="shiny"
+                          caughtStatus={caughtStatus}
+                          updateCaughtStatus={updateCaughtStatus}
                           theme={theme}
                         />
                       </div>
@@ -954,11 +983,18 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
                     <div className="grid grid-cols-2 gap-4">
                       {formSprite && (
                         <div className="flex flex-col items-center">
-                          <div className="bg-gray-800 p-4 rounded-lg">
+                          <div className="bg-gray-700 p-4 rounded-lg relative">
                             <img
                               src={formSprite}
                               alt={`${form.formName} regular`}
                               className="w-32 h-32 object-contain"
+                            />
+                            <FormCatchButton
+                              formName={form.formName}
+                              type="regular"
+                              caughtStatus={caughtStatus}
+                              updateCaughtStatus={updateCaughtStatus}
+                              theme={theme}
                             />
                           </div>
                           <p className="mt-2 text-gray-400">Regular</p>
@@ -966,43 +1002,22 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
                       )}
                       {shinySprite && (
                         <div className="flex flex-col items-center">
-                          <div className="bg-gray-800 p-4 rounded-lg">
+                          <div className="bg-gray-700 p-4 rounded-lg relative">
                             <img
                               src={shinySprite}
                               alt={`${form.formName} shiny`}
                               className="w-32 h-32 object-contain"
                             />
+                            <FormCatchButton
+                              formName={form.formName}
+                              type="shiny"
+                              caughtStatus={caughtStatus}
+                              updateCaughtStatus={updateCaughtStatus}
+                              theme={theme}
+                            />
                           </div>
                           <p className="mt-2 text-gray-400">Shiny</p>
                         </div>
-                      )}
-                    </div>
-                    
-                    {/* Form-specific catch status */}
-                    <div className="mt-4 flex justify-center gap-4">
-                      <button
-                        onClick={() => updateCaughtStatus('regular', form.formName)}
-                        className={`px-4 py-2 rounded-lg flex items-center gap-2 ${
-                          caughtStatus[form.formName]?.regular 
-                            ? 'bg-green-500 hover:bg-green-600' 
-                            : 'bg-gray-600 hover:bg-gray-500'
-                        }`}
-                      >
-                        <span>{caughtStatus[form.formName]?.regular ? '✓' : '○'}</span>
-                        Regular
-                      </button>
-                      {shinySprite && (
-                        <button
-                          onClick={() => updateCaughtStatus('shiny', form.formName)}
-                          className={`px-4 py-2 rounded-lg flex items-center gap-2 ${
-                            caughtStatus[form.formName]?.shiny 
-                              ? 'bg-yellow-500 hover:bg-yellow-600' 
-                              : 'bg-gray-600 hover:bg-gray-500'
-                          }`}
-                        >
-                          <span>{caughtStatus[form.formName]?.shiny ? '✓' : '○'}</span>
-                          Shiny
-                        </button>
                       )}
                     </div>
                   </div>
