@@ -993,29 +993,50 @@ export async function getStaticProps({ params }) {
       throw new Error('Failed to fetch Pokemon');
     }
     const pokemonData = await resPokemon.json();
-    
-    // Extract only the properties we need from pokemon
+
+    // Extract basic pokemon data
     const pokemon = {
       id: pokemonData.id,
       name: pokemonData.name,
       height: pokemonData.height,
       weight: pokemonData.weight,
-      types: pokemonData.types,
-      stats: pokemonData.stats,
-      abilities: pokemonData.abilities,
       base_experience: pokemonData.base_experience,
-      sprites: pokemonData.sprites,
-      species: {
-        name: pokemonData.species.name,
-        url: pokemonData.species.url
+      // Explicitly structure nested objects
+      types: pokemonData.types.map(t => ({
+        slot: t.slot,
+        type: { name: t.type.name }
+      })),
+      stats: pokemonData.stats.map(s => ({
+        base_stat: s.base_stat,
+        effort: s.effort,
+        stat: { name: s.stat.name }
+      })),
+      abilities: pokemonData.abilities.map(a => ({
+        ability: { name: a.ability.name },
+        is_hidden: a.is_hidden,
+        slot: a.slot
+      })),
+      moves: pokemonData.moves.map(m => ({
+        move: { name: m.move.name },
+        version_group_details: m.version_group_details.map(vgd => ({
+          level_learned_at: vgd.level_learned_at,
+          move_learn_method: { name: vgd.move_learn_method.name }
+        }))
+      })),
+      // Handle sprite data carefully
+      sprites: {
+        front_default: pokemonData.sprites.front_default,
+        back_default: pokemonData.sprites.back_default,
+        front_shiny: pokemonData.sprites.front_shiny,
+        back_shiny: pokemonData.sprites.back_shiny,
+        other: {
+          'official-artwork': {
+            front_default: pokemonData.sprites.other?.['official-artwork']?.front_default,
+            front_shiny: pokemonData.sprites.other?.['official-artwork']?.front_shiny
+          }
+        }
       },
-      moves: pokemonData.moves.map(move => ({
-        move: {
-          name: move.move.name,
-          url: move.move.url
-        },
-        version_group_details: move.version_group_details
-      }))
+      species: { name: pokemonData.species.name, url: pokemonData.species.url }
     };
 
     const resSpecies = await fetch(pokemon.species.url);
@@ -1024,84 +1045,114 @@ export async function getStaticProps({ params }) {
     }
     const speciesData = await resSpecies.json();
 
-    // Extract only the properties we need from species
+    // Simplified species data
     const species = {
-      id: speciesData.id,
       name: speciesData.name,
       base_happiness: speciesData.base_happiness,
       capture_rate: speciesData.capture_rate,
-      color: speciesData.color,
-      evolution_chain: speciesData.evolution_chain,
-      flavor_text_entries: speciesData.flavor_text_entries,
-      genera: speciesData.genera,
-      growth_rate: speciesData.growth_rate,
-      habitat: speciesData.habitat,
-      varieties: speciesData.varieties
+      habitat: speciesData.habitat ? { name: speciesData.habitat.name } : null,
+      flavor_text_entries: speciesData.flavor_text_entries ? 
+        speciesData.flavor_text_entries.map(entry => ({
+          flavor_text: entry.flavor_text,
+          language: { name: entry.language.name }
+        })) : [],
+      genera: speciesData.genera ? 
+        speciesData.genera.map(g => ({ 
+          genus: g.genus, 
+          language: { name: g.language.name } 
+        })) : [],
+      growth_rate: speciesData.growth_rate ? { name: speciesData.growth_rate.name } : null,
+      evolution_chain: speciesData.evolution_chain ? { url: speciesData.evolution_chain.url } : null,
+      varieties: speciesData.varieties ? 
+        speciesData.varieties.map(v => ({ 
+          is_default: v.is_default, 
+          pokemon: { name: v.pokemon.name, url: v.pokemon.url } 
+        })) : []
     };
 
-    const evolutionChainRes = await fetch(species.evolution_chain.url);
-    if (!evolutionChainRes.ok) {
-      throw new Error('Failed to fetch evolution chain');
-    }
-    const evolutionChainData = await evolutionChainRes.json();
-
-    // Get alternative forms
-    const forms = await Promise.all(
-      species.varieties
-        .filter(variety => variety.pokemon.name !== params.name)
-        .map(async (variety) => {
-          try {
-            const resForm = await fetch(variety.pokemon.url);
-            if (!resForm.ok) return null;
-            const formData = await resForm.json();
+    // Skip evolution chain if not available
+    let evolutionChain = null;
+    if (species.evolution_chain && species.evolution_chain.url) {
+      try {
+        const evolutionChainRes = await fetch(species.evolution_chain.url);
+        if (evolutionChainRes.ok) {
+          const evolutionChainData = await evolutionChainRes.json();
+          
+          // Function to extract only what we need from evolution chain
+          const simplifyEvolutionChain = (chain) => {
+            if (!chain) return null;
             return {
-              id: formData.id,
-              name: formData.name,
-              types: formData.types.map(type => ({
-                slot: type.slot,
-                type: {
-                  name: type.type.name,
-                  url: type.type.url
-                }
-              })),
-              sprites: {
-                front_default: formData.sprites.front_default,
-                other: {
-                  'official-artwork': {
-                    front_default: formData.sprites.other?.['official-artwork']?.front_default
+              species: { 
+                name: chain.species.name,
+                url: chain.species.url 
+              },
+              evolution_details: chain.evolution_details ? 
+                chain.evolution_details.map(detail => ({
+                  min_level: detail.min_level,
+                  trigger: detail.trigger ? { name: detail.trigger.name } : null
+                })) : [],
+              evolves_to: chain.evolves_to ? 
+                chain.evolves_to.map(evolve => simplifyEvolutionChain(evolve)) : []
+            };
+          };
+          
+          evolutionChain = simplifyEvolutionChain(evolutionChainData.chain);
+        }
+      } catch (error) {
+        console.error('Error fetching evolution chain:', error);
+        // Continue without evolution chain if error occurs
+      }
+    }
+
+    // Fetch alternative forms (simplified)
+    let alternativeForms = [];
+    try {
+      if (species.varieties && species.varieties.length > 0) {
+        const formPromises = species.varieties
+          .filter(v => v.pokemon.name !== params.name)
+          .map(async (variety) => {
+            try {
+              const resForm = await fetch(variety.pokemon.url);
+              if (!resForm.ok) return null;
+              const formData = await resForm.json();
+              
+              return {
+                id: formData.id,
+                name: formData.name,
+                types: formData.types ? formData.types.map(t => ({ 
+                  type: { name: t.type.name } 
+                })) : [],
+                sprites: {
+                  front_default: formData.sprites?.front_default || null,
+                  other: {
+                    'official-artwork': {
+                      front_default: formData.sprites?.other?.['official-artwork']?.front_default || null
+                    }
                   }
                 }
-              }
-            };
-          } catch (error) {
-            console.error(`Error fetching form data for ${variety.pokemon.name}:`, error);
-            return null;
-          }
-        })
-    );
+              };
+            } catch (error) {
+              console.error(`Error fetching form data for ${variety.pokemon.name}:`, error);
+              return null;
+            }
+          });
+          
+        const forms = await Promise.all(formPromises);
+        alternativeForms = forms.filter(Boolean);
+      }
+    } catch (error) {
+      console.error('Error fetching alternative forms:', error);
+      // Continue with empty forms if error occurs
+    }
 
-    const alternativeForms = forms.filter(Boolean);
-
-    // Clean up evolution chain data to ensure it's serializable
-    const cleanEvolutionChain = (chain) => {
-      if (!chain) return null;
-      return {
-        species: {
-          name: chain.species.name,
-          url: chain.species.url
-        },
-        evolves_to: chain.evolves_to.map(evo => cleanEvolutionChain(evo)),
-        evolution_details: chain.evolution_details
-      };
-    };
-
+    // Use JSON.parse/stringify to ensure all data is serializable
     return {
-      props: { 
+      props: JSON.parse(JSON.stringify({
         pokemon,
-        species,
+        species, 
         alternativeForms,
-        evolutionChain: cleanEvolutionChain(evolutionChainData.chain)
-      },
+        evolutionChain
+      })),
       revalidate: 86400 // Revalidate once per day
     };
   } catch (error) {
