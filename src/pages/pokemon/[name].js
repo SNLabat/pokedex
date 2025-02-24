@@ -44,6 +44,24 @@ const IconSet = {
   Weight: () => <span className="text-xl">⚖️</span>
 };
 
+// Add utility functions at the top - DEFINE ONLY ONCE
+const properCase = (str) => {
+  return str
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
+
+const formatStatName = (statName) => {
+  if (statName === 'hp') return 'HP';
+  return properCase(statName);
+};
+
+// Keep this outside the component
+const hasAlphaForm = (pokemonName) => {
+  return guaranteedAlphas.includes(pokemonName.toLowerCase());
+};
+
 // Add the enhanced typeColors object
 const typeColors = {
   normal: { bg: 'bg-gray-700', text: 'text-gray-100', accent: 'bg-gray-500' },
@@ -66,7 +84,7 @@ const typeColors = {
   fairy: { bg: 'bg-pink-700', text: 'text-pink-50', accent: 'bg-pink-500' }
 };
 
-// Add the SpriteToggleGroup component at the top
+// Add the SpriteToggleGroup component
 const SpriteToggleGroup = ({ isAnimated, isShiny, onAnimatedChange, onShinyChange, hasAnimated, hasShiny, theme }) => (
   <div className="flex flex-col gap-2">
     {/* Main sprite type toggles */}
@@ -141,20 +159,7 @@ const SpriteToggleGroup = ({ isAnimated, isShiny, onAnimatedChange, onShinyChang
   </div>
 );
 
-// Add utility functions at the top
-const properCase = (str) => {
-  return str
-    .split('-')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
-};
-
-const formatStatName = (statName) => {
-  if (statName === 'hp') return 'HP';
-  return properCase(statName);
-};
-
-// Add enhanced PokemonCry component with iOS detection
+// Enhanced PokemonCry component with iOS detection
 const PokemonCry = ({ src, label, theme }) => {
   const [isIOS, setIsIOS] = useState(false);
 
@@ -167,182 +172,25 @@ const PokemonCry = ({ src, label, theme }) => {
 
   if (!src) return null;
 
-  if (isIOS) {
-    return (
-      <div className={`${theme.bg} bg-opacity-50 p-4 rounded-lg shadow-lg`}>
-        <p className={`${theme.text} opacity-75 mb-2`}>{label}</p>
-        <a 
-          href={src}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="block w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-center"
-        >
-          Listen to Cry
-        </a>
-        <p className="text-xs text-gray-400 mt-2">
-          Note: On iOS devices, cries will open in a new tab
-        </p>
-      </div>
-    );
-  }
-
   return (
-    <div className={`${theme.bg} bg-opacity-50 p-4 rounded-lg shadow-lg`}>
-      <p className={`${theme.text} opacity-75 mb-2`}>{label}</p>
-      <audio
-        controls
-        className="w-full"
-        preload="none"
+    <div className="flex flex-col items-center">
+      <button
+        onClick={() => {
+          if (isIOS) {
+            alert('Audio may not autoplay on iOS. Please tap the Play button in the audio player that appears.');
+          }
+          document.getElementById('pokemonCry')?.play();
+        }}
+        className={`px-4 py-2 rounded-lg ${theme.accent} hover:opacity-90 transition-opacity flex items-center gap-2`}
       >
-        <source src={src} type="audio/mpeg" />
-        <source src={src} type="audio/ogg" />
-        Your browser does not support audio playback.
-      </audio>
+        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+        </svg>
+        {label || 'Play Cry'}
+      </button>
+      <audio id="pokemonCry" src={src} preload="auto"></audio>
     </div>
   );
-};
-
-const EvolutionChain = ({ chain, currentPokemonId }) => {
-  const renderEvolution = (evolution) => {
-    const isCurrentPokemon = evolution.species.url.split('/').slice(-2, -1)[0] === currentPokemonId.toString();
-    
-    return (
-      <div className="flex flex-col items-center">
-        <Link href={`/pokemon/${evolution.species.name}`}>
-          <a className="flex flex-col items-center p-2 rounded-lg transition-transform hover:scale-105">
-            <div className="w-20 h-20 relative">
-              <Image
-                src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${evolution.species.url.split('/').slice(-2, -1)[0]}.png`}
-                alt={evolution.species.name}
-                layout="fill"
-                objectFit="contain"
-              />
-            </div>
-            <span className={`mt-2 capitalize text-sm ${isCurrentPokemon ? 'border-b-2 border-current' : ''}`}>
-              {evolution.species.name.replace(/-/g, ' ')}
-            </span>
-            {evolution.min_level && (
-              <span className="text-xs opacity-75">Level {evolution.min_level}</span>
-            )}
-          </a>
-        </Link>
-        
-        {evolution.evolves_to?.length > 0 && (
-          <div className="flex items-center mx-4">
-            <span className="text-2xl">→</span>
-          </div>
-        )}
-      </div>
-    );
-  };
-
-  const renderEvolutionLine = (evolution) => {
-    const evolutions = [];
-    let currentEvo = evolution;
-
-    while (currentEvo) {
-      evolutions.push(renderEvolution(currentEvo));
-      currentEvo = currentEvo.evolves_to[0]; // Follow the first evolution path
-    }
-
-    // For split evolutions (like Eevee), render them in rows
-    const splitEvolutions = evolution.evolves_to.slice(1);
-    if (splitEvolutions.length > 0) {
-      return (
-        <div className="flex flex-col gap-4">
-          <div className="flex items-center justify-center gap-4">
-            {evolutions}
-          </div>
-          {splitEvolutions.map((evo, index) => (
-            <div key={index} className="flex items-center justify-center gap-4">
-              <div className="invisible">
-                {renderEvolution(evolution)} {/* Placeholder for alignment */}
-              </div>
-              <span className="text-2xl">→</span>
-              {renderEvolution(evo)}
-            </div>
-          ))}
-        </div>
-      );
-    }
-
-    return (
-      <div className="flex items-center justify-center gap-4">
-        {evolutions}
-      </div>
-    );
-  };
-
-  return (
-    <div className="flex justify-center overflow-x-auto">
-      {renderEvolutionLine(chain)}
-    </div>
-  );
-};
-
-// Update the moveTypeColors object with more vibrant colors
-const moveTypeColors = {
-  normal: 'bg-gray-500',
-  fire: 'bg-orange-600',
-  water: 'bg-blue-600',
-  electric: 'bg-yellow-500',
-  grass: 'bg-green-600',
-  ice: 'bg-cyan-500',
-  fighting: 'bg-red-700',
-  poison: 'bg-purple-600',
-  ground: 'bg-amber-700',
-  flying: 'bg-indigo-500',
-  psychic: 'bg-pink-600',
-  bug: 'bg-lime-600',
-  rock: 'bg-stone-600',
-  ghost: 'bg-purple-800',
-  dragon: 'bg-violet-700',
-  dark: 'bg-neutral-800',
-  steel: 'bg-zinc-600',
-  fairy: 'bg-pink-500'
-};
-
-// Add this new component
-const CatchButton = ({ isCaught, isShiny, isAlpha, onClick, theme }) => (
-  <button
-    onClick={onClick}
-    className={`absolute bottom-2 right-2 p-1 rounded-full transition-all
-      ${isCaught ? 
-        (isShiny ? 'bg-yellow-500' : isAlpha ? 'bg-red-500' : 'bg-green-500') : 
-        'bg-gray-700 hover:bg-gray-600'}`}
-  >
-    <div className="w-6 h-6 relative">
-      <Image
-        src={pokeballOutline}
-        alt="Catch status"
-        layout="fill"
-        className={`transition-transform ${isCaught ? 'scale-100' : 'scale-90'}`}
-        unoptimized
-      />
-    </div>
-  </button>
-);
-
-// Add this new component for form variants
-const FormCatchButton = ({ formName, type, caughtStatus, updateCaughtStatus, theme }) => {
-  const isCaught = caughtStatus[formName]?.[type] || false;
-  const isShiny = type.includes('Shiny');
-  const isAlpha = type.includes('alpha');
-  
-  return (
-    <CatchButton
-      isCaught={isCaught}
-      isShiny={isShiny}
-      isAlpha={isAlpha}
-      onClick={() => updateCaughtStatus(type, formName)}
-      theme={theme}
-    />
-  );
-};
-
-// Keep this outside the component
-const hasAlphaForm = (pokemonName) => {
-  return guaranteedAlphas.includes(pokemonName.toLowerCase());
 };
 
 export default function PokemonDetail({ pokemon, species, alternativeForms, evolutionChain }) {
@@ -378,40 +226,39 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
 
   // Game version color theme
   const colorThemes = {
-    red: {
+    fire: {
       bg: 'bg-red-900',
       text: 'text-red-400',
       accent: 'text-red-500',
       border: 'border-red-500'
     },
-    blue: {
+    water: {
       bg: 'bg-blue-900',
       text: 'text-blue-400',
       accent: 'text-blue-500',
       border: 'border-blue-500'
     },
-    yellow: {
+    electric: {
       bg: 'bg-yellow-900',
       text: 'text-yellow-400',
       accent: 'text-yellow-500',
       border: 'border-yellow-500'
     },
-    green: {
+    grass: {
       bg: 'bg-green-900',
       text: 'text-green-400',
       accent: 'text-green-500',
       border: 'border-green-500'
-    },
-    black: {
-      bg: 'bg-gray-900',
-      text: 'text-gray-400',
-      accent: 'text-gray-200',
-      border: 'border-gray-500'
     }
   };
 
   // Choose a theme based on the first type
-  const theme = colorThemes[types[0]] || colorThemes.black;
+  const theme = typeColors[types[0]] || { 
+    bg: 'bg-gray-900', 
+    text: 'text-gray-400', 
+    accent: 'text-gray-200',
+    border: 'border-gray-500'
+  };
 
   // Format the sprites
   const staticSprites = {
@@ -420,20 +267,20 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
   };
 
   const animatedSprites = {
-    regular: pokemon.sprites.versions['generation-v']['black-white'].animated.front_default,
-    shiny: pokemon.sprites.versions['generation-v']['black-white'].animated.front_shiny
+    regular: pokemon.sprites.versions?.['generation-v']?.['black-white']?.animated?.front_default,
+    shiny: pokemon.sprites.versions?.['generation-v']?.['black-white']?.animated?.front_shiny
   };
 
   const homeSprites = {
-    regular: pokemon.sprites.other.home.front_default,
-    shiny: pokemon.sprites.other.home.front_shiny
+    regular: pokemon.sprites.other?.home?.front_default,
+    shiny: pokemon.sprites.other?.home?.front_shiny
   };
 
-  const hasAnimated = animatedSprites.regular !== null;
+  const hasAnimated = animatedSprites?.regular !== null;
 
   // Determine which sprites to show
-  const currentSprites = isAnimated ? animatedSprites : staticSprites;
-  const displayedSprite = isShiny ? currentSprites.shiny : currentSprites.regular;
+  const currentSprites = isAnimated ? (animatedSprites || staticSprites) : staticSprites;
+  const displayedSprite = isShiny ? (currentSprites.shiny || currentSprites.regular) : currentSprites.regular;
 
   // Get level-up moves only, sorted by level
   const levelUpMoves = pokemon.moves
@@ -506,37 +353,7 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
     localStorage.setItem('caughtPokemon', JSON.stringify(savedData));
   };
 
-  // Add exportToCSV function if not already present
-  const exportToCSV = () => {
-    const saved = localStorage.getItem('caughtPokemon');
-    if (!saved) return;
-
-    const pokemonData = JSON.parse(saved);
-    const rows = [['ID', 'Name', 'Form', 'Regular', 'Shiny']];
-
-    Object.entries(pokemonData).forEach(([pokemonId, forms]) => {
-      Object.entries(forms).forEach(([formName, status]) => {
-        rows.push([
-          pokemonId,
-          name,
-          formName,
-          status.regular ? 'Yes' : 'No',
-          status.shiny ? 'Yes' : 'No'
-        ]);
-      });
-    });
-
-    const csvContent = rows.map(row => row.join(',')).join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'pokemon_collection.csv';
-    a.click();
-    window.URL.revokeObjectURL(url);
-  };
-
-  // Load caught status from localStorage
+  // Load saved caught status
   useEffect(() => {
     const saved = localStorage.getItem('caughtPokemon');
     if (saved) {
@@ -545,204 +362,243 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
         setCaughtStatus(savedData[id]);
       }
     }
-
-    // Check for currently logged in user
+    
+    // Load user data if available
     const checkUser = async () => {
-      const currentUser = await getCurrentUser();
-      if (currentUser) {
-        setUser(currentUser);
-      }
+      const userData = await getCurrentUser();
+      setUser(userData);
     };
     
     checkUser();
   }, [id]);
 
-  // Add cloud sync functionality
-  const syncToCloud = async () => {
-    if (!user) return;
+  // Format a form name for display
+  const getFormDisplayName = (formName) => {
+    if (formName === pokemon.name) return 'Default';
+    
+    // Remove pokemon name from form name
+    let displayName = formName.replace(pokemon.name + '-', '');
+    
+    // Special case handling
+    if (displayName === 'mega-x') return 'Mega X';
+    if (displayName === 'mega-y') return 'Mega Y';
+    if (displayName === 'gmax') return 'Gigantamax';
+    if (displayName === 'alola') return 'Alolan Form';
+    if (displayName === 'galar') return 'Galarian Form';
+    if (displayName === 'hisui') return 'Hisuian Form';
+    if (displayName === 'paldea') return 'Paldean Form';
+    
+    // Capitalize and format remaining cases
+    return displayName
+      .split('-')
+      .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(' ');
+  };
 
-    const saved = localStorage.getItem('caughtPokemon');
-    if (saved) {
+  // Export to CSV
+  const exportToCSV = () => {
+    const headers = ['ID', 'Name', 'Form', 'Regular', 'Shiny', 'Alpha', 'Alpha Shiny'];
+    
+    // Format data for CSV
+    const rows = [];
+    
+    Object.entries(caughtStatus).forEach(([formName, status]) => {
+      rows.push([
+        id,
+        name,
+        formName === 'default' ? 'Regular' : getFormDisplayName(formName),
+        status.regular ? 'Yes' : 'No',
+        status.shiny ? 'Yes' : 'No',
+        status.alpha ? 'Yes' : 'No',
+        status.alphaShiny ? 'Yes' : 'No',
+      ]);
+    });
+    
+    // Create CSV content
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.join(','))
+    ].join('\n');
+    
+    // Download the file
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `pokemon_${id}_${name.replace(' ', '_')}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  // Sync with cloud if user is logged in
+  const syncData = async () => {
+    if (!user) {
+      alert('Please log in to sync your data');
+      return;
+    }
+    
+    try {
+      // Get data from localStorage
+      const saved = localStorage.getItem('caughtPokemon');
+      if (!saved) {
+        alert('No local data to sync');
+        return;
+      }
+      
       const localData = JSON.parse(saved);
+      
+      // Push to cloud
       const result = await syncLocalToCloud(user.uid, localData);
+      
       if (result.success) {
-        alert('Collection synchronized to the cloud!');
+        alert('Data synced successfully!');
       } else {
         alert(`Sync failed: ${result.error}`);
       }
+    } catch (error) {
+      console.error('Sync error:', error);
+      alert(`Error: ${error.message}`);
     }
   };
 
-  // Pull data from cloud
-  const syncFromCloud = async () => {
-    if (!user) return;
-
-    const result = await syncCloudToLocal(user.uid);
-    if (result.success) {
-      // Refresh the current Pokemon's status
-      if (result.data && result.data[id]) {
-        setCaughtStatus(result.data[id]);
-      }
-      alert('Collection downloaded from the cloud!');
-    } else {
-      alert(`Sync failed: ${result.error}`);
-    }
-  };
+  // Tabs for different sections
+  const [activeTab, setActiveTab] = useState('info');
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white pb-10">
+    <div className="bg-gray-950 text-white min-h-screen pb-12">
       <Head>
-        <title>{name.charAt(0).toUpperCase() + name.slice(1)} | Pokémon Database</title>
-        <meta name="description" content={`View info about ${name} in the Pokémon database.`} />
+        <title>{`${properCase(name)} #${id} - Pokémon Database`}</title>
+        <meta name="description" content={`${properCase(name)} details and information in the Pokémon Database`} />
       </Head>
 
-      {/* Main Content Container */}
-      <div className="container mx-auto p-4">
-        {/* Pokémon Header Card */}
-        <div className={`${theme.bg} rounded-lg p-6 mb-8 shadow-lg`}>
-          <div className="flex flex-col lg:flex-row items-center lg:items-start gap-8">
-            {/* Sprite */}
-            <div className="relative w-64 h-64">
-              <Image
-                src={displayedSprite || '/img/unknown.png'}
-                alt={name}
-                layout="fill"
-                objectFit="contain"
-                className={`drop-shadow-2xl transition-all duration-300 ${isShiny ? 'hue-rotate-15' : ''}`}
+      {/* Navigation */}
+      <div className="bg-red-600 py-4">
+        <div className="container mx-auto px-4">
+          <Link href="/">
+            <a className="text-white flex items-center gap-2">
+              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              Back to Pokédex
+            </a>
+          </Link>
+        </div>
+      </div>
+
+      {/* Pokemon Header Section */}
+      <div className={`${theme.bg} py-8`}>
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row items-center gap-6">
+            <div className="w-40 h-40 bg-gray-800 bg-opacity-50 rounded-full flex items-center justify-center p-4 relative">
+              <img 
+                src={staticSprites.regular} 
+                alt={name} 
+                className="w-32 h-32 object-contain" 
               />
-            </div>
-
-            {/* Info */}
-            <div className="flex-1">
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
-                <div>
-                  <h1 className="text-3xl md:text-4xl font-bold capitalize mb-2">{name}</h1>
-                  <p className="text-xl opacity-80">{category}</p>
-                </div>
-                <div className="text-2xl md:text-3xl font-bold opacity-70 mt-2 md:mt-0">
-                  #{id.toString().padStart(3, '0')}
-                </div>
+              {/* ID Badge */}
+              <div className="absolute -bottom-2 -right-2 bg-red-600 text-white text-sm px-2 py-1 rounded-full font-mono">
+                #{id.toString().padStart(3, '0')}
               </div>
-
-              {/* Types */}
-              <div className="flex flex-wrap gap-2 mb-6">
+            </div>
+            
+            <div className="text-center md:text-left flex-1">
+              <h1 className="text-4xl font-bold mb-2 capitalize">{name}</h1>
+              <p className="text-lg mb-4 text-gray-300 italic">{category}</p>
+              
+              <div className="flex flex-wrap gap-2 justify-center md:justify-start mb-4">
                 {types.map(type => (
-                  <span
-                    key={type}
-                    className={`px-3 py-1 rounded-full text-white font-medium capitalize bg-${type}`}
-                    style={{ backgroundColor: getTypeColor(type) }}
+                  <span 
+                    key={type} 
+                    className={`${typeColors[type].accent} px-3 py-1 rounded-full text-sm uppercase font-semibold`}
                   >
                     {type}
                   </span>
                 ))}
               </div>
 
-              {/* Description */}
-              <div className="mb-6">
-                <h2 className="text-xl font-semibold mb-2">Pokédex Entry</h2>
-                <p className="opacity-85">{flavorText}</p>
-              </div>
-
-              {/* Basic Info Grid */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div>
-                  <h3 className="text-sm font-medium opacity-70">Height</h3>
-                  <p className="text-xl">{height} m</p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium opacity-70">Weight</h3>
-                  <p className="text-xl">{weight} kg</p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium opacity-70">Abilities</h3>
-                  <div>
-                    {abilities.map((ability) => (
-                      <div 
-                        key={ability.ability.name}
-                        className="capitalize"
-                      >
-                        {ability.ability.name.replace('-', ' ')}
-                        {ability.is_hidden && <span className="text-xs ml-1 opacity-75">(Hidden)</span>}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium opacity-70">Base Happiness</h3>
-                  <p className="text-xl">{species.base_happiness}</p>
-                </div>
-              </div>
+              <p className="text-gray-300">{flavorText}</p>
+            </div>
+            
+            {/* Right side options for desktop */}
+            <div className="hidden md:block">
+              <SpriteToggleGroup 
+                isAnimated={isAnimated}
+                isShiny={isShiny}
+                onAnimatedChange={onAnimatedChange}
+                onShinyChange={onShinyChange}
+                hasAnimated={hasAnimated}
+                hasShiny={!!staticSprites.shiny}
+                theme={theme}
+              />
             </div>
           </div>
-        </div>
-
-        {/* Controls for sprite display */}
-        <div className="flex flex-wrap justify-center gap-4 mb-8">
-          <div className="inline-flex rounded-md shadow-sm" role="group">
-            <button
-              onClick={() => onShinyChange(false)}
-              className={`px-4 py-2 text-sm font-medium rounded-l-lg border border-gray-600 
-                ${!isShiny 
-                  ? 'bg-gray-700 text-white'
-                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white'
-                }
-                focus:z-10 focus:ring-2 focus:ring-gray-500`}
-            >
-              Regular
-            </button>
-            <button
-              onClick={() => onShinyChange(true)}
-              className={`px-4 py-2 text-sm font-medium rounded-r-lg border border-gray-600 
-                ${isShiny 
-                  ? 'bg-yellow-500 text-white'
-                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white'
-                }
-                focus:z-10 focus:ring-2 focus:ring-yellow-500`}
-            >
-              Shiny
-            </button>
+          
+          {/* Mobile sprite toggle */}
+          <div className="mt-6 flex justify-center md:hidden">
+            <SpriteToggleGroup 
+              isAnimated={isAnimated}
+              isShiny={isShiny}
+              onAnimatedChange={onAnimatedChange}
+              onShinyChange={onShinyChange}
+              hasAnimated={hasAnimated}
+              hasShiny={!!staticSprites.shiny}
+              theme={theme}
+            />
           </div>
-
-          {hasAnimated && (
-            <div className="inline-flex rounded-md shadow-sm" role="group">
-              <button
-                onClick={() => onAnimatedChange(false)}
-                className={`px-4 py-2 text-sm font-medium rounded-l-lg border border-gray-600 
-                  ${!isAnimated 
-                    ? 'bg-gray-700 text-white'
-                    : 'bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white'
-                  }
-                  focus:z-10 focus:ring-2 focus:ring-gray-500`}
-              >
-                Static
-              </button>
-              <button
-                onClick={() => onAnimatedChange(true)}
-                className={`px-4 py-2 text-sm font-medium rounded-r-lg border border-gray-600 
-                  ${isAnimated 
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white'
-                  }
-                  focus:z-10 focus:ring-2 focus:ring-blue-500`}
-              >
-                <span className="flex items-center gap-1">
-                  Animated
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </span>
-              </button>
-            </div>
-          )}
         </div>
+      </div>
 
-        {/* Main grid for detailed content */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Left Column */}
-          <div className="md:col-span-2 space-y-6">
+      {/* Tabs */}
+      <div className="container mx-auto px-4 my-6">
+        <div className="flex overflow-x-auto space-x-2 border-b border-gray-700 pb-2">
+          <button 
+            onClick={() => setActiveTab('info')} 
+            className={`px-4 py-2 rounded-t-lg ${activeTab === 'info' ? 'bg-red-600 text-white' : 'text-gray-400'}`}
+          >
+            Info
+          </button>
+          <button 
+            onClick={() => setActiveTab('stats')} 
+            className={`px-4 py-2 rounded-t-lg ${activeTab === 'stats' ? 'bg-red-600 text-white' : 'text-gray-400'}`}
+          >
+            Stats
+          </button>
+          <button 
+            onClick={() => setActiveTab('moves')} 
+            className={`px-4 py-2 rounded-t-lg ${activeTab === 'moves' ? 'bg-red-600 text-white' : 'text-gray-400'}`}
+          >
+            Moves
+          </button>
+          <button 
+            onClick={() => setActiveTab('evolution')} 
+            className={`px-4 py-2 rounded-t-lg ${activeTab === 'evolution' ? 'bg-red-600 text-white' : 'text-gray-400'}`}
+          >
+            Evolution
+          </button>
+          <button 
+            onClick={() => setActiveTab('location')} 
+            className={`px-4 py-2 rounded-t-lg ${activeTab === 'location' ? 'bg-red-600 text-white' : 'text-gray-400'}`}
+          >
+            Location
+          </button>
+          <button 
+            onClick={() => setActiveTab('forms')} 
+            className={`px-4 py-2 rounded-t-lg ${activeTab === 'forms' ? 'bg-red-600 text-white' : 'text-gray-400'}`}
+          >
+            Forms
+          </button>
+        </div>
+      </div>
+
+      {/* Main content area */}
+      <div className="container mx-auto px-4">
+        {/* Info Tab */}
+        {activeTab === 'info' && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Add instructions section */}
-            <div className={`${theme.bg} bg-opacity-50 rounded-lg p-6 mb-6`}>
+            <div className={`${theme.bg} bg-opacity-50 rounded-lg p-6 mb-6 md:col-span-3`}>
               <h2 className={`text-2xl font-bold mb-4 ${theme.accent}`}>Tracking Instructions</h2>
               <div className="space-y-2 text-gray-200">
                 <p>Click the Pokéball icon on any sprite to mark it as caught:</p>
@@ -757,472 +613,602 @@ export default function PokemonDetail({ pokemon, species, alternativeForms, evol
                 </p>
               </div>
             </div>
-
-            {/* Enhanced Tracking Panel */}
-            <EnhancedTrackingPanel 
-              pokemonId={id}
-              formName="default"
-              updateCaughtStatus={updateCaughtStatus}
-              caughtStatus={caughtStatus}
-              theme={theme}
-            />
-
-            {/* Updated Sprites section */}
-            <div className={`${theme.bg} bg-opacity-50 rounded-lg p-6`}>
-              <h2 className={`text-2xl font-bold mb-4 ${theme.accent}`}>Sprites & Models</h2>
-              <div className="space-y-8">
-                {/* Static Official Artwork */}
-                <div>
-                  <h3 className="text-xl font-semibold text-gray-400 mb-4">Official Artwork</h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    {staticSprites.regular && (
-                      <div className="flex flex-col items-center">
-                        <div className="bg-gray-700 p-4 rounded-lg relative">
-                          <img
-                            src={staticSprites.regular}
-                            alt={`${name} official artwork`}
-                            className="w-32 h-32 object-contain"
-                          />
-                          <FormCatchButton
-                            formName="default"
-                            type="regular"
-                            caughtStatus={caughtStatus}
-                            updateCaughtStatus={updateCaughtStatus}
-                            theme={theme}
-                          />
-                        </div>
-                        <p className="mt-2 text-gray-400">Regular</p>
-                      </div>
-                    )}
-                    {staticSprites.shiny && (
-                      <div className="flex flex-col items-center">
-                        <div className="bg-gray-700 p-4 rounded-lg relative">
-                          <img
-                            src={staticSprites.shiny}
-                            alt={`${name} shiny official artwork`}
-                            className="w-32 h-32 object-contain"
-                          />
-                          <FormCatchButton
-                            formName="default"
-                            type="shiny"
-                            caughtStatus={caughtStatus}
-                            updateCaughtStatus={updateCaughtStatus}
-                            theme={theme}
-                          />
-                        </div>
-                        <p className="mt-2 text-gray-400">Shiny</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Home 3D Models */}
-                {homeSprites.regular && (
-                  <div>
-                    <h3 className="text-xl font-semibold text-gray-400 mb-4">HOME 3D Models</h3>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="flex flex-col items-center">
-                        <div className="bg-gray-700 p-4 rounded-lg relative">
-                          <img
-                            src={homeSprites.regular}
-                            alt={`${name} HOME model`}
-                            className="w-32 h-32 object-contain"
-                          />
-                          <FormCatchButton
-                            formName="default"
-                            type="home"
-                            caughtStatus={caughtStatus}
-                            updateCaughtStatus={updateCaughtStatus}
-                            theme={theme}
-                          />
-                        </div>
-                        <p className="mt-2 text-gray-400">Regular</p>
-                      </div>
-                      {homeSprites.shiny && (
-                        <div className="flex flex-col items-center">
-                          <div className="bg-gray-700 p-4 rounded-lg relative">
-                            <img
-                              src={homeSprites.shiny}
-                              alt={`${name} shiny HOME model`}
-                              className="w-32 h-32 object-contain"
-                            />
-                            <FormCatchButton
-                              formName="default"
-                              type="homeShiny"
-                              caughtStatus={caughtStatus}
-                              updateCaughtStatus={updateCaughtStatus}
-                              theme={theme}
-                            />
-                          </div>
-                          <p className="mt-2 text-gray-400">Shiny</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* Game Models */}
-                {hasAnimated && (
-                  <div>
-                    <h3 className="text-xl font-semibold text-gray-400 mb-4">Game Models</h3>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="flex flex-col items-center">
-                        <div className="bg-gray-700 p-4 rounded-lg relative">
-                          <img
-                            src={animatedSprites.regular}
-                            alt={`${name} game model`}
-                            className="w-32 h-32 object-contain"
-                          />
-                          <FormCatchButton
-                            formName="default"
-                            type="game"
-                            caughtStatus={caughtStatus}
-                            updateCaughtStatus={updateCaughtStatus}
-                            theme={theme}
-                          />
-                        </div>
-                        <p className="mt-2 text-gray-400">Regular</p>
-                      </div>
-                      {animatedSprites.shiny && (
-                        <div className="flex flex-col items-center">
-                          <div className="bg-gray-700 p-4 rounded-lg relative">
-                            <img
-                              src={animatedSprites.shiny}
-                              alt={`${name} shiny game model`}
-                              className="w-32 h-32 object-contain"
-                            />
-                            <FormCatchButton
-                              formName="default"
-                              type="gameShiny"
-                              caughtStatus={caughtStatus}
-                              updateCaughtStatus={updateCaughtStatus}
-                              theme={theme}
-                            />
-                          </div>
-                          <p className="mt-2 text-gray-400">Shiny</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Alpha forms section */}
-            {hasAlphaForm(name) && (
-              <div className="mt-6">
-                <h3 className="text-xl font-semibold text-gray-400 mb-4">Alpha Forms</h3>
+            
+            {/* Left Column */}
+            <div className="space-y-6">
+              <div className={`${theme.bg} bg-opacity-50 rounded-lg p-6`}>
+                <h2 className={`text-2xl font-bold mb-4 ${theme.accent}`}>Sprites</h2>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex flex-col items-center">
                     <div className="bg-gray-700 p-4 rounded-lg relative">
-                      <div className="relative">
-                        <img
-                          src={getHisuianSprite(pokemon)?.front_default || staticSprites.regular}
-                          alt={`${name} alpha form`}
-                          className="w-32 h-32 object-contain"
-                        />
-                        {/* Alpha indicator */}
-                        <span className="absolute top-0 right-0 text-red-500 text-xl">α</span>
-                      </div>
+                      <img
+                        src={isAnimated ? (animatedSprites?.regular || staticSprites.regular) : staticSprites.regular}
+                        alt={`${name} regular`}
+                        className="w-32 h-32 object-contain"
+                      />
                       <FormCatchButton
                         formName="default"
-                        type="alpha"
+                        type="regular"
                         caughtStatus={caughtStatus}
                         updateCaughtStatus={updateCaughtStatus}
                         theme={theme}
                       />
                     </div>
-                    <p className="mt-2 text-gray-400">Alpha</p>
+                    <p className="mt-2 text-gray-400">Regular</p>
                   </div>
+                  
                   {staticSprites.shiny && (
                     <div className="flex flex-col items-center">
                       <div className="bg-gray-700 p-4 rounded-lg relative">
-                        <div className="relative">
-                          <img
-                            src={getHisuianSprite(pokemon)?.front_shiny || staticSprites.shiny}
-                            alt={`${name} shiny alpha form`}
-                            className="w-32 h-32 object-contain"
-                          />
-                          {/* Alpha indicator */}
-                          <span className="absolute top-0 right-0 text-red-500 text-xl">α</span>
-                        </div>
+                        <img
+                          src={isAnimated ? (animatedSprites?.shiny || staticSprites.shiny) : staticSprites.shiny}
+                          alt={`${name} shiny`}
+                          className="w-32 h-32 object-contain"
+                        />
                         <FormCatchButton
                           formName="default"
-                          type="alphaShiny"
+                          type="shiny"
                           caughtStatus={caughtStatus}
                           updateCaughtStatus={updateCaughtStatus}
                           theme={theme}
                         />
                       </div>
-                      <p className="mt-2 text-gray-400">Shiny Alpha</p>
+                      <p className="mt-2 text-gray-400">Shiny</p>
                     </div>
                   )}
                 </div>
+                
+                {/* Home Sprites if available */}
+                {homeSprites?.regular && (
+                  <div className="mt-6">
+                    <h3 className="text-xl font-semibold text-gray-400 mb-4">HOME</h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="flex flex-col items-center">
+                        <div className="bg-gray-700 p-4 rounded-lg">
+                          <img
+                            src={homeSprites.regular}
+                            alt={`${name} HOME model`}
+                            className="w-32 h-32 object-contain"
+                          />
+                        </div>
+                        <p className="mt-2 text-gray-400">Regular</p>
+                      </div>
+                      
+                      {homeSprites.shiny && (
+                        <div className="flex flex-col items-center">
+                          <div className="bg-gray-700 p-4 rounded-lg">
+                            <img
+                              src={homeSprites.shiny}
+                              alt={`${name} HOME shiny model`}
+                              className="w-32 h-32 object-contain"
+                            />
+                          </div>
+                          <p className="mt-2 text-gray-400">Shiny</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
 
-            {/* Alternative Forms */}
-            {alternativeForms.length > 0 && (
+              <EnhancedTrackingPanel 
+                pokemonId={id}
+                formName="default"
+                updateCaughtStatus={updateCaughtStatus}
+                caughtStatus={caughtStatus}
+                theme={theme}
+              />
+              
+              {/* Alpha Forms Section */}
+              {hasAlphaForm(name) && (
+                <div className="mt-6">
+                  <div className={`${theme.bg} bg-opacity-50 rounded-lg p-6`}>
+                    <h3 className="text-xl font-semibold text-gray-400 mb-4">Alpha Forms</h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="flex flex-col items-center">
+                        <div className="bg-gray-700 p-4 rounded-lg relative">
+                          <div className="relative">
+                            <img
+                              src={getHisuianSprite(pokemon)?.front_default || staticSprites.regular}
+                              alt={`${name} alpha form`}
+                              className="w-32 h-32 object-contain"
+                            />
+                            {/* Alpha indicator */}
+                            <span className="absolute top-0 right-0 text-red-500 text-xl">α</span>
+                          </div>
+                          <FormCatchButton
+                            formName="default"
+                            type="alpha"
+                            caughtStatus={caughtStatus}
+                            updateCaughtStatus={updateCaughtStatus}
+                            theme={theme}
+                          />
+                        </div>
+                        <p className="mt-2 text-gray-400">Alpha</p>
+                      </div>
+                      {staticSprites.shiny && (
+                        <div className="flex flex-col items-center">
+                          <div className="bg-gray-700 p-4 rounded-lg relative">
+                            <div className="relative">
+                              <img
+                                src={getHisuianSprite(pokemon)?.front_shiny || staticSprites.shiny}
+                                alt={`${name} shiny alpha form`}
+                                className="w-32 h-32 object-contain"
+                              />
+                              {/* Alpha indicator */}
+                              <span className="absolute top-0 right-0 text-red-500 text-xl">α</span>
+                            </div>
+                            <FormCatchButton
+                              formName="default"
+                              type="alphaShiny"
+                              caughtStatus={caughtStatus}
+                              updateCaughtStatus={updateCaughtStatus}
+                              theme={theme}
+                            />
+                          </div>
+                          <p className="mt-2 text-gray-400">Shiny Alpha</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            {/* Middle Column */}
+            <div className="space-y-6">
               <div className={`${theme.bg} bg-opacity-50 rounded-lg p-6`}>
-                <h2 className={`text-2xl font-bold mb-4 ${theme.accent}`}>Alternative Forms</h2>
-                <div className="space-y-6">
-                  {alternativeForms.map((form) => {
-                    const formSprite = form.sprites.other?.['official-artwork']?.front_default || form.sprites.front_default;
-                    const shinySprite = form.sprites.other?.['official-artwork']?.front_shiny || form.sprites.front_shiny;
-                    
-                    return (
-                      <div key={form.formName} className={`${theme.bg} bg-opacity-50 rounded-lg p-4`}>
-                        <h3 className="text-xl font-semibold text-center capitalize mb-4">
-                          {form.formName.replace(pokemon.name, '').replace(/-/g, ' ').trim() || 'Alternate Form'}
-                        </h3>
-                        <div className="grid grid-cols-2 gap-4">
-                          {formSprite && (
-                            <div className="flex flex-col items-center">
-                              <div className="bg-gray-700 p-4 rounded-lg relative">
-                                <img
-                                  src={formSprite}
-                                  alt={`${form.formName} form`}
-                                  className="w-32 h-32 object-contain"
-                                />
-                                <FormCatchButton
-                                  formName={form.formName}
-                                  type="regular"
-                                  caughtStatus={caughtStatus}
-                                  updateCaughtStatus={updateCaughtStatus}
-                                  theme={theme}
-                                />
-                              </div>
-                              <p className="mt-2 text-gray-400">Regular</p>
-                            </div>
-                          )}
-                          {shinySprite && (
-                            <div className="flex flex-col items-center">
-                              <div className="bg-gray-700 p-4 rounded-lg relative">
-                                <img
-                                  src={shinySprite}
-                                  alt={`${form.formName} shiny form`}
-                                  className="w-32 h-32 object-contain"
-                                />
-                                <FormCatchButton
-                                  formName={form.formName}
-                                  type="shiny"
-                                  caughtStatus={caughtStatus}
-                                  updateCaughtStatus={updateCaughtStatus}
-                                  theme={theme}
-                                />
-                              </div>
-                              <p className="mt-2 text-gray-400">Shiny</p>
-                            </div>
+                <h2 className={`text-2xl font-bold mb-4 ${theme.accent}`}>Physical Characteristics</h2>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex items-center">
+                    <div className="mr-3">
+                      <IconSet.Height />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-400">Height</p>
+                      <p className="font-semibold">{height} m</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center">
+                    <div className="mr-3">
+                      <IconSet.Weight />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-400">Weight</p>
+                      <p className="font-semibold">{weight} kg</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="mt-6">
+                  <h3 className="text-lg font-semibold mb-2">Abilities</h3>
+                  <div className="space-y-2">
+                    {abilities.map((ability, index) => (
+                      <div 
+                        key={ability.ability.name}
+                        className={`p-2 rounded ${ability.is_hidden ? 'bg-purple-900 bg-opacity-50' : 'bg-gray-800'}`}
+                      >
+                        <div className="flex justify-between">
+                          <span className="capitalize">
+                            {ability.ability.name.replace('-', ' ')}
+                          </span>
+                          {ability.is_hidden && (
+                            <span className="text-xs bg-purple-700 px-2 py-0.5 rounded">
+                              Hidden
+                            </span>
                           )}
                         </div>
                       </div>
-                    );
-                  })}
+                    ))}
+                  </div>
                 </div>
               </div>
-            )}
-          </div>
-
-          {/* Right Column */}
-          <div className="space-y-6">
-            <div className={`${theme.bg} bg-opacity-50 rounded-lg p-6 mb-6`}>
-              <div className="flex items-center gap-2 mb-4">
-                <IconSet.Stats />
-                <h2 className={`text-2xl font-bold ${theme.accent}`}>Base Stats</h2>
-              </div>
-              <div className="grid gap-4">
-                {stats.map(stat => {
-                  const percentage = (stat.base_stat / 255) * 100;
-                  const statIcons = {
-                    hp: "❤️",
-                    attack: "⚔️",
-                    defense: "🛡️",
-                    "special-attack": "✨",
-                    "special-defense": "🔮",
-                    speed: "⚡"
-                  };
-                  return (
-                    <div key={stat.stat.name}>
-                      <div className="flex justify-between mb-1">
-                        <span className="capitalize text-gray-400 flex items-center gap-2">
-                          {statIcons[stat.stat.name]}
-                          {formatStatName(stat.stat.name)}
-                        </span>
-                        <span>{stat.base_stat}</span>
+              
+              <div className={`${theme.bg} bg-opacity-50 rounded-lg p-6`}>
+                <h2 className={`text-2xl font-bold mb-4 ${theme.accent}`}>Training</h2>
+                
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="flex items-center">
+                    <div className="mr-3">
+                      <IconSet.Experience />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-400">Base Happiness</p>
+                      <p className="font-semibold">{species.base_happiness}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center">
+                    <div className="mr-3">
+                      <IconSet.CatchRate />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-400">Catch Rate</p>
+                      <p className="font-semibold">{species.capture_rate}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center">
+                    <div className="mr-3">
+                      <IconSet.GrowthRate />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-400">Growth Rate</p>
+                      <p className="font-semibold capitalize">
+                        {species.growth_rate.name.replace('-', ' ')}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center">
+                    <div className="mr-3">
+                      <IconSet.EVYield />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-400">EV Yield</p>
+                      <div className="text-sm">
+                        {stats.filter(s => s.effort > 0).map(s => (
+                          <span key={s.stat.name} className="mr-2">
+                            {formatStatName(s.stat.name)}: {s.effort}
+                          </span>
+                        ))}
                       </div>
-                      <div className="h-2 bg-gray-700 rounded-full">
-                        <div
-                          className="h-2 bg-red-500 rounded-full"
-                          style={{ width: `${percentage}%` }}
-                        />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Right Column */}
+            <div className="space-y-6">
+              <div className={`${theme.bg} bg-opacity-50 rounded-lg p-6`}>
+                <h2 className={`text-2xl font-bold mb-4 ${theme.accent}`}>Breeding</h2>
+                
+                <div className="grid grid-cols-1 gap-4">
+                  <div className="flex items-center">
+                    <div className="mr-3">
+                      <IconSet.Gender />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-400">Gender Ratio</p>
+                      {species.gender_rate === -1 ? (
+                        <p className="font-semibold">Genderless</p>
+                      ) : (
+                        <div className="w-full bg-gray-700 rounded-full h-4 mt-1">
+                          <div 
+                            className="bg-blue-500 h-4 rounded-l-full" 
+                            style={{ width: `${100 - (species.gender_rate / 8) * 100}%` }}
+                          ></div>
+                          <div className="flex justify-between text-xs mt-1">
+                            <span>♂ {100 - (species.gender_rate / 8) * 100}%</span>
+                            <span>♀ {(species.gender_rate / 8) * 100}%</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center">
+                    <div className="mr-3">
+                      <IconSet.EggGroups />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-400">Egg Groups</p>
+                      <p className="font-semibold capitalize">
+                        {species.egg_groups.map(g => g.name).join(', ').replace(/-/g, ' ')}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center">
+                    <div className="mr-3">
+                      <IconSet.EggCycles />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-400">Egg Cycles</p>
+                      <p className="font-semibold">{species.hatch_counter} ({species.hatch_counter * 255} steps)</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className={`${theme.bg} bg-opacity-50 rounded-lg p-6`}>
+                <h2 className={`text-2xl font-bold mb-4 ${theme.accent}`}>Pokédex Data</h2>
+                
+                <div className="space-y-3">
+                  <p>
+                    <span className="text-gray-400">National №:</span> 
+                    <span className="ml-2 font-mono">{id.toString().padStart(3, '0')}</span>
+                  </p>
+                  
+                  {species.pokedex_numbers.map(entry => (
+                    <p key={entry.pokedex.name}>
+                      <span className="text-gray-400 capitalize">
+                        {entry.pokedex.name.replace('-', ' ')} №:
+                      </span> 
+                      <span className="ml-2 font-mono">{entry.entry_number.toString().padStart(3, '0')}</span>
+                    </p>
+                  ))}
+                  
+                  <p>
+                    <span className="text-gray-400">Generation:</span> 
+                    <span className="ml-2 capitalize">{species.generation.name.replace('-', ' ')}</span>
+                  </p>
+                </div>
+                
+                {/* Pokemon cry */}
+                {pokemon.cries?.latest && (
+                  <div className="mt-4">
+                    <PokemonCry 
+                      src={pokemon.cries.latest} 
+                      label="Play Pokémon Cry" 
+                      theme={theme} 
+                    />
+                  </div>
+                )}
+              </div>
+              
+              {/* Export Data */}
+              <div className={`${theme.bg} bg-opacity-50 rounded-lg p-6`}>
+                <h2 className={`text-2xl font-bold mb-4 ${theme.accent}`}>Export Data</h2>
+                <div className="space-y-3">
+                  <button
+                    onClick={exportToCSV}
+                    className="bg-white text-red-600 px-4 py-2 rounded hover:bg-gray-100 transition-colors"
+                  >
+                    Export Data
+                  </button>
+                  
+                  {user && (
+                    <button
+                      onClick={syncData}
+                      className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors ml-3"
+                    >
+                      Sync to Cloud
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Stats Tab */}
+        {activeTab === 'stats' && (
+          <div className={`${theme.bg} bg-opacity-50 rounded-lg p-6`}>
+            <h2 className={`text-2xl font-bold mb-6 ${theme.accent}`}>Base Stats</h2>
+            
+            <div className="space-y-4">
+              {stats.map(stat => {
+                const value = stat.base_stat;
+                const maxValue = 255; // Maximum possible base stat
+                const percentage = (value / maxValue) * 100;
+                
+                // Color based on stat value
+                let barColor;
+                if (value < 50) barColor = 'bg-red-500';
+                else if (value < 80) barColor = 'bg-yellow-500';
+                else if (value < 100) barColor = 'bg-green-500';
+                else barColor = 'bg-blue-500';
+                
+                return (
+                  <div key={stat.stat.name}>
+                    <div className="flex justify-between mb-1">
+                      <span className="font-medium">{formatStatName(stat.stat.name)}</span>
+                      <span className="font-mono">{value}</span>
+                    </div>
+                    <div className="w-full bg-gray-700 rounded-full h-4">
+                      <div 
+                        className={`${barColor} h-4 rounded-full`} 
+                        style={{ width: `${percentage}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                );
+              })}
+              
+              {/* Total Stats */}
+              <div className="mt-6 pt-4 border-t border-gray-700">
+                <div className="flex justify-between mb-1">
+                  <span className="font-bold">Total</span>
+                  <span className="font-mono font-bold">
+                    {stats.reduce((sum, stat) => sum + stat.base_stat, 0)}
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            {/* Type Effectiveness Chart */}
+            <div className="mt-10">
+              <h3 className="text-xl font-semibold mb-4">Type Effectiveness</h3>
+              
+              {/* This would need to be calculated based on the Pokémon's types */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="bg-red-900 bg-opacity-40 p-3 rounded-lg">
+                  <h4 className="font-medium mb-2">4× Damage</h4>
+                  <div className="flex flex-wrap gap-1">
+                    {/* Types that do 4x damage */}
+                  </div>
+                </div>
+                
+                <div className="bg-orange-900 bg-opacity-40 p-3 rounded-lg">
+                  <h4 className="font-medium mb-2">2× Damage</h4>
+                  <div className="flex flex-wrap gap-1">
+                    {/* Types that do 2x damage */}
+                  </div>
+                </div>
+                
+                <div className="bg-green-900 bg-opacity-40 p-3 rounded-lg">
+                  <h4 className="font-medium mb-2">½× Damage</h4>
+                  <div className="flex flex-wrap gap-1">
+                    {/* Types that do 0.5x damage */}
+                  </div>
+                </div>
+                
+                <div className="bg-blue-900 bg-opacity-40 p-3 rounded-lg">
+                  <h4 className="font-medium mb-2">0× Damage</h4>
+                  <div className="flex flex-wrap gap-1">
+                    {/* Types that do 0x damage */}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Moves Tab */}
+        {activeTab === 'moves' && (
+          <div className={`${theme.bg} bg-opacity-50 rounded-lg p-6`}>
+            <h2 className={`text-2xl font-bold mb-6 ${theme.accent}`}>Level-up Moves</h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {levelUpMoves.map((moveData, index) => (
+                <div 
+                  key={index}
+                  className="bg-gray-800 rounded-lg overflow-hidden shadow-md"
+                >
+                  <div className={`${moveTypeColors[moveData.move.type] || 'bg-gray-700'} px-4 py-2`}>
+                    <div className="flex justify-between items-center">
+                      <h3 className="font-medium capitalize">
+                        {moveData.move.name.replace('-', ' ')}
+                      </h3>
+                      <span className="text-sm bg-gray-900 bg-opacity-50 px-2 py-0.5 rounded-full">
+                        Lv. {moveData.level}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            {/* Other move categories could be added here */}
+          </div>
+        )}
+        
+        {/* Evolution Tab */}
+        {activeTab === 'evolution' && (
+          <div className={`${theme.bg} bg-opacity-50 rounded-lg p-6`}>
+            <h2 className={`text-2xl font-bold mb-6 ${theme.accent}`}>Evolution Chain</h2>
+            
+            <EvolutionChain chain={evolutionChain} currentPokemonName={pokemon.name} />
+          </div>
+        )}
+        
+        {/* Location Tab */}
+        {activeTab === 'location' && (
+          <LocationEncounterData pokemon={pokemon} theme={theme} />
+        )}
+        
+        {/* Forms Tab */}
+        {activeTab === 'forms' && (
+          <div className={`${theme.bg} bg-opacity-50 rounded-lg p-6`}>
+            <h2 className={`text-2xl font-bold mb-6 ${theme.accent}`}>Alternative Forms</h2>
+            
+            {alternativeForms.length > 0 ? (
+              <div className="space-y-6">
+                {alternativeForms.map(form => {
+                  const formSprite = form.sprites.other?.['official-artwork']?.front_default ||
+                                  form.sprites.front_default;
+                  const shinySprite = form.sprites.other?.['official-artwork']?.front_shiny ||
+                                  form.sprites.front_shiny;
+                
+                  return (
+                    <div key={form.formName} className={`${theme.bg} bg-opacity-50 rounded-lg p-4`}>
+                      <h3 className="text-xl font-semibold mb-4 text-center">
+                        {getFormDisplayName(form.formName)}
+                      </h3>
+                      <div className="grid grid-cols-2 gap-4">
+                        {formSprite && (
+                          <div className="flex flex-col items-center">
+                            <div className="bg-gray-700 p-4 rounded-lg relative">
+                              <img
+                                src={formSprite}
+                                alt={`${form.formName} regular`}
+                                className="w-32 h-32 object-contain"
+                              />
+                              <FormCatchButton
+                                formName={form.formName}
+                                type="regular"
+                                caughtStatus={caughtStatus}
+                                updateCaughtStatus={updateCaughtStatus}
+                                theme={theme}
+                              />
+                            </div>
+                            <p className="mt-2 text-gray-400">Regular</p>
+                          </div>
+                        )}
+                        {shinySprite && (
+                          <div className="flex flex-col items-center">
+                            <div className="bg-gray-700 p-4 rounded-lg relative">
+                              <img
+                                src={shinySprite}
+                                alt={`${form.formName} shiny`}
+                                className="w-32 h-32 object-contain"
+                              />
+                              <FormCatchButton
+                                formName={form.formName}
+                                type="shiny"
+                                caughtStatus={caughtStatus}
+                                updateCaughtStatus={updateCaughtStatus}
+                                theme={theme}
+                              />
+                            </div>
+                            <p className="mt-2 text-gray-400">Shiny</p>
+                          </div>
+                        )}
                       </div>
                     </div>
                   );
                 })}
               </div>
-            </div>
-
-            {/* Evolution Chain */}
-            {evolutionChain && (
-              <section className={`${theme.bg} bg-opacity-50 rounded-lg p-6 shadow-lg`}>
-                <h2 className={`text-3xl font-bold mb-6 ${theme.accent}`}>Evolution Chain</h2>
-                <EvolutionChain chain={evolutionChain} currentPokemonId={pokemon.id} />
-              </section>
+            ) : (
+              <p className="text-center text-gray-400">No alternative forms available for this Pokémon.</p>
             )}
-
-            {/* Cloud Sync Section (shown only when user is logged in) */}
-            {user && (
-              <div className={`${theme.bg} bg-opacity-50 rounded-lg p-6`}>
-                <h2 className={`text-2xl font-bold mb-4 ${theme.accent}`}>Cloud Sync</h2>
-                <div className="flex flex-col gap-3">
-                  <p className="text-sm text-gray-300">Sync your caught status with the cloud to access from any device</p>
-                  <button
-                    onClick={syncToCloud}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded flex items-center justify-center gap-2"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clipRule="evenodd" />
-                    </svg>
-                    Upload to Cloud
-                  </button>
-                  <button
-                    onClick={syncFromCloud}
-                    className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded flex items-center justify-center gap-2"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm-3.707-8.707l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 9.414V13a1 1 0 11-2 0V9.414l-1.293 1.293a1 1 0 01-1.414-1.414z" clipRule="evenodd" />
-                    </svg>
-                    Download from Cloud
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Export Data */}
-            <div className={`${theme.bg} bg-opacity-50 rounded-lg p-6`}>
-              <h2 className={`text-2xl font-bold mb-4 ${theme.accent}`}>Export Data</h2>
-              <button
-                onClick={exportToCSV}
-                className="bg-white text-red-600 px-4 py-2 rounded hover:bg-gray-100 transition-colors"
-              >
-                Export Data
-              </button>
-            </div>
           </div>
-        </div>
-
-        {/* Moves Section */}
-        <section className={`${theme.bg} bg-opacity-50 rounded-lg p-6 shadow-lg mt-6`}>
-          <h2 className={`text-3xl font-bold mb-6 ${theme.accent}`}>Moves</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {levelUpMoves.map(move => {
-              const moveType = move.move.type || 'normal'; // Default to normal if type is unknown
-              return (
-                <div
-                  key={move.move.name}
-                  className={`${moveTypeColors[moveType]} bg-opacity-90 p-4 rounded-xl flex justify-between items-center shadow-lg text-white`}
-                >
-                  <div>
-                    <span className="text-lg font-semibold capitalize">
-                      {move.move.name.replace('-', ' ')}
-                    </span>
-                    <div className="text-sm opacity-90">
-                      {moveType}
-                    </div>
-                  </div>
-                  <span className="text-xl font-bold">
-                    Lv. {move.level}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* Location Data */}
-        <section className="mt-6">
-          <LocationEncounterData pokemon={pokemon} theme={theme} />
-        </section>
+        )}
       </div>
     </div>
   );
 }
 
-// Utility functions
-
-const properCase = (str) => {
-  return str
-    .split('-')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
-};
-
-const formatStatName = (statName) => {
-  if (statName === 'hp') return 'HP';
-  return properCase(statName);
-};
-
-const getTypeColor = (type) => {
-  const typeColors = {
-    normal: '#A8A77A',
-    fire: '#EE8130',
-    water: '#6390F0',
-    electric: '#F7D02C',
-    grass: '#7AC74C',
-    ice: '#96D9D6',
-    fighting: '#C22E28',
-    poison: '#A33EA1',
-    ground: '#E2BF65',
-    flying: '#A98FF3',
-    psychic: '#F95587',
-    bug: '#A6B91A',
-    rock: '#B6A136',
-    ghost: '#735797',
-    dragon: '#6F35FC',
-    dark: '#705746',
-    steel: '#B7B7CE',
-    fairy: '#D685AD'
+// EvolutionChain component
+const EvolutionChain = ({ chain, currentPokemonName }) => {
+  // Helper function to extract Pokemon ID from URL
+  const getIdFromUrl = (url) => {
+    const matches = url.match(/\/pokemon-species\/(\d+)/);
+    return matches ? matches[1] : null;
   };
-  return typeColors[type] || '#999999';
-};
 
-// Icon Set for use in the UI
-const IconSet = {
-  Stats: () => (
-    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-    </svg>
-  )
-};
-
-const EvolutionChain = ({ chain, currentPokemonId }) => {
+  // Render a single evolution with its sprite
   const renderEvolution = (evolution) => {
-    const pokemonId = evolution.species.url.split('/').slice(-2, -1)[0];
-    const isCurrentPokemon = pokemonId === currentPokemonId.toString();
+    const id = getIdFromUrl(evolution.species.url);
+    const isCurrentPokemon = evolution.species.name === currentPokemonName;
     
     return (
       <div className="flex flex-col items-center">
         <Link href={`/pokemon/${evolution.species.name}`}>
-          <a className="flex flex-col items-center p-2 rounded-lg transition-transform hover:scale-105">
-            <div className="w-20 h-20 relative">
-              <Image
-                src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemonId}.png`}
+          <a className={`flex flex-col items-center ${isCurrentPokemon ? 'border-b-2 border-red-500' : ''}`}>
+            <div className="w-24 h-24 bg-gray-800 rounded-full p-2 flex items-center justify-center">
+              <img 
+                src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`}
                 alt={evolution.species.name}
-                layout="fill"
-                objectFit="contain"
+                className="w-20 h-20 object-contain"
               />
             </div>
-            <span className={`mt-2 capitalize text-sm ${isCurrentPokemon ? 'border-b-2 border-current' : ''}`}>
+            <p className="mt-2 capitalize text-center">
               {evolution.species.name.replace(/-/g, ' ')}
-            </span>
-            {evolution.min_level && (
-              <span className="text-xs opacity-75">Level {evolution.min_level}</span>
+            </p>
+            {evolution.evolution_details[0] && (
+              <p className="text-xs text-gray-400 mt-1 text-center">
+                {evolution.evolution_details[0].min_level ? 
+                  `Level ${evolution.evolution_details[0].min_level}` : 
+                  evolution.evolution_details[0].trigger.name.replace('-', ' ')}
+              </p>
             )}
           </a>
         </Link>
-        {evolution.evolves_to.length > 0 && (
-          <span className="text-2xl mt-1 mb-1">→</span>
-        )}
       </div>
     );
   };
@@ -1330,6 +1316,21 @@ const FormCatchButton = ({ formName, type, caughtStatus, updateCaughtStatus, the
     />
   );
 };
+
+export async function getStaticPaths() {
+  // Fetch all Pokémon for pre-rendering
+  const res = await fetch('https://pokeapi.co/api/v2/pokemon?limit=1008'); // Increased limit to cover all Pokémon
+  const data = await res.json();
+  
+  const paths = data.results.map(p => ({
+    params: { name: p.name },
+  }));
+
+  return { 
+    paths,
+    fallback: 'blocking' // Show a loading state for new paths
+  };
+}
 
 export async function getStaticProps({ params }) {
   try {
@@ -1407,23 +1408,4 @@ export async function getStaticProps({ params }) {
     console.error('Error fetching Pokémon data:', error);
     return { notFound: true };
   }
-}
-
-export async function getStaticPaths() {
-  // Generate paths for the first 151 Pokemon (Kanto region)
-  const paths = Array.from({ length: 151 }, (_, i) => {
-    const id = i + 1;
-    // Fetch the name for each ID
-    return fetch(`https://pokeapi.co/api/v2/pokemon/${id}`)
-      .then(res => res.json())
-      .then(data => ({ params: { name: data.name } }))
-      .catch(() => null);
-  });
-
-  const resolvedPaths = (await Promise.all(paths)).filter(Boolean);
-
-  return {
-    paths: resolvedPaths,
-    fallback: 'blocking'
-  };
 }
