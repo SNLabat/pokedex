@@ -15,13 +15,10 @@ const nextConfig = {
       },
     ],
   },
-  unstable_excludeFiles: ['pages/pokemon/[name].js'],
+  outputFileTracingExcludes: {
+    '*': ['pages/pokemon/[name].js']
+  },
   experimental: {
-    excludeDefaultMomentLocales: true,
-    workerThreads: true,
-    outputFileTracingExcludes: {
-      '*': ['pages/pokemon/[name].js']
-    }
   }
 }
 
