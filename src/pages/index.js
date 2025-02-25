@@ -596,22 +596,24 @@ export default function Home() {
           <h2 className="text-3xl font-bold mb-6 text-center">Discover Pokémon</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
             {randomPokemon.map(pokemon => (
-              <Link key={pokemon.id} href={`/pokemon/${pokemon.name}`}>
-                <a className="block bg-gray-800 hover:bg-gray-700 rounded-lg p-4 text-center transition-all transform hover:scale-105">
-                  <div className="relative w-24 h-24 mx-auto mb-2">
-                    <Image
-                      src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemon.id}.png`}
-                      alt={pokemon.name}
-                      layout="fill"
-                      objectFit="contain"
-                    />
-                  </div>
-                  <div className="mt-2">
-                    <h3 className="text-sm font-medium capitalize">{pokemon.name}</h3>
-                    <span className="text-gray-400 text-xs">#{pokemon.id}</span>
-                  </div>
-                </a>
-              </Link>
+              <a 
+                key={pokemon.id} 
+                href={`/pokemon/${pokemon.name}`}
+                className="block bg-gray-800 hover:bg-gray-700 rounded-lg p-4 text-center transition-all transform hover:scale-105"
+              >
+                <div className="relative w-24 h-24 mx-auto mb-2">
+                  <Image
+                    src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemon.id}.png`}
+                    alt={pokemon.name}
+                    layout="fill"
+                    objectFit="contain"
+                  />
+                </div>
+                <div className="mt-2">
+                  <h3 className="text-sm font-medium capitalize">{pokemon.name}</h3>
+                  <span className="text-gray-400 text-xs">#{pokemon.id}</span>
+                </div>
+              </a>
             ))}
           </div>
           <div className="text-center mt-6">

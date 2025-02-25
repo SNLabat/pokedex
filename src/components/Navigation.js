@@ -121,19 +121,12 @@ export default function Navigation() {
     setIsMenuOpen(false);
     setIsSearchFocused(false);
     
-    // For Pokemon pages, use a specific pattern
-    if (path.startsWith('/pokemon/')) {
-      router.push({
-        pathname: path
-      }, undefined, { 
-        shallow: false,
-        scroll: true
-      });
+    // Force a hard reload for problematic routes
+    if (path === '/' || path.startsWith('/pokemon/')) {
+      window.location.href = path;
     } else {
-      router.push(path, undefined, { 
-        shallow: false,
-        scroll: true 
-      });
+      // Use regular navigation for other paths
+      router.push(path);
     }
   };
   

@@ -167,44 +167,42 @@ export default function PokedexPage({ initialPokemon }) {
     return (
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
         {pokemonToShow.map(pokemon => (
-          <Link 
-            key={`pokemon-${pokemon.id}`}
+          <a 
+            key={`pokemon-${pokemon.id}`} 
             href={`/pokemon/${pokemon.name}`}
-            passHref
+            className="bg-gray-800 hover:bg-gray-700 rounded-lg p-4 transition-transform hover:scale-105 flex flex-col items-center"
           >
-            <a className="bg-gray-800 hover:bg-gray-700 rounded-lg p-4 transition-transform hover:scale-105 flex flex-col items-center">
-              <div className="relative w-32 h-32">
-                {pokemon.sprite ? (
-                  <Image
-                    src={pokemon.sprite}
-                    alt={pokemon.name}
-                    layout="fill"
-                    objectFit="contain"
-                    className="drop-shadow-lg"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-gray-700 rounded-full">
-                    <span className="text-gray-500">?</span>
-                  </div>
-                )}
-              </div>
-              
-              <div className="mt-2 text-center">
-                <p className="text-sm text-gray-400">#{String(pokemon.id).padStart(3, '0')}</p>
-                <p className="font-medium capitalize">{pokemon.name.replace(/-/g, ' ')}</p>
-                <div className="flex justify-center gap-1 mt-1">
-                  {pokemon.types.map(type => (
-                    <span 
-                      key={type} 
-                      className={`text-xs px-2 py-1 rounded ${getTypeColor(type)}`}
-                    >
-                      {type}
-                    </span>
-                  ))}
+            <div className="relative w-32 h-32">
+              {pokemon.sprite ? (
+                <Image
+                  src={pokemon.sprite}
+                  alt={pokemon.name}
+                  layout="fill"
+                  objectFit="contain"
+                  className="drop-shadow-lg"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-gray-700 rounded-full">
+                  <span className="text-gray-500">?</span>
                 </div>
+              )}
+            </div>
+            
+            <div className="mt-2 text-center">
+              <p className="text-sm text-gray-400">#{String(pokemon.id).padStart(3, '0')}</p>
+              <p className="font-medium capitalize">{pokemon.name.replace(/-/g, ' ')}</p>
+              <div className="flex justify-center gap-1 mt-1">
+                {pokemon.types.map(type => (
+                  <span 
+                    key={type} 
+                    className={`text-xs px-2 py-1 rounded ${getTypeColor(type)}`}
+                  >
+                    {type}
+                  </span>
+                ))}
               </div>
-            </a>
-          </Link>
+            </div>
+          </a>
         ))}
       </div>
     );

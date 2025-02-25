@@ -5,29 +5,41 @@ import { useRouter } from 'next/router';
 export default function App({ Component, pageProps }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [key, setKey] = useState(0); // Add a key to force remounting
   
   useEffect(() => {
     // Handle route change start
-    const handleStart = () => {
+    const handleStart = (url) => {
+      console.log(`Loading: ${url}`);
       setLoading(true);
     };
     
     // Handle route change complete
-    const handleComplete = () => {
+    const handleComplete = (url) => {
+      console.log(`Complete: ${url}`);
+      setLoading(false);
+      // Force component remount on navigation
+      setKey(prevKey => prevKey + 1);
+    };
+    
+    // Handle route change error
+    const handleError = (err, url) => {
+      console.log(`Error: ${url}`, err);
       setLoading(false);
     };
     
     router.events.on('routeChangeStart', handleStart);
     router.events.on('routeChangeComplete', handleComplete);
-    router.events.on('routeChangeError', handleComplete);
+    router.events.on('routeChangeError', handleError);
     
     return () => {
       router.events.off('routeChangeStart', handleStart);
       router.events.off('routeChangeComplete', handleComplete);
-      router.events.off('routeChangeError', handleComplete);
+      router.events.off('routeChangeError', handleError);
     };
   }, [router]);
   
+  // Force full remount of components when route changes
   return (
     <>
       {loading && (
@@ -35,7 +47,7 @@ export default function App({ Component, pageProps }) {
           <div className="h-full bg-red-400 animate-pulse" style={{ width: '100%' }}></div>
         </div>
       )}
-      <Component {...pageProps} />
+      <Component {...pageProps} key={router.asPath} />
     </>
   );
 }
