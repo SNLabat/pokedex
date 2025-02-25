@@ -274,32 +274,25 @@ export default function Home() {
               Random Pokémon
             </button>
           </div>
+        </div>
 
-          {/* Animated Pokeballs */}
-          <div className="flex justify-center items-center mt-12 mb-4">
-            <div className="flex space-x-12 md:space-x-16">
-              {[1, 2, 3].map((index) => (
-                <div 
-                  key={index}
-                  className={`pokeball-bounce-${index}`}
-                  style={{width: '60px', height: '60px'}}
+        {/* Floating Pokéballs */}
+        <div className="absolute bottom-0 left-0 w-full">
+          <div className="container mx-auto px-4">
+            <div className="flex justify-between items-end pb-8">
+              {[1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className="w-16 h-16 md:w-24 md:h-24 rounded-full bg-white shadow-lg relative overflow-hidden animate-bounce"
+                  style={{ 
+                    animationDuration: `${i * 0.5 + 1.5}s`,
+                    animationDelay: `${i * 0.2}s` 
+                  }}
                 >
-                  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                    {/* Outer circle */}
-                    <circle cx="50" cy="50" r="50" fill="#f0f0f0" />
-                    
-                    {/* Red top half */}
-                    <path d="M50,0 A50,50 0 0,1 100,50 H0 A50,50 0 0,1 50,0z" fill="#e53935" />
-                    
-                    {/* Center circle outline */}
-                    <circle cx="50" cy="50" r="20" fill="white" stroke="#333" strokeWidth="2" />
-                    
-                    {/* Center button */}
-                    <circle cx="50" cy="50" r="10" fill="white" stroke="#333" strokeWidth="2" />
-                    
-                    {/* Dividing line */}
-                    <line x1="0" y1="50" x2="100" y2="50" stroke="#333" strokeWidth="2" />
-                  </svg>
+                  <div className="absolute inset-0 bg-red-600 rounded-t-full h-1/2"></div>
+                  <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center">
+                    <div className="w-1/3 h-1/3 bg-white rounded-full border-4 border-gray-800"></div>
+                  </div>
                 </div>
               ))}
             </div>
