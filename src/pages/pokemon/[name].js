@@ -1514,7 +1514,6 @@ const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus }) => {
   const [failedImages, setFailedImages] = useState({});
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchText, setSearchText] = useState('');
-  const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'table'
   
   // Group ribbons by category
   const ribbonsByCategory = useMemo(() => {
@@ -1528,8 +1527,8 @@ const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus }) => {
       const category = ribbon.category;
       if (!acc[category]) acc[category] = [];
       acc[category].push(ribbon);
-    return acc;
-  }, {});
+      return acc;
+    }, {});
   }, [searchText]);
   
   const handleImageError = (ribbonId) => {
@@ -1538,11 +1537,11 @@ const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus }) => {
   
   return (
     <div className="pt-6">
-    <div className="bg-gray-800 rounded-lg p-6">
-      <h2 className="text-xl font-bold mb-6">Ribbon Collection</h2>
+      <div className="bg-gray-800 rounded-lg p-6">
+        <h2 className="text-xl font-bold mb-6">Ribbon Collection</h2>
         <p className="text-gray-400 mb-4">Track the ribbons you&apos;ve earned with this Pokémon.</p>
       
-        <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="mb-6">
           {/* Search input */}
           <div className="relative w-full sm:w-64">
             <input
@@ -1561,167 +1560,84 @@ const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus }) => {
               </button>
             )}
           </div>
-          
-          {/* View mode toggle */}
-          <div className="flex items-center space-x-2">
-            <span className="text-gray-400">View:</span>
-            <button 
-              onClick={() => setViewMode('grid')}
-              className={`px-3 py-1 rounded ${viewMode === 'grid' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300'}`}
-            >
-              Grid
-            </button>
-            <button 
-              onClick={() => setViewMode('table')}
-              className={`px-3 py-1 rounded ${viewMode === 'table' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300'}`}
-            >
-              Table
-            </button>
-          </div>
         </div>
         
-        {viewMode === 'grid' ? (
-          // Grid view
-      <div className="space-y-6">
-        {Object.keys(ribbonsByCategory).map(category => (
-            <div key={category} className="bg-gray-700 rounded-lg p-4">
+        <div className="space-y-8">
+          {Object.keys(ribbonsByCategory).map(category => (
+            <div key={category} className="overflow-x-auto">
               <h3 className="text-lg font-semibold capitalize mb-4">{category} Ribbons</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {ribbonsByCategory[category].map(ribbon => {
-                const iconData = ribbonIcons[ribbon.id] || { 
-                  icon: 'https://www.serebii.net/ribbons/classicribbon.png', // Default icon
-                  color: '#AA99CC', 
-                  fallback: '🎀'  // Standard ribbon fallback
-                };
-                const hasRibbon = caughtStatus.ribbons?.[ribbon.id];
-                const useIconFallback = failedImages[ribbon.id];
-                
-                return (
-              <button
-                    key={ribbon.id}
-                    onClick={() => updateRibbonStatus(ribbon.id, pokemon.name)}
-                    className={`py-3 px-4 rounded-lg text-left transition-colors ${
-                      hasRibbon 
-                        ? 'bg-indigo-600 hover:bg-indigo-700 text-white' 
-                        : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
-                    }`}
-                  >
-                    <div className="flex items-center">
-                      <div 
-                          className="w-16 h-16 rounded-full flex items-center justify-center mr-3 bg-gray-800"
-                        style={{ 
-                          border: `2px solid ${iconData.color}`
-                        }}
+              <table className="min-w-full bg-gray-700 rounded-lg overflow-hidden">
+                <thead className="bg-gray-600">
+                  <tr>
+                    <th className="py-3 px-4 text-left text-sm font-medium text-gray-300 uppercase tracking-wider w-16"></th>
+                    <th className="py-3 px-4 text-left text-sm font-medium text-gray-300 uppercase tracking-wider">Ribbon</th>
+                    <th className="py-3 px-4 text-left text-sm font-medium text-gray-300 uppercase tracking-wider">Description</th>
+                    <th className="py-3 px-4 text-left text-sm font-medium text-gray-300 uppercase tracking-wider">How to Obtain</th>
+                    <th className="py-3 px-4 text-left text-sm font-medium text-gray-300 uppercase tracking-wider w-24">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-600">
+                  {ribbonsByCategory[category].map(ribbon => {
+                    const iconData = ribbonIcons[ribbon.id] || { 
+                      icon: 'https://www.serebii.net/ribbons/classicribbon.png', // Default icon
+                      color: '#AA99CC', 
+                      fallback: '🎀'  // Standard ribbon fallback
+                    };
+                    const hasRibbon = caughtStatus.ribbons?.[ribbon.id];
+                    const useIconFallback = failedImages[ribbon.id];
+                    
+                    return (
+                      <tr 
+                        key={ribbon.id}
+                        onClick={() => updateRibbonStatus(ribbon.id, pokemon.name)}
+                        className={`hover:bg-gray-600 cursor-pointer transition-colors ${
+                          hasRibbon 
+                            ? 'bg-indigo-600 hover:bg-indigo-700 text-white' 
+                            : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+                        }`}
                       >
-                        {useIconFallback ? (
-                          <span className="text-xl">{iconData.fallback}</span>
-                        ) : (
-                            <Image 
-                            src={iconData.icon} 
-                            alt={ribbon.name}
-                              width={48}
-                              height={48}
-                              className="object-contain"
-                            onError={() => handleImageError(ribbon.id)}
-                          />
-                        )}
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-medium">{ribbon.name}</p>
-                            <p className="text-xs text-gray-400 truncate">{ribbon.description}</p>
-                        {hasRibbon && (
-                              <p className="text-xs opacity-80 mt-1">Obtained</p>
-                        )}
-                      </div>
-                      {hasRibbon && (
-                        <span className="ml-2 text-xl">✓</span>
-                      )}
-                    </div>
-              </button>
-                );
-              })}
-            </div>
-          </div>
-            ))}
-        </div>
-        ) : (
-          // Table view
-          <div className="space-y-8">
-            {Object.keys(ribbonsByCategory).map(category => (
-              <div key={category} className="overflow-x-auto">
-                <h3 className="text-lg font-semibold capitalize mb-4">{category} Ribbons</h3>
-                <table className="min-w-full bg-gray-700 rounded-lg overflow-hidden">
-                  <thead className="bg-gray-600">
-                    <tr>
-                      <th className="py-3 px-4 text-left text-sm font-medium text-gray-300 uppercase tracking-wider w-16"></th>
-                      <th className="py-3 px-4 text-left text-sm font-medium text-gray-300 uppercase tracking-wider">Ribbon</th>
-                      <th className="py-3 px-4 text-left text-sm font-medium text-gray-300 uppercase tracking-wider">Description</th>
-                      <th className="py-3 px-4 text-left text-sm font-medium text-gray-300 uppercase tracking-wider">How to Obtain</th>
-                      <th className="py-3 px-4 text-left text-sm font-medium text-gray-300 uppercase tracking-wider w-24">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-600">
-                    {ribbonsByCategory[category].map(ribbon => {
-                      const iconData = ribbonIcons[ribbon.id] || { 
-                        icon: 'https://www.serebii.net/ribbons/classicribbon.png',
-                        color: '#AA99CC', 
-                        fallback: '🎀'
-                      };
-                      const hasRibbon = caughtStatus.ribbons?.[ribbon.id];
-                      const useIconFallback = failedImages[ribbon.id];
-                      
-                      return (
-                        <tr 
-                          key={ribbon.id}
-                          onClick={() => updateRibbonStatus(ribbon.id, pokemon.name)}
-                          className={`hover:bg-gray-600 cursor-pointer transition-colors ${
-                            hasRibbon ? 'bg-indigo-900 bg-opacity-30' : ''
-                          }`}
-                        >
-                          <td className="py-3 px-4">
+                        <td className="py-3 px-4">
+                          <div className="flex items-center">
                             <div 
-                              className="w-12 h-12 rounded-full flex items-center justify-center mx-auto bg-gray-800"
+                                className="w-16 h-16 rounded-full flex items-center justify-center mr-3 bg-gray-800"
                               style={{ 
                                 border: `2px solid ${iconData.color}`
                               }}
                             >
                               {useIconFallback ? (
-                                <span className="text-lg">{iconData.fallback}</span>
+                                <span className="text-xl">{iconData.fallback}</span>
                               ) : (
-                                <Image 
+                                  <Image 
                                   src={iconData.icon} 
                                   alt={ribbon.name}
-                                  width={40}
-                                  height={40}
-                                  className="object-contain"
+                                    width={48}
+                                    height={48}
+                                    className="object-contain"
                                   onError={() => handleImageError(ribbon.id)}
                                 />
                               )}
                             </div>
-                          </td>
-                          <td className="py-3 px-4 font-medium">{ribbon.name}</td>
-                          <td className="py-3 px-4 text-gray-300">{ribbon.description}</td>
-                          <td className="py-3 px-4 text-gray-300">{ribbon.obtainMethod}</td>
-                          <td className="py-3 px-4">
-                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                              hasRibbon 
-                                ? 'bg-indigo-100 text-indigo-800' 
-                                : 'bg-gray-100 text-gray-800'
-                            }`}>
-                              {hasRibbon ? 'Obtained' : 'Missing'}
-                            </span>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            ))}
+                            <div className="flex-1">
+                              <p className="font-medium">{ribbon.name}</p>
+                                  <p className="text-xs text-gray-400 truncate">{ribbon.description}</p>
+                              {hasRibbon && (
+                                    <p className="text-xs opacity-80 mt-1">Obtained</p>
+                              )}
+                            </div>
+                            {hasRibbon && (
+                              <span className="ml-2 text-xl">✓</span>
+                            )}
+                          </div>
+                    </td>
+                  </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         )}
-              </div>
-            </div>
+      </div>
+    </div>
   );
 };
 
@@ -1730,7 +1646,6 @@ const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus }) => {
   const [failedImages, setFailedImages] = useState({});
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchText, setSearchText] = useState('');
-  const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'table'
   
   // Group marks by category
   const marksByCategory = useMemo(() => {
@@ -1744,8 +1659,8 @@ const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus }) => {
       const category = mark.category;
       if (!acc[category]) acc[category] = [];
       acc[category].push(mark);
-    return acc;
-  }, {});
+      return acc;
+    }, {});
   }, [searchText]);
   
   const handleImageError = (markId) => {
@@ -1754,11 +1669,11 @@ const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus }) => {
   
   return (
     <div className="pt-6">
-          <div className="bg-gray-800 rounded-lg p-6">
-      <h2 className="text-xl font-bold mb-6">Mark Collection</h2>
+      <div className="bg-gray-800 rounded-lg p-6">
+        <h2 className="text-xl font-bold mb-6">Mark Collection</h2>
         <p className="text-gray-400 mb-4">Track the marks you&apos;ve found on this Pokémon.</p>
         
-        <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="mb-6">
           {/* Search input */}
           <div className="relative w-full sm:w-64">
             <input
@@ -1777,228 +1692,45 @@ const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus }) => {
               </button>
             )}
           </div>
-          
-          {/* View mode toggle */}
-          <div className="flex items-center space-x-2">
-            <span className="text-gray-400">View:</span>
-            <button 
-              onClick={() => setViewMode('grid')}
-              className={`px-3 py-1 rounded ${viewMode === 'grid' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300'}`}
-            >
-              Grid
-            </button>
-            <button 
-              onClick={() => setViewMode('table')}
-              className={`px-3 py-1 rounded ${viewMode === 'table' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300'}`}
-            >
-              Table
-            </button>
-          </div>
         </div>
         
-        {viewMode === 'grid' ? (
-          // Grid view (original)
-      <div className="space-y-6">
-        {Object.keys(marksByCategory).map(category => (
-              <div key={category} className="bg-gray-700 rounded-lg p-4">
-                <h3 className="text-lg font-semibold capitalize mb-4">{category} Marks</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {marksByCategory[category].map(mark => {
-                const iconData = markIcons[mark.id] || { 
+        <div className="space-y-8">
+          {Object.keys(marksByCategory).map(category => (
+            <div key={category} className="overflow-x-auto">
+              <h3 className="text-lg font-semibold capitalize mb-4">{category} Marks</h3>
+              <table className="min-w-full bg-gray-700 rounded-lg overflow-hidden">
+                <thead className="bg-gray-600">
+                  <tr>
+                    <th className="py-3 px-4 text-left text-sm font-medium text-gray-300 uppercase tracking-wider w-16"></th>
+                    <th className="py-3 px-4 text-left text-sm font-medium text-gray-300 uppercase tracking-wider">Mark</th>
+                    <th className="py-3 px-4 text-left text-sm font-medium text-gray-300 uppercase tracking-wider">Description</th>
+                    <th className="py-3 px-4 text-left text-sm font-medium text-gray-300 uppercase tracking-wider">How to Obtain</th>
+                    <th className="py-3 px-4 text-left text-sm font-medium text-gray-300 uppercase tracking-wider w-24">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-600">
+                  {marksByCategory[category].map(mark => {
+                    const iconData = markIcons[mark.id] || { 
                       icon: 'https://www.serebii.net/ribbons/raremark.png',
-                  color: '#99CCFF', 
+                      color: '#99CCFF', 
                       fallback: '❌'
-                };
-                const hasMark = caughtStatus.marks?.[mark.id];
-                const useIconFallback = failedImages[mark.id];
-                
-                return (
-                  <button
-                    key={mark.id}
-                    onClick={() => updateMarkStatus(mark.id, pokemon.name)}
-                    className={`py-3 px-4 rounded-lg text-left transition-colors ${
-                      hasMark 
-                        ? 'bg-green-600 hover:bg-green-700 text-white' 
-                        : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
-                    }`}
-                  >
-                    <div className="flex items-center">
-                      <div 
-                            className="w-16 h-16 rounded-full flex items-center justify-center mr-3 bg-gray-800"
-                        style={{ 
-                          border: `2px solid ${iconData.color}`
-                        }}
+                    };
+                    const hasMark = caughtStatus.marks?.[mark.id];
+                    const useIconFallback = failedImages[mark.id];
+                    
+                    return (
+                      <tr 
+                        key={mark.id}
+                        onClick={() => updateMarkStatus(mark.id, pokemon.name)}
+                        className={`hover:bg-gray-600 cursor-pointer transition-colors ${
+                          hasMark 
+                            ? 'bg-green-600 hover:bg-green-700 text-white' 
+                            : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+                        }`}
                       >
-                        {useIconFallback ? (
-                          <span className="text-xl">{iconData.fallback}</span>
-                        ) : (
-                              <Image 
-                            src={iconData.icon} 
-                            alt={mark.name}
-                                width={48}
-                                height={48}
-                                className="object-contain"
-                            onError={() => handleImageError(mark.id)}
-                          />
-                        )}
-              </div>
-                      <div className="flex-1">
-                        <p className="font-medium">{mark.name}</p>
-                        {hasMark && (
-                          <p className="text-xs opacity-80">Found</p>
-                        )}
-          </div>
-                      {hasMark && (
-                        <span className="ml-2 text-xl">✓</span>
-                      )}
-              </div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        ))}
-      </div>
-        ) : (
-          // Table view (new)
-          <div className="space-y-8">
-            {Object.keys(marksByCategory).map(category => (
-              <div key={category} className="overflow-x-auto">
-                <h3 className="text-lg font-semibold capitalize mb-4">{category} Marks</h3>
-                <table className="min-w-full bg-gray-700 rounded-lg overflow-hidden">
-                  <thead className="bg-gray-600">
-                    <tr>
-                      <th className="py-3 px-4 text-left text-sm font-medium text-gray-300 uppercase tracking-wider w-16"></th>
-                      <th className="py-3 px-4 text-left text-sm font-medium text-gray-300 uppercase tracking-wider">Mark</th>
-                      <th className="py-3 px-4 text-left text-sm font-medium text-gray-300 uppercase tracking-wider">Description</th>
-                      <th className="py-3 px-4 text-left text-sm font-medium text-gray-300 uppercase tracking-wider">How to Obtain</th>
-                      <th className="py-3 px-4 text-left text-sm font-medium text-gray-300 uppercase tracking-wider w-24">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-600">
-                    {marksByCategory[category].map(mark => {
-                      const iconData = markIcons[mark.id] || { 
-                        icon: 'https://www.serebii.net/ribbons/raremark.png',
-                        color: '#99CCFF', 
-                        fallback: '❌'
-                      };
-                      const hasMark = caughtStatus.marks?.[mark.id];
-                      const useIconFallback = failedImages[mark.id];
-                      
-                      return (
-                        <tr 
-                          key={mark.id}
-                          onClick={() => updateMarkStatus(mark.id, pokemon.name)}
-                          className={`hover:bg-gray-600 cursor-pointer transition-colors ${
-                            hasMark ? 'bg-green-900 bg-opacity-30' : ''
-                          }`}
-                        >
-                          <td className="py-3 px-4">
+                        <td className="py-3 px-4">
+                          <div className="flex items-center">
                             <div 
-                              className="w-12 h-12 rounded-full flex items-center justify-center mx-auto bg-gray-800"
-                              style={{ 
-                                border: `2px solid ${iconData.color}`
-                              }}
-                            >
-                              {useIconFallback ? (
-                                <span className="text-lg">{iconData.fallback}</span>
-                              ) : (
-                                <Image 
-                                  src={iconData.icon} 
-                                  alt={mark.name}
-                                  width={40}
-                                  height={40}
-                                  className="object-contain"
-                                  onError={() => handleImageError(mark.id)}
-                                />
-                              )}
-                            </div>
-                          </td>
-                          <td className="py-3 px-4 font-medium">{mark.name}</td>
-                          <td className="py-3 px-4 text-gray-300">{mark.description}</td>
-                          <td className="py-3 px-4 text-gray-300">{mark.method}</td>
-                          <td className="py-3 px-4">
-                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                              hasMark 
-                                ? 'bg-green-100 text-green-800' 
-                                : 'bg-gray-100 text-gray-800'
-                            }`}>
-                              {hasMark ? 'Found' : 'Missing'}
-                            </span>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
-// Revised SpritesTab component with side-by-side comparison
-const SpritesTab = ({ pokemon }) => {
-  // No need for toggle state anymore - we'll display both regular and shiny at once
-  
-  // Define generations and their game versions
-  const generations = [
-    {
-      id: "home",
-      name: "Pokémon HOME",
-      versions: ["home", "official-artwork"]
-    },
-    {
-      id: "generation-viii",
-      name: "Generation VIII",
-      versions: ["icons"]
-    },
-    {
-      id: "generation-vii",
-      name: "Generation VII",
-      versions: ["ultra-sun-ultra-moon", "icons"]
-    },
-    {
-      id: "generation-vi",
-      name: "Generation VI",
-      versions: ["omegaruby-alphasapphire", "x-y"]
-    },
-    {
-      id: "generation-v",
-      name: "Generation V",
-      versions: ["black-white", "black-white-2"]
-    },
-    {
-      id: "generation-iv",
-      name: "Generation IV",
-      versions: ["diamond-pearl", "platinum", "heartgold-soulsilver"]
-    },
-    {
-      id: "generation-iii",
-      name: "Generation III",
-      versions: ["ruby-sapphire", "emerald", "firered-leafgreen"]
-    },
-    {
-      id: "generation-ii",
-      name: "Generation II",
-      versions: ["gold", "silver", "crystal"]
-    },
-    {
-      id: "generation-i",
-      name: "Generation I",
-      versions: ["red-blue", "yellow"]
-    },
-  ];
-  
-  return (
-                    <div>
-      <h2 className="text-xl font-bold mb-6">Pokémon Sprites</h2>
-      
-      <div className="mb-4">
-        <div className="flex items-center">
           <div className="w-1/2 text-center px-2 py-1 bg-gray-700 rounded-l-lg">Regular</div>
           <div className="w-1/2 text-center px-2 py-1 bg-yellow-800 rounded-r-lg">Shiny ✨</div>
         </div>
