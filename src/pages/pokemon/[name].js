@@ -496,6 +496,178 @@ const PokemonHero = ({ pokemon, isShiny, setIsShiny, isAnimated, setIsAnimated, 
   );
 };
 
+// First, let's add the list of all ribbons and marks
+const pokemonRibbons = [
+  // Contest Ribbons
+  { id: 'contest-cool', name: 'Cool Contest Ribbon', category: 'contest' },
+  { id: 'contest-beauty', name: 'Beauty Contest Ribbon', category: 'contest' },
+  { id: 'contest-cute', name: 'Cute Contest Ribbon', category: 'contest' },
+  { id: 'contest-smart', name: 'Smart Contest Ribbon', category: 'contest' },
+  { id: 'contest-tough', name: 'Tough Contest Ribbon', category: 'contest' },
+  { id: 'contest-master', name: 'Contest Master Ribbon', category: 'contest' },
+  
+  // Champion Ribbons
+  { id: 'champion-hoenn', name: 'Hoenn Champion Ribbon', category: 'champion' },
+  { id: 'champion-sinnoh', name: 'Sinnoh Champion Ribbon', category: 'champion' },
+  { id: 'champion-kalos', name: 'Kalos Champion Ribbon', category: 'champion' },
+  { id: 'champion-alola', name: 'Alola Champion Ribbon', category: 'champion' },
+  { id: 'champion-galar', name: 'Galar Champion Ribbon', category: 'champion' },
+  
+  // Battle Ribbons
+  { id: 'battle-tower', name: 'Battle Tower Ribbon', category: 'battle' },
+  { id: 'battle-tree', name: 'Battle Tree Ribbon', category: 'battle' },
+  { id: 'battle-royal', name: 'Battle Royal Ribbon', category: 'battle' },
+  
+  // Special Ribbons
+  { id: 'birthday', name: 'Birthday Ribbon', category: 'special' },
+  { id: 'event', name: 'Event Ribbon', category: 'special' },
+  { id: 'gift', name: 'Gift Ribbon', category: 'special' },
+  { id: 'wishing', name: 'Wishing Ribbon', category: 'special' },
+  { id: 'classic', name: 'Classic Ribbon', category: 'special' },
+];
+
+const pokemonMarks = [
+  // Personality Marks
+  { id: 'lunchtime', name: 'Lunchtime Mark', category: 'personality' },
+  { id: 'sleepy', name: 'Sleepy Mark', category: 'personality' },
+  { id: 'excited', name: 'Excited Mark', category: 'personality' },
+  { id: 'grumpy', name: 'Grumpy Mark', category: 'personality' },
+  
+  // Time Marks
+  { id: 'dawn', name: 'Dawn Mark', category: 'time' },
+  { id: 'dusk', name: 'Dusk Mark', category: 'time' },
+  { id: 'morning', name: 'Morning Mark', category: 'time' },
+  { id: 'night', name: 'Night Mark', category: 'time' },
+  
+  // Weather Marks
+  { id: 'rainy', name: 'Rainy Mark', category: 'weather' },
+  { id: 'snowy', name: 'Snowy Mark', category: 'weather' },
+  { id: 'stormy', name: 'Stormy Mark', category: 'weather' },
+  { id: 'cloudy', name: 'Cloudy Mark', category: 'weather' },
+  { id: 'misty', name: 'Misty Mark', category: 'weather' },
+  { id: 'sunny', name: 'Sunny Mark', category: 'weather' },
+  
+  // Rare Marks
+  { id: 'rare', name: 'Rare Mark', category: 'rare' },
+  { id: 'rowdy', name: 'Rowdy Mark', category: 'rare' },
+  { id: 'unseeing', name: 'Unseeing Mark', category: 'rare' },
+  { id: 'curry', name: 'Curry Mark', category: 'rare' },
+  { id: 'fishing', name: 'Fishing Mark', category: 'rare' },
+  { id: 'crafty', name: 'Crafty Mark', category: 'rare' },
+];
+
+// Add RibbonsTab component
+const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus }) => {
+  // Group ribbons by category for better organization
+  const ribbonsByCategory = pokemonRibbons.reduce((acc, ribbon) => {
+    if (!acc[ribbon.category]) {
+      acc[ribbon.category] = [];
+    }
+    acc[ribbon.category].push(ribbon);
+    return acc;
+  }, {});
+  
+  const categoryNames = {
+    'contest': 'Contest Ribbons',
+    'champion': 'Champion Ribbons',
+    'battle': 'Battle Ribbons',
+    'special': 'Special Ribbons'
+  };
+  
+  return (
+    <div className="bg-gray-800 rounded-lg p-6">
+      <h2 className="text-xl font-bold mb-6">Ribbon Collection</h2>
+      <p className="text-gray-400 mb-4">Track the ribbons you've earned with this Pokémon.</p>
+      
+      <div className="space-y-6">
+        {Object.keys(ribbonsByCategory).map(category => (
+          <div key={category}>
+            <h3 className="text-lg font-medium mb-3 border-b border-gray-700 pb-2">
+              {categoryNames[category] || properCase(category)}
+            </h3>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+              {ribbonsByCategory[category].map(ribbon => (
+                <button
+                  key={ribbon.id}
+                  onClick={() => updateRibbonStatus(ribbon.id, pokemon.name)}
+                  className={`py-2 px-3 rounded-lg text-sm text-left transition-colors ${
+                    caughtStatus.ribbons?.[ribbon.id] 
+                      ? 'bg-indigo-600 hover:bg-indigo-700 text-white' 
+                      : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+                  }`}
+                >
+                  <div className="flex items-center">
+                    <span className="flex-1">{ribbon.name}</span>
+                    {caughtStatus.ribbons?.[ribbon.id] && (
+                      <span className="ml-2">✓</span>
+                    )}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// Add MarksTab component
+const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus }) => {
+  // Group marks by category for better organization
+  const marksByCategory = pokemonMarks.reduce((acc, mark) => {
+    if (!acc[mark.category]) {
+      acc[mark.category] = [];
+    }
+    acc[mark.category].push(mark);
+    return acc;
+  }, {});
+  
+  const categoryNames = {
+    'personality': 'Personality Marks',
+    'time': 'Time Marks',
+    'weather': 'Weather Marks',
+    'rare': 'Rare Marks'
+  };
+  
+  return (
+    <div className="bg-gray-800 rounded-lg p-6">
+      <h2 className="text-xl font-bold mb-6">Mark Collection</h2>
+      <p className="text-gray-400 mb-4">Track the marks you've found on this Pokémon.</p>
+      
+      <div className="space-y-6">
+        {Object.keys(marksByCategory).map(category => (
+          <div key={category}>
+            <h3 className="text-lg font-medium mb-3 border-b border-gray-700 pb-2">
+              {categoryNames[category] || properCase(category)}
+            </h3>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+              {marksByCategory[category].map(mark => (
+                <button
+                  key={mark.id}
+                  onClick={() => updateMarkStatus(mark.id, pokemon.name)}
+                  className={`py-2 px-3 rounded-lg text-sm text-left transition-colors ${
+                    caughtStatus.marks?.[mark.id] 
+                      ? 'bg-green-600 hover:bg-green-700 text-white' 
+                      : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+                  }`}
+                >
+                  <div className="flex items-center">
+                    <span className="flex-1">{mark.name}</span>
+                    {caughtStatus.marks?.[mark.id] && (
+                      <span className="ml-2">✓</span>
+                    )}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 // Main component
 export default function PokemonDetail({ pokemon, species, evolutionChain, alternativeForms }) {
   const router = useRouter();
@@ -535,7 +707,7 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
   const resistances = getResistances(types);
   const immunities = getImmunities(types);
   
-  // Update caught status
+  // Update caught status to include ribbons and marks
   const updateCaughtStatus = (statusType, formName = 'default') => {
     if (!pokemon) return;
     
@@ -560,6 +732,70 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
       localStorage.setItem('caughtPokemon', JSON.stringify(caughtData));
     } catch (error) {
       console.error('Error updating caught status:', error);
+    }
+  };
+  
+  // Add ribbon toggle function
+  const updateRibbonStatus = (ribbonId, formName = 'default') => {
+    if (!pokemon) return;
+    
+    try {
+      // Get current caught data
+      const caughtData = JSON.parse(localStorage.getItem('caughtPokemon') || '{}');
+      
+      // Initialize if needed
+      if (!caughtData[pokemon.id]) {
+        caughtData[pokemon.id] = {};
+      }
+      
+      if (!caughtData[pokemon.id][formName]) {
+        caughtData[pokemon.id][formName] = {};
+      }
+      
+      if (!caughtData[pokemon.id][formName].ribbons) {
+        caughtData[pokemon.id][formName].ribbons = {};
+      }
+      
+      // Toggle the ribbon status
+      caughtData[pokemon.id][formName].ribbons[ribbonId] = !caughtData[pokemon.id][formName].ribbons[ribbonId];
+      
+      // Update state and localStorage
+      setCaughtStatus(caughtData[pokemon.id]);
+      localStorage.setItem('caughtPokemon', JSON.stringify(caughtData));
+    } catch (error) {
+      console.error('Error updating ribbon status:', error);
+    }
+  };
+  
+  // Add mark toggle function
+  const updateMarkStatus = (markId, formName = 'default') => {
+    if (!pokemon) return;
+    
+    try {
+      // Get current caught data
+      const caughtData = JSON.parse(localStorage.getItem('caughtPokemon') || '{}');
+      
+      // Initialize if needed
+      if (!caughtData[pokemon.id]) {
+        caughtData[pokemon.id] = {};
+      }
+      
+      if (!caughtData[pokemon.id][formName]) {
+        caughtData[pokemon.id][formName] = {};
+      }
+      
+      if (!caughtData[pokemon.id][formName].marks) {
+        caughtData[pokemon.id][formName].marks = {};
+      }
+      
+      // Toggle the mark status
+      caughtData[pokemon.id][formName].marks[markId] = !caughtData[pokemon.id][formName].marks[markId];
+      
+      // Update state and localStorage
+      setCaughtStatus(caughtData[pokemon.id]);
+      localStorage.setItem('caughtPokemon', JSON.stringify(caughtData));
+    } catch (error) {
+      console.error('Error updating mark status:', error);
     }
   };
   
@@ -655,7 +891,7 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
         
         {/* Tab Navigation - use the main type's theming with darker accents */}
         <div className="flex flex-wrap border-b border-gray-700 mb-6">
-          {['info', 'stats', 'evolution', 'moves', 'locations', 'tracking'].map((tab) => {
+          {['info', 'stats', 'evolution', 'moves', 'locations', 'tracking', 'ribbons', 'marks'].map((tab) => {
             const isActive = activeTab === tab;
             
             // Create a style for active and inactive tabs
@@ -1036,6 +1272,26 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
                 );
               })}
             </div>
+          </div>
+        )}
+        
+        {activeTab === 'ribbons' && (
+          <div style={cardStyle} className="rounded-lg p-6">
+            <RibbonsTab 
+              pokemon={pokemon} 
+              caughtStatus={caughtStatus} 
+              updateRibbonStatus={updateRibbonStatus} 
+            />
+          </div>
+        )}
+        
+        {activeTab === 'marks' && (
+          <div style={cardStyle} className="rounded-lg p-6">
+            <MarksTab 
+              pokemon={pokemon} 
+              caughtStatus={caughtStatus} 
+              updateMarkStatus={updateMarkStatus} 
+            />
           </div>
         )}
       </div>
