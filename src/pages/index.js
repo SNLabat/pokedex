@@ -277,19 +277,28 @@ export default function Home() {
 
           <div className="flex justify-center items-center mb-10 md:mb-16 mt-10 md:mt-16">
             <div className="flex space-x-10 md:space-x-16">
-              {[1, 2, 3].map((_, index) => (
+              {[0, 1, 2].map((index) => (
                 <div 
-                  key={index} 
-                  className={`relative w-16 h-16 md:w-20 md:h-20 pokeball-bounce-${index + 1}`}
+                  key={index}
+                  className={`pokeball-bounce-${index + 1}`}
+                  style={{width: '64px', height: '64px'}}
                 >
-                  <Image
-                    src="/img/pokeball.png"
-                    alt="Pokeball"
-                    width={80}
-                    height={80}
-                    layout="responsive"
-                    className="drop-shadow-xl"
-                  />
+                  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    {/* Outer circle */}
+                    <circle cx="50" cy="50" r="50" fill="#f0f0f0" />
+                    
+                    {/* Red top half */}
+                    <path d="M50,0 A50,50 0 0,1 100,50 H0 A50,50 0 0,1 50,0z" fill="#e53935" />
+                    
+                    {/* Center circle outline */}
+                    <circle cx="50" cy="50" r="20" fill="white" stroke="#333" strokeWidth="2" />
+                    
+                    {/* Center button */}
+                    <circle cx="50" cy="50" r="10" fill="white" stroke="#333" strokeWidth="2" />
+                    
+                    {/* Dividing line */}
+                    <line x1="0" y1="50" x2="100" y2="50" stroke="#333" strokeWidth="2" />
+                  </svg>
                 </div>
               ))}
             </div>
