@@ -529,15 +529,15 @@ const pokemonRibbons = [
 const pokemonMarks = [
   // Personality Marks
   { id: 'lunchtime', name: 'Lunchtime Mark', category: 'personality' },
-  { id: 'sleepy', name: 'Sleepy Mark', category: 'personality' },
+  { id: 'sleepy', name: 'Sleepy-Time Mark', category: 'personality' },
   { id: 'excited', name: 'Excited Mark', category: 'personality' },
-  { id: 'grumpy', name: 'Grumpy Mark', category: 'personality' },
+  { id: 'grumpy', name: 'Angry Mark', category: 'personality' },
   
   // Time Marks
   { id: 'dawn', name: 'Dawn Mark', category: 'time' },
   { id: 'dusk', name: 'Dusk Mark', category: 'time' },
   { id: 'morning', name: 'Morning Mark', category: 'time' },
-  { id: 'night', name: 'Night Mark', category: 'time' },
+  { id: 'night', name: 'Sleepy-Time Mark', category: 'time' },
   
   // Weather Marks
   { id: 'rainy', name: 'Rainy Mark', category: 'weather' },
@@ -545,79 +545,244 @@ const pokemonMarks = [
   { id: 'stormy', name: 'Stormy Mark', category: 'weather' },
   { id: 'cloudy', name: 'Cloudy Mark', category: 'weather' },
   { id: 'misty', name: 'Misty Mark', category: 'weather' },
-  { id: 'sunny', name: 'Sunny Mark', category: 'weather' },
+  { id: 'sunny', name: 'Dry Mark', category: 'weather' },
   
   // Rare Marks
   { id: 'rare', name: 'Rare Mark', category: 'rare' },
   { id: 'rowdy', name: 'Rowdy Mark', category: 'rare' },
-  { id: 'unseeing', name: 'Unseeing Mark', category: 'rare' },
+  { id: 'unseeing', name: 'Zoned-Out Mark', category: 'rare' },
   { id: 'curry', name: 'Curry Mark', category: 'rare' },
   { id: 'fishing', name: 'Fishing Mark', category: 'rare' },
   { id: 'crafty', name: 'Crafty Mark', category: 'rare' },
 ];
 
-// Add icon mappings for ribbons and marks
+// Update ribbonIcons to use Serebii URLs
 const ribbonIcons = {
   // Contest Ribbons
-  'contest-cool': { icon: '🏆', color: '#FF4444' },
-  'contest-beauty': { icon: '🌟', color: '#FF88DD' },
-  'contest-cute': { icon: '💖', color: '#FF99AA' },
-  'contest-smart': { icon: '🧠', color: '#99DDFF' },
-  'contest-tough': { icon: '💪', color: '#FFAA22' },
-  'contest-master': { icon: '👑', color: '#FFCC00' },
+  'contest-cool': { 
+    icon: 'https://www.serebii.net/ribbons/coolnormalribbon.png', 
+    color: '#FF4444',
+    fallback: '🏆'
+  },
+  'contest-beauty': { 
+    icon: 'https://www.serebii.net/ribbons/beautynormalribbon.png', 
+    color: '#FF88DD',
+    fallback: '🌟'
+  },
+  'contest-cute': { 
+    icon: 'https://www.serebii.net/ribbons/cutenormalribbon.png', 
+    color: '#FF99AA',
+    fallback: '💖'
+  },
+  'contest-smart': { 
+    icon: 'https://www.serebii.net/ribbons/smartnormalribbon.png', 
+    color: '#99DDFF',
+    fallback: '🧠'
+  },
+  'contest-tough': { 
+    icon: 'https://www.serebii.net/ribbons/toughnormalribbon.png', 
+    color: '#FFAA22',
+    fallback: '💪'
+  },
+  'contest-master': { 
+    icon: 'https://www.serebii.net/ribbons/coolmasterribbon.png', 
+    color: '#FFCC00',
+    fallback: '👑'
+  },
   
   // Champion Ribbons
-  'champion-hoenn': { icon: '🥇', color: '#22AA44' },
-  'champion-sinnoh': { icon: '🥇', color: '#4477FF' },
-  'champion-kalos': { icon: '🥇', color: '#3355DD' },
-  'champion-alola': { icon: '🥇', color: '#EE7722' },
-  'champion-galar': { icon: '🥇', color: '#9944EE' },
+  'champion-hoenn': { 
+    icon: 'https://www.serebii.net/ribbons/championribbon.png', 
+    color: '#22AA44',
+    fallback: '🥇'
+  },
+  'champion-sinnoh': { 
+    icon: 'https://www.serebii.net/ribbons/sinnohchampribbon.png', 
+    color: '#4477FF',
+    fallback: '🥇'
+  },
+  'champion-kalos': { 
+    icon: 'https://www.serebii.net/games/ribbons/kaloschampionribbon.png', 
+    color: '#3355DD',
+    fallback: '🥇'
+  },
+  'champion-alola': { 
+    icon: 'https://www.serebii.net/games/ribbons/alolachampionribbon.png', 
+    color: '#EE7722',
+    fallback: '🥇'
+  },
+  'champion-galar': { 
+    icon: 'https://www.serebii.net/ribbons/galarchampionribbon.png', 
+    color: '#9944EE',
+    fallback: '🥇'
+  },
   
   // Battle Ribbons
-  'battle-tower': { icon: '🏛️', color: '#AAAAAA' },
-  'battle-tree': { icon: '🌲', color: '#44BB55' },
-  'battle-royal': { icon: '👑', color: '#BB99EE' },
+  'battle-tower': { 
+    icon: 'https://www.serebii.net/ribbons/winningribbon.png', 
+    color: '#AAAAAA',
+    fallback: '🏛️'
+  },
+  'battle-tree': { 
+    icon: 'https://www.serebii.net/games/ribbons/battletreegreatribbon.png', 
+    color: '#44BB55',
+    fallback: '🌲'
+  },
+  'battle-royal': { 
+    icon: 'https://www.serebii.net/games/ribbons/battleroyalmasterribbon.png', 
+    color: '#BB99EE',
+    fallback: '👑'
+  },
   
   // Special Ribbons
-  'birthday': { icon: '🎂', color: '#FF77AA' },
-  'event': { icon: '🎉', color: '#5599FF' },
-  'gift': { icon: '🎁', color: '#FF5555' },
-  'wishing': { icon: '✨', color: '#FFDD44' },
-  'classic': { icon: '📜', color: '#CC9966' },
+  'birthday': { 
+    icon: 'https://www.serebii.net/ribbons/birthdayribbon.png', 
+    color: '#FF77AA',
+    fallback: '🎂'
+  },
+  'event': { 
+    icon: 'https://www.serebii.net/ribbons/eventribbon.png', 
+    color: '#5599FF',
+    fallback: '🎉'
+  },
+  'gift': { 
+    icon: 'https://www.serebii.net/ribbons/giftribbon.png', 
+    color: '#FF5555',
+    fallback: '🎁'
+  },
+  'wishing': { 
+    icon: 'https://www.serebii.net/ribbons/wishingribbon.png', 
+    color: '#FFDD44',
+    fallback: '✨'
+  },
+  'classic': { 
+    icon: 'https://www.serebii.net/ribbons/classicribbon.png', 
+    color: '#CC9966',
+    fallback: '📜'
+  },
 };
 
+// Update markIcons to use Serebii URLs
 const markIcons = {
   // Personality Marks
-  'lunchtime': { icon: '🍱', color: '#FF9944' },
-  'sleepy': { icon: '💤', color: '#99AAFF' },
-  'excited': { icon: '⚡', color: '#FFDD33' },
-  'grumpy': { icon: '😠', color: '#FF6666' },
+  'lunchtime': { 
+    icon: 'https://www.serebii.net/ribbons/lunchtimemark.png', 
+    color: '#FF9944',
+    fallback: '🍱'
+  },
+  'sleepy': { 
+    icon: 'https://www.serebii.net/ribbons/sleepy-timemark.png', 
+    color: '#99AAFF',
+    fallback: '💤'
+  },
+  'excited': { 
+    icon: 'https://www.serebii.net/ribbons/excitedmark.png', 
+    color: '#FFDD33',
+    fallback: '⚡'
+  },
+  'grumpy': { 
+    icon: 'https://www.serebii.net/ribbons/angrymark.png', 
+    color: '#FF6666',
+    fallback: '😠'
+  },
   
   // Time Marks
-  'dawn': { icon: '🌅', color: '#FFBB77' },
-  'dusk': { icon: '🌇', color: '#9977CC' },
-  'morning': { icon: '☀️', color: '#FFCC44' },
-  'night': { icon: '🌙', color: '#6666BB' },
+  'dawn': { 
+    icon: 'https://www.serebii.net/ribbons/dawnmark.png', 
+    color: '#FFBB77',
+    fallback: '🌅'
+  },
+  'dusk': { 
+    icon: 'https://www.serebii.net/ribbons/duskmark.png', 
+    color: '#9977CC',
+    fallback: '🌇'
+  },
+  'morning': { 
+    icon: 'https://www.serebii.net/ribbons/morningmark.png', 
+    color: '#FFCC44',
+    fallback: '☀️'
+  },
+  'night': { 
+    icon: 'https://www.serebii.net/ribbons/sleepy-timemark.png', 
+    color: '#6666BB',
+    fallback: '🌙'
+  },
   
   // Weather Marks
-  'rainy': { icon: '🌧️', color: '#77AAFF' },
-  'snowy': { icon: '❄️', color: '#AADDFF' },
-  'stormy': { icon: '⛈️', color: '#5577AA' },
-  'cloudy': { icon: '☁️', color: '#AAAACC' },
-  'misty': { icon: '🌫️', color: '#CCCCDD' },
-  'sunny': { icon: '☀️', color: '#FFDD33' },
+  'rainy': { 
+    icon: 'https://www.serebii.net/ribbons/rainymark.png', 
+    color: '#77AAFF',
+    fallback: '🌧️'
+  },
+  'snowy': { 
+    icon: 'https://www.serebii.net/ribbons/snowymark.png', 
+    color: '#AADDFF',
+    fallback: '❄️'
+  },
+  'stormy': { 
+    icon: 'https://www.serebii.net/ribbons/stormymark.png', 
+    color: '#5577AA',
+    fallback: '⛈️'
+  },
+  'cloudy': { 
+    icon: 'https://www.serebii.net/ribbons/cloudymark.png', 
+    color: '#AAAACC',
+    fallback: '☁️'
+  },
+  'misty': { 
+    icon: 'https://www.serebii.net/ribbons/mistymark.png', 
+    color: '#CCCCDD',
+    fallback: '🌫️'
+  },
+  'sunny': { 
+    icon: 'https://www.serebii.net/ribbons/drymark.png', 
+    color: '#FFDD33',
+    fallback: '☀️'
+  },
   
   // Rare Marks
-  'rare': { icon: '💎', color: '#55AAFF' },
-  'rowdy': { icon: '🔥', color: '#FF5544' },
-  'unseeing': { icon: '👁️', color: '#BB77DD' },
-  'curry': { icon: '🍛', color: '#FFAA44' },
-  'fishing': { icon: '🎣', color: '#44AAFF' },
-  'crafty': { icon: '🔨', color: '#AA8866' },
+  'rare': { 
+    icon: 'https://www.serebii.net/ribbons/raremark.png', 
+    color: '#55AAFF',
+    fallback: '💎'
+  },
+  'rowdy': { 
+    icon: 'https://www.serebii.net/ribbons/rowdymark.png', 
+    color: '#FF5544',
+    fallback: '🔥'
+  },
+  'unseeing': { 
+    icon: 'https://www.serebii.net/ribbons/zoned-outmark.png', 
+    color: '#BB77DD',
+    fallback: '👁️'
+  },
+  'curry': { 
+    icon: 'https://www.serebii.net/ribbons/currymark.png', 
+    color: '#FFAA44',
+    fallback: '🍛'
+  },
+  'fishing': { 
+    icon: 'https://www.serebii.net/ribbons/fishingmark.png', 
+    color: '#44AAFF',
+    fallback: '🎣'
+  },
+  'crafty': { 
+    icon: 'https://www.serebii.net/ribbons/craftymark.png', 
+    color: '#AA8866',
+    fallback: '🔨'
+  },
 };
 
-// Update the RibbonsTab component to include icons
+// Update the RibbonsTab component to handle image loading
 const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus }) => {
+  // State to track image loading errors
+  const [failedImages, setFailedImages] = useState({});
+  
+  // Handle image loading errors
+  const handleImageError = (ribbonId) => {
+    setFailedImages(prev => ({ ...prev, [ribbonId]: true }));
+  };
+  
   // Group ribbons by category for better organization
   const ribbonsByCategory = pokemonRibbons.reduce((acc, ribbon) => {
     if (!acc[ribbon.category]) {
@@ -647,8 +812,9 @@ const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus }) => {
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
               {ribbonsByCategory[category].map(ribbon => {
-                const iconData = ribbonIcons[ribbon.id] || { icon: '🎀', color: '#AA99CC' };
+                const iconData = ribbonIcons[ribbon.id] || { icon: '🎀', color: '#AA99CC', fallback: '🎀' };
                 const hasRibbon = caughtStatus.ribbons?.[ribbon.id];
+                const useIconFallback = failedImages[ribbon.id];
                 
                 return (
                   <button
@@ -662,13 +828,21 @@ const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus }) => {
                   >
                     <div className="flex items-center">
                       <div 
-                        className="w-10 h-10 rounded-full flex items-center justify-center mr-3 text-xl"
+                        className="w-12 h-12 rounded-full flex items-center justify-center mr-3 bg-gray-800"
                         style={{ 
-                          backgroundColor: hasRibbon ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)',
                           border: `2px solid ${iconData.color}`
                         }}
                       >
-                        {iconData.icon}
+                        {useIconFallback ? (
+                          <span className="text-xl">{iconData.fallback}</span>
+                        ) : (
+                          <img 
+                            src={iconData.icon} 
+                            alt={ribbon.name}
+                            className="w-9 h-9 object-contain"
+                            onError={() => handleImageError(ribbon.id)}
+                          />
+                        )}
                       </div>
                       <div className="flex-1">
                         <p className="font-medium">{ribbon.name}</p>
@@ -691,8 +865,16 @@ const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus }) => {
   );
 };
 
-// Update the MarksTab component to include icons
+// Update the MarksTab component similarly
 const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus }) => {
+  // State to track image loading errors
+  const [failedImages, setFailedImages] = useState({});
+  
+  // Handle image loading errors
+  const handleImageError = (markId) => {
+    setFailedImages(prev => ({ ...prev, [markId]: true }));
+  };
+  
   // Group marks by category for better organization
   const marksByCategory = pokemonMarks.reduce((acc, mark) => {
     if (!acc[mark.category]) {
@@ -722,8 +904,9 @@ const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus }) => {
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
               {marksByCategory[category].map(mark => {
-                const iconData = markIcons[mark.id] || { icon: '🏷️', color: '#99CCFF' };
+                const iconData = markIcons[mark.id] || { icon: '🏷️', color: '#99CCFF', fallback: '🏷️' };
                 const hasMark = caughtStatus.marks?.[mark.id];
+                const useIconFallback = failedImages[mark.id];
                 
                 return (
                   <button
@@ -737,13 +920,21 @@ const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus }) => {
                   >
                     <div className="flex items-center">
                       <div 
-                        className="w-10 h-10 rounded-full flex items-center justify-center mr-3 text-xl"
+                        className="w-12 h-12 rounded-full flex items-center justify-center mr-3 bg-gray-800"
                         style={{ 
-                          backgroundColor: hasMark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)',
                           border: `2px solid ${iconData.color}`
                         }}
                       >
-                        {iconData.icon}
+                        {useIconFallback ? (
+                          <span className="text-xl">{iconData.fallback}</span>
+                        ) : (
+                          <img 
+                            src={iconData.icon} 
+                            alt={mark.name}
+                            className="w-9 h-9 object-contain"
+                            onError={() => handleImageError(mark.id)}
+                          />
+                        )}
                       </div>
                       <div className="flex-1">
                         <p className="font-medium">{mark.name}</p>
