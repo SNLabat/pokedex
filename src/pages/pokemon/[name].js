@@ -511,7 +511,19 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
   
   // Get the main type for theming throughout the page
   const mainType = pokemon?.types?.[0]?.type?.name || 'normal';
-  const theme = typeColors[mainType] || defaultTheme;
+  const mainTypeColor = typeColors[mainType] || defaultTheme;
+  
+  // Create styles for the main page background and container
+  const pageStyle = {
+    background: `linear-gradient(to bottom, ${mainTypeColor.mainColor}22, ${mainTypeColor.mainColor}11)`,
+    minHeight: '100vh'
+  };
+  
+  // Create styles for card backgrounds to maintain readability
+  const cardStyle = {
+    backgroundColor: '#1f2937', // dark gray
+    borderLeft: `4px solid ${mainTypeColor.mainColor}`
+  };
   
   // Initialize next/prev Pokémon IDs
   const currentId = pokemon?.id || 0;
@@ -596,7 +608,7 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
   }
   
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
+    <div style={pageStyle} className="text-white">
       <Head>
         <title>{properCase(pokemon.name)} | Pokédex Live</title>
         <meta name="description" content={`View details for ${properCase(pokemon.name)} - ${category}`} />
@@ -613,13 +625,14 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
         speciesText={category}
       />
       
-      {/* Main content with tabs */}
+      {/* Main content area with tabs */}
       <div className="container mx-auto px-4 pb-12">
         {/* Navigation links */}
         <div className="flex justify-between items-center mb-4">
           <button 
             onClick={() => router.push('/pokedex', undefined, { shallow: false })}
-            className="text-white hover:text-gray-300 flex items-center"
+            className="hover:text-gray-300 flex items-center"
+            style={{ color: mainTypeColor.darkColor }}
           >
             <span className="mr-2">←</span> Back to Pokédex
           </button>
@@ -628,7 +641,8 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
             {prevId && (
               <button
                 onClick={() => router.push(`/pokemon/${prevId}`)}
-                className="text-white hover:text-gray-300"
+                className="hover:text-gray-300"
+                style={{ color: mainTypeColor.darkColor }}
               >
                 ← Prev
               </button>
@@ -636,7 +650,8 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
             {nextId && (
               <button
                 onClick={() => router.push(`/pokemon/${nextId}`)}
-                className="text-white hover:text-gray-300"
+                className="hover:text-gray-300"
+                style={{ color: mainTypeColor.darkColor }}
               >
                 Next →
               </button>
@@ -644,20 +659,30 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
           </div>
         </div>
         
-        {/* Tab Navigation - use the main type's theming */}
+        {/* Tab Navigation - use the main type's theming with darker accents */}
         <div className="flex flex-wrap border-b border-gray-700 mb-6">
           {['info', 'stats', 'evolution', 'moves', 'locations', 'tracking'].map((tab) => {
             const isActive = activeTab === tab;
-            const mainTypeColor = typeColors[mainType] || defaultTheme;
+            
+            // Create a style for active and inactive tabs
+            const tabStyle = isActive 
+              ? { 
+                  backgroundColor: mainTypeColor.mainColor, 
+                  color: mainTypeColor.textColor,
+                  borderBottom: `3px solid ${mainTypeColor.darkColor}`
+                }
+              : { 
+                  backgroundColor: mainTypeColor.darkColor,
+                  color: mainTypeColor.textColor,
+                  opacity: 0.7
+                };
             
             return (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`mr-2 px-4 py-2 rounded-t-lg ${
-                  isActive ? '' : 'bg-gray-800 hover:bg-gray-700'
-                }`}
-                style={isActive ? { backgroundColor: mainTypeColor.mainColor, color: mainTypeColor.textColor } : {}}
+                className={`mr-2 px-4 py-2 rounded-t-lg transition-all hover:opacity-100`}
+                style={tabStyle}
               >
                 {tab.charAt(0).toUpperCase() + tab.slice(1)}
               </button>
@@ -665,9 +690,9 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
           })}
         </div>
         
-        {/* Tab content - where appropriate, use the theme colors */}
+        {/* Tab content with consistent styling */}
         {activeTab === 'info' && (
-          <div className="bg-gray-800 rounded-lg p-6">
+          <div style={cardStyle} className="rounded-lg p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <h2 className="text-xl font-bold mb-4">Pokédex Data</h2>
@@ -766,9 +791,8 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
           </div>
         )}
         
-        {/* Stats Tab */}
         {activeTab === 'stats' && (
-          <div className="bg-gray-800 rounded-lg p-6">
+          <div style={cardStyle} className="rounded-lg p-6">
             <h2 className="text-xl font-bold mb-6">Base Stats</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div>
@@ -785,8 +809,11 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
                       </div>
                       <div className="w-full bg-gray-700 rounded-full h-2.5">
                         <div 
-                          className={`h-2.5 rounded-full ${theme.accent}`} 
-                          style={{ width: `${statPercentage}%` }}
+                          className="h-2.5 rounded-full" 
+                          style={{ 
+                            width: `${statPercentage}%`,
+                            backgroundColor: mainTypeColor.mainColor 
+                          }}
                         ></div>
                       </div>
                     </div>
@@ -835,9 +862,8 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
           </div>
         )}
         
-        {/* Evolution Tab */}
         {activeTab === 'evolution' && (
-          <div className="bg-gray-800 rounded-lg p-6">
+          <div style={cardStyle} className="rounded-lg p-6">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-bold">Evolution Chain</h2>
               <button
@@ -862,9 +888,8 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
           </div>
         )}
         
-        {/* Moves Tab */}
         {activeTab === 'moves' && (
-          <div className="bg-gray-800 rounded-lg p-6">
+          <div style={cardStyle} className="rounded-lg p-6">
             <h2 className="text-xl font-bold mb-6">Moves</h2>
             
             <div className="space-y-8">
@@ -889,18 +914,16 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
           </div>
         )}
         
-        {/* Locations Tab */}
         {activeTab === 'locations' && (
-          <div className="bg-gray-800 rounded-lg p-6">
+          <div style={cardStyle} className="rounded-lg p-6">
             <h2 className="text-xl font-bold mb-6">Encounter Locations</h2>
             
             <LocationEncounterData pokemonId={pokemon.id} />
           </div>
         )}
         
-        {/* Tracking Tab with Forms */}
         {activeTab === 'tracking' && (
-          <div className="bg-gray-800 rounded-lg p-6">
+          <div style={cardStyle} className="rounded-lg p-6">
             <h2 className="text-xl font-bold mb-6">Collection Tracking</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
