@@ -421,6 +421,16 @@ const PokemonHero = ({ pokemon, isShiny, setIsShiny, isAnimated, setIsAnimated, 
     }
   };
 
+  // Button style with drop shadow
+  const buttonStyle = (isActive, color) => ({
+    backgroundColor: isActive ? color : 'rgba(55, 65, 81, 0.8)',
+    boxShadow: isActive 
+      ? `0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1), 0 0 0 2px ${color}40` 
+      : '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+    transition: 'all 0.2s ease',
+    border: isActive ? `1px solid ${color}80` : '1px solid rgba(75, 85, 99, 0.4)'
+  });
+
   return (
     <div style={heroBgStyle} className="py-10 mb-8">
       <div className="container mx-auto px-4">
@@ -472,59 +482,6 @@ const PokemonHero = ({ pokemon, isShiny, setIsShiny, isAnimated, setIsAnimated, 
                 );
               })}
             </div>
-            
-            {/* Sprite Toggle Buttons - Reorganized as 2x2 grid */}
-            <div className="flex flex-col gap-2 mt-4">
-              <div className="flex gap-2">
-                <button
-                  onClick={() => {
-                    setIsAnimated(false);
-                    setIsShiny(false);
-                  }}
-                  style={!isAnimated && !isShiny ? { backgroundColor: mainTypeColor.mainColor, color: mainTypeColor.textColor } : {}}
-                  className={`flex-1 px-4 py-2 rounded-lg transition-colors ${
-                    !isAnimated && !isShiny ? '' : 'bg-gray-700 hover:bg-gray-600 text-white'
-                  }`}
-                >
-                  Static
-                </button>
-                <button
-                  onClick={() => {
-                    setIsAnimated(false);
-                    setIsShiny(true);
-                  }}
-                  className={`flex-1 px-4 py-2 rounded-lg transition-colors ${
-                    !isAnimated && isShiny ? 'bg-yellow-500 text-gray-900' : 'bg-gray-700 hover:bg-gray-600 text-white'
-                  }`}
-                >
-                  Static Shiny
-                </button>
-              </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => {
-                    setIsAnimated(true);
-                    setIsShiny(false);
-                  }}
-                  className={`flex-1 px-4 py-2 rounded-lg transition-colors ${
-                    isAnimated && !isShiny ? 'bg-blue-600 text-white' : 'bg-gray-700 hover:bg-gray-600 text-white'
-                  }`}
-                >
-                  Animated
-                </button>
-                <button
-                  onClick={() => {
-                    setIsAnimated(true);
-                    setIsShiny(true);
-                  }}
-                  className={`flex-1 px-4 py-2 rounded-lg transition-colors ${
-                    isAnimated && isShiny ? 'bg-purple-600 text-white' : 'bg-gray-700 hover:bg-gray-600 text-white'
-                  }`}
-                >
-                  Animated Shiny
-                </button>
-              </div>
-            </div>
           </div>
             
           {/* Rest of the hero content */}
@@ -534,6 +491,77 @@ const PokemonHero = ({ pokemon, isShiny, setIsShiny, isAnimated, setIsAnimated, 
                 <p className="text-gray-300 text-xl mb-1">#{String(pokemon.id).padStart(3, '0')}</p>
                 <h1 className="text-4xl md:text-5xl font-bold capitalize mb-2 text-white">{pokemon.name.replace(/-/g, ' ')}</h1>
                 <p className="text-xl text-gray-300 italic">{speciesText}</p>
+              </div>
+              
+              {/* Sprite Toggle Buttons - Moved here and restyled */}
+              <div className="mb-6 bg-gray-800 bg-opacity-40 rounded-lg p-4 backdrop-filter backdrop-blur-sm">
+                <h3 className="text-lg font-medium mb-3 text-gray-200">Sprite Options</h3>
+                <div className="flex flex-col gap-3">
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => {
+                        setIsAnimated(false);
+                        setIsShiny(false);
+                      }}
+                      style={buttonStyle(!isAnimated && !isShiny, mainTypeColor.mainColor)}
+                      className="flex-1 px-4 py-3 rounded-lg text-white font-medium hover:brightness-110 active:brightness-90"
+                    >
+                      <div className="flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4V5h12v10z" clipRule="evenodd" />
+                        </svg>
+                        Static
+                      </div>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setIsAnimated(false);
+                        setIsShiny(true);
+                      }}
+                      style={buttonStyle(!isAnimated && isShiny, '#F59E0B')} // Amber color for shiny
+                      className="flex-1 px-4 py-3 rounded-lg text-white font-medium hover:brightness-110 active:brightness-90"
+                    >
+                      <div className="flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                          <path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM5 10a1 1 0 01-1 1H3a1 1 0 110-2h1a1 1 0 011 1zM8 16v-1h4v1a2 2 0 11-4 0zM12 14c.015-.34.208-.646.477-.859a4 4 0 10-4.954 0c.27.213.462.519.476.859h4.002z" />
+                        </svg>
+                        Static Shiny
+                      </div>
+                    </button>
+                  </div>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => {
+                        setIsAnimated(true);
+                        setIsShiny(false);
+                      }}
+                      style={buttonStyle(isAnimated && !isShiny, '#3B82F6')} // Blue color for animated
+                      className="flex-1 px-4 py-3 rounded-lg text-white font-medium hover:brightness-110 active:brightness-90"
+                    >
+                      <div className="flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                        </svg>
+                        Animated
+                      </div>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setIsAnimated(true);
+                        setIsShiny(true);
+                      }}
+                      style={buttonStyle(isAnimated && isShiny, '#8B5CF6')} // Purple color for animated shiny
+                      className="flex-1 px-4 py-3 rounded-lg text-white font-medium hover:brightness-110 active:brightness-90"
+                    >
+                      <div className="flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                          <path d="M11 17a1 1 0 001.447.894l4-2A1 1 0 0017 15V9.236a1 1 0 00-1.447-.894l-4 2a1 1 0 00-.553.894V17zM15.211 6.276a1 1 0 000-1.788l-4.764-2.382a1 1 0 00-.894 0L4.789 4.488a1 1 0 000 1.788l4.764 2.382a1 1 0 00.894 0l4.764-2.382zM4.447 8.342A1 1 0 003 9.236V15a1 1 0 00.553.894l4 2A1 1 0 009 17v-5.764a1 1 0 00-.553-.894l-4-2z" />
+                        </svg>
+                        Animated Shiny
+                      </div>
+                    </button>
+                  </div>
+                </div>
               </div>
               
               {/* Basic Stats */}
