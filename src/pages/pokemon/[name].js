@@ -1,5 +1,3 @@
-'use client';
-
 // pages/pokemon/[name].js
 import { useState, useEffect, useMemo } from 'react';
 import Head from 'next/head';
@@ -3221,3 +3219,6 @@ export async function getStaticProps({ params }) {
     };
   }
 }
+
+export { getStaticPaths, getStaticProps };
+export default PokemonDetail;
