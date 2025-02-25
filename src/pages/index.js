@@ -7,6 +7,8 @@ import { useRouter } from 'next/router';
 import pokeballOutline from '/public/img/pokeballoutline.png';
 import Head from 'next/head';
 import { getPokemonCollection } from '../lib/dataManagement';
+import GenerationCard from '../components/GenerationCard';
+import Navigation from '../components/Navigation';
 
 export default function Home() {
   const router = useRouter();
@@ -135,9 +137,11 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white">
       <Head>
-        <title>PokéTracker - Track Your Pokémon Collection</title>
+        <title>Pokédex Live - Track Your Pokémon Collection</title>
         <meta name="description" content="Track your Pokémon collection across all games and generations" />
       </Head>
+
+      <Navigation />
 
       {/* Hero Section */}
       <div className="relative h-[80vh] flex items-center justify-center overflow-hidden">
@@ -154,7 +158,7 @@ export default function Home() {
         
         <div className="relative z-10 text-center px-4 max-w-5xl mx-auto">
           <h1 className="text-5xl md:text-7xl font-bold mb-6 text-white drop-shadow-lg">
-            PokéTracker
+            Pokédex Live
           </h1>
           <p className="text-xl md:text-2xl mb-8 text-gray-100 max-w-3xl mx-auto">
             Track your Pokémon collection across all games and generations.
@@ -178,29 +182,6 @@ export default function Home() {
             >
               Random Pokémon
             </button>
-          </div>
-        </div>
-        
-        {/* Floating Pokéballs */}
-        <div className="absolute bottom-0 left-0 w-full">
-          <div className="container mx-auto px-4">
-            <div className="flex justify-between items-end pb-8">
-              {[1, 2, 3].map((i) => (
-                <div
-                  key={i}
-                  className="w-16 h-16 md:w-24 md:h-24 rounded-full bg-white shadow-lg relative overflow-hidden animate-bounce"
-                  style={{ 
-                    animationDuration: `${i * 0.5 + 1.5}s`,
-                    animationDelay: `${i * 0.2}s` 
-                  }}
-                >
-                  <div className="absolute inset-0 bg-red-600 rounded-t-full h-1/2"></div>
-                  <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center">
-                    <div className="w-1/3 h-1/3 bg-white rounded-full border-4 border-gray-800"></div>
-                  </div>
-                </div>
-              ))}
-            </div>
           </div>
         </div>
       </div>
@@ -246,7 +227,7 @@ export default function Home() {
                   {type}
                 </button>
               ))}
-              <Link href="/advanced-search">
+              <Link href="/pokedex">
                 <a className="px-3 py-1 rounded-full text-xs font-medium bg-gray-600 hover:bg-gray-500">
                   More filters...
                 </a>
@@ -290,53 +271,7 @@ export default function Home() {
           <h2 className="text-3xl font-bold mb-6 text-center">Explore Generations</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {generations.map(gen => (
-              <div 
-                key={gen.id}
-                className="relative group rounded-xl overflow-hidden shadow-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl"
-                style={{ height: '240px' }}
-              >
-                {/* Gradient background */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${gen.color} opacity-80 group-hover:opacity-90 transition-opacity`}></div>
-                
-                {/* Content */}
-                <div className="relative z-10 p-6 h-full flex flex-col justify-between">
-                  <div>
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <span className="inline-block px-3 py-1 bg-black bg-opacity-50 rounded-full text-sm mb-2">
-                          Generation {gen.id}
-                        </span>
-                        <h3 className="text-2xl font-bold">{gen.name} Region</h3>
-                      </div>
-                      <span className="text-sm bg-gray-900 bg-opacity-70 px-2 py-1 rounded">
-                        {gen.pokemon} Pokémon
-                      </span>
-                    </div>
-                    <p className="text-sm text-gray-100 mt-1">{gen.years}</p>
-                  </div>
-                  
-                  {/* Starter Pokémon */}
-                  <div>
-                    <div className="flex justify-center mt-4 space-x-2">
-                      {gen.starters.map(id => (
-                        <div key={id} className="w-16 h-16 bg-white bg-opacity-20 rounded-full p-1 transform transition-transform hover:scale-110">
-                          <Image
-                            src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`}
-                            alt={`Starter ${id}`}
-                            width={64}
-                            height={64}
-                          />
-                        </div>
-                      ))}
-                    </div>
-                    <Link href={`/pokedex?gen=${gen.id}`}>
-                      <a className="block text-center mt-4 py-2 bg-black bg-opacity-30 hover:bg-opacity-50 rounded-lg transition-all">
-                        Browse Gen {gen.id}
-                      </a>
-                    </Link>
-                  </div>
-                </div>
-              </div>
+              <GenerationCard key={gen.id} gen={gen} />
             ))}
           </div>
         </div>
@@ -432,84 +367,6 @@ export default function Home() {
             </div>
           </div>
         )}
-
-        {/* Features Section */}
-        <div className="mb-16">
-          <h2 className="text-3xl font-bold mb-8 text-center">App Features</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-gradient-to-br from-blue-900 to-indigo-900 rounded-xl p-6 shadow-lg text-center">
-              <div className="w-16 h-16 mx-auto bg-white bg-opacity-20 rounded-full flex items-center justify-center mb-4">
-                <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold mb-2">Track Your Collection</h3>
-              <p className="text-blue-100">
-                Mark Pokémon as caught, shiny, or alpha. Track all forms and regional variants across all games.
-              </p>
-            </div>
-            
-            <div className="bg-gradient-to-br from-green-900 to-teal-900 rounded-xl p-6 shadow-lg text-center">
-              <div className="w-16 h-16 mx-auto bg-white bg-opacity-20 rounded-full flex items-center justify-center mb-4">
-                <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold mb-2">Team Builder</h3>
-              <p className="text-green-100">
-                Create and save your dream teams. Analyze type coverage, strengths, and weaknesses.
-              </p>
-            </div>
-            
-            <div className="bg-gradient-to-br from-purple-900 to-pink-900 rounded-xl p-6 shadow-lg text-center">
-              <div className="w-16 h-16 mx-auto bg-white bg-opacity-20 rounded-full flex items-center justify-center mb-4">
-                <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold mb-2">Share Progress</h3>
-              <p className="text-purple-100">
-                Share your collection progress with friends. Export your data for safekeeping.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Discover Random Pokémon */}
-        <div className="mb-16">
-          <h2 className="text-3xl font-bold mb-6 text-center">Discover Pokémon</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
-            {randomPokemon.map(pokemon => (
-              <Link key={pokemon.id} href={`/pokemon/${pokemon.id}`}>
-                <a className="block bg-gray-800 hover:bg-gray-700 rounded-lg p-4 text-center transition-all transform hover:scale-105">
-                  <div className="relative w-24 h-24 mx-auto mb-2">
-                    <Image
-                      src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemon.id}.png`}
-                      alt={`Pokémon #${pokemon.id}`}
-                      layout="fill"
-                      objectFit="contain"
-                    />
-                  </div>
-                  <span className="text-gray-400 text-xs">#{pokemon.id}</span>
-                </a>
-              </Link>
-            ))}
-          </div>
-          <div className="text-center mt-6">
-            <button
-              onClick={() => {
-                const randomIds = Array.from({ length: 6 }, () => Math.floor(Math.random() * 898) + 1);
-                setRandomPokemon(randomIds.map(id => ({ id, name: `pokemon-${id}` })));
-              }}
-              className="px-6 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg font-medium transition-colors inline-flex items-center"
-            >
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-              Show More Random Pokémon
-            </button>
-          </div>
-        </div>
       </div>
 
       {/* Footer */}
@@ -517,7 +374,7 @@ export default function Home() {
         <div className="container mx-auto px-4 py-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-4 md:mb-0">
-              <h3 className="text-xl font-bold">PokéTracker</h3>
+              <h3 className="text-xl font-bold">Pokédex Live</h3>
               <p className="text-gray-400 text-sm">
                 A comprehensive Pokémon tracking application
               </p>

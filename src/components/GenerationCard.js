@@ -1,13 +1,27 @@
+import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
 // Component for displaying generation cards on the home page
-export default function GenerationCard({ gen }) {
+const GenerationCard = ({ gen }) => {
+  // Define gradient color classes for each generation
+  const gradientColors = {
+    1: 'from-red-500 to-blue-500',         // Kanto: Red to Blue
+    2: 'from-yellow-500 to-amber-600',      // Johto: Gold to Silver
+    3: 'from-red-600 to-blue-600',          // Hoenn: Ruby to Sapphire
+    4: 'from-blue-600 to-pink-500',         // Sinnoh: Diamond to Pearl
+    5: 'from-gray-800 to-gray-200',         // Unova: Black to White
+    6: 'from-blue-500 to-red-500',          // Kalos: X to Y
+    7: 'from-yellow-400 to-blue-400',       // Alola: Sun to Moon
+    8: 'from-red-500 to-blue-600',          // Galar: Sword to Shield
+    9: 'from-purple-600 to-orange-500',     // Paldea: Violet to Scarlet
+  };
+
   return (
     <Link href={`/pokedex?gen=${gen.id}`}>
       <a className="block relative group rounded-xl overflow-hidden shadow-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl h-60">
         {/* Gradient background */}
-        <div className={`absolute inset-0 bg-gradient-to-br ${gen.color} opacity-80 group-hover:opacity-90 transition-opacity`}></div>
+        <div className={`absolute inset-0 bg-gradient-to-br ${gradientColors[gen.id] || 'from-gray-700 to-gray-900'} opacity-80 group-hover:opacity-90 transition-opacity`}></div>
         
         {/* Content */}
         <div className="relative z-10 p-6 h-full flex flex-col justify-between">
@@ -48,4 +62,6 @@ export default function GenerationCard({ gen }) {
       </a>
     </Link>
   );
-} 
+};
+
+export default GenerationCard; 
