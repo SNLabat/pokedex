@@ -1,3 +1,5 @@
+'use client';
+
 // pages/pokemon/[name].js
 import { useState, useEffect, useMemo } from 'react';
 import Head from 'next/head';
