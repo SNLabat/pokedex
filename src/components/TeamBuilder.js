@@ -106,11 +106,171 @@ const TeamStats = ({ team }) => {
       });
     });
     
-    // Coverage (simplified)
+    // Type effectiveness data
     const typeEffectiveness = {
-      // This would be a matrix of type effectiveness
-      // For simplicity, just showing a concept
+      normal: { 
+        weakTo: ['fighting'], 
+        resistantTo: [], 
+        immuneTo: ['ghost'] 
+      },
+      fire: { 
+        weakTo: ['water', 'ground', 'rock'], 
+        resistantTo: ['fire', 'grass', 'ice', 'bug', 'steel', 'fairy'], 
+        immuneTo: [] 
+      },
+      water: { 
+        weakTo: ['electric', 'grass'], 
+        resistantTo: ['fire', 'water', 'ice', 'steel'], 
+        immuneTo: [] 
+      },
+      electric: { 
+        weakTo: ['ground'], 
+        resistantTo: ['electric', 'flying', 'steel'], 
+        immuneTo: [] 
+      },
+      grass: { 
+        weakTo: ['fire', 'ice', 'poison', 'flying', 'bug'], 
+        resistantTo: ['water', 'electric', 'grass', 'ground'], 
+        immuneTo: [] 
+      },
+      ice: { 
+        weakTo: ['fire', 'fighting', 'rock', 'steel'], 
+        resistantTo: ['ice'], 
+        immuneTo: [] 
+      },
+      fighting: { 
+        weakTo: ['flying', 'psychic', 'fairy'], 
+        resistantTo: ['bug', 'rock', 'dark'], 
+        immuneTo: [] 
+      },
+      poison: { 
+        weakTo: ['ground', 'psychic'], 
+        resistantTo: ['grass', 'fighting', 'poison', 'bug', 'fairy'], 
+        immuneTo: [] 
+      },
+      ground: { 
+        weakTo: ['water', 'grass', 'ice'], 
+        resistantTo: ['poison', 'rock'], 
+        immuneTo: ['electric'] 
+      },
+      flying: { 
+        weakTo: ['electric', 'ice', 'rock'], 
+        resistantTo: ['grass', 'fighting', 'bug'], 
+        immuneTo: ['ground'] 
+      },
+      psychic: { 
+        weakTo: ['bug', 'ghost', 'dark'], 
+        resistantTo: ['fighting', 'psychic'], 
+        immuneTo: [] 
+      },
+      bug: { 
+        weakTo: ['fire', 'flying', 'rock'], 
+        resistantTo: ['grass', 'fighting', 'ground'], 
+        immuneTo: [] 
+      },
+      rock: { 
+        weakTo: ['water', 'grass', 'fighting', 'ground', 'steel'], 
+        resistantTo: ['normal', 'fire', 'poison', 'flying'], 
+        immuneTo: [] 
+      },
+      ghost: { 
+        weakTo: ['ghost', 'dark'], 
+        resistantTo: ['poison', 'bug'], 
+        immuneTo: ['normal', 'fighting'] 
+      },
+      dragon: { 
+        weakTo: ['ice', 'dragon', 'fairy'], 
+        resistantTo: ['fire', 'water', 'electric', 'grass'], 
+        immuneTo: [] 
+      },
+      dark: { 
+        weakTo: ['fighting', 'bug', 'fairy'], 
+        resistantTo: ['ghost', 'dark'], 
+        immuneTo: ['psychic'] 
+      },
+      steel: { 
+        weakTo: ['fire', 'fighting', 'ground'], 
+        resistantTo: ['normal', 'grass', 'ice', 'flying', 'psychic', 'bug', 'rock', 'dragon', 'steel', 'fairy'], 
+        immuneTo: ['poison'] 
+      },
+      fairy: { 
+        weakTo: ['poison', 'steel'], 
+        resistantTo: ['fighting', 'bug', 'dark'], 
+        immuneTo: ['dragon'] 
+      }
     };
+    
+    // Calculate offensive coverage
+    const offensiveCoverage = {};
+    const allTypes = Object.keys(typeEffectiveness);
+    
+    // Initialize all types with 0 effectiveness
+    allTypes.forEach(type => {
+      offensiveCoverage[type] = 0;
+    });
+    
+    // For each Pokémon in the team
+    team.forEach(pokemon => {
+      if (!pokemon) return;
+      
+      // For each type the Pokémon has
+      pokemon.types.forEach(pokeType => {
+        // Find which types this Pokémon is super effective against
+        allTypes.forEach(defenderType => {
+          if (typeEffectiveness[defenderType].weakTo.includes(pokeType)) {
+            offensiveCoverage[defenderType]++;
+          }
+        });
+      });
+    });
+    
+    // Calculate defensive weaknesses
+    const defensiveWeaknesses = {};
+    
+    // Initialize all types with 0 weakness count
+    allTypes.forEach(type => {
+      defensiveWeaknesses[type] = 0;
+    });
+    
+    // For each Pokémon in the team
+    team.forEach(pokemon => {
+      if (!pokemon) return;
+      
+      // For each attacking type
+      allTypes.forEach(attackingType => {
+        // Check if this Pokémon is weak to the attacking type
+        let isWeak = false;
+        let isImmune = false;
+        let isResistant = false;
+        
+        // Check each of the Pokémon's types
+        pokemon.types.forEach(pokeType => {
+          if (typeEffectiveness[pokeType].weakTo.includes(attackingType)) {
+            isWeak = true;
+          }
+          if (typeEffectiveness[pokeType].immuneTo.includes(attackingType)) {
+            isImmune = true;
+          }
+          if (typeEffectiveness[pokeType].resistantTo.includes(attackingType)) {
+            isResistant = true;
+          }
+        });
+        
+        // If the Pokémon is weak to this type and not immune
+        if (isWeak && !isImmune && !isResistant) {
+          defensiveWeaknesses[attackingType]++;
+        }
+      });
+    });
+    
+    // Sort offensive coverage and defensive weaknesses
+    const sortedOffensive = Object.entries(offensiveCoverage)
+      .filter(([_, count]) => count > 0)
+      .sort((a, b) => b[1] - a[1]);
+    
+    const sortedWeaknesses = Object.entries(defensiveWeaknesses)
+      .filter(([_, count]) => count > 0)
+      .sort((a, b) => b[1] - a[1]);
     
     return {
       typeCount,
@@ -118,7 +278,9 @@ const TeamStats = ({ team }) => {
         Object.entries(typeCount).map(([type, count]) => 
           [type, (count / totalTypes) * 100]
         )
-      )
+      ),
+      offensiveCoverage: sortedOffensive,
+      defensiveWeaknesses: sortedWeaknesses
     };
   };
   
@@ -133,7 +295,7 @@ const TeamStats = ({ team }) => {
         Team Analysis
       </h3>
       
-      <div className="space-y-3">
+      <div className="space-y-4">
         <div>
           <h4 className="text-sm text-gray-400 mb-1">Type Distribution</h4>
           <div className="flex flex-wrap gap-2">
@@ -152,15 +314,36 @@ const TeamStats = ({ team }) => {
         <div>
           <h4 className="text-sm text-gray-400 mb-1">Offensive Coverage</h4>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-            {/* This would show type effectiveness coverage */}
-            <div className="bg-green-900 bg-opacity-50 p-2 rounded-md text-xs">
-              <span className="text-green-400">Strong:</span> 
-              <span className="text-gray-300 ml-1">Water, Ground, Rock</span>
-            </div>
-            <div className="bg-red-900 bg-opacity-50 p-2 rounded-md text-xs">
-              <span className="text-red-400">Weak:</span>
-              <span className="text-gray-300 ml-1">Dragon, Steel</span>
-            </div>
+            {stats.offensiveCoverage.length > 0 ? (
+              stats.offensiveCoverage.slice(0, 8).map(([type, count]) => (
+                <div key={type} className={`p-2 rounded-md text-xs flex items-center justify-between ${getTypeBackgroundClass(type)}`}>
+                  <span className="capitalize">{type}</span>
+                  <span className="font-medium">{count} Pokémon</span>
+                </div>
+              ))
+            ) : (
+              <div className="col-span-full text-gray-500 text-center py-2">
+                Add Pokémon to see offensive coverage
+              </div>
+            )}
+          </div>
+        </div>
+        
+        <div>
+          <h4 className="text-sm text-gray-400 mb-1">Team Weaknesses</h4>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+            {stats.defensiveWeaknesses.length > 0 ? (
+              stats.defensiveWeaknesses.slice(0, 8).map(([type, count]) => (
+                <div key={type} className={`p-2 rounded-md text-xs flex items-center justify-between ${getTypeBackgroundClass(type)}`}>
+                  <span className="capitalize">{type}</span>
+                  <span className="font-medium">{count} Pokémon</span>
+                </div>
+              ))
+            ) : (
+              <div className="col-span-full text-gray-500 text-center py-2">
+                Add Pokémon to see team weaknesses
+              </div>
+            )}
           </div>
         </div>
       </div>
