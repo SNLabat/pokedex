@@ -616,6 +616,7 @@ const pokemonMarks = [
 
 // Icon mappings for all ribbons
 const ribbonIcons = {
+  // Gen 3 Contest Ribbons
   'champion-hoenn': { 
     icon: 'https://www.serebii.net/games/ribbons/championribbon.png', 
     color: '#22AA44',
@@ -646,7 +647,526 @@ const ribbonIcons = {
     color: '#FF88DD',
     fallback: '🎀'
   },
-  // Add more ribbons as needed using the URLs you provided
+  'beauty-super': { 
+    icon: 'https://www.serebii.net/games/ribbons/beautysuperribbon.png', 
+    color: '#FF88DD',
+    fallback: '🎀'
+  },
+  'beauty-hyper': { 
+    icon: 'https://www.serebii.net/games/ribbons/beautyhyperribbon.png', 
+    color: '#FF88DD',
+    fallback: '🎀'
+  },
+  'beauty-master': { 
+    icon: 'https://www.serebii.net/games/ribbons/beautymasterribbon.png', 
+    color: '#FF88DD',
+    fallback: '🎀'
+  },
+  'cute-normal': { 
+    icon: 'https://www.serebii.net/games/ribbons/cutenormalribbon.png', 
+    color: '#FFAA44',
+    fallback: '🎀'
+  },
+  'cute-super': { 
+    icon: 'https://www.serebii.net/games/ribbons/cutesuperribbon.png', 
+    color: '#FFAA44',
+    fallback: '🎀'
+  },
+  'cute-hyper': { 
+    icon: 'https://www.serebii.net/games/ribbons/cutehyperribbon.png', 
+    color: '#FFAA44',
+    fallback: '🎀'
+  },
+  'cute-master': { 
+    icon: 'https://www.serebii.net/games/ribbons/cutemasterribbon.png', 
+    color: '#FFAA44',
+    fallback: '🎀'
+  },
+  'smart-normal': { 
+    icon: 'https://www.serebii.net/games/ribbons/smartnormalribbon.png', 
+    color: '#44BB44',
+    fallback: '🎀'
+  },
+  'smart-super': { 
+    icon: 'https://www.serebii.net/games/ribbons/smartsuperribbon.png', 
+    color: '#44BB44',
+    fallback: '🎀'
+  },
+  'smart-hyper': { 
+    icon: 'https://www.serebii.net/games/ribbons/smarthyperribbon.png', 
+    color: '#44BB44',
+    fallback: '🎀'
+  },
+  'smart-master': { 
+    icon: 'https://www.serebii.net/games/ribbons/smartmasterribbon.png', 
+    color: '#44BB44',
+    fallback: '🎀'
+  },
+  'tough-normal': { 
+    icon: 'https://www.serebii.net/games/ribbons/toughnormalribbon.png', 
+    color: '#BB6644',
+    fallback: '🎀'
+  },
+  'tough-super': { 
+    icon: 'https://www.serebii.net/games/ribbons/toughsuperribbon.png', 
+    color: '#BB6644',
+    fallback: '🎀'
+  },
+  'tough-hyper': { 
+    icon: 'https://www.serebii.net/games/ribbons/toughhyperribbon.png', 
+    color: '#BB6644',
+    fallback: '🎀'
+  },
+  'tough-master': { 
+    icon: 'https://www.serebii.net/games/ribbons/toughmasterribbon.png', 
+    color: '#BB6644',
+    fallback: '🎀'
+  },
+  'winning': { 
+    icon: 'https://www.serebii.net/games/ribbons/winningribbon.png', 
+    color: '#DDAA22',
+    fallback: '🎀'
+  },
+  'victory': { 
+    icon: 'https://www.serebii.net/games/ribbons/victoryribbon.png', 
+    color: '#DDAA22',
+    fallback: '🎀'
+  },
+  'artist': { 
+    icon: 'https://www.serebii.net/games/ribbons/artistribbon.png', 
+    color: '#FF88AA',
+    fallback: '🎀'
+  },
+  'effort': { 
+    icon: 'https://www.serebii.net/games/ribbons/effortribbon.png', 
+    color: '#DDAA22',
+    fallback: '🎀'
+  },
+  'marine': { 
+    icon: 'https://www.serebii.net/games/ribbons/marineribbon.png', 
+    color: '#4488DD',
+    fallback: '🎀'
+  },
+  'land': { 
+    icon: 'https://www.serebii.net/games/ribbons/landribbon.png', 
+    color: '#BB6644',
+    fallback: '🎀'
+  },
+  'sky': { 
+    icon: 'https://www.serebii.net/games/ribbons/skyribbon.png', 
+    color: '#88AAFF',
+    fallback: '🎀'
+  },
+  'country': { 
+    icon: 'https://www.serebii.net/games/ribbons/countryribbon.png', 
+    color: '#DDAA22',
+    fallback: '🎀'
+  },
+  'national': { 
+    icon: 'https://www.serebii.net/games/ribbons/nationalribbon.png', 
+    color: '#DD2222',
+    fallback: '🎀'
+  },
+  'earth': { 
+    icon: 'https://www.serebii.net/games/ribbons/earthribbon.png', 
+    color: '#44BB44',
+    fallback: '🎀'
+  },
+  'world': { 
+    icon: 'https://www.serebii.net/games/ribbons/worldribbon.png', 
+    color: '#4488DD',
+    fallback: '🎀'
+  },
+  'sinnoh-champ': { 
+    icon: 'https://www.serebii.net/games/ribbons/sinnohchampribbon.png', 
+    color: '#22AA44',
+    fallback: '🎀'
+  },
+  'cool-contest-normal-s': { 
+    icon: 'https://www.serebii.net/games/ribbons/coolcontestnormalrankribbon-s.png', 
+    color: '#FF4444',
+    fallback: '🎀'
+  },
+  'cool-contest-super-s': { 
+    icon: 'https://www.serebii.net/games/ribbons/coolcontestsuperrankribbon-s.png', 
+    color: '#FF4444',
+    fallback: '🎀'
+  },
+  'cool-contest-hyper-s': { 
+    icon: 'https://www.serebii.net/games/ribbons/coolcontesthyperrankribbon-s.png', 
+    color: '#FF4444',
+    fallback: '🎀'
+  },
+  'cool-contest-master-s': { 
+    icon: 'https://www.serebii.net/games/ribbons/coolcontestmasterrankribbon-s.png', 
+    color: '#FF4444',
+    fallback: '🎀'
+  },
+  'beauty-contest-normal-s': { 
+    icon: 'https://www.serebii.net/games/ribbons/beautycontestnormalrankribbon-s.png', 
+    color: '#FF88DD',
+    fallback: '🎀'
+  },
+  'beauty-contest-super-s': { 
+    icon: 'https://www.serebii.net/games/ribbons/beautycontestsuperrankribbon-s.png', 
+    color: '#FF88DD',
+    fallback: '🎀'
+  },
+  'beauty-contest-hyper-s': { 
+    icon: 'https://www.serebii.net/games/ribbons/beautycontesthyperrankribbon-s.png', 
+    color: '#FF88DD',
+    fallback: '🎀'
+  },
+  'beauty-contest-master-s': { 
+    icon: 'https://www.serebii.net/games/ribbons/beautycontestmasterrankribbon-s.png', 
+    color: '#FF88DD',
+    fallback: '🎀'
+  },
+  'cute-contest-normal-s': { 
+    icon: 'https://www.serebii.net/games/ribbons/cutecontestnormalrankribbon-s.png', 
+    color: '#FFAA44',
+    fallback: '🎀'
+  },
+  'cute-contest-super-s': { 
+    icon: 'https://www.serebii.net/games/ribbons/cutecontestsuperrankribbon-s.png', 
+    color: '#FFAA44',
+    fallback: '🎀'
+  },
+  'cute-contest-hyper-s': { 
+    icon: 'https://www.serebii.net/games/ribbons/cutecontesthyperrankribbon-s.png', 
+    color: '#FFAA44',
+    fallback: '🎀'
+  },
+  'cute-contest-master-s': { 
+    icon: 'https://www.serebii.net/games/ribbons/cutecontestmasterrankribbon-s.png', 
+    color: '#FFAA44',
+    fallback: '🎀'
+  },
+  'smart-contest-normal-s': { 
+    icon: 'https://www.serebii.net/games/ribbons/smartcontestnormalrankribbon-s.png', 
+    color: '#44BB44',
+    fallback: '🎀'
+  },
+  'smart-contest-super-s': { 
+    icon: 'https://www.serebii.net/games/ribbons/smartcontestsuperrankribbon-s.png', 
+    color: '#44BB44',
+    fallback: '🎀'
+  },
+  'smart-contest-hyper-s': { 
+    icon: 'https://www.serebii.net/games/ribbons/smartcontesthyperrankribbon-s.png', 
+    color: '#44BB44',
+    fallback: '🎀'
+  },
+  'smart-contest-master-s': { 
+    icon: 'https://www.serebii.net/games/ribbons/smartcontestmasterrankribbon-s.png', 
+    color: '#44BB44',
+    fallback: '🎀'
+  },
+  'tough-contest-normal-s': { 
+    icon: 'https://www.serebii.net/games/ribbons/toughcontestnormalrankribbon-s.png', 
+    color: '#BB6644',
+    fallback: '🎀'
+  },
+  'tough-contest-super-s': { 
+    icon: 'https://www.serebii.net/games/ribbons/toughcontestsuperrankribbon-s.png', 
+    color: '#BB6644',
+    fallback: '🎀'
+  },
+  'tough-contest-hyper-s': { 
+    icon: 'https://www.serebii.net/games/ribbons/toughcontesthyperrankribbon-s.png', 
+    color: '#BB6644',
+    fallback: '🎀'
+  },
+  'tough-contest-master-s': { 
+    icon: 'https://www.serebii.net/games/ribbons/toughcontestmasterrankribbon-s.png', 
+    color: '#BB6644',
+    fallback: '🎀'
+  },
+  'ability': { 
+    icon: 'https://www.serebii.net/games/ribbons/abilityribbon.png', 
+    color: '#4488DD',
+    fallback: '🎀'
+  },
+  'great-ability': { 
+    icon: 'https://www.serebii.net/games/ribbons/greatabilityribbon.png', 
+    color: '#4488DD',
+    fallback: '🎀'
+  },
+  'double-ability': { 
+    icon: 'https://www.serebii.net/games/ribbons/doubleabilityribbon.png', 
+    color: '#4488DD',
+    fallback: '🎀'
+  },
+  'multi-ability': { 
+    icon: 'https://www.serebii.net/games/ribbons/multiabilityribbon.png', 
+    color: '#4488DD',
+    fallback: '🎀'
+  },
+  'pair-ability': { 
+    icon: 'https://www.serebii.net/games/ribbons/pairabilityribbon.png', 
+    color: '#4488DD',
+    fallback: '🎀'
+  },
+  'world-ability': { 
+    icon: 'https://www.serebii.net/games/ribbons/worldabilityribbon.png', 
+    color: '#4488DD',
+    fallback: '🎀'
+  },
+  'alert': { 
+    icon: 'https://www.serebii.net/games/ribbons/alertribbon.png', 
+    color: '#FFAA44',
+    fallback: '🎀'
+  },
+  'shock': { 
+    icon: 'https://www.serebii.net/games/ribbons/shockribbon.png', 
+    color: '#FFCC44',
+    fallback: '🎀'
+  },
+  'downcast': { 
+    icon: 'https://www.serebii.net/games/ribbons/downcastribbon.png', 
+    color: '#8888AA',
+    fallback: '🎀'
+  },
+  'careless': { 
+    icon: 'https://www.serebii.net/games/ribbons/carelessribbon.png', 
+    color: '#AAAAAA',
+    fallback: '🎀'
+  },
+  'relax': { 
+    icon: 'https://www.serebii.net/games/ribbons/relaxribbon.png', 
+    color: '#88CCAA',
+    fallback: '🎀'
+  },
+  'snooze': { 
+    icon: 'https://www.serebii.net/games/ribbons/snoozeribbon.png', 
+    color: '#99AAFF',
+    fallback: '🎀'
+  },
+  'smile': { 
+    icon: 'https://www.serebii.net/games/ribbons/smileribbon.png', 
+    color: '#FFCC44',
+    fallback: '🎀'
+  },
+  'gorgeous': { 
+    icon: 'https://www.serebii.net/games/ribbons/gorgeousribbon.png', 
+    color: '#FF88AA',
+    fallback: '🎀'
+  },
+  'royal': { 
+    icon: 'https://www.serebii.net/games/ribbons/royalribbon.png', 
+    color: '#AA66CC',
+    fallback: '🎀'
+  },
+  'gorgeous-royal': { 
+    icon: 'https://www.serebii.net/games/ribbons/gorgeousroyalribbon.png', 
+    color: '#FF88AA',
+    fallback: '🎀'
+  },
+  'footprint': { 
+    icon: 'https://www.serebii.net/games/ribbons/footprintribbon.png', 
+    color: '#88CCAA',
+    fallback: '🎀'
+  },
+  'legend': { 
+    icon: 'https://www.serebii.net/games/ribbons/legendribbon.png', 
+    color: '#DDAA22',
+    fallback: '🎀'
+  },
+  'classic': { 
+    icon: 'https://www.serebii.net/games/ribbons/classicribbon.png', 
+    color: '#DDAA22',
+    fallback: '🎀'
+  },
+  'premier': { 
+    icon: 'https://www.serebii.net/games/ribbons/premierribbon.png', 
+    color: '#DD2222',
+    fallback: '🎀'
+  },
+  'birthday': { 
+    icon: 'https://www.serebii.net/games/ribbons/birthdayribbon.png', 
+    color: '#FF88AA',
+    fallback: '🎀'
+  },
+  'special': { 
+    icon: 'https://www.serebii.net/games/ribbons/specialribbon.png', 
+    color: '#DD2222',
+    fallback: '🎀'
+  },
+  'event': { 
+    icon: 'https://www.serebii.net/games/ribbons/eventribbon.png', 
+    color: '#DD2222',
+    fallback: '🎀'
+  },
+  'souvenir': { 
+    icon: 'https://www.serebii.net/games/ribbons/souvenirribbon.png', 
+    color: '#DDAA22',
+    fallback: '🎀'
+  },
+  'battle-champ': { 
+    icon: 'https://www.serebii.net/games/ribbons/battlechampribbon.png', 
+    color: '#22AA44',
+    fallback: '🎀'
+  },
+  'regional-champ': { 
+    icon: 'https://www.serebii.net/games/ribbons/regionalchampribbon.png', 
+    color: '#22AA44',
+    fallback: '🎀'
+  },
+  'national-champ': { 
+    icon: 'https://www.serebii.net/games/ribbons/nationalchampribbon.png', 
+    color: '#22AA44',
+    fallback: '🎀'
+  },
+  'kalos-champion': { 
+    icon: 'https://www.serebii.net/games/ribbons/kaloschampionribbon.png', 
+    color: '#22AA44',
+    fallback: '🎀'
+  },
+  'training': { 
+    icon: 'https://www.serebii.net/games/ribbons/trainingribbon.png', 
+    color: '#4488DD',
+    fallback: '🎀'
+  },
+  'skillful-battler': { 
+    icon: 'https://www.serebii.net/games/ribbons/skillfulbattlerribbon.png', 
+    color: '#4488DD',
+    fallback: '🎀'
+  },
+  'expert-battler': { 
+    icon: 'https://www.serebii.net/games/ribbons/expertbattlerribbon.png', 
+    color: '#4488DD',
+    fallback: '🎀'
+  },
+  'best-friends': { 
+    icon: 'https://www.serebii.net/games/ribbons/bestfriendsribbon.png', 
+    color: '#FF88AA',
+    fallback: '🎀'
+  },
+  'contest-memory': { 
+    icon: 'https://www.serebii.net/games/ribbons/contestmemoryribbon.png', 
+    color: '#FF88AA',
+    fallback: '🎀'
+  },
+  'battle-memory': { 
+    icon: 'https://www.serebii.net/games/ribbons/battlememoryribbon.png', 
+    color: '#4488DD',
+    fallback: '🎀'
+  },
+  'contest-memory-2': { 
+    icon: 'https://www.serebii.net/games/ribbons/contestmemoryribbon2.png', 
+    color: '#FF88AA',
+    fallback: '🎀'
+  },
+  'battle-memory-2': { 
+    icon: 'https://www.serebii.net/games/ribbons/battlememoryribbon2.png', 
+    color: '#4488DD',
+    fallback: '🎀'
+  },
+  'alola-champion': { 
+    icon: 'https://www.serebii.net/games/ribbons/alolachampionribbon.png', 
+    color: '#22AA44',
+    fallback: '🎀'
+  },
+  'battle-royal-master': { 
+    icon: 'https://www.serebii.net/games/ribbons/battleroyalmasterribbon.png', 
+    color: '#DDAA22',
+    fallback: '🎀'
+  },
+  'battle-tree-great': { 
+    icon: 'https://www.serebii.net/games/ribbons/battletreegreatribbon.png', 
+    color: '#4488DD',
+    fallback: '🎀'
+  },
+  'battle-tree-master': { 
+    icon: 'https://www.serebii.net/games/ribbons/battletreemasterribbon.png', 
+    color: '#4488DD',
+    fallback: '🎀'
+  },
+  'galar-champion': { 
+    icon: 'https://www.serebii.net/games/ribbons/galarchampionribbon.png', 
+    color: '#22AA44',
+    fallback: '🎀'
+  },
+  'tower-master': { 
+    icon: 'https://www.serebii.net/games/ribbons/towermasterribbon.png', 
+    color: '#4488DD',
+    fallback: '🎀'
+  },
+  'master-rank': { 
+    icon: 'https://www.serebii.net/games/ribbons/masterrankribbon.png', 
+    color: '#DDAA22',
+    fallback: '🎀'
+  },
+  'record': { 
+    icon: 'https://www.serebii.net/games/ribbons/recordribbon.png', 
+    color: '#DDAA22',
+    fallback: '🎀'
+  },
+  'history': { 
+    icon: 'https://www.serebii.net/games/ribbons/historyribbon.png', 
+    color: '#DDAA22',
+    fallback: '🎀'
+  },
+  'red': { 
+    icon: 'https://www.serebii.net/games/ribbons/redribbon.png', 
+    color: '#DD2222',
+    fallback: '🎀'
+  },
+  'green': { 
+    icon: 'https://www.serebii.net/games/ribbons/greenribbon.png', 
+    color: '#44BB44',
+    fallback: '🎀'
+  },
+  'blue': { 
+    icon: 'https://www.serebii.net/games/ribbons/blueribbon.png', 
+    color: '#4488DD',
+    fallback: '🎀'
+  },
+  'festival': { 
+    icon: 'https://www.serebii.net/games/ribbons/festivalribbon.png', 
+    color: '#FF88AA',
+    fallback: '🎀'
+  },
+  'carnival': { 
+    icon: 'https://www.serebii.net/games/ribbons/carnivalribbon.png', 
+    color: '#FFAA44',
+    fallback: '🎀'
+  },
+  'beauty-master-2': { 
+    icon: 'https://www.serebii.net/games/ribbons/beautymasterribbon2.png', 
+    color: '#FF88DD',
+    fallback: '🎀'
+  },
+  'cleverness-master': { 
+    icon: 'https://www.serebii.net/games/ribbons/clevernessmasterribbon.png', 
+    color: '#44BB44',
+    fallback: '🎀'
+  },
+  'coolness-master': { 
+    icon: 'https://www.serebii.net/games/ribbons/coolnessmasterribbon.png', 
+    color: '#FF4444',
+    fallback: '🎀'
+  },
+  'cuteness-master': { 
+    icon: 'https://www.serebii.net/games/ribbons/cutenessmasterribbon.png', 
+    color: '#FFAA44',
+    fallback: '🎀'
+  },
+  'toughness-master': { 
+    icon: 'https://www.serebii.net/games/ribbons/toughnessmasterribbon.png', 
+    color: '#BB6644',
+    fallback: '🎀'
+  },
+  'contest-star': { 
+    icon: 'https://www.serebii.net/games/ribbons/conteststarribbon.png', 
+    color: '#FFCC44',
+    fallback: '🎀'
+  },
+  'twinkling-star': { 
+    icon: 'https://www.serebii.net/games/ribbons/twinklingstarribbon.png', 
+    color: '#FFCC44',
+    fallback: '🎀'
+  }
 };
 
 // Icon mappings for all marks
