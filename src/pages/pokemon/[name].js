@@ -2207,9 +2207,9 @@ const SpriteImage = ({ src, alt, label, animated = false, large = false, extraLa
 
 // Add this component before the PokemonDetail export
 const SpritesTab = ({ pokemon }) => {
-  const [selectedGeneration, setSelectedGeneration] = useState('all');
+  const [selectedGeneration, setSelectedGeneration] = useState('main');
   const generations = [
-    { id: 'all', name: 'All Sprites' },
+    { id: 'main', name: 'Official Artwork' },
     { id: 'home', name: 'Pokémon HOME' },
     { id: 'gen1', name: 'Generation 1' },
     { id: 'gen2', name: 'Generation 2' },
@@ -2223,8 +2223,7 @@ const SpritesTab = ({ pokemon }) => {
   
   // Filter generations that have sprites for this Pokémon
   const availableGenerations = generations.filter(gen => {
-    if (gen.id === 'all') return true;
-    if (gen.id === 'home') return true;
+    if (gen.id === 'main' || gen.id === 'home') return true;
     
     // For other generations, check if there are sprites
     const genNumber = parseInt(gen.id.replace('gen', ''));
@@ -2246,6 +2245,44 @@ const SpritesTab = ({ pokemon }) => {
     return maxIds[gen] || 898;
   }
   
+  // Official Artwork Component
+  const OfficialArtwork = ({ pokemon }) => {
+    const [isShiny, setIsShiny] = useState(false);
+    
+    // Official artwork URLs
+    const officialArtworkUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemon.id}.png`;
+    const officialShinyArtworkUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/${pokemon.id}.png`;
+    
+    return (
+      <div className="space-y-4">
+        <h3 className="text-xl font-semibold">Official Artwork</h3>
+        
+        <div className="flex justify-center mb-4">
+          <button
+            onClick={() => setIsShiny(false)}
+            className={`px-4 py-2 rounded-l-lg ${!isShiny ? 'bg-red-600 text-white' : 'bg-gray-700 text-gray-300'}`}
+          >
+            Regular
+          </button>
+          <button
+            onClick={() => setIsShiny(true)}
+            className={`px-4 py-2 rounded-r-lg ${isShiny ? 'bg-red-600 text-white' : 'bg-gray-700 text-gray-300'}`}
+          >
+            Shiny
+          </button>
+        </div>
+        
+        <div className="flex justify-center">
+          <SpriteImage 
+            src={isShiny ? officialShinyArtworkUrl : officialArtworkUrl}
+            alt={`${pokemon.name} ${isShiny ? 'shiny' : 'regular'} official artwork`}
+            extraLarge={true}
+          />
+        </div>
+      </div>
+    );
+  };
+  
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap gap-2">
@@ -2265,19 +2302,8 @@ const SpritesTab = ({ pokemon }) => {
       </div>
       
       <div className="space-y-8">
-        {selectedGeneration === 'all' && (
-          <>
-            <HomeSprites pokemon={pokemon} />
-            
-            {pokemon.id <= 151 && <SpriteGeneration generation="gen1" pokemon={pokemon} />}
-            {pokemon.id <= 251 && <SpriteGeneration generation="gen2" pokemon={pokemon} />}
-            {pokemon.id <= 386 && <SpriteGeneration generation="gen3" pokemon={pokemon} />}
-            {pokemon.id <= 493 && <SpriteGeneration generation="gen4" pokemon={pokemon} />}
-            {pokemon.id <= 649 && <SpriteGeneration generation="gen5" pokemon={pokemon} />}
-            {pokemon.id <= 721 && <SpriteGeneration generation="gen6" pokemon={pokemon} />}
-            {pokemon.id <= 809 && <SpriteGeneration generation="gen7" pokemon={pokemon} />}
-            {pokemon.id <= 898 && <SpriteGeneration generation="gen8" pokemon={pokemon} />}
-          </>
+        {selectedGeneration === 'main' && (
+          <OfficialArtwork pokemon={pokemon} />
         )}
         
         {selectedGeneration === 'home' && (
@@ -2287,6 +2313,199 @@ const SpritesTab = ({ pokemon }) => {
         {selectedGeneration.startsWith('gen') && (
           <SpriteGeneration generation={selectedGeneration} pokemon={pokemon} />
         )}
+      </div>
+    </div>
+  );
+};
+
+// Update the HomeSprites component to ensure it works correctly
+const HomeSprites = ({ pokemon }) => {
+  const [isShiny, setIsShiny] = useState(false);
+  
+  // HOME sprite URLs
+  const homeNormalUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/${pokemon.id}.png`;
+  const homeShinyUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/${pokemon.id}.png`;
+  
+  return (
+    <div className="space-y-4">
+      <h3 className="text-xl font-semibold">Pokémon HOME Sprites</h3>
+      
+      <div className="flex justify-center mb-4">
+        <button
+          onClick={() => setIsShiny(false)}
+          className={`px-4 py-2 rounded-l-lg ${!isShiny ? 'bg-red-600 text-white' : 'bg-gray-700 text-gray-300'}`}
+        >
+          Regular
+        </button>
+        <button
+          onClick={() => setIsShiny(true)}
+          className={`px-4 py-2 rounded-r-lg ${isShiny ? 'bg-red-600 text-white' : 'bg-gray-700 text-gray-300'}`}
+        >
+          Shiny
+        </button>
+      </div>
+      
+      <div className="flex justify-center">
+        <SpriteImage 
+          src={isShiny ? homeShinyUrl : homeNormalUrl}
+          alt={`${pokemon.name} ${isShiny ? 'shiny' : 'regular'} HOME sprite`}
+          extraLarge={true}
+        />
+      </div>
+    </div>
+  );
+};
+
+// Update the SpriteGeneration component to fix loading issues
+const SpriteGeneration = ({ generation, pokemon }) => {
+  const [isShiny, setIsShiny] = useState(false);
+  
+  // Map generation IDs to their corresponding sprite paths
+  const generationMapping = {
+    gen1: {
+      title: "Generation 1 (Red/Blue/Yellow)",
+      regular: {
+        front: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-i/red-blue/${pokemon.id}.png`,
+        back: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-i/red-blue/back/${pokemon.id}.png`,
+        frontGray: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-i/yellow/${pokemon.id}.png`,
+        backGray: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-i/yellow/back/${pokemon.id}.png`
+      },
+      // Gen 1 doesn't have shiny sprites
+      shiny: null
+    },
+    gen2: {
+      title: "Generation 2 (Gold/Silver/Crystal)",
+      regular: {
+        front: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-ii/gold/${pokemon.id}.png`,
+        back: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-ii/gold/back/${pokemon.id}.png`,
+        frontCrystal: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-ii/crystal/${pokemon.id}.png`,
+        backCrystal: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-ii/crystal/back/${pokemon.id}.png`
+      },
+      shiny: {
+        front: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-ii/gold/shiny/${pokemon.id}.png`,
+        back: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-ii/gold/back/shiny/${pokemon.id}.png`,
+        frontCrystal: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-ii/crystal/shiny/${pokemon.id}.png`,
+        backCrystal: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-ii/crystal/back/shiny/${pokemon.id}.png`
+      }
+    },
+    gen3: {
+      title: "Generation 3 (Ruby/Sapphire/Emerald/FireRed/LeafGreen)",
+      regular: {
+        frontRS: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-iii/ruby-sapphire/${pokemon.id}.png`,
+        backRS: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-iii/ruby-sapphire/back/${pokemon.id}.png`,
+        frontEmerald: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-iii/emerald/${pokemon.id}.png`,
+        backEmerald: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-iii/emerald/back/${pokemon.id}.png`,
+        frontFRLG: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-iii/firered-leafgreen/${pokemon.id}.png`,
+        backFRLG: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-iii/firered-leafgreen/back/${pokemon.id}.png`
+      },
+      shiny: {
+        // Gen 3 doesn't have separate shiny sprites in the API
+      }
+    },
+    gen4: {
+      title: "Generation 4 (Diamond/Pearl/Platinum/HeartGold/SoulSilver)",
+      regular: {
+        frontDP: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-iv/diamond-pearl/${pokemon.id}.png`,
+        backDP: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-iv/diamond-pearl/back/${pokemon.id}.png`,
+        frontPt: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-iv/platinum/${pokemon.id}.png`,
+        backPt: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-iv/platinum/back/${pokemon.id}.png`,
+        frontHGSS: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-iv/heartgold-soulsilver/${pokemon.id}.png`,
+        backHGSS: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-iv/heartgold-soulsilver/back/${pokemon.id}.png`
+      },
+      shiny: {
+        frontDP: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-iv/diamond-pearl/shiny/${pokemon.id}.png`,
+        backDP: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-iv/diamond-pearl/back/shiny/${pokemon.id}.png`,
+        frontPt: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-iv/platinum/shiny/${pokemon.id}.png`,
+        backPt: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-iv/platinum/back/shiny/${pokemon.id}.png`,
+        frontHGSS: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-iv/heartgold-soulsilver/shiny/${pokemon.id}.png`,
+        backHGSS: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-iv/heartgold-soulsilver/back/shiny/${pokemon.id}.png`
+      }
+    },
+    gen5: {
+      title: "Generation 5 (Black/White/Black 2/White 2)",
+      regular: {
+        front: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/${pokemon.id}.png`,
+        back: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/back/${pokemon.id}.png`,
+        frontAnimated: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${pokemon.id}.gif`,
+        backAnimated: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/back/${pokemon.id}.gif`
+      },
+      shiny: {
+        front: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/shiny/${pokemon.id}.png`,
+        back: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/back/shiny/${pokemon.id}.png`,
+        frontAnimated: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/shiny/${pokemon.id}.gif`,
+        backAnimated: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/back/shiny/${pokemon.id}.gif`
+      }
+    },
+    gen6: {
+      title: "Generation 6 (X/Y/Omega Ruby/Alpha Sapphire)",
+      regular: {
+        frontXY: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-vi/x-y/${pokemon.id}.png`,
+        frontORAS: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-vi/omegaruby-alphasapphire/${pokemon.id}.png`
+      },
+      shiny: {
+        frontXY: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-vi/x-y/shiny/${pokemon.id}.png`,
+        frontORAS: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-vi/omegaruby-alphasapphire/shiny/${pokemon.id}.png`
+      }
+    },
+    gen7: {
+      title: "Generation 7 (Sun/Moon/Ultra Sun/Ultra Moon)",
+      regular: {
+        front: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/${pokemon.id}.png`
+      },
+      shiny: {
+        front: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/shiny/${pokemon.id}.png`
+      }
+    },
+    gen8: {
+      title: "Generation 8 (Sword/Shield)",
+      regular: {
+        front: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-viii/icons/${pokemon.id}.png`
+      },
+      shiny: null // Gen 8 doesn't have shiny sprites in the API
+    }
+  };
+  
+  const genData = generationMapping[generation];
+  
+  if (!genData) {
+    return <div>No sprite data available for this generation</div>;
+  }
+  
+  return (
+    <div className="space-y-4">
+      <h3 className="text-xl font-semibold">{genData.title}</h3>
+      
+      {genData.shiny && (
+        <div className="flex justify-center mb-4">
+          <button
+            onClick={() => setIsShiny(false)}
+            className={`px-4 py-2 rounded-l-lg ${!isShiny ? 'bg-red-600 text-white' : 'bg-gray-700 text-gray-300'}`}
+          >
+            Regular
+          </button>
+          <button
+            onClick={() => setIsShiny(true)}
+            className={`px-4 py-2 rounded-r-lg ${isShiny ? 'bg-red-600 text-white' : 'bg-gray-700 text-gray-300'}`}
+          >
+            Shiny
+          </button>
+        </div>
+      )}
+      
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {/* Display sprites based on generation and shiny status */}
+        {genData && (isShiny ? genData.shiny : genData.regular) && 
+          Object.entries(isShiny ? genData.shiny || {} : genData.regular || {}).map(([key, url]) => (
+            <SpriteImage 
+              key={key}
+              src={url}
+              alt={`${pokemon.name} ${key} sprite`}
+              label={key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+              animated={key.includes('Animated')}
+              large={generation === 'gen6' || generation === 'gen7'}
+            />
+          ))
+        }
       </div>
     </div>
   );

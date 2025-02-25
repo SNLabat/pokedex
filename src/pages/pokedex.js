@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/router';
 import AdvancedSearch from '../components/AdvancedSearch';
 import Navigation from '../components/Navigation';
+import { getPokemonCollection } from '../lib/dataManagement';
 
 export default function PokedexPage({ initialPokemon }) {
   const router = useRouter();
@@ -12,6 +13,7 @@ export default function PokedexPage({ initialPokemon }) {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedGen, setSelectedGen] = useState('all');
   const [searchFilters, setSearchFilters] = useState({});
+  const [caughtStatus, setCaughtStatus] = useState({});
   
   const generations = [
     { id: 'all', name: 'All Generations' },
@@ -25,6 +27,22 @@ export default function PokedexPage({ initialPokemon }) {
     { id: '8', name: 'Generation VIII', range: [810, 898] },
     { id: '9', name: 'Generation IX', range: [899, 1008] },
   ];
+
+  useEffect(() => {
+    // Load user's caught status data
+    const loadCaughtStatus = async () => {
+      try {
+        const result = await getPokemonCollection();
+        if (result.success && result.data) {
+          setCaughtStatus(result.data);
+        }
+      } catch (error) {
+        console.error('Error loading caught status:', error);
+      }
+    };
+    
+    loadCaughtStatus();
+  }, []);
 
   useEffect(() => {
     // Check for URL query parameters
@@ -136,6 +154,18 @@ export default function PokedexPage({ initialPokemon }) {
     return colors[type] || 'bg-gray-500';
   };
 
+  // Get the tracking status border class for a Pokémon
+  const getTrackingBorderClass = (pokemonId) => {
+    const pokemonStatus = caughtStatus[pokemonId]?.default;
+    
+    if (!pokemonStatus) return '';
+    
+    if (pokemonStatus.shiny) return 'border-2 border-yellow-400';
+    if (pokemonStatus.regular) return 'border-2 border-green-500';
+    
+    return '';
+  };
+
   // Render Pokemon Grid
   const renderPokemonGrid = () => {
     if (isLoading) {
@@ -170,7 +200,7 @@ export default function PokedexPage({ initialPokemon }) {
           <a 
             key={`pokemon-${pokemon.id}`} 
             href={`/pokemon/${pokemon.name}`}
-            className="bg-gray-800 hover:bg-gray-700 rounded-lg p-4 transition-transform hover:scale-105 flex flex-col items-center"
+            className={`bg-gray-800 hover:bg-gray-700 rounded-lg p-4 transition-transform hover:scale-105 flex flex-col items-center ${getTrackingBorderClass(pokemon.id)}`}
           >
             <div className="relative w-32 h-32">
               {pokemon.sprite ? (
@@ -186,6 +216,22 @@ export default function PokedexPage({ initialPokemon }) {
                   <span className="text-gray-500">?</span>
                 </div>
               )}
+              
+              {/* Status indicator icons */}
+              <div className="absolute -top-2 -right-2 flex space-x-1">
+                {caughtStatus[pokemon.id]?.default?.regular && (
+                  <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-white" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                )}
+                {caughtStatus[pokemon.id]?.default?.shiny && (
+                  <div className="w-5 h-5 bg-yellow-400 rounded-full flex items-center justify-center">
+                    <span className="text-xs">✨</span>
+                  </div>
+                )}
+              </div>
             </div>
             
             <div className="mt-2 text-center">
@@ -252,6 +298,21 @@ export default function PokedexPage({ initialPokemon }) {
                 {gen.name}
               </button>
             ))}
+          </div>
+        </div>
+        
+        {/* Legend for tracking indicators */}
+        <div className="mb-4 bg-gray-800 p-3 rounded-lg">
+          <h3 className="text-sm font-medium mb-2">Tracking Indicators:</h3>
+          <div className="flex items-center space-x-4 text-sm">
+            <div className="flex items-center">
+              <div className="w-6 h-6 border-2 border-green-500 bg-gray-700 rounded mr-2"></div>
+              <span>Caught</span>
+            </div>
+            <div className="flex items-center">
+              <div className="w-6 h-6 border-2 border-yellow-400 bg-gray-700 rounded mr-2"></div>
+              <span>Shiny</span>
+            </div>
           </div>
         </div>
         
