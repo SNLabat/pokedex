@@ -148,8 +148,8 @@ const getImmunities = (types) => {
   return [...immunities];
 };
 
-// Update the EvolutionChainRenderer component to use a horizontal layout
-const EvolutionChainRenderer = ({ chain, currentPokemonId, isExpanded }) => {
+// Update the EvolutionChainRenderer to always show all evolutions
+const EvolutionChainRenderer = ({ chain, currentPokemonId }) => {
   if (!chain || !chain.species) return null;
   
   const renderPokemonInChain = (speciesData) => {
@@ -181,43 +181,6 @@ const EvolutionChainRenderer = ({ chain, currentPokemonId, isExpanded }) => {
     );
   };
   
-  const renderEvolutionDetails = (details) => {
-    if (!details || details.length === 0) return null;
-    
-    const detail = details[0]; // Take first evolution method
-    let evolutionMethod = '';
-    
-    if (detail.min_level) {
-      evolutionMethod = `Level ${detail.min_level}`;
-    } else if (detail.item) {
-      evolutionMethod = `Use ${properCase(detail.item.name)}`;
-    } else if (detail.trigger && detail.trigger.name === 'trade') {
-      evolutionMethod = 'Trade';
-      if (detail.held_item) evolutionMethod += ` holding ${properCase(detail.held_item.name)}`;
-    } else if (detail.happiness) {
-      evolutionMethod = `High Friendship`;
-    } else if (detail.min_beauty) {
-      evolutionMethod = `High Beauty`;
-    } else if (detail.min_affection) {
-      evolutionMethod = `High Affection`;
-    } else {
-      evolutionMethod = 'Special condition';
-    }
-    
-    return (
-      <div className="flex flex-col items-center justify-center mx-4">
-        <div className="flex items-center">
-          <div className="h-0.5 w-8 bg-gray-600"></div>
-          <svg className="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
-          </svg>
-          <div className="h-0.5 w-8 bg-gray-600"></div>
-        </div>
-        <span className="text-xs text-center text-gray-400 mt-1">{evolutionMethod}</span>
-      </div>
-    );
-  };
-  
   // Render evolution chain horizontally
   const renderEvolutionStage = (evolutionData, depth = 0) => {
     if (!evolutionData || !evolutionData.species) return null;
@@ -233,8 +196,8 @@ const EvolutionChainRenderer = ({ chain, currentPokemonId, isExpanded }) => {
               {renderEvolutionDetails(evolutionData.evolves_to[0].evolution_details)}
               {renderPokemonInChain(evolutionData.evolves_to[0].species)}
               
-              {/* Third evolution */}
-              {isExpanded && evolutionData.evolves_to[0].evolves_to && evolutionData.evolves_to[0].evolves_to.length > 0 && (
+              {/* Third evolution - always show it now */}
+              {evolutionData.evolves_to[0].evolves_to && evolutionData.evolves_to[0].evolves_to.length > 0 && (
                 <>
                   {renderEvolutionDetails(evolutionData.evolves_to[0].evolves_to[0].evolution_details)}
                   {renderPokemonInChain(evolutionData.evolves_to[0].evolves_to[0].species)}
@@ -269,8 +232,8 @@ const EvolutionChainRenderer = ({ chain, currentPokemonId, isExpanded }) => {
               <div className="flex items-center">
                 {renderPokemonInChain(evo.species)}
                 
-                {/* Third evolution */}
-                {isExpanded && evo.evolves_to && evo.evolves_to.length > 0 && (
+                {/* Third evolution - always show it now */}
+                {evo.evolves_to && evo.evolves_to.length > 0 && (
                   <>
                     {renderEvolutionDetails(evo.evolves_to[0].evolution_details)}
                     {renderPokemonInChain(evo.evolves_to[0].species)}
@@ -540,7 +503,6 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
   const [isAnimated, setIsAnimated] = useState(false);
   const [activeTab, setActiveTab] = useState('info');
   const [caughtStatus, setCaughtStatus] = useState({});
-  const [isEvolutionExpanded, setIsEvolutionExpanded] = useState(false);
   
   // Get the main type for theming throughout the page
   const mainType = pokemon?.types?.[0]?.type?.name || 'normal';
@@ -625,7 +587,6 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
     setIsShiny(false);
     setIsAnimated(false);
     setActiveTab('info');
-    setIsEvolutionExpanded(false);
   }, [pokemon?.id]); // Only depend on pokemon.id to avoid unnecessary resets
   
   // If the page is loading from a fallback route
@@ -897,26 +858,23 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
         
         {activeTab === 'evolution' && (
           <div style={cardStyle} className="rounded-lg p-6">
-            <div className="flex justify-between items-center mb-6">
+            <div className="mb-6">
               <h2 className="text-xl font-bold">Evolution Chain</h2>
-              <button
-                onClick={() => setIsEvolutionExpanded(!isEvolutionExpanded)}
-                className="text-blue-400 hover:text-blue-300"
-              >
-                {isEvolutionExpanded ? 'Collapse' : 'Expand All'}
-              </button>
             </div>
             
-            {evolutionChain ? (
-              <div className="flex justify-center">
-                <EvolutionChainRenderer 
-                  chain={evolutionChain.chain} 
-                  currentPokemonId={pokemon.id}
-                  isExpanded={isEvolutionExpanded} 
-                />
+            {evolutionChain?.chain ? (
+              <div className="w-full overflow-x-auto pb-4">
+                <div className="inline-block min-w-full">
+                  <EvolutionChainRenderer 
+                    chain={evolutionChain.chain} 
+                    currentPokemonId={pokemon.id}
+                  />
+                </div>
               </div>
             ) : (
-              <p className="text-center text-gray-400">Evolution data not available</p>
+              <div className="text-center py-4 text-gray-400">
+                No evolution information available
+              </div>
             )}
           </div>
         )}
