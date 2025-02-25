@@ -556,7 +556,67 @@ const pokemonMarks = [
   { id: 'crafty', name: 'Crafty Mark', category: 'rare' },
 ];
 
-// Add RibbonsTab component
+// Add icon mappings for ribbons and marks
+const ribbonIcons = {
+  // Contest Ribbons
+  'contest-cool': { icon: '🏆', color: '#FF4444' },
+  'contest-beauty': { icon: '🌟', color: '#FF88DD' },
+  'contest-cute': { icon: '💖', color: '#FF99AA' },
+  'contest-smart': { icon: '🧠', color: '#99DDFF' },
+  'contest-tough': { icon: '💪', color: '#FFAA22' },
+  'contest-master': { icon: '👑', color: '#FFCC00' },
+  
+  // Champion Ribbons
+  'champion-hoenn': { icon: '🥇', color: '#22AA44' },
+  'champion-sinnoh': { icon: '🥇', color: '#4477FF' },
+  'champion-kalos': { icon: '🥇', color: '#3355DD' },
+  'champion-alola': { icon: '🥇', color: '#EE7722' },
+  'champion-galar': { icon: '🥇', color: '#9944EE' },
+  
+  // Battle Ribbons
+  'battle-tower': { icon: '🏛️', color: '#AAAAAA' },
+  'battle-tree': { icon: '🌲', color: '#44BB55' },
+  'battle-royal': { icon: '👑', color: '#BB99EE' },
+  
+  // Special Ribbons
+  'birthday': { icon: '🎂', color: '#FF77AA' },
+  'event': { icon: '🎉', color: '#5599FF' },
+  'gift': { icon: '🎁', color: '#FF5555' },
+  'wishing': { icon: '✨', color: '#FFDD44' },
+  'classic': { icon: '📜', color: '#CC9966' },
+};
+
+const markIcons = {
+  // Personality Marks
+  'lunchtime': { icon: '🍱', color: '#FF9944' },
+  'sleepy': { icon: '💤', color: '#99AAFF' },
+  'excited': { icon: '⚡', color: '#FFDD33' },
+  'grumpy': { icon: '😠', color: '#FF6666' },
+  
+  // Time Marks
+  'dawn': { icon: '🌅', color: '#FFBB77' },
+  'dusk': { icon: '🌇', color: '#9977CC' },
+  'morning': { icon: '☀️', color: '#FFCC44' },
+  'night': { icon: '🌙', color: '#6666BB' },
+  
+  // Weather Marks
+  'rainy': { icon: '🌧️', color: '#77AAFF' },
+  'snowy': { icon: '❄️', color: '#AADDFF' },
+  'stormy': { icon: '⛈️', color: '#5577AA' },
+  'cloudy': { icon: '☁️', color: '#AAAACC' },
+  'misty': { icon: '🌫️', color: '#CCCCDD' },
+  'sunny': { icon: '☀️', color: '#FFDD33' },
+  
+  // Rare Marks
+  'rare': { icon: '💎', color: '#55AAFF' },
+  'rowdy': { icon: '🔥', color: '#FF5544' },
+  'unseeing': { icon: '👁️', color: '#BB77DD' },
+  'curry': { icon: '🍛', color: '#FFAA44' },
+  'fishing': { icon: '🎣', color: '#44AAFF' },
+  'crafty': { icon: '🔨', color: '#AA8866' },
+};
+
+// Update the RibbonsTab component to include icons
 const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus }) => {
   // Group ribbons by category for better organization
   const ribbonsByCategory = pokemonRibbons.reduce((acc, ribbon) => {
@@ -586,24 +646,43 @@ const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus }) => {
               {categoryNames[category] || properCase(category)}
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-              {ribbonsByCategory[category].map(ribbon => (
-                <button
-                  key={ribbon.id}
-                  onClick={() => updateRibbonStatus(ribbon.id, pokemon.name)}
-                  className={`py-2 px-3 rounded-lg text-sm text-left transition-colors ${
-                    caughtStatus.ribbons?.[ribbon.id] 
-                      ? 'bg-indigo-600 hover:bg-indigo-700 text-white' 
-                      : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
-                  }`}
-                >
-                  <div className="flex items-center">
-                    <span className="flex-1">{ribbon.name}</span>
-                    {caughtStatus.ribbons?.[ribbon.id] && (
-                      <span className="ml-2">✓</span>
-                    )}
-                  </div>
-                </button>
-              ))}
+              {ribbonsByCategory[category].map(ribbon => {
+                const iconData = ribbonIcons[ribbon.id] || { icon: '🎀', color: '#AA99CC' };
+                const hasRibbon = caughtStatus.ribbons?.[ribbon.id];
+                
+                return (
+                  <button
+                    key={ribbon.id}
+                    onClick={() => updateRibbonStatus(ribbon.id, pokemon.name)}
+                    className={`py-3 px-4 rounded-lg text-left transition-colors ${
+                      hasRibbon 
+                        ? 'bg-indigo-600 hover:bg-indigo-700 text-white' 
+                        : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+                    }`}
+                  >
+                    <div className="flex items-center">
+                      <div 
+                        className="w-10 h-10 rounded-full flex items-center justify-center mr-3 text-xl"
+                        style={{ 
+                          backgroundColor: hasRibbon ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)',
+                          border: `2px solid ${iconData.color}`
+                        }}
+                      >
+                        {iconData.icon}
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-medium">{ribbon.name}</p>
+                        {hasRibbon && (
+                          <p className="text-xs opacity-80">Obtained</p>
+                        )}
+                      </div>
+                      {hasRibbon && (
+                        <span className="ml-2 text-xl">✓</span>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </div>
         ))}
@@ -612,7 +691,7 @@ const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus }) => {
   );
 };
 
-// Add MarksTab component
+// Update the MarksTab component to include icons
 const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus }) => {
   // Group marks by category for better organization
   const marksByCategory = pokemonMarks.reduce((acc, mark) => {
@@ -642,24 +721,43 @@ const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus }) => {
               {categoryNames[category] || properCase(category)}
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-              {marksByCategory[category].map(mark => (
-                <button
-                  key={mark.id}
-                  onClick={() => updateMarkStatus(mark.id, pokemon.name)}
-                  className={`py-2 px-3 rounded-lg text-sm text-left transition-colors ${
-                    caughtStatus.marks?.[mark.id] 
-                      ? 'bg-green-600 hover:bg-green-700 text-white' 
-                      : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
-                  }`}
-                >
-                  <div className="flex items-center">
-                    <span className="flex-1">{mark.name}</span>
-                    {caughtStatus.marks?.[mark.id] && (
-                      <span className="ml-2">✓</span>
-                    )}
-                  </div>
-                </button>
-              ))}
+              {marksByCategory[category].map(mark => {
+                const iconData = markIcons[mark.id] || { icon: '🏷️', color: '#99CCFF' };
+                const hasMark = caughtStatus.marks?.[mark.id];
+                
+                return (
+                  <button
+                    key={mark.id}
+                    onClick={() => updateMarkStatus(mark.id, pokemon.name)}
+                    className={`py-3 px-4 rounded-lg text-left transition-colors ${
+                      hasMark 
+                        ? 'bg-green-600 hover:bg-green-700 text-white' 
+                        : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+                    }`}
+                  >
+                    <div className="flex items-center">
+                      <div 
+                        className="w-10 h-10 rounded-full flex items-center justify-center mr-3 text-xl"
+                        style={{ 
+                          backgroundColor: hasMark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)',
+                          border: `2px solid ${iconData.color}`
+                        }}
+                      >
+                        {iconData.icon}
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-medium">{mark.name}</p>
+                        {hasMark && (
+                          <p className="text-xs opacity-80">Found</p>
+                        )}
+                      </div>
+                      {hasMark && (
+                        <span className="ml-2 text-xl">✓</span>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </div>
         ))}
