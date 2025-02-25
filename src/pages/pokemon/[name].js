@@ -148,7 +148,7 @@ const getImmunities = (types) => {
   return [...immunities];
 };
 
-// Update the EvolutionChainRenderer to always show all evolutions
+// Update the EvolutionChainRenderer to include the missing renderEvolutionDetails function
 const EvolutionChainRenderer = ({ chain, currentPokemonId }) => {
   if (!chain || !chain.species) return null;
   
@@ -178,6 +178,44 @@ const EvolutionChainRenderer = ({ chain, currentPokemonId }) => {
           </span>
         </a>
       </Link>
+    );
+  };
+  
+  // Add the missing renderEvolutionDetails function
+  const renderEvolutionDetails = (details) => {
+    if (!details || details.length === 0) return null;
+    
+    const detail = details[0]; // Take first evolution method
+    let evolutionMethod = '';
+    
+    if (detail.min_level) {
+      evolutionMethod = `Level ${detail.min_level}`;
+    } else if (detail.item) {
+      evolutionMethod = `Use ${properCase(detail.item.name)}`;
+    } else if (detail.trigger && detail.trigger.name === 'trade') {
+      evolutionMethod = 'Trade';
+      if (detail.held_item) evolutionMethod += ` holding ${properCase(detail.held_item.name)}`;
+    } else if (detail.happiness) {
+      evolutionMethod = `High Friendship`;
+    } else if (detail.min_beauty) {
+      evolutionMethod = `High Beauty`;
+    } else if (detail.min_affection) {
+      evolutionMethod = `High Affection`;
+    } else {
+      evolutionMethod = 'Special condition';
+    }
+    
+    return (
+      <div className="flex flex-col items-center justify-center mx-4">
+        <div className="flex items-center">
+          <div className="h-0.5 w-8 bg-gray-600"></div>
+          <svg className="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+          </svg>
+          <div className="h-0.5 w-8 bg-gray-600"></div>
+        </div>
+        <span className="text-xs text-center text-gray-400 mt-1">{evolutionMethod}</span>
+      </div>
     );
   };
   
@@ -578,35 +616,65 @@ const pokemonMarks = [
   // And many more based on your list...
 ];
 
-// Icon mappings for all ribbons
+// Icon mappings for all ribbons with standard ribbon fallback
 const ribbonIcons = {
   // Gen 3 Contest Ribbons
   'cool-normal': { 
     icon: 'https://www.serebii.net/ribbons/coolnormalribbon.png', 
     color: '#FF4444',
-    fallback: '🏆'
+    fallback: '🎀'  // Standard ribbon icon for all ribbons
   },
   'cool-super': { 
     icon: 'https://www.serebii.net/ribbons/coolsuperribbon.png', 
     color: '#FF4444',
-    fallback: '🏆'
+    fallback: '🎀'  // Standard ribbon icon
   },
-  // And so on for all ribbons...
+  'cool-hyper': { 
+    icon: 'https://www.serebii.net/ribbons/coolhyperribbon.png', 
+    color: '#FF4444',
+    fallback: '🎀'
+  },
+  'cool-master': { 
+    icon: 'https://www.serebii.net/ribbons/coolmasterribbon.png', 
+    color: '#FF4444',
+    fallback: '🎀'
+  },
+  'beauty-normal': { 
+    icon: 'https://www.serebii.net/ribbons/beautynormalribbon.png', 
+    color: '#FF88DD',
+    fallback: '🎀'
+  },
+  'champion-hoenn': { 
+    icon: 'https://www.serebii.net/ribbons/championribbon.png', 
+    color: '#22AA44',
+    fallback: '🎀'
+  },
+  // And more ribbon definitions...
 };
 
-// Icon mappings for all marks
+// Icon mappings for all marks with standard X fallback
 const markIcons = {
   'lunchtime': { 
     icon: 'https://www.serebii.net/ribbons/lunchtimemark.png', 
     color: '#FF9944',
-    fallback: '🍱'
+    fallback: '❌'  // Standard X icon for all marks
   },
   'sleepy-time': { 
     icon: 'https://www.serebii.net/ribbons/sleepy-timemark.png', 
     color: '#99AAFF',
-    fallback: '💤'
+    fallback: '❌'  // Standard X icon
   },
-  // And so on for all marks...
+  'dusk': { 
+    icon: 'https://www.serebii.net/ribbons/duskmark.png', 
+    color: '#9977CC',
+    fallback: '❌'
+  },
+  'dawn': { 
+    icon: 'https://www.serebii.net/ribbons/dawnmark.png', 
+    color: '#FFBB77',
+    fallback: '❌'
+  },
+  // And more mark definitions...
 };
 
 // Enhance the RibbonsTab component with filtering and pagination
@@ -669,7 +737,11 @@ const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus }) => {
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
               {ribbonsByCategory[category].map(ribbon => {
-                const iconData = ribbonIcons[ribbon.id] || { icon: '🎀', color: '#AA99CC', fallback: '🎀' };
+                const iconData = ribbonIcons[ribbon.id] || { 
+                  icon: 'https://www.serebii.net/ribbons/classicribbon.png', // Default icon
+                  color: '#AA99CC', 
+                  fallback: '🎀'  // Standard ribbon fallback
+                };
                 const hasRibbon = caughtStatus.ribbons?.[ribbon.id];
                 const useIconFallback = failedImages[ribbon.id];
                 
@@ -761,7 +833,11 @@ const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus }) => {
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
               {marksByCategory[category].map(mark => {
-                const iconData = markIcons[mark.id] || { icon: '🏷️', color: '#99CCFF', fallback: '🏷️' };
+                const iconData = markIcons[mark.id] || { 
+                  icon: 'https://www.serebii.net/ribbons/raremark.png', // Default icon
+                  color: '#99CCFF', 
+                  fallback: '❌'  // Standard X fallback
+                };
                 const hasMark = caughtStatus.marks?.[mark.id];
                 const useIconFallback = failedImages[mark.id];
                 

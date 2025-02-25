@@ -214,303 +214,104 @@ const SeasonalVariation = ({ season, image, description }) => (
 );
 
 // Main component
-const LocationEncounterData = ({ pokemon, theme }) => {
-  const [selectedGame, setSelectedGame] = useState(null);
-  const [expandedMethod, setExpandedMethod] = useState(null);
-  const [encounterData, setEncounterData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  
-  // Replace with actual game data and icons
-  const gameVersions = [
-    { id: 'scarlet', name: 'Scarlet', icon: '/img/games/scarlet.png' },
-    { id: 'violet', name: 'Violet', icon: '/img/games/violet.png' },
-    { id: 'sword', name: 'Sword', icon: '/img/games/sword.png' },
-    { id: 'shield', name: 'Shield', icon: '/img/games/shield.png' },
-    { id: 'bdsp', name: 'BD/SP', icon: '/img/games/bdsp.png' },
-    { id: 'arceus', name: 'Legends', icon: '/img/games/arceus.png' }
-  ];
+const LocationEncounterData = ({ pokemonId }) => {
+  const [locations, setLocations] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // In a real application, you'd fetch this data from an API
-  // For this example, I'm creating mock data based on the pokemon parameter
   useEffect(() => {
-    // Simulate API request
-    setLoading(true);
-    setTimeout(() => {
-      // Mock data - in a real app this would come from your API
-      const mockEncounterData = generateMockEncounterData(pokemon);
-      setEncounterData(mockEncounterData);
-      
-      // Set first game as selected if available
-      if (mockEncounterData && Object.keys(mockEncounterData).length > 0) {
-        setSelectedGame(Object.keys(mockEncounterData)[0]);
-      }
-      
-      setLoading(false);
-    }, 500);
-  }, [pokemon]);
+    if (!pokemonId) {
+      setIsLoading(false);
+      return;
+    }
 
-  const toggleMethod = (method) => {
-    setExpandedMethod(expandedMethod === method ? null : method);
-  };
-
-  // Helper function to generate mock encounter data based on Pokémon
-  function generateMockEncounterData(pokemon) {
-    // This would be replaced with real data from your API
-    const mockData = {
-      'sword': {
-        methods: {
-          'grass': [
-            {
-              name: 'Route 1',
-              chance: 20,
-              level: { min: 2, max: 5 },
-              conditions: 'Normal weather',
-              games: ['sword', 'shield']
-            },
-            {
-              name: 'Route 2',
-              chance: 15,
-              level: { min: 5, max: 8 },
-              conditions: 'Normal weather',
-              games: ['sword', 'shield']
-            }
-          ],
-          'hidden': [
-            {
-              name: 'Glimwood Tangle',
-              chance: 5,
-              level: { min: 34, max: 36 },
-              conditions: 'Hidden encounter',
-              games: ['sword']
-            }
-          ]
-        },
-        exclusivity: pokemon.id % 2 === 0 ? 'Sword Exclusive' : null,
-        evolutionRequirements: 'Level up during the day with high friendship'
-      },
-      'shield': {
-        methods: {
-          'grass': [
-            {
-              name: 'Route 1',
-              chance: 20,
-              level: { min: 2, max: 5 },
-              conditions: 'Normal weather',
-              games: ['sword', 'shield']
-            },
-            {
-              name: 'Route 2',
-              chance: 15,
-              level: { min: 5, max: 8 },
-              conditions: 'Normal weather',
-              games: ['sword', 'shield']
-            }
-          ],
-          'cave': [
-            {
-              name: 'Galar Mine',
-              chance: 10,
-              level: { min: 12, max: 15 },
-              conditions: 'Normal encounter',
-              games: ['shield']
-            }
-          ]
-        },
-        exclusivity: pokemon.id % 2 !== 0 ? 'Shield Exclusive' : null,
-        evolutionRequirements: 'Level up during the night with high friendship'
-      },
-      'scarlet': {
-        methods: {
-          'walk': [
-            {
-              name: 'Area Zero',
-              chance: 25,
-              level: { min: 50, max: 55 },
-              conditions: 'Normal encounter',
-              games: ['scarlet', 'violet']
-            }
-          ],
-          'special': [
-            {
-              name: 'Tera Raid Battles',
-              level: 60,
-              conditions: '5-star raid',
-              games: ['scarlet']
-            }
-          ]
-        },
-        exclusivity: pokemon.id % 3 === 0 ? 'Scarlet Exclusive' : null,
-        teraTypes: ['Normal', 'Fighting', 'Fire']
+    const fetchLocationData = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonId}/encounters`);
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch location data');
+        }
+        
+        const data = await response.json();
+        
+        // Process the encounter data
+        const processedLocations = data.map(location => {
+          const locationName = location.location_area.name.replace(/-/g, ' ').replace(/area/gi, 'Area');
+          
+          // Group by game
+          const gameVersions = location.version_details.map(detail => ({
+            game: detail.version.name,
+            maxChance: detail.max_chance,
+            encounterDetails: detail.encounter_details.map(encounter => ({
+              method: encounter.method.name.replace(/-/g, ' '),
+              chance: encounter.chance,
+              minLevel: encounter.min_level,
+              maxLevel: encounter.max_level || encounter.min_level
+            }))
+          }));
+          
+          return {
+            name: locationName,
+            gameVersions
+          };
+        });
+        
+        setLocations(processedLocations);
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Error fetching location data:', error);
+        setError('Unable to load location data. Please try again later.');
+        setIsLoading(false);
       }
     };
-    
-    // Randomly determine which games have this Pokémon
-    const availableGames = {};
-    gameVersions.forEach(game => {
-      // 60% chance to be available in each game
-      if (Math.random() > 0.4 || mockData[game.id]) {
-        availableGames[game.id] = mockData[game.id] || {
-          methods: {
-            'special': [
-              {
-                name: 'Special encounter',
-                level: 30,
-                conditions: 'Special conditions apply',
-                games: [game.id]
-              }
-            ]
-          }
-        };
-      }
-    });
-    
-    return Object.keys(availableGames).length > 0 ? availableGames : {
-      'none': {
-        methods: {},
-        evolutionRequirements: 'This Pokémon cannot be caught in the wild',
-        exclusivity: 'Not available in current games'
-      }
-    };
+
+    fetchLocationData();
+  }, [pokemonId]);
+
+  if (isLoading) {
+    return <div className="text-center py-8">Loading encounter locations...</div>;
   }
 
-  // Conditional render based on loading state
-  if (loading) {
-    return (
-      <div className={`${theme.bg} bg-opacity-70 rounded-lg p-6 text-center`}>
-        <p>Loading encounter data...</p>
-      </div>
-    );
+  if (error) {
+    return <div className="text-center py-8 text-red-500">{error}</div>;
   }
 
-  // If no encounter data is available
-  if (!encounterData || Object.keys(encounterData).length === 0) {
-    return (
-      <div className={`${theme.bg} bg-opacity-70 rounded-lg p-6`}>
-        <div className="text-center py-8">
-          <MapIcon />
-          <h3 className="text-xl font-medium mb-2">No Encounter Data Available</h3>
-          <p className="text-gray-400">
-            This Pokémon might be obtained through special means like events, trading, or evolution.
-          </p>
-        </div>
-      </div>
-    );
+  if (locations.length === 0) {
+    return <div className="text-center py-8 text-gray-400">No encounter locations found for this Pokémon.</div>;
   }
 
   return (
-    <div className={`${theme.bg} bg-opacity-70 rounded-lg p-6`}>
-      <h2 className="text-2xl font-bold mb-6 flex items-center">
-        <LocationMarkerIcon />
-        Location & Encounter Data
-      </h2>
-      
-      {/* Game version selection */}
-      <div className="mb-6">
-        <h3 className="text-lg font-medium mb-3">Select Game Version</h3>
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
-          {gameVersions.map(game => (
-            <GameCard
-              key={game.id}
-              game={game}
-              isSelected={selectedGame === game.id}
-              onClick={() => encounterData[game.id] && setSelectedGame(game.id)}
-            />
-          ))}
-        </div>
-      </div>
-      
-      {/* Encounter methods for selected game */}
-      {selectedGame && encounterData[selectedGame] && (
-        <div className="mb-6">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-medium">Encounter Methods</h3>
-            
-            {/* Game exclusivity badge */}
-            {encounterData[selectedGame].exclusivity && (
-              <span className="bg-red-600 text-white px-3 py-1 rounded-full text-sm">
-                {encounterData[selectedGame].exclusivity}
-              </span>
-            )}
-          </div>
+    <div className="space-y-6">
+      {locations.map((location, index) => (
+        <div key={index} className="bg-gray-700 rounded-lg p-4">
+          <h3 className="text-lg font-medium mb-3 capitalize">{location.name}</h3>
           
-          {Object.keys(encounterData[selectedGame].methods).length > 0 ? (
-            <div>
-              {Object.entries(encounterData[selectedGame].methods).map(([method, locations]) => (
-                <EncounterMethod
-                  key={method}
-                  method={method}
-                  locations={locations}
-                  isExpanded={expandedMethod === method}
-                  onToggle={() => toggleMethod(method)}
-                  gameVersion={selectedGame}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="bg-gray-800 rounded-lg p-4 text-center">
-              <p className="text-gray-400">
-                This Pokémon cannot be encountered in the wild in {selectedGame.charAt(0).toUpperCase() + selectedGame.slice(1)}.
-              </p>
-            </div>
-          )}
-        </div>
-      )}
-      
-      {/* Evolution requirements */}
-      {selectedGame && encounterData[selectedGame].evolutionRequirements && (
-        <div className="mb-6">
-          <h3 className="text-lg font-medium mb-2">Evolution Requirements</h3>
-          <div className="bg-gray-800 rounded-lg p-4">
-            <p>{encounterData[selectedGame].evolutionRequirements}</p>
-          </div>
-        </div>
-      )}
-      
-      {/* Tera Type information (for Scarlet/Violet) */}
-      {selectedGame && (selectedGame === 'scarlet' || selectedGame === 'violet') && encounterData[selectedGame].teraTypes && (
-        <div className="mb-6">
-          <h3 className="text-lg font-medium mb-2">Available Tera Types</h3>
-          <div className="flex flex-wrap gap-2">
-            {encounterData[selectedGame].teraTypes.map(type => (
-              <span 
-                key={type}
-                className="px-3 py-1 rounded-full text-sm font-medium bg-purple-700 text-white"
-              >
-                {type}
-              </span>
+          <div className="space-y-4">
+            {location.gameVersions.map((gameVersion, gameIndex) => (
+              <div key={gameIndex} className="border-t border-gray-600 pt-3">
+                <h4 className="text-md font-medium capitalize mb-2">{gameVersion.game.replace(/-/g, ' ')}</h4>
+                
+                <div className="space-y-2">
+                  {gameVersion.encounterDetails.map((encounter, encounterIndex) => (
+                    <div key={encounterIndex} className="flex justify-between text-sm">
+                      <div>
+                        <span className="capitalize">{encounter.method}</span>
+                        {encounter.minLevel === encounter.maxLevel ? 
+                          <span className="ml-2">Level {encounter.minLevel}</span> : 
+                          <span className="ml-2">Levels {encounter.minLevel}-{encounter.maxLevel}</span>
+                        }
+                      </div>
+                      <div className="text-gray-300">{encounter.chance}% chance</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
         </div>
-      )}
-      
-      {/* Seasonal variations (for Pokemon that change appearance) */}
-      {pokemon.id === 585 || pokemon.id === 586 || pokemon.id === 421 || pokemon.id === 422 ? (
-        <div>
-          <h3 className="text-lg font-medium mb-3">Seasonal Forms</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <SeasonalVariation
-              season="Spring"
-              image={`/img/forms/${pokemon.id}_spring.png`}
-              description="Green foliage with pink flowers."
-            />
-            <SeasonalVariation
-              season="Summer"
-              image={`/img/forms/${pokemon.id}_summer.png`}
-              description="Green foliage with no flowers."
-            />
-            <SeasonalVariation
-              season="Autumn"
-              image={`/img/forms/${pokemon.id}_autumn.png`}
-              description="Orange-brown foliage."
-            />
-            <SeasonalVariation
-              season="Winter"
-              image={`/img/forms/${pokemon.id}_winter.png`}
-              description="No foliage, covered in snow."
-            />
-          </div>
-        </div>
-      ) : null}
+      ))}
     </div>
   );
 };
