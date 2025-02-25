@@ -144,7 +144,7 @@ export async function getStaticProps({ params }) {
     const typeData = await typeRes.json();
     
     // Extract pokemon of this type
-    const pokemonPromises = typeData.pokemon.slice(0, 50).map(async entry => {
+    const pokemonPromises = typeData.pokemon.map(async entry => {
       try {
         const res = await fetch(entry.pokemon.url);
         if (!res.ok) return null;

@@ -45,9 +45,19 @@ export default function Home() {
     { id: 700, name: 'sylveon', desc: "Its ribbons emit a soothing aura that calms fights." },
   ];
   
-  // Daily featured - changes each day
-  const dailyFeaturedIndex = new Date().getDate() % featuredPokemon.length;
-  const dailyFeatured = featuredPokemon[dailyFeaturedIndex];
+  // Update the daily featured Pokémon selection
+  const getDailyFeaturedPokemon = () => {
+    // Create a date based key that changes daily
+    const today = new Date();
+    const dateKey = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+    
+    // Use the date hash to select a Pokémon
+    const index = dateKey % featuredPokemon.length;
+    return featuredPokemon[index];
+  };
+
+  // Use the function
+  const dailyFeatured = getDailyFeaturedPokemon();
 
   // Handle search submission
   function handleSearch() {
@@ -76,6 +86,11 @@ export default function Home() {
   }
 
   useEffect(() => {
+    // Reset states on component mount
+    setSearchTerm('');
+    setSearchResults([]);
+    setShowSearchResults(false);
+    
     // Fetch all Pokémon for search autocomplete
     const fetchAllPokemon = async () => {
       try {
@@ -202,6 +217,34 @@ export default function Home() {
     setSearchResults(results);
     setShowSearchResults(true);
   }, [searchTerm, allPokemon]);
+
+  // Ensure exactly 6 random Pokémon with proper names
+  const getRandomPokemon = async () => {
+    // Ensure we get exactly 6
+    const randomIds = Array.from({ length: 6 }, () => Math.floor(Math.random() * 898) + 1);
+    
+    // Fetch Pokémon names from the API
+    const randomPokemonData = await Promise.all(
+      randomIds.map(async id => {
+        try {
+          const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
+          const data = await res.json();
+          return {
+            id: data.id,
+            name: data.name,
+            formattedName: data.name.split('-').map(word => 
+              word.charAt(0).toUpperCase() + word.slice(1)
+            ).join(' ')
+          };
+        } catch (error) {
+          // Fallback in case of error
+          return { id, name: `pokemon-${id}`, formattedName: `Pokémon #${id}` };
+        }
+      })
+    );
+    
+    return randomPokemonData;
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white">
@@ -558,17 +601,20 @@ export default function Home() {
           <h2 className="text-3xl font-bold mb-6 text-center">Discover Pokémon</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
             {randomPokemon.map(pokemon => (
-              <Link key={pokemon.id} href={`/pokemon/${pokemon.id}`}>
+              <Link key={pokemon.id} href={`/pokemon/${pokemon.name}`}>
                 <a className="block bg-gray-800 hover:bg-gray-700 rounded-lg p-4 text-center transition-all transform hover:scale-105">
                   <div className="relative w-24 h-24 mx-auto mb-2">
                     <Image
                       src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemon.id}.png`}
-                      alt={`Pokémon #${pokemon.id}`}
+                      alt={pokemon.name}
                       layout="fill"
                       objectFit="contain"
                     />
                   </div>
-                  <span className="text-gray-400 text-xs">#{pokemon.id}</span>
+                  <div className="mt-2">
+                    <h3 className="text-sm font-medium capitalize">{pokemon.name}</h3>
+                    <span className="text-gray-400 text-xs">#{pokemon.id}</span>
+                  </div>
                 </a>
               </Link>
             ))}

@@ -119,7 +119,7 @@ export default function Navigation() {
   // Programmatic navigation to clean up state
   const handleNavigation = (path) => {
     setIsMenuOpen(false);
-    router.push(path);
+    router.push(path, undefined, { shallow: false });
   };
   
   return (
@@ -127,17 +127,19 @@ export default function Navigation() {
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <div className="flex items-center space-x-2 cursor-pointer" onClick={() => handleNavigation('/')}>
-            <div className="relative w-8 h-8">
-              <Image
-                src="/img/pokeball.png"
-                alt="Pokédex Live"
-                layout="fill"
-                className="filter-red"
-              />
-            </div>
-            <span className="text-xl font-bold">Pokédex Live</span>
-          </div>
+          <Link href="/" passHref>
+            <a className="flex items-center space-x-2 cursor-pointer">
+              <div className="relative w-8 h-8">
+                <Image
+                  src="/img/pokeball.png"
+                  alt="Pokédex Live"
+                  layout="fill"
+                  className="filter-red"
+                />
+              </div>
+              <span className="text-xl font-bold">Pokédex Live</span>
+            </a>
+          </Link>
           
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
