@@ -219,17 +219,17 @@ export default function Home() {
           }
           
           .pokeball-bounce-1 {
-            animation: bounce 1.2s infinite ease-in-out;
+            animation: bounce 1.5s infinite ease-in-out;
           }
           
           .pokeball-bounce-2 {
-            animation: bounce 1.2s infinite ease-in-out;
-            animation-delay: 0.2s;
+            animation: bounce 1.5s infinite ease-in-out;
+            animation-delay: 0.3s;
           }
           
           .pokeball-bounce-3 {
-            animation: bounce 1.2s infinite ease-in-out;
-            animation-delay: 0.4s;
+            animation: bounce 1.5s infinite ease-in-out;
+            animation-delay: 0.6s;
           }
         `}</style>
       </Head>
@@ -275,13 +275,14 @@ export default function Home() {
             </button>
           </div>
 
-          <div className="flex justify-center items-center mb-10 md:mb-16 mt-10 md:mt-16">
-            <div className="flex space-x-10 md:space-x-16">
-              {[0, 1, 2].map((index) => (
+          {/* Animated Pokeballs */}
+          <div className="flex justify-center items-center mt-12 mb-4">
+            <div className="flex space-x-12 md:space-x-16">
+              {[1, 2, 3].map((index) => (
                 <div 
                   key={index}
-                  className={`pokeball-bounce-${index + 1}`}
-                  style={{width: '64px', height: '64px'}}
+                  className={`pokeball-bounce-${index}`}
+                  style={{width: '60px', height: '60px'}}
                 >
                   <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                     {/* Outer circle */}
