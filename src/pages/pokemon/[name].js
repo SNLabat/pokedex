@@ -888,9 +888,9 @@ const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus }) => {
   );
 };
 
-// Add SpritesTab component - displays sprites from all generations
+// Revised SpritesTab component with side-by-side comparison
 const SpritesTab = ({ pokemon }) => {
-  const [showShiny, setShowShiny] = useState(false);
+  // No need for toggle state anymore - we'll display both regular and shiny at once
   
   // Define generations and their game versions
   const generations = [
@@ -945,16 +945,11 @@ const SpritesTab = ({ pokemon }) => {
     <div>
       <h2 className="text-xl font-bold mb-6">Pokémon Sprites</h2>
       
-      {/* Toggle for shiny sprites */}
-      <div className="mb-6">
-        <button
-          onClick={() => setShowShiny(!showShiny)}
-          className={`px-4 py-2 rounded-lg ${
-            showShiny ? 'bg-yellow-500 text-black' : 'bg-gray-700 hover:bg-gray-600 text-white'
-          }`}
-        >
-          {showShiny ? 'Showing Shiny ✨' : 'Show Shiny Sprites'}
-        </button>
+      <div className="mb-4">
+        <div className="flex items-center">
+          <div className="w-1/2 text-center px-2 py-1 bg-gray-700 rounded-l-lg">Regular</div>
+          <div className="w-1/2 text-center px-2 py-1 bg-yellow-800 rounded-r-lg">Shiny ✨</div>
+        </div>
       </div>
       
       {/* Sprite sections by generation */}
@@ -964,7 +959,6 @@ const SpritesTab = ({ pokemon }) => {
             key={gen.id}
             generation={gen}
             pokemon={pokemon}
-            showShiny={showShiny}
           />
         ))}
       </div>
@@ -972,8 +966,8 @@ const SpritesTab = ({ pokemon }) => {
   );
 };
 
-// Component to display sprites for a specific generation
-const SpriteGeneration = ({ generation, pokemon, showShiny }) => {
+// Updated component to display sprites for a specific generation with side-by-side comparison
+const SpriteGeneration = ({ generation, pokemon }) => {
   // Check if this generation has any sprites
   let hasSprites = false;
   
@@ -991,7 +985,7 @@ const SpriteGeneration = ({ generation, pokemon, showShiny }) => {
       
       <div className="space-y-6">
         {generation.id === "home" ? (
-          <HomeSprites pokemon={pokemon} showShiny={showShiny} />
+          <HomeSprites pokemon={pokemon} />
         ) : (
           generation.versions.map(version => (
             <VersionSprites
@@ -999,7 +993,6 @@ const SpriteGeneration = ({ generation, pokemon, showShiny }) => {
               versionId={version}
               generation={generation.id}
               pokemon={pokemon}
-              showShiny={showShiny}
             />
           ))
         )}
@@ -1008,49 +1001,90 @@ const SpriteGeneration = ({ generation, pokemon, showShiny }) => {
   );
 };
 
-// Component to display Pokémon HOME and official artwork sprites
-const HomeSprites = ({ pokemon, showShiny }) => {
+// Updated HomeSprites to show regular and shiny side-by-side
+const HomeSprites = ({ pokemon }) => {
   const homeSprites = pokemon.sprites.other?.home;
   const artworkSprites = pokemon.sprites.other?.["official-artwork"];
   
+  if (!homeSprites && !artworkSprites) return null;
+  
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {/* HOME sprites */}
       {homeSprites && (
         <div>
-          <h4 className="font-medium mb-2">Pokémon HOME</h4>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {homeSprites.front_default && !showShiny && (
-              <SpriteImage 
-                src={homeSprites.front_default} 
-                alt="Default" 
-                label="Default" 
-                large 
-              />
-            )}
-            {homeSprites.front_shiny && showShiny && (
-              <SpriteImage 
-                src={homeSprites.front_shiny} 
-                alt="Shiny" 
-                label="Shiny" 
-                large 
-              />
-            )}
-            {homeSprites.front_female && !showShiny && (
-              <SpriteImage 
-                src={homeSprites.front_female} 
-                alt="Female" 
-                label="Female" 
-                large 
-              />
-            )}
-            {homeSprites.front_shiny_female && showShiny && (
-              <SpriteImage 
-                src={homeSprites.front_shiny_female} 
-                alt="Shiny Female" 
-                label="Female Shiny" 
-                large 
-              />
+          <h4 className="font-medium mb-3">Pokémon HOME</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Default form - regular and shiny side by side */}
+            <div className="bg-gray-700 rounded-lg p-3">
+              <h5 className="text-sm font-medium mb-2 text-center">Default Form</h5>
+              <div className="flex">
+                <div className="w-1/2 flex flex-col items-center">
+                  {homeSprites.front_default ? (
+                    <SpriteImage 
+                      src={homeSprites.front_default} 
+                      alt="Default" 
+                      label="Regular" 
+                      large 
+                    />
+                  ) : (
+                    <div className="h-32 w-32 flex items-center justify-center text-gray-500">
+                      Not Available
+                    </div>
+                  )}
+                </div>
+                <div className="w-1/2 flex flex-col items-center">
+                  {homeSprites.front_shiny ? (
+                    <SpriteImage 
+                      src={homeSprites.front_shiny} 
+                      alt="Shiny" 
+                      label="Shiny" 
+                      large 
+                    />
+                  ) : (
+                    <div className="h-32 w-32 flex items-center justify-center text-gray-500">
+                      Not Available
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+            
+            {/* Female form if available */}
+            {(homeSprites.front_female || homeSprites.front_shiny_female) && (
+              <div className="bg-gray-700 rounded-lg p-3">
+                <h5 className="text-sm font-medium mb-2 text-center">Female Form</h5>
+                <div className="flex">
+                  <div className="w-1/2 flex flex-col items-center">
+                    {homeSprites.front_female ? (
+                      <SpriteImage 
+                        src={homeSprites.front_female} 
+                        alt="Female" 
+                        label="Regular" 
+                        large 
+                      />
+                    ) : (
+                      <div className="h-32 w-32 flex items-center justify-center text-gray-500">
+                        Not Available
+                      </div>
+                    )}
+                  </div>
+                  <div className="w-1/2 flex flex-col items-center">
+                    {homeSprites.front_shiny_female ? (
+                      <SpriteImage 
+                        src={homeSprites.front_shiny_female} 
+                        alt="Female Shiny" 
+                        label="Shiny" 
+                        large 
+                      />
+                    ) : (
+                      <div className="h-32 w-32 flex items-center justify-center text-gray-500">
+                        Not Available
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
             )}
           </div>
         </div>
@@ -1058,25 +1092,39 @@ const HomeSprites = ({ pokemon, showShiny }) => {
       
       {/* Official artwork */}
       {artworkSprites && (
-        <div>
-          <h4 className="font-medium mb-2">Official Artwork</h4>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {artworkSprites.front_default && !showShiny && (
-              <SpriteImage 
-                src={artworkSprites.front_default} 
-                alt="Default Artwork" 
-                label="Default" 
-                large 
-              />
-            )}
-            {artworkSprites.front_shiny && showShiny && (
-              <SpriteImage 
-                src={artworkSprites.front_shiny} 
-                alt="Shiny Artwork" 
-                label="Shiny" 
-                large 
-              />
-            )}
+        <div className="mt-6">
+          <h4 className="font-medium mb-3">Official Artwork</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex flex-col items-center">
+              {artworkSprites.front_default ? (
+                <SpriteImage 
+                  src={artworkSprites.front_default} 
+                  alt="Default Artwork" 
+                  label="Regular" 
+                  large={true}
+                  extraLarge={true}
+                />
+              ) : (
+                <div className="h-40 w-40 flex items-center justify-center text-gray-500">
+                  Not Available
+                </div>
+              )}
+            </div>
+            <div className="flex flex-col items-center">
+              {artworkSprites.front_shiny ? (
+                <SpriteImage 
+                  src={artworkSprites.front_shiny} 
+                  alt="Shiny Artwork" 
+                  label="Shiny" 
+                  large={true}
+                  extraLarge={true}
+                />
+              ) : (
+                <div className="h-40 w-40 flex items-center justify-center text-gray-500">
+                  Not Available
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
@@ -1084,8 +1132,8 @@ const HomeSprites = ({ pokemon, showShiny }) => {
   );
 };
 
-// Component to display sprites for a specific game version
-const VersionSprites = ({ versionId, generation, pokemon, showShiny }) => {
+// Updated VersionSprites to show regular and shiny side-by-side for each variant
+const VersionSprites = ({ versionId, generation, pokemon }) => {
   // Get sprites for this version
   const versionSprites = pokemon.sprites.versions?.[generation]?.[versionId];
   
@@ -1097,132 +1145,254 @@ const VersionSprites = ({ versionId, generation, pokemon, showShiny }) => {
   ).join(' ');
   
   // Check if this version has animated sprites
-  const hasAnimated = !!versionSprites.animated?.front_default || !!versionSprites.front_default?.includes('.gif');
+  const hasAnimated = !!versionSprites.animated?.front_default;
   
   return (
     <div>
-      <h4 className="font-medium mb-2">{versionName}</h4>
+      <h4 className="font-medium mb-3">{versionName}</h4>
       
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        {/* Regular sprites */}
-        {!showShiny && (
-          <>
-            {/* Front sprites */}
-            {hasAnimated && versionSprites.animated?.front_default ? (
-              <SpriteImage 
-                src={versionSprites.animated.front_default} 
-                alt="Front Default Animated" 
-                label="Front" 
-                animated 
-              />
-            ) : versionSprites.front_default && (
-              <SpriteImage 
-                src={versionSprites.front_default} 
-                alt="Front Default" 
-                label="Front" 
-                animated={versionSprites.front_default.includes('.gif')} 
-              />
-            )}
-            
-            {/* Back sprites */}
-            {hasAnimated && versionSprites.animated?.back_default ? (
-              <SpriteImage 
-                src={versionSprites.animated.back_default} 
-                alt="Back Default Animated" 
-                label="Back" 
-                animated 
-              />
-            ) : versionSprites.back_default && (
-              <SpriteImage 
-                src={versionSprites.back_default} 
-                alt="Back Default" 
-                label="Back" 
-                animated={versionSprites.back_default?.includes('.gif')} 
-              />
-            )}
-            
-            {/* Female sprites if they exist */}
-            {(versionSprites.front_female || versionSprites.animated?.front_female) && (
-              <SpriteImage 
-                src={versionSprites.animated?.front_female || versionSprites.front_female} 
-                alt="Female Sprite" 
-                label="Female" 
-                animated={hasAnimated} 
-              />
-            )}
-          </>
-        )}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* Front sprites */}
+        <div className="bg-gray-700 rounded-lg p-3">
+          <h5 className="text-sm font-medium mb-2 text-center">Front View</h5>
+          <div className="flex">
+            <div className="w-1/2 flex flex-col items-center">
+              {hasAnimated && versionSprites.animated?.front_default ? (
+                <SpriteImage 
+                  src={versionSprites.animated.front_default} 
+                  alt="Front Default Animated" 
+                  label="Regular" 
+                  animated={true} 
+                />
+              ) : versionSprites.front_default ? (
+                <SpriteImage 
+                  src={versionSprites.front_default} 
+                  alt="Front Default" 
+                  label="Regular" 
+                  animated={versionSprites.front_default.includes('.gif')} 
+                />
+              ) : (
+                <div className="h-20 w-20 flex items-center justify-center text-gray-500">
+                  N/A
+                </div>
+              )}
+            </div>
+            <div className="w-1/2 flex flex-col items-center">
+              {hasAnimated && versionSprites.animated?.front_shiny ? (
+                <SpriteImage 
+                  src={versionSprites.animated.front_shiny} 
+                  alt="Front Shiny Animated" 
+                  label="Shiny" 
+                  animated={true} 
+                />
+              ) : versionSprites.front_shiny ? (
+                <SpriteImage 
+                  src={versionSprites.front_shiny} 
+                  alt="Front Shiny" 
+                  label="Shiny" 
+                  animated={versionSprites.front_shiny.includes('.gif')} 
+                />
+              ) : (
+                <div className="h-20 w-20 flex items-center justify-center text-gray-500">
+                  N/A
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
         
-        {/* Shiny sprites */}
-        {showShiny && (
-          <>
-            {/* Front shiny */}
-            {hasAnimated && versionSprites.animated?.front_shiny ? (
-              <SpriteImage 
-                src={versionSprites.animated.front_shiny} 
-                alt="Front Shiny Animated" 
-                label="Front Shiny" 
-                animated 
-              />
-            ) : versionSprites.front_shiny && (
-              <SpriteImage 
-                src={versionSprites.front_shiny} 
-                alt="Front Shiny" 
-                label="Front Shiny" 
-                animated={versionSprites.front_shiny.includes('.gif')} 
-              />
-            )}
-            
-            {/* Back shiny */}
-            {hasAnimated && versionSprites.animated?.back_shiny ? (
-              <SpriteImage 
-                src={versionSprites.animated.back_shiny} 
-                alt="Back Shiny Animated" 
-                label="Back Shiny" 
-                animated 
-              />
-            ) : versionSprites.back_shiny && (
-              <SpriteImage 
-                src={versionSprites.back_shiny} 
-                alt="Back Shiny" 
-                label="Back Shiny" 
-                animated={versionSprites.back_shiny?.includes('.gif')} 
-              />
-            )}
-            
-            {/* Female shiny sprites if they exist */}
-            {(versionSprites.front_shiny_female || versionSprites.animated?.front_shiny_female) && (
-              <SpriteImage 
-                src={versionSprites.animated?.front_shiny_female || versionSprites.front_shiny_female} 
-                alt="Female Shiny Sprite" 
-                label="Female Shiny" 
-                animated={hasAnimated} 
-              />
-            )}
-          </>
+        {/* Back sprites */}
+        {(versionSprites.back_default || versionSprites.back_shiny || 
+          versionSprites.animated?.back_default || versionSprites.animated?.back_shiny) && (
+          <div className="bg-gray-700 rounded-lg p-3">
+            <h5 className="text-sm font-medium mb-2 text-center">Back View</h5>
+            <div className="flex">
+              <div className="w-1/2 flex flex-col items-center">
+                {hasAnimated && versionSprites.animated?.back_default ? (
+                  <SpriteImage 
+                    src={versionSprites.animated.back_default} 
+                    alt="Back Default Animated" 
+                    label="Regular" 
+                    animated={true} 
+                  />
+                ) : versionSprites.back_default ? (
+                  <SpriteImage 
+                    src={versionSprites.back_default} 
+                    alt="Back Default" 
+                    label="Regular" 
+                    animated={versionSprites.back_default.includes('.gif')} 
+                  />
+                ) : (
+                  <div className="h-20 w-20 flex items-center justify-center text-gray-500">
+                    N/A
+                  </div>
+                )}
+              </div>
+              <div className="w-1/2 flex flex-col items-center">
+                {hasAnimated && versionSprites.animated?.back_shiny ? (
+                  <SpriteImage 
+                    src={versionSprites.animated.back_shiny} 
+                    alt="Back Shiny Animated" 
+                    label="Shiny" 
+                    animated={true} 
+                  />
+                ) : versionSprites.back_shiny ? (
+                  <SpriteImage 
+                    src={versionSprites.back_shiny} 
+                    alt="Back Shiny" 
+                    label="Shiny" 
+                    animated={versionSprites.back_shiny.includes('.gif')} 
+                  />
+                ) : (
+                  <div className="h-20 w-20 flex items-center justify-center text-gray-500">
+                    N/A
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
         )}
       </div>
+      
+      {/* Female sprites if they exist - in a separate row */}
+      {(versionSprites.front_female || versionSprites.front_shiny_female || 
+        versionSprites.animated?.front_female || versionSprites.animated?.front_shiny_female) && (
+        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="bg-gray-700 rounded-lg p-3">
+            <h5 className="text-sm font-medium mb-2 text-center">Female Front</h5>
+            <div className="flex">
+              <div className="w-1/2 flex flex-col items-center">
+                {hasAnimated && versionSprites.animated?.front_female ? (
+                  <SpriteImage 
+                    src={versionSprites.animated.front_female} 
+                    alt="Female Animated" 
+                    label="Regular" 
+                    animated={true} 
+                  />
+                ) : versionSprites.front_female ? (
+                  <SpriteImage 
+                    src={versionSprites.front_female} 
+                    alt="Female" 
+                    label="Regular" 
+                    animated={versionSprites.front_female.includes('.gif')} 
+                  />
+                ) : (
+                  <div className="h-20 w-20 flex items-center justify-center text-gray-500">
+                    N/A
+                  </div>
+                )}
+              </div>
+              <div className="w-1/2 flex flex-col items-center">
+                {hasAnimated && versionSprites.animated?.front_shiny_female ? (
+                  <SpriteImage 
+                    src={versionSprites.animated.front_shiny_female} 
+                    alt="Female Shiny Animated" 
+                    label="Shiny" 
+                    animated={true} 
+                  />
+                ) : versionSprites.front_shiny_female ? (
+                  <SpriteImage 
+                    src={versionSprites.front_shiny_female} 
+                    alt="Female Shiny" 
+                    label="Shiny" 
+                    animated={versionSprites.front_shiny_female.includes('.gif')} 
+                  />
+                ) : (
+                  <div className="h-20 w-20 flex items-center justify-center text-gray-500">
+                    N/A
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+          
+          {/* Back female sprites if they exist */}
+          {(versionSprites.back_female || versionSprites.back_shiny_female || 
+            versionSprites.animated?.back_female || versionSprites.animated?.back_shiny_female) && (
+            <div className="bg-gray-700 rounded-lg p-3">
+              <h5 className="text-sm font-medium mb-2 text-center">Female Back</h5>
+              <div className="flex">
+                <div className="w-1/2 flex flex-col items-center">
+                  {hasAnimated && versionSprites.animated?.back_female ? (
+                    <SpriteImage 
+                      src={versionSprites.animated.back_female} 
+                      alt="Female Back Animated" 
+                      label="Regular" 
+                      animated={true} 
+                    />
+                  ) : versionSprites.back_female ? (
+                    <SpriteImage 
+                      src={versionSprites.back_female} 
+                      alt="Female Back" 
+                      label="Regular" 
+                      animated={versionSprites.back_female.includes('.gif')} 
+                    />
+                  ) : (
+                    <div className="h-20 w-20 flex items-center justify-center text-gray-500">
+                      N/A
+                    </div>
+                  )}
+                </div>
+                <div className="w-1/2 flex flex-col items-center">
+                  {hasAnimated && versionSprites.animated?.back_shiny_female ? (
+                    <SpriteImage 
+                      src={versionSprites.animated.back_shiny_female} 
+                      alt="Female Back Shiny Animated" 
+                      label="Shiny" 
+                      animated={true} 
+                    />
+                  ) : versionSprites.back_shiny_female ? (
+                    <SpriteImage 
+                      src={versionSprites.back_shiny_female} 
+                      alt="Female Back Shiny" 
+                      label="Shiny" 
+                      animated={versionSprites.back_shiny_female.includes('.gif')} 
+                    />
+                  ) : (
+                    <div className="h-20 w-20 flex items-center justify-center text-gray-500">
+                      N/A
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };
 
-// Component to display an individual sprite image
-const SpriteImage = ({ src, alt, label, animated = false, large = false }) => {
+// Improved SpriteImage component to ensure animations work properly
+const SpriteImage = ({ src, alt, label, animated = false, large = false, extraLarge = false }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isError, setIsError] = useState(false);
   
   if (isError) return null;
   
+  // Determine size classes based on props
+  let sizeClass = 'w-20 h-20';
+  let imgSizeClass = 'max-w-[60px] max-h-[60px]';
+  
+  if (extraLarge) {
+    sizeClass = 'w-40 h-40';
+    imgSizeClass = 'max-w-[120px] max-h-[120px]';
+  } else if (large) {
+    sizeClass = 'w-32 h-32';
+    imgSizeClass = 'max-w-[100px] max-h-[100px]';
+  }
+  
   return (
     <div className="flex flex-col items-center">
-      <div className={`relative ${large ? 'w-32 h-32' : 'w-20 h-20'} bg-gray-900 rounded-lg flex items-center justify-center p-2`}>
+      <div className={`relative ${sizeClass} bg-gray-900 rounded-lg flex items-center justify-center p-2`}>
         {!isLoaded && (
           <div className="text-gray-500">Loading...</div>
         )}
         <img
           src={src}
           alt={alt}
-          className={`${isLoaded ? 'opacity-100' : 'opacity-0'} ${large ? 'max-w-[100px] max-h-[100px]' : 'max-w-[60px] max-h-[60px]'} ${animated ? 'animate-pulse-subtle' : ''}`}
+          className={`${isLoaded ? 'opacity-100' : 'opacity-0'} ${imgSizeClass}`}
+          style={animated ? { imageRendering: 'pixelated' } : {}} // Better rendering for pixel art
           onLoad={() => setIsLoaded(true)}
           onError={() => setIsError(true)}
         />
