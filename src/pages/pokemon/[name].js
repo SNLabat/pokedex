@@ -2185,7 +2185,7 @@ const SpriteImage = ({ src, alt, label, animated = false, large = false, extraLa
     imgSizeClass = 'max-w-[100px] max-h-[100px]';
   }
 
-                return (
+  return (
     <div className="flex flex-col items-center">
       <div className={`relative ${sizeClass} bg-gray-900 rounded-lg flex items-center justify-center p-2`}>
         {!isLoaded && (
@@ -2199,15 +2199,16 @@ const SpriteImage = ({ src, alt, label, animated = false, large = false, extraLa
           onLoad={() => setIsLoaded(true)}
           onError={() => setIsError(true)}
         />
-                    </div>
+      </div>
       {label && <div className="text-xs text-gray-400 mt-1 text-center">{label}</div>}
-                      </div>
-                );
+    </div>
+  );
 };
 
-// Add this component before the PokemonDetail export
+// Sprites Tab Component
 const SpritesTab = ({ pokemon }) => {
   const [selectedGeneration, setSelectedGeneration] = useState('main');
+  
   const generations = [
     { id: 'main', name: 'Official Artwork' },
     { id: 'home', name: 'Pokémon HOME' },
@@ -2245,44 +2246,6 @@ const SpritesTab = ({ pokemon }) => {
     return maxIds[gen] || 898;
   }
   
-  // Official Artwork Component
-  const OfficialArtwork = ({ pokemon }) => {
-    const [isShiny, setIsShiny] = useState(false);
-    
-    // Official artwork URLs
-    const officialArtworkUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemon.id}.png`;
-    const officialShinyArtworkUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/${pokemon.id}.png`;
-    
-    return (
-      <div className="space-y-4">
-        <h3 className="text-xl font-semibold">Official Artwork</h3>
-        
-        <div className="flex justify-center mb-4">
-          <button
-            onClick={() => setIsShiny(false)}
-            className={`px-4 py-2 rounded-l-lg ${!isShiny ? 'bg-red-600 text-white' : 'bg-gray-700 text-gray-300'}`}
-          >
-            Regular
-          </button>
-          <button
-            onClick={() => setIsShiny(true)}
-            className={`px-4 py-2 rounded-r-lg ${isShiny ? 'bg-red-600 text-white' : 'bg-gray-700 text-gray-300'}`}
-          >
-            Shiny
-          </button>
-        </div>
-        
-        <div className="flex justify-center">
-          <SpriteImage 
-            src={isShiny ? officialShinyArtworkUrl : officialArtworkUrl}
-            alt={`${pokemon.name} ${isShiny ? 'shiny' : 'regular'} official artwork`}
-            extraLarge={true}
-          />
-        </div>
-      </div>
-    );
-  };
-  
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap gap-2">
@@ -2302,22 +2265,16 @@ const SpritesTab = ({ pokemon }) => {
       </div>
       
       <div className="space-y-8">
-        {selectedGeneration === 'main' && (
-          <OfficialArtwork pokemon={pokemon} />
-        )}
-        
-        {selectedGeneration === 'home' && (
-          <HomeSprites pokemon={pokemon} />
-        )}
-        
-        {selectedGeneration.startsWith('gen') && (
-          <SpriteGeneration generation={selectedGeneration} pokemon={pokemon} />
-        )}
+        {selectedGeneration === 'main' && <OfficialArtworkSection pokemon={pokemon} />}
+        {selectedGeneration === 'home' && <HomeSpritesSection pokemon={pokemon} />}
+        {selectedGeneration.startsWith('gen') && <GenerationSpritesSection generation={selectedGeneration} pokemon={pokemon} />}
       </div>
     </div>
   );
 };
 
+// Official Artwork Section
+const OfficialArtworkSection = ({ pokemon }) => {
 // Update the HomeSprites component to ensure it works correctly
 const HomeSprites = ({ pokemon }) => {
   const [isShiny, setIsShiny] = useState(false);
