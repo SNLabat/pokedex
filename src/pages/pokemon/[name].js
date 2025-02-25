@@ -671,7 +671,211 @@ const markIcons = {
     color: '#FFBB77',
     fallback: '❌'
   },
-  // Add more marks as needed using the URLs you provided
+  'cloudy': { 
+    icon: 'https://www.serebii.net/games/ribbons/cloudymark.png', 
+    color: '#AABBCC',
+    fallback: '❌'
+  },
+  'rainy': { 
+    icon: 'https://www.serebii.net/games/ribbons/rainymark.png', 
+    color: '#6699FF',
+    fallback: '❌'
+  },
+  'stormy': { 
+    icon: 'https://www.serebii.net/games/ribbons/stormymark.png', 
+    color: '#7766CC',
+    fallback: '❌'
+  },
+  'snowy': { 
+    icon: 'https://www.serebii.net/games/ribbons/snowymark.png', 
+    color: '#AADDFF',
+    fallback: '❌'
+  },
+  'blizzard': { 
+    icon: 'https://www.serebii.net/games/ribbons/blizzardmark.png', 
+    color: '#AADDFF',
+    fallback: '❌'
+  },
+  'dry': { 
+    icon: 'https://www.serebii.net/games/ribbons/drymark.png', 
+    color: '#FFAA44',
+    fallback: '❌'
+  },
+  'sandstorm': { 
+    icon: 'https://www.serebii.net/games/ribbons/sandstormmark.png', 
+    color: '#DDBB66',
+    fallback: '❌'
+  },
+  'misty': { 
+    icon: 'https://www.serebii.net/games/ribbons/mistymark.png', 
+    color: '#AABBCC',
+    fallback: '❌'
+  },
+  'destiny': { 
+    icon: 'https://www.serebii.net/games/ribbons/destinymark.png', 
+    color: '#AA66CC',
+    fallback: '❌'
+  },
+  'fishing': { 
+    icon: 'https://www.serebii.net/games/ribbons/fishingmark.png', 
+    color: '#4488DD',
+    fallback: '❌'
+  },
+  'curry': { 
+    icon: 'https://www.serebii.net/games/ribbons/currymark.png', 
+    color: '#FF6622',
+    fallback: '❌'
+  },
+  'uncommon': { 
+    icon: 'https://www.serebii.net/games/ribbons/uncommonmark.png', 
+    color: '#DDAA22',
+    fallback: '❌'
+  },
+  'rare': { 
+    icon: 'https://www.serebii.net/games/ribbons/raremark.png', 
+    color: '#DD2222',
+    fallback: '❌'
+  },
+  'rowdy': { 
+    icon: 'https://www.serebii.net/games/ribbons/rowdymark.png', 
+    color: '#FF5544',
+    fallback: '❌'
+  },
+  'absent-minded': { 
+    icon: 'https://www.serebii.net/games/ribbons/absent-mindedmark.png', 
+    color: '#AAAAAA',
+    fallback: '❌'
+  },
+  'jittery': { 
+    icon: 'https://www.serebii.net/games/ribbons/jitterymark.png', 
+    color: '#FFAA44',
+    fallback: '❌'
+  },
+  'excited': { 
+    icon: 'https://www.serebii.net/games/ribbons/excitedmark.png', 
+    color: '#FFCC44',
+    fallback: '❌'
+  },
+  'charismatic': { 
+    icon: 'https://www.serebii.net/games/ribbons/charismaticmark.png', 
+    color: '#FF88AA',
+    fallback: '❌'
+  },
+  'calmness': { 
+    icon: 'https://www.serebii.net/games/ribbons/calmnessmark.png', 
+    color: '#88CCFF',
+    fallback: '❌'
+  },
+  'intense': { 
+    icon: 'https://www.serebii.net/games/ribbons/intensemark.png', 
+    color: '#FF4422',
+    fallback: '❌'
+  },
+  'zoned-out': { 
+    icon: 'https://www.serebii.net/games/ribbons/zoned-outmark.png', 
+    color: '#AAAAAA',
+    fallback: '❌'
+  },
+  'joyful': { 
+    icon: 'https://www.serebii.net/games/ribbons/joyfulmark.png', 
+    color: '#FFAA44',
+    fallback: '❌'
+  },
+  'angry': { 
+    icon: 'https://www.serebii.net/games/ribbons/angrymark.png', 
+    color: '#FF4422',
+    fallback: '❌'
+  },
+  'smiley': { 
+    icon: 'https://www.serebii.net/games/ribbons/smileymark.png', 
+    color: '#FFCC44',
+    fallback: '❌'
+  },
+  'teary': { 
+    icon: 'https://www.serebii.net/games/ribbons/tearymark.png', 
+    color: '#88AAFF',
+    fallback: '❌'
+  },
+  'upbeat': { 
+    icon: 'https://www.serebii.net/games/ribbons/upbeatmark.png', 
+    color: '#FFAA44',
+    fallback: '❌'
+  },
+  'peeved': { 
+    icon: 'https://www.serebii.net/games/ribbons/peevedmark.png', 
+    color: '#FF6644',
+    fallback: '❌'
+  },
+  'intellectual': { 
+    icon: 'https://www.serebii.net/games/ribbons/intellectualmark.png', 
+    color: '#44AADD',
+    fallback: '❌'
+  },
+  'ferocious': { 
+    icon: 'https://www.serebii.net/games/ribbons/ferociousmark.png', 
+    color: '#FF4422',
+    fallback: '❌'
+  },
+  'crafty': { 
+    icon: 'https://www.serebii.net/games/ribbons/craftymark.png', 
+    color: '#AA66CC',
+    fallback: '❌'
+  },
+  'scowling': { 
+    icon: 'https://www.serebii.net/games/ribbons/scowlingmark.png', 
+    color: '#666666',
+    fallback: '❌'
+  },
+  'kindly': { 
+    icon: 'https://www.serebii.net/games/ribbons/kindlymark.png', 
+    color: '#FFAACC',
+    fallback: '❌'
+  },
+  'flustered': { 
+    icon: 'https://www.serebii.net/games/ribbons/flusteredmark.png', 
+    color: '#FF88AA',
+    fallback: '❌'
+  },
+  'pumped-up': { 
+    icon: 'https://www.serebii.net/games/ribbons/pumped-upmark.png', 
+    color: '#FF5544',
+    fallback: '❌'
+  },
+  'zeroenergy': { 
+    icon: 'https://www.serebii.net/games/ribbons/zeroenergymark.png', 
+    color: '#AAAAAA',
+    fallback: '❌'
+  },
+  'prideful': { 
+    icon: 'https://www.serebii.net/games/ribbons/pridefulmark.png', 
+    color: '#FFCC44',
+    fallback: '❌'
+  },
+  'unsure': { 
+    icon: 'https://www.serebii.net/games/ribbons/unsuremark.png', 
+    color: '#AAAAAA',
+    fallback: '❌'
+  },
+  'humble': { 
+    icon: 'https://www.serebii.net/games/ribbons/humblemark.png', 
+    color: '#88CCAA',
+    fallback: '❌'
+  },
+  'thorny': { 
+    icon: 'https://www.serebii.net/games/ribbons/thornymark.png', 
+    color: '#CC6644',
+    fallback: '❌'
+  },
+  'vigor': { 
+    icon: 'https://www.serebii.net/games/ribbons/vigormark.png', 
+    color: '#FF5544',
+    fallback: '❌'
+  },
+  'slump': { 
+    icon: 'https://www.serebii.net/games/ribbons/slumpmark.png', 
+    color: '#8888AA',
+    fallback: '❌'
+  }
 };
 
 // Updated RibbonsTab component with consistent icon sizing
