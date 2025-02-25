@@ -377,17 +377,15 @@ const MovesTable = ({ moves, learnMethod, title }) => {
 const PokemonHero = ({ pokemon, isShiny, setIsShiny, isAnimated, setIsAnimated, speciesText }) => {
   // Determine the theme based on Pokémon's types
   const mainType = pokemon.types[0]?.type.name || 'normal';
-  const secondType = pokemon.types[1]?.type.name;
-  
-  // Get theme colors for the main type
   const mainTypeColor = typeColors[mainType] || defaultTheme;
-  const secondTypeColor = secondType ? typeColors[secondType] || defaultTheme : null;
   
   // Create background style
   let heroBgStyle;
   
-  if (mainType && secondType) {
+  if (mainType && pokemon.types[1]?.type.name) {
     // Gradient for dual types
+    const secondType = pokemon.types[1]?.type.name;
+    const secondTypeColor = typeColors[secondType] || defaultTheme;
     heroBgStyle = {
       background: `linear-gradient(to right, ${mainTypeColor.darkColor}, ${secondTypeColor.darkColor})`
     };
@@ -414,7 +412,7 @@ const PokemonHero = ({ pokemon, isShiny, setIsShiny, isAnimated, setIsAnimated, 
                   // Two types - half and half
                   <>
                     <div className="absolute top-0 left-0 w-1/2 h-full" style={{ backgroundColor: mainTypeColor.mainColor }}></div>
-                    <div className="absolute top-0 right-0 w-1/2 h-full" style={{ backgroundColor: secondTypeColor.mainColor }}></div>
+                    <div className="absolute top-0 right-0 w-1/2 h-full" style={{ backgroundColor: typeColors[pokemon.types[1]?.type.name]?.mainColor || defaultTheme.mainColor }}></div>
                   </>
                 ) : null}
               </div>
@@ -890,6 +888,350 @@ const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus }) => {
   );
 };
 
+// Add SpritesTab component - displays sprites from all generations
+const SpritesTab = ({ pokemon }) => {
+  const [showShiny, setShowShiny] = useState(false);
+  
+  // Define generations and their game versions
+  const generations = [
+    {
+      id: "home",
+      name: "Pokémon HOME",
+      versions: ["home", "official-artwork"]
+    },
+    {
+      id: "generation-viii",
+      name: "Generation VIII",
+      versions: ["icons"]
+    },
+    {
+      id: "generation-vii",
+      name: "Generation VII",
+      versions: ["ultra-sun-ultra-moon", "icons"]
+    },
+    {
+      id: "generation-vi",
+      name: "Generation VI",
+      versions: ["omegaruby-alphasapphire", "x-y"]
+    },
+    {
+      id: "generation-v",
+      name: "Generation V",
+      versions: ["black-white", "black-white-2"]
+    },
+    {
+      id: "generation-iv",
+      name: "Generation IV",
+      versions: ["diamond-pearl", "platinum", "heartgold-soulsilver"]
+    },
+    {
+      id: "generation-iii",
+      name: "Generation III",
+      versions: ["ruby-sapphire", "emerald", "firered-leafgreen"]
+    },
+    {
+      id: "generation-ii",
+      name: "Generation II",
+      versions: ["gold", "silver", "crystal"]
+    },
+    {
+      id: "generation-i",
+      name: "Generation I",
+      versions: ["red-blue", "yellow"]
+    },
+  ];
+  
+  return (
+    <div>
+      <h2 className="text-xl font-bold mb-6">Pokémon Sprites</h2>
+      
+      {/* Toggle for shiny sprites */}
+      <div className="mb-6">
+        <button
+          onClick={() => setShowShiny(!showShiny)}
+          className={`px-4 py-2 rounded-lg ${
+            showShiny ? 'bg-yellow-500 text-black' : 'bg-gray-700 hover:bg-gray-600 text-white'
+          }`}
+        >
+          {showShiny ? 'Showing Shiny ✨' : 'Show Shiny Sprites'}
+        </button>
+      </div>
+      
+      {/* Sprite sections by generation */}
+      <div className="space-y-8">
+        {generations.map(gen => (
+          <SpriteGeneration
+            key={gen.id}
+            generation={gen}
+            pokemon={pokemon}
+            showShiny={showShiny}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// Component to display sprites for a specific generation
+const SpriteGeneration = ({ generation, pokemon, showShiny }) => {
+  // Check if this generation has any sprites
+  let hasSprites = false;
+  
+  if (generation.id === "home") {
+    hasSprites = !!pokemon.sprites.other?.home?.front_default || !!pokemon.sprites.other?.["official-artwork"]?.front_default;
+  } else {
+    hasSprites = !!pokemon.sprites.versions?.[generation.id];
+  }
+  
+  if (!hasSprites) return null;
+  
+  return (
+    <div className="bg-gray-800 rounded-lg p-6">
+      <h3 className="text-lg font-medium mb-4">{generation.name}</h3>
+      
+      <div className="space-y-6">
+        {generation.id === "home" ? (
+          <HomeSprites pokemon={pokemon} showShiny={showShiny} />
+        ) : (
+          generation.versions.map(version => (
+            <VersionSprites
+              key={version}
+              versionId={version}
+              generation={generation.id}
+              pokemon={pokemon}
+              showShiny={showShiny}
+            />
+          ))
+        )}
+      </div>
+    </div>
+  );
+};
+
+// Component to display Pokémon HOME and official artwork sprites
+const HomeSprites = ({ pokemon, showShiny }) => {
+  const homeSprites = pokemon.sprites.other?.home;
+  const artworkSprites = pokemon.sprites.other?.["official-artwork"];
+  
+  return (
+    <div className="space-y-4">
+      {/* HOME sprites */}
+      {homeSprites && (
+        <div>
+          <h4 className="font-medium mb-2">Pokémon HOME</h4>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {homeSprites.front_default && !showShiny && (
+              <SpriteImage 
+                src={homeSprites.front_default} 
+                alt="Default" 
+                label="Default" 
+                large 
+              />
+            )}
+            {homeSprites.front_shiny && showShiny && (
+              <SpriteImage 
+                src={homeSprites.front_shiny} 
+                alt="Shiny" 
+                label="Shiny" 
+                large 
+              />
+            )}
+            {homeSprites.front_female && !showShiny && (
+              <SpriteImage 
+                src={homeSprites.front_female} 
+                alt="Female" 
+                label="Female" 
+                large 
+              />
+            )}
+            {homeSprites.front_shiny_female && showShiny && (
+              <SpriteImage 
+                src={homeSprites.front_shiny_female} 
+                alt="Shiny Female" 
+                label="Female Shiny" 
+                large 
+              />
+            )}
+          </div>
+        </div>
+      )}
+      
+      {/* Official artwork */}
+      {artworkSprites && (
+        <div>
+          <h4 className="font-medium mb-2">Official Artwork</h4>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {artworkSprites.front_default && !showShiny && (
+              <SpriteImage 
+                src={artworkSprites.front_default} 
+                alt="Default Artwork" 
+                label="Default" 
+                large 
+              />
+            )}
+            {artworkSprites.front_shiny && showShiny && (
+              <SpriteImage 
+                src={artworkSprites.front_shiny} 
+                alt="Shiny Artwork" 
+                label="Shiny" 
+                large 
+              />
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Component to display sprites for a specific game version
+const VersionSprites = ({ versionId, generation, pokemon, showShiny }) => {
+  // Get sprites for this version
+  const versionSprites = pokemon.sprites.versions?.[generation]?.[versionId];
+  
+  if (!versionSprites) return null;
+  
+  // Format version name
+  const versionName = versionId.replace(/-/g, ' ').split(' ').map(word => 
+    word.charAt(0).toUpperCase() + word.slice(1)
+  ).join(' ');
+  
+  // Check if this version has animated sprites
+  const hasAnimated = !!versionSprites.animated?.front_default || !!versionSprites.front_default?.includes('.gif');
+  
+  return (
+    <div>
+      <h4 className="font-medium mb-2">{versionName}</h4>
+      
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        {/* Regular sprites */}
+        {!showShiny && (
+          <>
+            {/* Front sprites */}
+            {hasAnimated && versionSprites.animated?.front_default ? (
+              <SpriteImage 
+                src={versionSprites.animated.front_default} 
+                alt="Front Default Animated" 
+                label="Front" 
+                animated 
+              />
+            ) : versionSprites.front_default && (
+              <SpriteImage 
+                src={versionSprites.front_default} 
+                alt="Front Default" 
+                label="Front" 
+                animated={versionSprites.front_default.includes('.gif')} 
+              />
+            )}
+            
+            {/* Back sprites */}
+            {hasAnimated && versionSprites.animated?.back_default ? (
+              <SpriteImage 
+                src={versionSprites.animated.back_default} 
+                alt="Back Default Animated" 
+                label="Back" 
+                animated 
+              />
+            ) : versionSprites.back_default && (
+              <SpriteImage 
+                src={versionSprites.back_default} 
+                alt="Back Default" 
+                label="Back" 
+                animated={versionSprites.back_default?.includes('.gif')} 
+              />
+            )}
+            
+            {/* Female sprites if they exist */}
+            {(versionSprites.front_female || versionSprites.animated?.front_female) && (
+              <SpriteImage 
+                src={versionSprites.animated?.front_female || versionSprites.front_female} 
+                alt="Female Sprite" 
+                label="Female" 
+                animated={hasAnimated} 
+              />
+            )}
+          </>
+        )}
+        
+        {/* Shiny sprites */}
+        {showShiny && (
+          <>
+            {/* Front shiny */}
+            {hasAnimated && versionSprites.animated?.front_shiny ? (
+              <SpriteImage 
+                src={versionSprites.animated.front_shiny} 
+                alt="Front Shiny Animated" 
+                label="Front Shiny" 
+                animated 
+              />
+            ) : versionSprites.front_shiny && (
+              <SpriteImage 
+                src={versionSprites.front_shiny} 
+                alt="Front Shiny" 
+                label="Front Shiny" 
+                animated={versionSprites.front_shiny.includes('.gif')} 
+              />
+            )}
+            
+            {/* Back shiny */}
+            {hasAnimated && versionSprites.animated?.back_shiny ? (
+              <SpriteImage 
+                src={versionSprites.animated.back_shiny} 
+                alt="Back Shiny Animated" 
+                label="Back Shiny" 
+                animated 
+              />
+            ) : versionSprites.back_shiny && (
+              <SpriteImage 
+                src={versionSprites.back_shiny} 
+                alt="Back Shiny" 
+                label="Back Shiny" 
+                animated={versionSprites.back_shiny?.includes('.gif')} 
+              />
+            )}
+            
+            {/* Female shiny sprites if they exist */}
+            {(versionSprites.front_shiny_female || versionSprites.animated?.front_shiny_female) && (
+              <SpriteImage 
+                src={versionSprites.animated?.front_shiny_female || versionSprites.front_shiny_female} 
+                alt="Female Shiny Sprite" 
+                label="Female Shiny" 
+                animated={hasAnimated} 
+              />
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// Component to display an individual sprite image
+const SpriteImage = ({ src, alt, label, animated = false, large = false }) => {
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [isError, setIsError] = useState(false);
+  
+  if (isError) return null;
+  
+  return (
+    <div className="flex flex-col items-center">
+      <div className={`relative ${large ? 'w-32 h-32' : 'w-20 h-20'} bg-gray-900 rounded-lg flex items-center justify-center p-2`}>
+        {!isLoaded && (
+          <div className="text-gray-500">Loading...</div>
+        )}
+        <img
+          src={src}
+          alt={alt}
+          className={`${isLoaded ? 'opacity-100' : 'opacity-0'} ${large ? 'max-w-[100px] max-h-[100px]' : 'max-w-[60px] max-h-[60px]'} ${animated ? 'animate-pulse-subtle' : ''}`}
+          onLoad={() => setIsLoaded(true)}
+          onError={() => setIsError(true)}
+        />
+      </div>
+      {label && <div className="text-xs text-gray-400 mt-1 text-center">{label}</div>}
+    </div>
+  );
+};
+
 // Main component
 export default function PokemonDetail({ pokemon, species, evolutionChain, alternativeForms }) {
   const router = useRouter();
@@ -1113,7 +1455,7 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
         
         {/* Tab Navigation - use the main type's theming with darker accents */}
         <div className="flex flex-wrap border-b border-gray-700 mb-6">
-          {['info', 'stats', 'evolution', 'moves', 'locations', 'tracking', 'ribbons', 'marks'].map((tab) => {
+          {['info', 'stats', 'evolution', 'moves', 'locations', 'tracking', 'ribbons', 'marks', 'sprites'].map((tab) => {
             const isActive = activeTab === tab;
             
             // Create a style for active and inactive tabs
@@ -1514,6 +1856,12 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
               caughtStatus={caughtStatus} 
               updateMarkStatus={updateMarkStatus} 
             />
+          </div>
+        )}
+        
+        {activeTab === 'sprites' && (
+          <div style={cardStyle} className="rounded-lg p-6">
+            <SpritesTab pokemon={pokemon} />
           </div>
         )}
       </div>
