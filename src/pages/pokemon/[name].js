@@ -1493,17 +1493,19 @@ const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus }) => {
   );
 };
 
-// Updated MarksTab component with consistent icon sizing
+// Updated MarksTab component with table-like format
 const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus }) => {
   const [failedImages, setFailedImages] = useState({});
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchText, setSearchText] = useState('');
+  const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'table'
   
   // Group marks by category
   const marksByCategory = useMemo(() => {
     const filtered = searchText 
       ? pokemonMarks.filter(m => m.name.toLowerCase().includes(searchText.toLowerCase()) || 
-                                m.description.toLowerCase().includes(searchText.toLowerCase()))
+                                m.description.toLowerCase().includes(searchText.toLowerCase()) ||
+                                m.method.toLowerCase().includes(searchText.toLowerCase()))
       : pokemonMarks;
     
     return filtered.reduce((acc, mark) => {
@@ -1524,65 +1526,179 @@ const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus }) => {
         <h2 className="text-xl font-bold mb-6">Mark Collection</h2>
         <p className="text-gray-400 mb-4">Track the marks you&apos;ve found on this Pokémon.</p>
         
-        <div className="space-y-6">
-          {Object.keys(marksByCategory).map(category => (
-            <div key={category} className="bg-gray-700 rounded-lg p-4">
-              <h3 className="text-lg font-semibold capitalize mb-4">{category} Marks</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {marksByCategory[category].map(mark => {
-                  const iconData = markIcons[mark.id] || { 
-                    icon: 'https://www.serebii.net/ribbons/raremark.png', // Default icon
-                    color: '#99CCFF', 
-                    fallback: '❌'  // Standard X fallback
-                  };
-                  const hasMark = caughtStatus.marks?.[mark.id];
-                  const useIconFallback = failedImages[mark.id];
-                  
-                  return (
-                    <button
-                      key={mark.id}
-                      onClick={() => updateMarkStatus(mark.id, pokemon.name)}
-                      className={`py-3 px-4 rounded-lg text-left transition-colors ${
-                        hasMark 
-                          ? 'bg-green-600 hover:bg-green-700 text-white' 
-                          : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
-                      }`}
-                    >
-                      <div className="flex items-center">
-                        <div 
-                          className="w-16 h-16 rounded-full flex items-center justify-center mr-3 bg-gray-800"
-                          style={{ 
-                            border: `2px solid ${iconData.color}`
-                          }}
-                        >
-                          {useIconFallback ? (
-                            <span className="text-xl">{iconData.fallback}</span>
-                          ) : (
-                            <img 
-                              src={iconData.icon} 
-                              alt={mark.name}
-                              className="w-12 h-12 object-contain"
-                              onError={() => handleImageError(mark.id)}
-                            />
-                          )}
-                        </div>
-                        <div className="flex-1">
-                          <p className="font-medium">{mark.name}</p>
-                          {hasMark && (
-                            <p className="text-xs opacity-80">Found</p>
-                          )}
-                        </div>
-                        {hasMark && (
-                          <span className="ml-2 text-xl">✓</span>
-                        )}
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
+        <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          {/* Search input */}
+          <div className="relative w-full sm:w-64">
+            <input
+              type="text"
+              placeholder="Search marks..."
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              className="w-full bg-gray-700 text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            {searchText && (
+              <button 
+                onClick={() => setSearchText('')}
+                className="absolute right-3 top-2.5 text-gray-400 hover:text-white"
+              >
+                ×
+              </button>
+            )}
+          </div>
+          
+          {/* View mode toggle */}
+          <div className="flex items-center space-x-2">
+            <span className="text-gray-400">View:</span>
+            <button 
+              onClick={() => setViewMode('grid')}
+              className={`px-3 py-1 rounded ${viewMode === 'grid' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300'}`}
+            >
+              Grid
+            </button>
+            <button 
+              onClick={() => setViewMode('table')}
+              className={`px-3 py-1 rounded ${viewMode === 'table' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300'}`}
+            >
+              Table
+            </button>
+          </div>
         </div>
+        
+        {viewMode === 'grid' ? (
+          // Grid view (original)
+          <div className="space-y-6">
+            {Object.keys(marksByCategory).map(category => (
+              <div key={category} className="bg-gray-700 rounded-lg p-4">
+                <h3 className="text-lg font-semibold capitalize mb-4">{category} Marks</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {marksByCategory[category].map(mark => {
+                    const iconData = markIcons[mark.id] || { 
+                      icon: 'https://www.serebii.net/ribbons/raremark.png',
+                      color: '#99CCFF', 
+                      fallback: '❌'
+                    };
+                    const hasMark = caughtStatus.marks?.[mark.id];
+                    const useIconFallback = failedImages[mark.id];
+                    
+                    return (
+                      <button
+                        key={mark.id}
+                        onClick={() => updateMarkStatus(mark.id, pokemon.name)}
+                        className={`py-3 px-4 rounded-lg text-left transition-colors ${
+                          hasMark 
+                            ? 'bg-green-600 hover:bg-green-700 text-white' 
+                            : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+                        }`}
+                      >
+                        <div className="flex items-center">
+                          <div 
+                            className="w-16 h-16 rounded-full flex items-center justify-center mr-3 bg-gray-800"
+                            style={{ 
+                              border: `2px solid ${iconData.color}`
+                            }}
+                          >
+                            {useIconFallback ? (
+                              <span className="text-xl">{iconData.fallback}</span>
+                            ) : (
+                              <img 
+                                src={iconData.icon} 
+                                alt={mark.name}
+                                className="w-12 h-12 object-contain"
+                                onError={() => handleImageError(mark.id)}
+                              />
+                            )}
+                          </div>
+                          <div className="flex-1">
+                            <p className="font-medium">{mark.name}</p>
+                            {hasMark && (
+                              <p className="text-xs opacity-80">Found</p>
+                            )}
+                          </div>
+                          {hasMark && (
+                            <span className="ml-2 text-xl">✓</span>
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          // Table view (new)
+          <div className="space-y-8">
+            {Object.keys(marksByCategory).map(category => (
+              <div key={category} className="overflow-x-auto">
+                <h3 className="text-lg font-semibold capitalize mb-4">{category} Marks</h3>
+                <table className="min-w-full bg-gray-700 rounded-lg overflow-hidden">
+                  <thead className="bg-gray-600">
+                    <tr>
+                      <th className="py-3 px-4 text-left text-sm font-medium text-gray-300 uppercase tracking-wider w-16"></th>
+                      <th className="py-3 px-4 text-left text-sm font-medium text-gray-300 uppercase tracking-wider">Mark</th>
+                      <th className="py-3 px-4 text-left text-sm font-medium text-gray-300 uppercase tracking-wider">Description</th>
+                      <th className="py-3 px-4 text-left text-sm font-medium text-gray-300 uppercase tracking-wider">How to Obtain</th>
+                      <th className="py-3 px-4 text-left text-sm font-medium text-gray-300 uppercase tracking-wider w-24">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-600">
+                    {marksByCategory[category].map(mark => {
+                      const iconData = markIcons[mark.id] || { 
+                        icon: 'https://www.serebii.net/ribbons/raremark.png',
+                        color: '#99CCFF', 
+                        fallback: '❌'
+                      };
+                      const hasMark = caughtStatus.marks?.[mark.id];
+                      const useIconFallback = failedImages[mark.id];
+                      
+                      return (
+                        <tr 
+                          key={mark.id}
+                          onClick={() => updateMarkStatus(mark.id, pokemon.name)}
+                          className={`hover:bg-gray-600 cursor-pointer transition-colors ${
+                            hasMark ? 'bg-green-900 bg-opacity-30' : ''
+                          }`}
+                        >
+                          <td className="py-3 px-4">
+                            <div 
+                              className="w-12 h-12 rounded-full flex items-center justify-center mx-auto bg-gray-800"
+                              style={{ 
+                                border: `2px solid ${iconData.color}`
+                              }}
+                            >
+                              {useIconFallback ? (
+                                <span className="text-lg">{iconData.fallback}</span>
+                              ) : (
+                                <img 
+                                  src={iconData.icon} 
+                                  alt={mark.name}
+                                  className="w-10 h-10 object-contain"
+                                  onError={() => handleImageError(mark.id)}
+                                />
+                              )}
+                            </div>
+                          </td>
+                          <td className="py-3 px-4 font-medium">{mark.name}</td>
+                          <td className="py-3 px-4 text-gray-300">{mark.description}</td>
+                          <td className="py-3 px-4 text-gray-300">{mark.method}</td>
+                          <td className="py-3 px-4">
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                              hasMark 
+                                ? 'bg-green-100 text-green-800' 
+                                : 'bg-gray-100 text-gray-800'
+                            }`}>
+                              {hasMark ? 'Found' : 'Missing'}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
