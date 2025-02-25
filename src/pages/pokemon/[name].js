@@ -904,7 +904,7 @@ const ribbonIcons = {
   fallback: '🎀'
 },
 'cool-contest-ultra-s': { 
-  icon: 'https://www.serebii.net/ribbons/coolcontesthyperrankribbon-s.png',
+  icon: '/img/Ribbons-Marks/coolcontesthyperrankribbon-s.png',
   color: '#FF6666',
   fallback: '🔥'
 },
@@ -924,7 +924,7 @@ const ribbonIcons = {
   fallback: '🎀'
 },
 'beauty-contest-ultra-s': { 
-  icon: 'https://www.serebii.net/ribbons/beautycontesthyperrankribbon-s.png',
+  icon: '/img/Ribbons-Marks/beautycontesthyperrankribbon-s.png',
   color: '#6699FF',
   fallback: '💙'
 },
@@ -944,7 +944,7 @@ const ribbonIcons = {
   fallback: '🎀'
 },
 'cute-contest-ultra-s': { 
-  icon: 'https://www.serebii.net/ribbons/cutecontesthyperrankribbon-s.png',
+  icon: '/img/Ribbons-Marks/cutecontesthyperrankribbon-s.png',
   color: '#FF99CC',
   fallback: '💕'
 },
@@ -964,7 +964,7 @@ const ribbonIcons = {
   fallback: '🎀'
 },
 'smart-contest-ultra-s': { 
-  icon: 'https://www.serebii.net/ribbons/smartcontesthyperrankribbon-s.png',
+  icon: '/img/Ribbons-Marks/smartcontesthyperrankribbon-s.png',
   color: '#99CC33',
   fallback: '🧠'
 },
@@ -984,7 +984,7 @@ const ribbonIcons = {
   fallback: '🎀'
 },
 'tough-contest-ultra-s': { 
-  icon: 'https://www.serebii.net/ribbons/toughcontesthyperrankribbon-s.png',
+  icon: '/img/Ribbons-Marks/toughcontesthyperrankribbon-s.png',
   color: '#FF9900',
   fallback: '💪'
 },
@@ -1528,8 +1528,8 @@ const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus }) => {
       const category = ribbon.category;
       if (!acc[category]) acc[category] = [];
       acc[category].push(ribbon);
-      return acc;
-    }, {});
+    return acc;
+  }, {});
   }, [searchText]);
   
   const handleImageError = (ribbonId) => {
@@ -1538,10 +1538,10 @@ const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus }) => {
   
   return (
     <div className="pt-6">
-      <div className="bg-gray-800 rounded-lg p-6">
-        <h2 className="text-xl font-bold mb-6">Ribbon Collection</h2>
+    <div className="bg-gray-800 rounded-lg p-6">
+      <h2 className="text-xl font-bold mb-6">Ribbon Collection</h2>
         <p className="text-gray-400 mb-4">Track the ribbons you&apos;ve earned with this Pokémon.</p>
-        
+      
         <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           {/* Search input */}
           <div className="relative w-full sm:w-64">
@@ -1582,68 +1582,68 @@ const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus }) => {
         
         {viewMode === 'grid' ? (
           // Grid view
-          <div className="space-y-6">
-            {Object.keys(ribbonsByCategory).map(category => (
-              <div key={category} className="bg-gray-700 rounded-lg p-4">
-                <h3 className="text-lg font-semibold capitalize mb-4">{category} Ribbons</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {ribbonsByCategory[category].map(ribbon => {
-                    const iconData = ribbonIcons[ribbon.id] || { 
-                      icon: 'https://www.serebii.net/ribbons/classicribbon.png', // Default icon
-                      color: '#AA99CC', 
-                      fallback: '🎀'  // Standard ribbon fallback
-                    };
-                    const hasRibbon = caughtStatus.ribbons?.[ribbon.id];
-                    const useIconFallback = failedImages[ribbon.id];
-                    
-                    return (
-                      <button
-                        key={ribbon.id}
-                        onClick={() => updateRibbonStatus(ribbon.id, pokemon.name)}
-                        className={`py-3 px-4 rounded-lg text-left transition-colors ${
-                          hasRibbon 
-                            ? 'bg-indigo-600 hover:bg-indigo-700 text-white' 
-                            : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
-                        }`}
+      <div className="space-y-6">
+        {Object.keys(ribbonsByCategory).map(category => (
+            <div key={category} className="bg-gray-700 rounded-lg p-4">
+              <h3 className="text-lg font-semibold capitalize mb-4">{category} Ribbons</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {ribbonsByCategory[category].map(ribbon => {
+                const iconData = ribbonIcons[ribbon.id] || { 
+                  icon: 'https://www.serebii.net/ribbons/classicribbon.png', // Default icon
+                  color: '#AA99CC', 
+                  fallback: '🎀'  // Standard ribbon fallback
+                };
+                const hasRibbon = caughtStatus.ribbons?.[ribbon.id];
+                const useIconFallback = failedImages[ribbon.id];
+                
+                return (
+              <button
+                    key={ribbon.id}
+                    onClick={() => updateRibbonStatus(ribbon.id, pokemon.name)}
+                    className={`py-3 px-4 rounded-lg text-left transition-colors ${
+                      hasRibbon 
+                        ? 'bg-indigo-600 hover:bg-indigo-700 text-white' 
+                        : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+                    }`}
+                  >
+                    <div className="flex items-center">
+                      <div 
+                          className="w-16 h-16 rounded-full flex items-center justify-center mr-3 bg-gray-800"
+                        style={{ 
+                          border: `2px solid ${iconData.color}`
+                        }}
                       >
-                        <div className="flex items-center">
-                          <div 
-                            className="w-16 h-16 rounded-full flex items-center justify-center mr-3 bg-gray-800"
-                            style={{ 
-                              border: `2px solid ${iconData.color}`
-                            }}
-                          >
-                            {useIconFallback ? (
-                              <span className="text-xl">{iconData.fallback}</span>
-                            ) : (
-                              <Image 
-                                src={iconData.icon} 
-                                alt={ribbon.name}
-                                width={48}
-                                height={48}
-                                className="object-contain"
-                                onError={() => handleImageError(ribbon.id)}
-                              />
-                            )}
-                          </div>
-                          <div className="flex-1">
-                            <p className="font-medium">{ribbon.name}</p>
+                        {useIconFallback ? (
+                          <span className="text-xl">{iconData.fallback}</span>
+                        ) : (
+                            <Image 
+                            src={iconData.icon} 
+                            alt={ribbon.name}
+                              width={48}
+                              height={48}
+                              className="object-contain"
+                            onError={() => handleImageError(ribbon.id)}
+                          />
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-medium">{ribbon.name}</p>
                             <p className="text-xs text-gray-400 truncate">{ribbon.description}</p>
-                            {hasRibbon && (
+                        {hasRibbon && (
                               <p className="text-xs opacity-80 mt-1">Obtained</p>
-                            )}
-                          </div>
-                          {hasRibbon && (
-                            <span className="ml-2 text-xl">✓</span>
-                          )}
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
+                        )}
+                      </div>
+                      {hasRibbon && (
+                        <span className="ml-2 text-xl">✓</span>
+                      )}
+                    </div>
+              </button>
+                );
+              })}
+            </div>
           </div>
+            ))}
+        </div>
         ) : (
           // Table view
           <div className="space-y-8">
@@ -1720,8 +1720,8 @@ const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus }) => {
             ))}
           </div>
         )}
-      </div>
-    </div>
+              </div>
+            </div>
   );
 };
 
