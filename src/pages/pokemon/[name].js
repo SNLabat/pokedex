@@ -614,31 +614,31 @@ const pokemonMarks = [
   // And many more based on your list...
 ];
 
-// Icon mappings for all ribbons
+// Update the ribbonIcons object to use local images
 const ribbonIcons = {
   // Gen 3 Contest Ribbons
   'champion-hoenn': { 
-    icon: 'https://www.serebii.net/games/ribbons/championribbon.png', 
+    icon: '/img/Ribbons-Marks/championribbon.png', 
     color: '#22AA44',
     fallback: '🎀'
   },
   'cool-normal': { 
-    icon: 'https://www.serebii.net/games/ribbons/coolnormalribbon.png', 
+    icon: '/img/Ribbons-Marks/coolnormalribbon.png', 
     color: '#FF4444',
     fallback: '🎀'
   },
   'cool-super': { 
-    icon: 'https://www.serebii.net/games/ribbons/coolsuperribbon.png', 
+    icon: '/img/Ribbons-Marks/coolsuperribbon.png', 
     color: '#FF4444',
     fallback: '🎀'
   },
   'cool-hyper': { 
-    icon: 'https://www.serebii.net/games/ribbons/coolhyperribbon.png', 
+    icon: '/img/Ribbons-Marks/coolhyperribbon.png', 
     color: '#FF4444',
     fallback: '🎀'
   },
   'cool-master': { 
-    icon: 'https://www.serebii.net/games/ribbons/coolmasterribbon.png', 
+    icon: '/img/Ribbons-Marks/coolmasterribbon.png', 
     color: '#FF4444',
     fallback: '🎀'
   },
@@ -1169,20 +1169,20 @@ const ribbonIcons = {
   }
 };
 
-// Icon mappings for all marks
+// Update the markIcons object to use local images
 const markIcons = {
   'lunchtime': { 
-    icon: 'https://www.serebii.net/games/ribbons/lunchtimemark.png', 
+    icon: '/img/Ribbons-Marks/lunchtimemark.png', 
     color: '#FF9944',
     fallback: '❌'
   },
   'sleepy-time': { 
-    icon: 'https://www.serebii.net/games/ribbons/sleepy-timemark.png', 
+    icon: '/img/Ribbons-Marks/sleepy-timemark.png', 
     color: '#99AAFF',
     fallback: '❌'
   },
   'dusk': { 
-    icon: 'https://www.serebii.net/games/ribbons/duskmark.png', 
+    icon: '/img/Ribbons-Marks/duskmark.png', 
     color: '#9977CC',
     fallback: '❌'
   },
@@ -1463,10 +1463,12 @@ const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus }) => {
                           {useIconFallback ? (
                             <span className="text-xl">{iconData.fallback}</span>
                           ) : (
-                            <img 
+                            <Image 
                               src={iconData.icon} 
                               alt={ribbon.name}
-                              className="w-12 h-12 object-contain"
+                              width={48}
+                              height={48}
+                              className="object-contain"
                               onError={() => handleImageError(ribbon.id)}
                             />
                           )}
@@ -1600,10 +1602,12 @@ const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus }) => {
                             {useIconFallback ? (
                               <span className="text-xl">{iconData.fallback}</span>
                             ) : (
-                              <img 
+                              <Image 
                                 src={iconData.icon} 
                                 alt={mark.name}
-                                className="w-12 h-12 object-contain"
+                                width={48}
+                                height={48}
+                                className="object-contain"
                                 onError={() => handleImageError(mark.id)}
                               />
                             )}
@@ -1669,10 +1673,12 @@ const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus }) => {
                               {useIconFallback ? (
                                 <span className="text-lg">{iconData.fallback}</span>
                               ) : (
-                                <img 
+                                <Image 
                                   src={iconData.icon} 
                                   alt={mark.name}
-                                  className="w-10 h-10 object-contain"
+                                  width={40}
+                                  height={40}
+                                  className="object-contain"
                                   onError={() => handleImageError(mark.id)}
                                 />
                               )}
