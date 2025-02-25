@@ -3,17 +3,15 @@ import Head from 'next/head';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { getPokemonCollection } from '../lib/dataManagement';
-import pokeballOutline from '/public/img/pokeballoutline.png';
 import AdvancedSearch from '../components/AdvancedSearch';
+import Navigation from '../components/Navigation';
 
 export default function PokedexPage({ initialPokemon }) {
   const router = useRouter();
-  const [pokemonData, setPokemonData] = useState(initialPokemon);
+  const [pokemonData, setPokemonData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedGen, setSelectedGen] = useState('all');
-  const [caughtStatus, setCaughtStatus] = useState({});
-  const [filteredPokemon, setFilteredPokemon] = useState(initialPokemon);
+  const [searchFilters, setSearchFilters] = useState({});
   
   const generations = [
     { id: 'all', name: 'All Generations' },
@@ -29,66 +27,53 @@ export default function PokedexPage({ initialPokemon }) {
   ];
 
   useEffect(() => {
+    // Check for URL query parameters
+    if (router.query.gen) {
+      setSelectedGen(router.query.gen);
+    }
+    
     const fetchData = async () => {
       setIsLoading(true);
       
-      // Fetch collection data
-      const collectionResult = await getPokemonCollection();
-      if (collectionResult.success && collectionResult.data) {
-        const statusMap = {};
-        
-        // Process the data into a more usable format
-        Object.entries(collectionResult.data).forEach(([id, forms]) => {
-          const mainForm = forms['default'] || Object.values(forms)[0];
-          if (mainForm) {
-            statusMap[id] = {
-              caught: !!mainForm.caught,
-              shiny: !!mainForm.shiny,
-              alpha: !!mainForm.alpha
-            };
-          }
-        });
-        
-        setCaughtStatus(statusMap);
-      }
-      
       try {
-        const res = await fetch('https://pokeapi.co/api/v2/pokemon?limit=1008');
+        // First check if we have a selected generation
+        let fetchUrl = 'https://pokeapi.co/api/v2/pokemon?limit=1008'; // Default to all Pokémon
+        
+        if (selectedGen !== 'all') {
+          const gen = generations.find(g => g.id === selectedGen);
+          if (gen) {
+            const limit = gen.range[1] - gen.range[0] + 1;
+            const offset = gen.range[0] - 1;
+            fetchUrl = `https://pokeapi.co/api/v2/pokemon?limit=${limit}&offset=${offset}`;
+          }
+        }
+        
+        const res = await fetch(fetchUrl);
         const data = await res.json();
         
-        // Group by generation
-        const byGeneration = {};
-        
-        generations.forEach(gen => {
-          if (gen.id !== 'all') {
-            byGeneration[gen.id] = [];
-          }
-        });
-        
-        // Process all Pokémon
-        await Promise.all(data.results.map(async (pokemon, index) => {
-          const id = index + 1;
-          
-          // Determine which generation this Pokémon belongs to
-          const gen = generations.find(g => 
-            g.id !== 'all' && id >= g.range[0] && id <= g.range[1]
-          );
-          
-          if (gen) {
-            // Fetch detailed data for each Pokémon
+        // Fetch additional details for each Pokémon
+        const detailedPokemon = await Promise.all(
+          data.results.map(async (pokemon, index) => {
+            // Extract ID from URL or calculate it
+            const urlParts = pokemon.url.split('/');
+            const id = parseInt(urlParts[urlParts.length - 2]);
+            
+            // Fetch detailed data
             const detailRes = await fetch(pokemon.url);
             const detail = await detailRes.json();
             
-            byGeneration[gen.id].push({
+            return {
               id,
               name: pokemon.name,
-              image: detail.sprites.other['official-artwork'].front_default,
+              sprite: detail.sprites.other['official-artwork'].front_default || detail.sprites.front_default,
               types: detail.types.map(t => t.type.name)
-            });
-          }
-        }));
+            };
+          })
+        );
         
-        setPokemonData(byGeneration);
+        // Sort by Pokémon ID to ensure proper Dex order
+        const sortedPokemon = detailedPokemon.sort((a, b) => a.id - b.id);
+        setPokemonData(sortedPokemon);
       } catch (error) {
         console.error('Error fetching Pokémon data:', error);
       } finally {
@@ -97,87 +82,33 @@ export default function PokedexPage({ initialPokemon }) {
     };
     
     fetchData();
-  }, []);
+  }, [selectedGen, router.query]);
   
-  const renderPokemonList = () => {
-    if (isLoading) {
-      return (
-        <div className="flex justify-center items-center min-h-[400px]">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-500"></div>
-        </div>
-      );
+  // Apply search filters
+  const handleSearch = (filters) => {
+    setSearchFilters(filters);
+  };
+  
+  // Filter Pokémon based on search criteria
+  const filteredPokemon = pokemonData.filter(pokemon => {
+    // Apply name/number filter
+    if (searchFilters.searchTerm && 
+        !pokemon.name.includes(searchFilters.searchTerm.toLowerCase()) && 
+        !pokemon.id.toString().includes(searchFilters.searchTerm)) {
+      return false;
     }
     
-    const gensToShow = selectedGen === 'all' 
-      ? Object.keys(pokemonData)
-      : [selectedGen];
-      
-    return (
-      <div className="space-y-12">
-        {gensToShow.map(genId => (
-          <div key={genId} className="space-y-4">
-            <h2 className="text-2xl font-bold">
-              {generations.find(g => g.id === genId).name}
-            </h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-4">
-              {pokemonData[genId].map(pokemon => {
-                const status = caughtStatus[pokemon.id] || {};
-                
-                return (
-                  <Link key={pokemon.id} href={`/pokemon/${pokemon.name}`}>
-                    <a className={`bg-gray-800 hover:bg-gray-700 rounded-lg p-4 transition-transform hover:scale-105 relative pokemon-card
-                      ${status.shiny ? 'shiny' : status.caught ? 'caught' : ''}`}>
-                      <div className="relative w-full pt-[100%]">
-                        <Image
-                          src={pokemon.image || `/img/unknown-pokemon.png`}
-                          alt={pokemon.name}
-                          layout="fill"
-                          objectFit="contain"
-                          className="absolute top-0 left-0"
-                        />
-                      </div>
-                      <div className="mt-2">
-                        <p className="text-sm text-gray-400">#{String(pokemon.id).padStart(3, '0')}</p>
-                        <p className="font-medium capitalize">{pokemon.name.replace(/-/g, ' ')}</p>
-                        <div className="flex gap-1 mt-1">
-                          {pokemon.types.map(type => (
-                            <span 
-                              key={type} 
-                              className={`text-xs px-2 py-1 rounded ${getTypeColor(type)}`}
-                            >
-                              {type}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                      
-                      {/* Move Catch Status Indicator to top-right */}
-                      <div className="absolute top-2 right-2 p-1 rounded-full bg-opacity-70">
-                        <div className="w-6 h-6 relative">
-                          <Image
-                            src={pokeballOutline}
-                            alt="Catch status"
-                            layout="fill"
-                            className={`transition-transform ${
-                              status.caught || status.shiny ? 'opacity-100' : 'opacity-40'
-                            } ${
-                              status.shiny ? 'filter-yellow' : 
-                              status.alpha ? 'filter-red' : 
-                              status.caught ? 'filter-green' : ''
-                            }`}
-                          />
-                        </div>
-                      </div>
-                    </a>
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        ))}
-      </div>
-    );
-  };
+    // Apply type filter
+    if (searchFilters.types && searchFilters.types.length > 0) {
+      if (!pokemon.types.some(type => searchFilters.types.includes(type))) {
+        return false;
+      }
+    }
+    
+    // Add more filters as needed
+    
+    return true;
+  });
   
   // Helper function for type colors
   const getTypeColor = (type) => {
@@ -205,35 +136,112 @@ export default function PokedexPage({ initialPokemon }) {
     return colors[type] || 'bg-gray-500';
   };
 
-  // Client-side search handler (safe because it's not used in getStaticProps)
-  const handleSearch = (filters) => {
-    // Filter logic here
-    const filtered = initialPokemon.filter(pokemon => {
-      // Apply filters and return matches
-      // ...
-    });
+  // Render Pokemon Grid
+  const renderPokemonGrid = () => {
+    if (isLoading) {
+      return (
+        <div className="flex justify-center items-center min-h-[400px]">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-500"></div>
+        </div>
+      );
+    }
     
-    setFilteredPokemon(filtered);
+    const pokemonToShow = searchFilters.searchTerm || (searchFilters.types && searchFilters.types.length > 0)
+      ? filteredPokemon
+      : pokemonData;
+    
+    if (pokemonToShow.length === 0) {
+      return (
+        <div className="text-center py-8">
+          <p className="text-xl text-gray-400">No Pokémon found matching your criteria</p>
+          <button 
+            onClick={() => setSearchFilters({})} 
+            className="mt-4 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg"
+          >
+            Clear Filters
+          </button>
+        </div>
+      );
+    }
+    
+    return (
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+        {pokemonToShow.map(pokemon => (
+          <Link key={pokemon.id} href={`/pokemon/${pokemon.name}`}>
+            <a className="bg-gray-800 hover:bg-gray-700 rounded-lg p-4 transition-transform hover:scale-105 flex flex-col items-center">
+              <div className="relative w-32 h-32">
+                {pokemon.sprite ? (
+                  <Image
+                    src={pokemon.sprite}
+                    alt={pokemon.name}
+                    layout="fill"
+                    objectFit="contain"
+                    className="drop-shadow-lg"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-gray-700 rounded-full">
+                    <span className="text-gray-500">?</span>
+                  </div>
+                )}
+              </div>
+              
+              <div className="mt-2 text-center">
+                <p className="text-sm text-gray-400">#{String(pokemon.id).padStart(3, '0')}</p>
+                <p className="font-medium capitalize">{pokemon.name.replace(/-/g, ' ')}</p>
+                <div className="flex justify-center gap-1 mt-1">
+                  {pokemon.types.map(type => (
+                    <span 
+                      key={type} 
+                      className={`text-xs px-2 py-1 rounded ${getTypeColor(type)}`}
+                    >
+                      {type}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </a>
+          </Link>
+        ))}
+      </div>
+    );
   };
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       <Head>
         <title>Pokédex | Pokédex Live</title>
-        <meta name="description" content="Browse and track your Pokémon collection" />
+        <meta name="description" content="Browse the complete Pokédex with all generations from Kanto to Paldea" />
       </Head>
       
+      <Navigation />
+      
       <main className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-6">Pokédex</h1>
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold">Pokédex</h1>
+          
+          {/* Stats counter */}
+          <div className="bg-gray-800 px-4 py-2 rounded-lg">
+            <span className="text-sm text-gray-400">Displaying:</span>
+            <span className="ml-2 font-semibold">
+              {filteredPokemon.length > 0 ? filteredPokemon.length : pokemonData.length} Pokémon
+            </span>
+          </div>
+        </div>
         
         {/* Generation filter */}
-        <div className="mb-8">
-          <div className="flex flex-wrap gap-2">
+        <div className="mb-8 overflow-x-auto">
+          <div className="flex space-x-2 pb-2">
             {generations.map(gen => (
               <button
                 key={gen.id}
-                onClick={() => setSelectedGen(gen.id)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                onClick={() => {
+                  setSelectedGen(gen.id);
+                  router.push({
+                    pathname: '/pokedex',
+                    query: { gen: gen.id },
+                  }, undefined, { shallow: true });
+                }}
+                className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
                   selectedGen === gen.id 
                     ? 'bg-red-600 text-white' 
                     : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
@@ -245,24 +253,45 @@ export default function PokedexPage({ initialPokemon }) {
           </div>
         </div>
         
-        {/* Pass initial values and client-side function */}
+        {/* Advanced search */}
         <AdvancedSearch 
-          initialFilters={{}} 
-          onSearchClient={handleSearch} 
-          pokemonData={initialPokemon} 
+          initialFilters={searchFilters}
+          onSearchClient={handleSearch}
+          pokemonData={pokemonData}
         />
         
         {/* Pokemon list */}
-        {renderPokemonList()}
+        <div className="mt-6">
+          {renderPokemonGrid()}
+        </div>
+        
+        {/* Pagination or "Load More" button for large generations */}
+        {pokemonData.length > 60 && !isLoading && (
+          <div className="mt-8 text-center">
+            <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg">
+              Load More Pokémon
+            </button>
+          </div>
+        )}
       </main>
+      
+      {/* Footer */}
+      <footer className="bg-gray-900 border-t border-gray-800 mt-12 py-6">
+        <div className="container mx-auto px-4 text-center text-gray-500 text-sm">
+          <p>
+            Pokémon and Pokémon character names are trademarks of Nintendo.
+            This app is not affiliated with Nintendo, Game Freak, or The Pokémon Company.
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }
 
 export async function getStaticProps() {
   try {
-    // Fetch basic Pokémon data from API
-    const res = await fetch('https://pokeapi.co/api/v2/pokemon?limit=151'); // Start with first 151 Pokémon
+    // Fetch initial Pokémon data (just first generation to start)
+    const res = await fetch('https://pokeapi.co/api/v2/pokemon?limit=151');
     const data = await res.json();
     
     // Process Pokémon data into a more usable format
@@ -271,9 +300,7 @@ export async function getStaticProps() {
       return {
         id,
         name: pokemon.name,
-        url: pokemon.url,
-        // Add image URL from GitHub repository
-        image: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`
+        url: pokemon.url
       };
     });
     
@@ -287,9 +314,9 @@ export async function getStaticProps() {
     console.error('Error fetching Pokémon data:', error);
     return {
       props: {
-        initialPokemon: [] // Return empty array if fetch fails
+        initialPokemon: []
       },
-      revalidate: 3600 // Try again sooner if there was an error
+      revalidate: 3600
     };
   }
 } 
