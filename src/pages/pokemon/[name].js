@@ -501,11 +501,12 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
         <div className="container mx-auto px-4">
           {/* Navigation links */}
           <div className="flex justify-between items-center mb-4">
-            <Link href="/pokedex">
-              <a className="text-white hover:text-gray-300 flex items-center">
-                <span className="mr-2">←</span> Back to Pokédex
-              </a>
-            </Link>
+            <button 
+              onClick={() => router.push('/pokedex', undefined, { shallow: false })}
+              className="text-white hover:text-gray-300 flex items-center"
+            >
+              <span className="mr-2">←</span> Back to Pokédex
+            </button>
             
             <div className="flex space-x-4">
               {prevId && (
