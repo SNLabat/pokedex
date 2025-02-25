@@ -342,17 +342,21 @@ const MovesTable = ({ moves, learnMethod, title }) => {
 // Hero section with circular Pokémon image and type-based theming
 const PokemonHero = ({ pokemon, isShiny, setIsShiny, isAnimated, setIsAnimated, speciesText }) => {
   // Determine the theme based on Pokémon's types
-  const mainType = pokemon.types[0]?.type.name;
+  const mainType = pokemon.types[0]?.type.name || 'normal';
   const secondType = pokemon.types[1]?.type.name;
   
-  // Create background class based on types
-  let heroBgClass = 'bg-gray-950'; // Default dark background
+  // Get theme colors for the main type
+  const mainTheme = typeColors[mainType] || defaultTheme;
+  
+  // Create hero background class based on types
+  let heroBgClass;
   
   if (mainType && secondType) {
-    // For dual types, create a gradient from the first to the second type color
+    // For dual types, create a gradient using the full bg colors (not the light versions)
+    // We'll use the darker 900 variant for better visual contrast
     heroBgClass = `bg-gradient-to-r from-${mainType}-900 to-${secondType}-900`;
-  } else if (mainType) {
-    // For single type, use a darker version of the type color
+  } else {
+    // For single type, use a darker version of the type color (900 instead of 800)
     heroBgClass = `bg-${mainType}-900`;
   }
 
@@ -360,7 +364,7 @@ const PokemonHero = ({ pokemon, isShiny, setIsShiny, isAnimated, setIsAnimated, 
     <div className={`${heroBgClass} py-10 mb-8`}>
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row items-center">
-          {/* Pokemon Image in Circle */}
+          {/* Pokémon Image in Circle */}
           <div className="relative mb-6 md:mb-0 md:mr-10">
             <div className="w-64 h-64 rounded-full overflow-hidden relative flex items-center justify-center bg-gray-900">
               {/* Type-based outer ring based on number of types */}
@@ -374,21 +378,7 @@ const PokemonHero = ({ pokemon, isShiny, setIsShiny, isAnimated, setIsAnimated, 
                     <div className={`absolute top-0 left-0 w-1/2 h-full ${typeColors[mainType]?.accent || 'bg-gray-600'}`}></div>
                     <div className={`absolute top-0 right-0 w-1/2 h-full ${typeColors[secondType]?.accent || 'bg-gray-600'}`}></div>
                   </>
-                ) : (
-                  // Three or more types - divide in thirds
-                  pokemon.types.slice(0, 3).map((typeData, index) => {
-                    const angle = index * 120;
-                    return (
-                      <div 
-                        key={typeData.type.name}
-                        className={`absolute inset-0 ${typeColors[typeData.type.name]?.accent || 'bg-gray-600'}`}
-                        style={{
-                          clipPath: `polygon(50% 50%, ${50 + 50 * Math.cos(angle * Math.PI / 180)}% ${50 + 50 * Math.sin(angle * Math.PI / 180)}%, ${50 + 50 * Math.cos((angle + 120) * Math.PI / 180)}% ${50 + 50 * Math.sin((angle + 120) * Math.PI / 180)}%)`
-                        }}
-                      ></div>
-                    );
-                  })
-                )}
+                ) : null}
               </div>
               
               {/* Pokemon sprite */}
@@ -425,12 +415,12 @@ const PokemonHero = ({ pokemon, isShiny, setIsShiny, isAnimated, setIsAnimated, 
             </div>
           </div>
           
-          {/* Pokemon Info and Toggles */}
+          {/* Rest of the hero content */}
           <div className="flex-1">
             <div className="flex flex-col">
               <div className="mb-4">
-                <p className="text-gray-400 text-xl mb-1">#{String(pokemon.id).padStart(3, '0')}</p>
-                <h1 className="text-4xl md:text-5xl font-bold capitalize mb-2">{pokemon.name.replace(/-/g, ' ')}</h1>
+                <p className="text-gray-300 text-xl mb-1">#{String(pokemon.id).padStart(3, '0')}</p>
+                <h1 className="text-4xl md:text-5xl font-bold capitalize mb-2 text-white">{pokemon.name.replace(/-/g, ' ')}</h1>
                 <p className="text-xl text-gray-300 italic">{speciesText}</p>
               </div>
               
@@ -439,7 +429,7 @@ const PokemonHero = ({ pokemon, isShiny, setIsShiny, isAnimated, setIsAnimated, 
                 <button
                   onClick={() => setIsShiny(false)}
                   className={`px-4 py-2 rounded-lg transition-colors ${
-                    !isShiny ? 'bg-red-600 text-white' : 'bg-gray-700 hover:bg-gray-600'
+                    !isShiny ? `${mainTheme.accent} text-white` : 'bg-gray-700 hover:bg-gray-600'
                   }`}
                 >
                   Normal
@@ -472,21 +462,21 @@ const PokemonHero = ({ pokemon, isShiny, setIsShiny, isAnimated, setIsAnimated, 
               
               {/* Basic Stats */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                <div className="bg-gray-800 rounded-lg p-3">
-                  <p className="text-gray-400 text-sm">Height</p>
-                  <p className="font-medium">{(pokemon.height / 10).toFixed(1)}m</p>
+                <div className="bg-gray-800 bg-opacity-50 rounded-lg p-3">
+                  <p className="text-gray-300 text-sm">Height</p>
+                  <p className="font-medium text-white">{(pokemon.height / 10).toFixed(1)}m</p>
                 </div>
-                <div className="bg-gray-800 rounded-lg p-3">
-                  <p className="text-gray-400 text-sm">Weight</p>
-                  <p className="font-medium">{(pokemon.weight / 10).toFixed(1)}kg</p>
+                <div className="bg-gray-800 bg-opacity-50 rounded-lg p-3">
+                  <p className="text-gray-300 text-sm">Weight</p>
+                  <p className="font-medium text-white">{(pokemon.weight / 10).toFixed(1)}kg</p>
                 </div>
-                <div className="bg-gray-800 rounded-lg p-3">
-                  <p className="text-gray-400 text-sm">Base XP</p>
-                  <p className="font-medium">{pokemon.base_experience || 'N/A'}</p>
+                <div className="bg-gray-800 bg-opacity-50 rounded-lg p-3">
+                  <p className="text-gray-300 text-sm">Base XP</p>
+                  <p className="font-medium text-white">{pokemon.base_experience || 'N/A'}</p>
                 </div>
-                <div className="bg-gray-800 rounded-lg p-3">
-                  <p className="text-gray-400 text-sm">Abilities</p>
-                  <p className="font-medium capitalize">
+                <div className="bg-gray-800 bg-opacity-50 rounded-lg p-3">
+                  <p className="text-gray-300 text-sm">Abilities</p>
+                  <p className="font-medium capitalize text-white">
                     {pokemon.abilities.map(a => a.ability.name.replace(/-/g, ' ')).join(', ')}
                   </p>
                 </div>
@@ -508,7 +498,7 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
   const [caughtStatus, setCaughtStatus] = useState({});
   const [isEvolutionExpanded, setIsEvolutionExpanded] = useState(false);
   
-  // Get the main type for theming
+  // Get the main type for theming throughout the page
   const mainType = pokemon?.types?.[0]?.type?.name || 'normal';
   const theme = typeColors[mainType] || defaultTheme;
   
@@ -643,7 +633,7 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
           </div>
         </div>
         
-        {/* Tab Navigation */}
+        {/* Tab Navigation - use the main type's theming */}
         <div className="flex flex-wrap border-b border-gray-700 mb-6">
           <button
             onClick={() => setActiveTab('info')}
@@ -695,7 +685,7 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
           </button>
         </div>
         
-        {/* Info Tab */}
+        {/* Tab content - where appropriate, use the theme colors */}
         {activeTab === 'info' && (
           <div className="bg-gray-800 rounded-lg p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -800,7 +790,7 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
         {activeTab === 'stats' && (
           <div className="bg-gray-800 rounded-lg p-6">
             <h2 className="text-xl font-bold mb-6">Base Stats</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div>
                 {pokemon.stats.map((stat, index) => {
                   const statName = formatStatName(stat.stat.name);
