@@ -339,28 +339,60 @@ const MovesTable = ({ moves, learnMethod, title }) => {
   );
 };
 
-// Hero section redesign with circular pokemon image and sprite toggles
-const PokemonHero = ({ pokemon, isShiny, setIsShiny, isAnimated, setIsAnimated, theme, speciesText }) => {
+// Hero section with circular Pokémon image and type-based theming
+const PokemonHero = ({ pokemon, isShiny, setIsShiny, isAnimated, setIsAnimated, speciesText }) => {
+  // Determine the theme based on Pokémon's types
+  const mainType = pokemon.types[0]?.type.name;
+  const secondType = pokemon.types[1]?.type.name;
+  
+  // Create background class based on types
+  let heroBgClass = 'bg-gray-950'; // Default dark background
+  
+  if (mainType && secondType) {
+    // For dual types, create a gradient from the first to the second type color
+    heroBgClass = `bg-gradient-to-r from-${mainType}-900 to-${secondType}-900`;
+  } else if (mainType) {
+    // For single type, use a darker version of the type color
+    heroBgClass = `bg-${mainType}-900`;
+  }
+
   return (
-    <div className="bg-gray-950 py-10 mb-8">
+    <div className={`${heroBgClass} py-10 mb-8`}>
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row items-center">
           {/* Pokemon Image in Circle */}
           <div className="relative mb-6 md:mb-0 md:mr-10">
-            <div className={`w-64 h-64 rounded-full overflow-hidden relative flex items-center justify-center
-              ${pokemon.types.length > 0 ? theme.light : defaultTheme.light}`}
-            >
-              {/* Type-based outer ring */}
-              <div className={`absolute inset-0 rounded-full ${
-                pokemon.types.length > 1 
-                  ? `bg-gradient-to-r from-${pokemon.types[0].type.name} to-${pokemon.types[1].type.name}` 
-                  : theme.accent
-                } z-0 p-3`}>
-                <div className="w-full h-full bg-gray-900 rounded-full"></div>
+            <div className="w-64 h-64 rounded-full overflow-hidden relative flex items-center justify-center bg-gray-900">
+              {/* Type-based outer ring based on number of types */}
+              <div className="absolute inset-0 rounded-full overflow-hidden border-8 border-gray-900">
+                {pokemon.types.length === 1 ? (
+                  // Single type - full circle
+                  <div className={`absolute inset-0 ${typeColors[mainType]?.accent || 'bg-gray-600'}`}></div>
+                ) : pokemon.types.length === 2 ? (
+                  // Two types - half and half
+                  <>
+                    <div className={`absolute top-0 left-0 w-1/2 h-full ${typeColors[mainType]?.accent || 'bg-gray-600'}`}></div>
+                    <div className={`absolute top-0 right-0 w-1/2 h-full ${typeColors[secondType]?.accent || 'bg-gray-600'}`}></div>
+                  </>
+                ) : (
+                  // Three or more types - divide in thirds
+                  pokemon.types.slice(0, 3).map((typeData, index) => {
+                    const angle = index * 120;
+                    return (
+                      <div 
+                        key={typeData.type.name}
+                        className={`absolute inset-0 ${typeColors[typeData.type.name]?.accent || 'bg-gray-600'}`}
+                        style={{
+                          clipPath: `polygon(50% 50%, ${50 + 50 * Math.cos(angle * Math.PI / 180)}% ${50 + 50 * Math.sin(angle * Math.PI / 180)}%, ${50 + 50 * Math.cos((angle + 120) * Math.PI / 180)}% ${50 + 50 * Math.sin((angle + 120) * Math.PI / 180)}%)`
+                        }}
+                      ></div>
+                    );
+                  })
+                )}
               </div>
               
               {/* Pokemon sprite */}
-              <div className="relative z-10 w-56 h-56">
+              <div className="relative z-10 w-56 h-56 bg-gray-900 rounded-full flex items-center justify-center">
                 <Image
                   src={
                     isAnimated
@@ -372,8 +404,8 @@ const PokemonHero = ({ pokemon, isShiny, setIsShiny, isAnimated, setIsAnimated, 
                           : pokemon.sprites.other['official-artwork'].front_default || pokemon.sprites.front_default)
                   }
                   alt={pokemon.name}
-                  layout="fill"
-                  objectFit="contain"
+                  width={isAnimated ? 120 : 200}
+                  height={isAnimated ? 120 : 200}
                   priority
                 />
               </div>
@@ -475,9 +507,54 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
   const [activeTab, setActiveTab] = useState('info');
   const [caughtStatus, setCaughtStatus] = useState({});
   const [isEvolutionExpanded, setIsEvolutionExpanded] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   
-  // Reset states when the route changes to handle direct navigation
+  // Get the main type for theming
+  const mainType = pokemon?.types?.[0]?.type?.name || 'normal';
+  const theme = typeColors[mainType] || defaultTheme;
+  
+  // Initialize next/prev Pokémon IDs
+  const currentId = pokemon?.id || 0;
+  const prevId = currentId > 1 ? currentId - 1 : null;
+  const nextId = currentId < 898 ? currentId + 1 : null;
+  
+  // Get species description and category
+  const englishFlavorText = species?.flavor_text_entries?.find(entry => entry.language.name === 'en')?.flavor_text || '';
+  const category = species?.genera?.find(genus => genus.language.name === 'en')?.genus || '';
+  
+  // Get resistances and weaknesses
+  const types = pokemon?.types?.map(t => t.type.name) || [];
+  const weaknesses = getWeaknesses(types);
+  const resistances = getResistances(types);
+  const immunities = getImmunities(types);
+  
+  // Update caught status
+  const updateCaughtStatus = (statusType, formName = 'default') => {
+    if (!pokemon) return;
+    
+    try {
+      // Get current caught data
+      const caughtData = JSON.parse(localStorage.getItem('caughtPokemon') || '{}');
+      
+      // Initialize if needed
+      if (!caughtData[pokemon.id]) {
+        caughtData[pokemon.id] = {};
+      }
+      
+      if (!caughtData[pokemon.id][formName]) {
+        caughtData[pokemon.id][formName] = {};
+      }
+      
+      // Toggle the status
+      caughtData[pokemon.id][formName][statusType] = !caughtData[pokemon.id][formName][statusType];
+      
+      // Update state and localStorage
+      setCaughtStatus(caughtData[pokemon.id]);
+      localStorage.setItem('caughtPokemon', JSON.stringify(caughtData));
+    } catch (error) {
+      console.error('Error updating caught status:', error);
+    }
+  };
+  
   useEffect(() => {
     // Get caught status from localStorage when Pokémon data changes
     if (pokemon && typeof window !== 'undefined') {
@@ -517,66 +594,25 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
     );
   }
   
-  // Get basic Pokémon data
-  const id = pokemon.id;
-  const name = pokemon.name.replace(/-/g, ' ');
-  
-  // Select primary type for theme
-  const primaryType = pokemon.types?.[0]?.type?.name;
-  const theme = primaryType ? (typeColors[primaryType] || defaultTheme) : defaultTheme;
-
-  // Get sprite to display
-  const displaySprite = isShiny
-    ? (pokemon.sprites?.other?.['official-artwork']?.front_shiny || pokemon.sprites?.front_shiny)
-    : (pokemon.sprites?.other?.['official-artwork']?.front_default || pokemon.sprites?.front_default);
-  
-  // Get Pokédex entry
-  const englishEntries = species.flavor_text_entries
-    ?.filter(entry => entry?.language?.name === 'en')
-    ?.map(entry => entry?.flavor_text?.replace(/\f/g, ' '))
-    || [];
-  
-  // Get a longer, non-repetitive description by combining entries
-  const uniqueEntries = [...new Set(englishEntries)];
-  const pokedexEntry = uniqueEntries.length > 0 ? uniqueEntries[0] : '';
-  const additionalEntries = uniqueEntries.slice(1, 3);
-
-  // Calculate basic stats for display
-  const heightMeters = pokemon.height ? (pokemon.height / 10).toFixed(1) : '?';
-  const heightFeet = pokemon.height ? Math.floor(pokemon.height * 0.32808) : '?';
-  const heightInches = pokemon.height ? Math.round((pokemon.height * 0.32808 - Math.floor(pokemon.height * 0.32808)) * 12) : '?';
-  const weightKg = pokemon.weight ? (pokemon.weight / 10).toFixed(1) : '?';
-  const weightLbs = pokemon.weight ? (pokemon.weight / 4.536).toFixed(1) : '?';
-  const totalStats = pokemon.stats?.reduce((sum, stat) => sum + (stat?.base_stat || 0), 0) || 0;
-
-  // Get genus (category)
-  const category = species.genera?.find(g => g?.language?.name === 'en')?.genus || '';
-
-  // Previous and next Pokémon navigation
-  const prevId = id > 1 ? id - 1 : null;
-  const nextId = id < 1008 ? id + 1 : null;
-
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       <Head>
-        <title>{properCase(name)} | Pokédex Live</title>
-        <meta name="description" content={`View details for ${properCase(name)} - ${category}`} />
+        <title>{properCase(pokemon.name)} | Pokédex Live</title>
+        <meta name="description" content={`View details for ${properCase(pokemon.name)} - ${category}`} />
       </Head>
       
       <Navigation />
       
-      {/* Updated hero section with circular image and toggles */}
       <PokemonHero 
         pokemon={pokemon} 
         isShiny={isShiny} 
         setIsShiny={setIsShiny} 
         isAnimated={isAnimated}
         setIsAnimated={setIsAnimated}
-        theme={theme}
         speciesText={category}
       />
       
-      {/* Main content - rest of your existing tabs */}
+      {/* Main content with tabs */}
       <div className="container mx-auto px-4 pb-12">
         {/* Navigation links */}
         <div className="flex justify-between items-center mb-4">
@@ -588,20 +624,22 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
           </button>
           
           <div className="flex space-x-4">
-            <button
-              onClick={() => router.push(`/pokemon/${prevId}`)}
-              className="text-white hover:text-gray-300"
-              disabled={!prevId}
-            >
-              ← Prev
-            </button>
-            <button
-              onClick={() => router.push(`/pokemon/${nextId}`)}
-              className="text-white hover:text-gray-300"
-              disabled={!nextId}
-            >
-              Next →
-            </button>
+            {prevId && (
+              <button
+                onClick={() => router.push(`/pokemon/${prevId}`)}
+                className="text-white hover:text-gray-300"
+              >
+                ← Prev
+              </button>
+            )}
+            {nextId && (
+              <button
+                onClick={() => router.push(`/pokemon/${nextId}`)}
+                className="text-white hover:text-gray-300"
+              >
+                Next →
+              </button>
+            )}
           </div>
         </div>
         
@@ -657,7 +695,238 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
           </button>
         </div>
         
-        {/* Tab Content - keep your existing tabs, but update the tracking tab */}
+        {/* Info Tab */}
+        {activeTab === 'info' && (
+          <div className="bg-gray-800 rounded-lg p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <h2 className="text-xl font-bold mb-4">Pokédex Data</h2>
+                <div className="bg-gray-700 rounded-lg p-4 mb-6">
+                  <p className="mb-4">{englishFlavorText.replace(/\f/g, ' ')}</p>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-gray-400">Height</p>
+                      <p>{(pokemon.height / 10).toFixed(1)}m</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-400">Weight</p>
+                      <p>{(pokemon.weight / 10).toFixed(1)}kg</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-400">Category</p>
+                      <p>{category}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-400">Abilities</p>
+                      <ul>
+                        {pokemon.abilities.map((ability, index) => (
+                          <li key={index} className="capitalize">
+                            {ability.is_hidden ? (
+                              <span className="text-purple-400">
+                                {ability.ability.name.replace(/-/g, ' ')} (Hidden)
+                              </span>
+                            ) : (
+                              ability.ability.name.replace(/-/g, ' ')
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <h2 className="text-xl font-bold mb-4">Type Effectiveness</h2>
+                <div className="bg-gray-700 rounded-lg p-4">
+                  <div className="mb-4">
+                    <h3 className="text-lg font-medium mb-2">Weaknesses</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {weaknesses.length > 0 ? (
+                        weaknesses.map(type => (
+                          <span 
+                            key={type} 
+                            className={`${typeColors[type]?.accent || 'bg-gray-600'} px-3 py-1 rounded-full text-sm capitalize`}
+                          >
+                            {type}
+                          </span>
+                        ))
+                      ) : (
+                        <p className="text-gray-400">No specific weaknesses</p>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="mb-4">
+                    <h3 className="text-lg font-medium mb-2">Resistances</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {resistances.length > 0 ? (
+                        resistances.map(type => (
+                          <span 
+                            key={type} 
+                            className={`${typeColors[type]?.accent || 'bg-gray-600'} px-3 py-1 rounded-full text-sm capitalize`}
+                          >
+                            {type}
+                          </span>
+                        ))
+                      ) : (
+                        <p className="text-gray-400">No specific resistances</p>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {immunities.length > 0 && (
+                    <div>
+                      <h3 className="text-lg font-medium mb-2">Immunities</h3>
+                      <div className="flex flex-wrap gap-2">
+                        {immunities.map(type => (
+                          <span 
+                            key={type} 
+                            className={`${typeColors[type]?.accent || 'bg-gray-600'} px-3 py-1 rounded-full text-sm capitalize`}
+                          >
+                            {type}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Stats Tab */}
+        {activeTab === 'stats' && (
+          <div className="bg-gray-800 rounded-lg p-6">
+            <h2 className="text-xl font-bold mb-6">Base Stats</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                {pokemon.stats.map((stat, index) => {
+                  const statName = formatStatName(stat.stat.name);
+                  const statValue = stat.base_stat;
+                  const statPercentage = Math.min(100, (statValue / 255) * 100);
+                  
+                  return (
+                    <div key={index} className="mb-4">
+                      <div className="flex justify-between mb-1">
+                        <span className="text-gray-300">{statName}</span>
+                        <span className="font-medium">{statValue}</span>
+                      </div>
+                      <div className="w-full bg-gray-700 rounded-full h-2.5">
+                        <div 
+                          className={`h-2.5 rounded-full ${theme.accent}`} 
+                          style={{ width: `${statPercentage}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  );
+                })}
+                
+                <div className="mt-6">
+                  <div className="flex justify-between mb-1">
+                    <span className="text-gray-300">Total</span>
+                    <span className="font-medium">
+                      {pokemon.stats.reduce((sum, stat) => sum + stat.base_stat, 0)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-gray-700 rounded-lg p-4">
+                <h3 className="text-lg font-medium mb-4">Training</h3>
+                <div className="grid grid-cols-2 gap-y-4">
+                  <div>
+                    <p className="text-gray-400">Base Exp</p>
+                    <p>{pokemon.base_experience || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400">Growth Rate</p>
+                    <p className="capitalize">{species.growth_rate?.name?.replace(/-/g, ' ') || 'N/A'}</p>
+                  </div>
+                  
+                  <div>
+                    <p className="text-gray-400">EV Yield</p>
+                    <p>
+                      {pokemon.stats
+                        .filter(stat => stat.effort > 0)
+                        .map(stat => `${stat.effort} ${formatStatName(stat.stat.name)}`)
+                        .join(', ') || 'None'}
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <p className="text-gray-400">Catch Rate</p>
+                    <p>{species.capture_rate} ({Math.round((species.capture_rate / 255) * 100)}%)</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Evolution Tab */}
+        {activeTab === 'evolution' && (
+          <div className="bg-gray-800 rounded-lg p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-bold">Evolution Chain</h2>
+              <button
+                onClick={() => setIsEvolutionExpanded(!isEvolutionExpanded)}
+                className="text-blue-400 hover:text-blue-300"
+              >
+                {isEvolutionExpanded ? 'Collapse' : 'Expand All'}
+              </button>
+            </div>
+            
+            {evolutionChain ? (
+              <div className="flex justify-center">
+                <EvolutionChainRenderer 
+                  chain={evolutionChain.chain} 
+                  currentPokemonId={pokemon.id}
+                  isExpanded={isEvolutionExpanded} 
+                />
+              </div>
+            ) : (
+              <p className="text-center text-gray-400">Evolution data not available</p>
+            )}
+          </div>
+        )}
+        
+        {/* Moves Tab */}
+        {activeTab === 'moves' && (
+          <div className="bg-gray-800 rounded-lg p-6">
+            <h2 className="text-xl font-bold mb-6">Moves</h2>
+            
+            <div className="space-y-8">
+              <MovesTable 
+                moves={pokemon.moves} 
+                learnMethod="level-up" 
+                title="Moves Learned by Level Up" 
+              />
+              
+              <MovesTable 
+                moves={pokemon.moves} 
+                learnMethod="machine" 
+                title="Moves Learned by TM/HM" 
+              />
+              
+              <MovesTable 
+                moves={pokemon.moves} 
+                learnMethod="egg" 
+                title="Egg Moves" 
+              />
+            </div>
+          </div>
+        )}
+        
+        {/* Locations Tab */}
+        {activeTab === 'locations' && (
+          <div className="bg-gray-800 rounded-lg p-6">
+            <h2 className="text-xl font-bold mb-6">Encounter Locations</h2>
+            
+            <LocationEncounterData pokemonId={pokemon.id} />
+          </div>
+        )}
         
         {/* Tracking Tab with Forms */}
         {activeTab === 'tracking' && (
@@ -707,7 +976,7 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
               </div>
               
               {/* Alternative Forms */}
-              {alternativeForms && alternativeForms.map((form, index) => {
+              {alternativeForms?.map((form, index) => {
                 if (!form) return null;
                 
                 // Extract form name from full name
