@@ -1,5 +1,5 @@
 // pages/pokemon/[name].js
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Head from 'next/head';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -164,22 +164,22 @@ const EvolutionChainRenderer = ({ chain, currentPokemonId }) => {
       <Link href={`/pokemon/${speciesData.name}`} passHref>
         <a className="flex flex-col items-center p-3 m-1 rounded-lg">
           <div className="relative w-24 h-24">
-            <Image
+              <Image
               src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`}
               alt={speciesData.name}
-              layout="fill"
-              objectFit="contain"
-            />
-          </div>
+                layout="fill"
+                objectFit="contain"
+              />
+            </div>
           <span className={`mt-2 text-center capitalize ${
             isCurrentPokemon 
               ? 'font-bold text-red-400 border-b-2 border-red-400' 
               : 'hover:border-b-2 hover:border-gray-300 transition-all'
           }`}>
             {speciesData.name.replace(/-/g, ' ')}
-          </span>
-        </a>
-      </Link>
+            </span>
+          </a>
+        </Link>
     );
   };
   
@@ -215,12 +215,12 @@ const EvolutionChainRenderer = ({ chain, currentPokemonId }) => {
             <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
           </svg>
           <div className="h-0.5 w-8 bg-gray-600"></div>
-        </div>
+          </div>
         <span className="text-xs text-center text-gray-400 mt-1">{evolutionMethod}</span>
       </div>
     );
   };
-  
+
   // Render evolution chain horizontally
   const renderEvolutionStage = (evolutionData, depth = 0) => {
     if (!evolutionData || !evolutionData.species) return null;
@@ -249,11 +249,11 @@ const EvolutionChainRenderer = ({ chain, currentPokemonId }) => {
     }
     
     // Complex case: branched evolution
-    return (
+      return (
       <div className="flex flex-col items-center overflow-visible">
         <div className="mb-4 p-2">
           {renderPokemonInChain(evolutionData.species)}
-        </div>
+          </div>
         
         {/* Branch point indicator */}
         <div className="h-8 w-0.5 bg-gray-600 mb-2"></div>
@@ -281,8 +281,8 @@ const EvolutionChainRenderer = ({ chain, currentPokemonId }) => {
             </div>
           ))}
         </div>
-      </div>
-    );
+        </div>
+      );
   };
   
   return renderEvolutionStage(chain);
@@ -329,7 +329,7 @@ const MovesTable = ({ moves, learnMethod, title }) => {
       </div>
     );
   }
-  
+
   return (
     <div>
       <h3 className="text-lg font-medium mb-3">{title}</h3>
@@ -419,7 +419,7 @@ const PokemonHero = ({ pokemon, isShiny, setIsShiny, isAnimated, setIsAnimated, 
               
               {/* Pokemon sprite */}
               <div className="relative z-10 w-56 h-56 bg-gray-900 rounded-full flex items-center justify-center">
-                <Image
+              <Image
                   src={
                     isAnimated
                       ? (isShiny 
@@ -432,17 +432,17 @@ const PokemonHero = ({ pokemon, isShiny, setIsShiny, isAnimated, setIsAnimated, 
                   alt={pokemon.name}
                   width={isAnimated ? 120 : 200}
                   height={isAnimated ? 120 : 200}
-                  priority
-                />
-              </div>
+                priority
+              />
             </div>
-            
+          </div>
+          
             {/* Type Pills */}
             <div className="flex justify-center mt-4 space-x-2">
               {pokemon.types.map(typeData => {
                 const typeStyle = typeColors[typeData.type.name] || defaultTheme;
                 return (
-                  <span
+                <span
                     key={typeData.type.name}
                     style={{ 
                       backgroundColor: typeStyle.mainColor,
@@ -451,12 +451,12 @@ const PokemonHero = ({ pokemon, isShiny, setIsShiny, isAnimated, setIsAnimated, 
                     className="px-4 py-2 rounded-full text-sm capitalize font-medium"
                   >
                     {typeData.type.name}
-                  </span>
+                </span>
                 );
               })}
             </div>
-          </div>
-          
+            </div>
+            
           {/* Rest of the hero content */}
           <div className="flex-1">
             <div className="flex flex-col">
@@ -508,7 +508,7 @@ const PokemonHero = ({ pokemon, isShiny, setIsShiny, isAnimated, setIsAnimated, 
                 <div className="bg-gray-800 bg-opacity-50 rounded-lg p-3">
                   <p className="text-gray-300 text-sm">Height</p>
                   <p className="font-medium text-white">{(pokemon.height / 10).toFixed(1)}m</p>
-                </div>
+              </div>
                 <div className="bg-gray-800 bg-opacity-50 rounded-lg p-3">
                   <p className="text-gray-300 text-sm">Weight</p>
                   <p className="font-medium text-white">{(pokemon.weight / 10).toFixed(1)}kg</p>
@@ -516,15 +516,15 @@ const PokemonHero = ({ pokemon, isShiny, setIsShiny, isAnimated, setIsAnimated, 
                 <div className="bg-gray-800 bg-opacity-50 rounded-lg p-3">
                   <p className="text-gray-300 text-sm">Base XP</p>
                   <p className="font-medium text-white">{pokemon.base_experience || 'N/A'}</p>
-                </div>
+              </div>
                 <div className="bg-gray-800 bg-opacity-50 rounded-lg p-3">
                   <p className="text-gray-300 text-sm">Abilities</p>
                   <p className="font-medium capitalize text-white">
                     {pokemon.abilities.map(a => a.ability.name.replace(/-/g, ' ')).join(', ')}
                   </p>
-                </div>
-              </div>
             </div>
+          </div>
+        </div>
           </div>
         </div>
       </div>
@@ -614,275 +614,251 @@ const pokemonMarks = [
   // And many more based on your list...
 ];
 
-// Icon mappings for all ribbons with standard ribbon fallback
+// Icon mappings for all ribbons
 const ribbonIcons = {
-  // Gen 3 Contest Ribbons
+  'champion-hoenn': { 
+    icon: 'https://www.serebii.net/games/ribbons/championribbon.png', 
+    color: '#22AA44',
+    fallback: '🎀'
+  },
   'cool-normal': { 
-    icon: 'https://www.serebii.net/ribbons/coolnormalribbon.png', 
+    icon: 'https://www.serebii.net/games/ribbons/coolnormalribbon.png', 
     color: '#FF4444',
-    fallback: '🎀'  // Standard ribbon icon for all ribbons
+    fallback: '🎀'
   },
   'cool-super': { 
-    icon: 'https://www.serebii.net/ribbons/coolsuperribbon.png', 
+    icon: 'https://www.serebii.net/games/ribbons/coolsuperribbon.png', 
     color: '#FF4444',
-    fallback: '🎀'  // Standard ribbon icon
+    fallback: '🎀'
   },
   'cool-hyper': { 
-    icon: 'https://www.serebii.net/ribbons/coolhyperribbon.png', 
+    icon: 'https://www.serebii.net/games/ribbons/coolhyperribbon.png', 
     color: '#FF4444',
     fallback: '🎀'
   },
   'cool-master': { 
-    icon: 'https://www.serebii.net/ribbons/coolmasterribbon.png', 
+    icon: 'https://www.serebii.net/games/ribbons/coolmasterribbon.png', 
     color: '#FF4444',
     fallback: '🎀'
   },
   'beauty-normal': { 
-    icon: 'https://www.serebii.net/ribbons/beautynormalribbon.png', 
+    icon: 'https://www.serebii.net/games/ribbons/beautynormalribbon.png', 
     color: '#FF88DD',
     fallback: '🎀'
   },
-  'champion-hoenn': { 
-    icon: 'https://www.serebii.net/ribbons/championribbon.png', 
-    color: '#22AA44',
-    fallback: '🎀'
-  },
-  // And more ribbon definitions...
+  // Add more ribbons as needed using the URLs you provided
 };
 
-// Icon mappings for all marks with standard X fallback
+// Icon mappings for all marks
 const markIcons = {
   'lunchtime': { 
-    icon: 'https://www.serebii.net/ribbons/lunchtimemark.png', 
+    icon: 'https://www.serebii.net/games/ribbons/lunchtimemark.png', 
     color: '#FF9944',
-    fallback: '❌'  // Standard X icon for all marks
+    fallback: '❌'
   },
   'sleepy-time': { 
-    icon: 'https://www.serebii.net/ribbons/sleepy-timemark.png', 
+    icon: 'https://www.serebii.net/games/ribbons/sleepy-timemark.png', 
     color: '#99AAFF',
-    fallback: '❌'  // Standard X icon
+    fallback: '❌'
   },
   'dusk': { 
-    icon: 'https://www.serebii.net/ribbons/duskmark.png', 
+    icon: 'https://www.serebii.net/games/ribbons/duskmark.png', 
     color: '#9977CC',
     fallback: '❌'
   },
   'dawn': { 
-    icon: 'https://www.serebii.net/ribbons/dawnmark.png', 
+    icon: 'https://www.serebii.net/games/ribbons/dawnmark.png', 
     color: '#FFBB77',
     fallback: '❌'
   },
-  // And more mark definitions...
+  // Add more marks as needed using the URLs you provided
 };
 
-// Enhance the RibbonsTab component with filtering and pagination
+// Updated RibbonsTab component with consistent icon sizing
 const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus }) => {
-  // State for filters and pagination
-  const [activeFilter, setActiveFilter] = useState('all');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [page, setPage] = useState(1);
-  const itemsPerPage = 20;
-  
-  // Filter ribbons based on active filter and search query
-  const filteredRibbons = pokemonRibbons.filter(ribbon => {
-    const matchesFilter = activeFilter === 'all' || ribbon.category === activeFilter || ribbon.game === activeFilter;
-    const matchesSearch = searchQuery === '' || 
-      ribbon.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      ribbon.description.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesFilter && matchesSearch;
-  });
-  
-  // Group filtered ribbons by category for better organization
-  const ribbonsByCategory = filteredRibbons.reduce((acc, ribbon) => {
-    if (!acc[ribbon.category]) {
-      acc[ribbon.category] = [];
-    }
-    acc[ribbon.category].push(ribbon);
-    return acc;
-  }, {});
-  
-  // Calculate total pages
-  const totalPages = Math.ceil(filteredRibbons.length / itemsPerPage);
-  
-  // Get current page of ribbons
-  const currentRibbons = filteredRibbons.slice((page - 1) * itemsPerPage, page * itemsPerPage);
-  
-  // State to track image loading errors
   const [failedImages, setFailedImages] = useState({});
+  const [activeCategory, setActiveCategory] = useState('all');
+  const [searchText, setSearchText] = useState('');
   
-  // Handle image loading errors
+  // Group ribbons by category
+  const ribbonsByCategory = useMemo(() => {
+    const filtered = searchText 
+      ? pokemonRibbons.filter(r => r.name.toLowerCase().includes(searchText.toLowerCase()) || 
+                                  r.description.toLowerCase().includes(searchText.toLowerCase()))
+      : pokemonRibbons;
+    
+    return filtered.reduce((acc, ribbon) => {
+      const category = ribbon.category;
+      if (!acc[category]) acc[category] = [];
+      acc[category].push(ribbon);
+      return acc;
+    }, {});
+  }, [searchText]);
+  
   const handleImageError = (ribbonId) => {
     setFailedImages(prev => ({ ...prev, [ribbonId]: true }));
   };
-  
-  const categoryNames = {
-    'contest': 'Contest Ribbons',
-    'champion': 'Champion Ribbons',
-    'battle': 'Battle Ribbons',
-    'special': 'Special Ribbons'
-  };
-  
+
   return (
-    <div className="bg-gray-800 rounded-lg p-6">
-      <h2 className="text-xl font-bold mb-6">Ribbon Collection</h2>
-      <p className="text-gray-400 mb-4">Track the ribbons you've earned with this Pokémon.</p>
-      
-      <div className="space-y-6">
-        {Object.keys(ribbonsByCategory).map(category => (
-          <div key={category}>
-            <h3 className="text-lg font-medium mb-3 border-b border-gray-700 pb-2">
-              {categoryNames[category] || properCase(category)}
-            </h3>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-              {ribbonsByCategory[category].map(ribbon => {
-                const iconData = ribbonIcons[ribbon.id] || { 
-                  icon: 'https://www.serebii.net/ribbons/classicribbon.png', // Default icon
-                  color: '#AA99CC', 
-                  fallback: '🎀'  // Standard ribbon fallback
-                };
-                const hasRibbon = caughtStatus.ribbons?.[ribbon.id];
-                const useIconFallback = failedImages[ribbon.id];
-                
-                return (
-                  <button
-                    key={ribbon.id}
-                    onClick={() => updateRibbonStatus(ribbon.id, pokemon.name)}
-                    className={`py-3 px-4 rounded-lg text-left transition-colors ${
-                      hasRibbon 
-                        ? 'bg-indigo-600 hover:bg-indigo-700 text-white' 
-                        : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
-                    }`}
-                  >
-                    <div className="flex items-center">
-                      <div 
-                        className="w-12 h-12 rounded-full flex items-center justify-center mr-3 bg-gray-800"
-                        style={{ 
-                          border: `2px solid ${iconData.color}`
-                        }}
-                      >
-                        {useIconFallback ? (
-                          <span className="text-xl">{iconData.fallback}</span>
-                        ) : (
-                          <img 
-                            src={iconData.icon} 
-                            alt={ribbon.name}
-                            className="w-9 h-9 object-contain"
-                            onError={() => handleImageError(ribbon.id)}
-                          />
-                        )}
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-medium">{ribbon.name}</p>
+    <div className="pt-6">
+      <div className="bg-gray-800 rounded-lg p-6">
+        <h2 className="text-xl font-bold mb-6">Ribbon Collection</h2>
+        <p className="text-gray-400 mb-4">Track the ribbons you&apos;ve earned with this Pokémon.</p>
+        
+        <div className="space-y-6">
+          {Object.keys(ribbonsByCategory).map(category => (
+            <div key={category} className="bg-gray-700 rounded-lg p-4">
+              <h3 className="text-lg font-semibold capitalize mb-4">{category} Ribbons</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {ribbonsByCategory[category].map(ribbon => {
+                  const iconData = ribbonIcons[ribbon.id] || { 
+                    icon: 'https://www.serebii.net/ribbons/classicribbon.png', // Default icon
+                    color: '#AA99CC', 
+                    fallback: '🎀'  // Standard ribbon fallback
+                  };
+                  const hasRibbon = caughtStatus.ribbons?.[ribbon.id];
+                  const useIconFallback = failedImages[ribbon.id];
+                  
+                  return (
+                    <button
+                      key={ribbon.id}
+                      onClick={() => updateRibbonStatus(ribbon.id, pokemon.name)}
+                      className={`py-3 px-4 rounded-lg text-left transition-colors ${
+                        hasRibbon 
+                          ? 'bg-indigo-600 hover:bg-indigo-700 text-white' 
+                          : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+                      }`}
+                    >
+                      <div className="flex items-center">
+                        <div 
+                          className="w-16 h-16 rounded-full flex items-center justify-center mr-3 bg-gray-800"
+                          style={{ 
+                            border: `2px solid ${iconData.color}`
+                          }}
+                        >
+                          {useIconFallback ? (
+                            <span className="text-xl">{iconData.fallback}</span>
+                          ) : (
+                            <img 
+                              src={iconData.icon} 
+                              alt={ribbon.name}
+                              className="w-12 h-12 object-contain"
+                              onError={() => handleImageError(ribbon.id)}
+                            />
+                          )}
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-medium">{ribbon.name}</p>
+                          {hasRibbon && (
+                            <p className="text-xs opacity-80">Obtained</p>
+                          )}
+                        </div>
                         {hasRibbon && (
-                          <p className="text-xs opacity-80">Obtained</p>
+                          <span className="ml-2 text-xl">✓</span>
                         )}
                       </div>
-                      {hasRibbon && (
-                        <span className="ml-2 text-xl">✓</span>
-                      )}
-                    </div>
-                  </button>
-                );
-              })}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );
 };
 
-// Update the MarksTab component similarly
+// Updated MarksTab component with consistent icon sizing
 const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus }) => {
-  // State to track image loading errors
   const [failedImages, setFailedImages] = useState({});
+  const [activeCategory, setActiveCategory] = useState('all');
+  const [searchText, setSearchText] = useState('');
   
-  // Handle image loading errors
+  // Group marks by category
+  const marksByCategory = useMemo(() => {
+    const filtered = searchText 
+      ? pokemonMarks.filter(m => m.name.toLowerCase().includes(searchText.toLowerCase()) || 
+                                m.description.toLowerCase().includes(searchText.toLowerCase()))
+      : pokemonMarks;
+    
+    return filtered.reduce((acc, mark) => {
+      const category = mark.category;
+      if (!acc[category]) acc[category] = [];
+      acc[category].push(mark);
+      return acc;
+    }, {});
+  }, [searchText]);
+  
   const handleImageError = (markId) => {
     setFailedImages(prev => ({ ...prev, [markId]: true }));
   };
-  
-  // Group marks by category for better organization
-  const marksByCategory = pokemonMarks.reduce((acc, mark) => {
-    if (!acc[mark.category]) {
-      acc[mark.category] = [];
-    }
-    acc[mark.category].push(mark);
-    return acc;
-  }, {});
-  
-  const categoryNames = {
-    'personality': 'Personality Marks',
-    'time': 'Time Marks',
-    'weather': 'Weather Marks',
-    'rare': 'Rare Marks'
-  };
-  
+
   return (
-    <div className="bg-gray-800 rounded-lg p-6">
-      <h2 className="text-xl font-bold mb-6">Mark Collection</h2>
-      <p className="text-gray-400 mb-4">Track the marks you've found on this Pokémon.</p>
-      
-      <div className="space-y-6">
-        {Object.keys(marksByCategory).map(category => (
-          <div key={category}>
-            <h3 className="text-lg font-medium mb-3 border-b border-gray-700 pb-2">
-              {categoryNames[category] || properCase(category)}
-            </h3>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-              {marksByCategory[category].map(mark => {
-                const iconData = markIcons[mark.id] || { 
-                  icon: 'https://www.serebii.net/ribbons/raremark.png', // Default icon
-                  color: '#99CCFF', 
-                  fallback: '❌'  // Standard X fallback
-                };
-                const hasMark = caughtStatus.marks?.[mark.id];
-                const useIconFallback = failedImages[mark.id];
-                
-                return (
-                  <button
-                    key={mark.id}
-                    onClick={() => updateMarkStatus(mark.id, pokemon.name)}
-                    className={`py-3 px-4 rounded-lg text-left transition-colors ${
-                      hasMark 
-                        ? 'bg-green-600 hover:bg-green-700 text-white' 
-                        : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
-                    }`}
-                  >
-                    <div className="flex items-center">
-                      <div 
-                        className="w-12 h-12 rounded-full flex items-center justify-center mr-3 bg-gray-800"
-                        style={{ 
-                          border: `2px solid ${iconData.color}`
-                        }}
-                      >
-                        {useIconFallback ? (
-                          <span className="text-xl">{iconData.fallback}</span>
-                        ) : (
-                          <img 
-                            src={iconData.icon} 
-                            alt={mark.name}
-                            className="w-9 h-9 object-contain"
-                            onError={() => handleImageError(mark.id)}
-                          />
-                        )}
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-medium">{mark.name}</p>
+    <div className="pt-6">
+      <div className="bg-gray-800 rounded-lg p-6">
+        <h2 className="text-xl font-bold mb-6">Mark Collection</h2>
+        <p className="text-gray-400 mb-4">Track the marks you&apos;ve found on this Pokémon.</p>
+        
+        <div className="space-y-6">
+          {Object.keys(marksByCategory).map(category => (
+            <div key={category} className="bg-gray-700 rounded-lg p-4">
+              <h3 className="text-lg font-semibold capitalize mb-4">{category} Marks</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {marksByCategory[category].map(mark => {
+                  const iconData = markIcons[mark.id] || { 
+                    icon: 'https://www.serebii.net/ribbons/raremark.png', // Default icon
+                    color: '#99CCFF', 
+                    fallback: '❌'  // Standard X fallback
+                  };
+                  const hasMark = caughtStatus.marks?.[mark.id];
+                  const useIconFallback = failedImages[mark.id];
+                  
+                  return (
+                    <button
+                      key={mark.id}
+                      onClick={() => updateMarkStatus(mark.id, pokemon.name)}
+                      className={`py-3 px-4 rounded-lg text-left transition-colors ${
+                        hasMark 
+                          ? 'bg-green-600 hover:bg-green-700 text-white' 
+                          : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+                      }`}
+                    >
+                      <div className="flex items-center">
+                        <div 
+                          className="w-16 h-16 rounded-full flex items-center justify-center mr-3 bg-gray-800"
+                          style={{ 
+                            border: `2px solid ${iconData.color}`
+                          }}
+                        >
+                          {useIconFallback ? (
+                            <span className="text-xl">{iconData.fallback}</span>
+                          ) : (
+                            <img 
+                              src={iconData.icon} 
+                              alt={mark.name}
+                              className="w-12 h-12 object-contain"
+                              onError={() => handleImageError(mark.id)}
+                            />
+                          )}
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-medium">{mark.name}</p>
+                          {hasMark && (
+                            <p className="text-xs opacity-80">Found</p>
+                          )}
+                        </div>
                         {hasMark && (
-                          <p className="text-xs opacity-80">Found</p>
+                          <span className="ml-2 text-xl">✓</span>
                         )}
                       </div>
-                      {hasMark && (
-                        <span className="ml-2 text-xl">✓</span>
-                      )}
-                    </div>
-                  </button>
-                );
-              })}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -942,7 +918,7 @@ const SpritesTab = ({ pokemon }) => {
   ];
   
   return (
-    <div>
+                    <div>
       <h2 className="text-xl font-bold mb-6">Pokémon Sprites</h2>
       
       <div className="mb-4">
@@ -950,8 +926,8 @@ const SpritesTab = ({ pokemon }) => {
           <div className="w-1/2 text-center px-2 py-1 bg-gray-700 rounded-l-lg">Regular</div>
           <div className="w-1/2 text-center px-2 py-1 bg-yellow-800 rounded-r-lg">Shiny ✨</div>
         </div>
-      </div>
-      
+              </div>
+                    
       {/* Sprite sections by generation */}
       <div className="space-y-8">
         {generations.map(gen => (
@@ -961,7 +937,7 @@ const SpritesTab = ({ pokemon }) => {
             pokemon={pokemon}
           />
         ))}
-      </div>
+              </div>
     </div>
   );
 };
@@ -996,7 +972,7 @@ const SpriteGeneration = ({ generation, pokemon }) => {
             />
           ))
         )}
-      </div>
+            </div>
     </div>
   );
 };
@@ -1012,7 +988,7 @@ const HomeSprites = ({ pokemon }) => {
     <div className="space-y-6">
       {/* HOME sprites */}
       {homeSprites && (
-        <div>
+                    <div>
           <h4 className="font-medium mb-3">Pokémon HOME</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Default form - regular and shiny side by side */}
@@ -1030,9 +1006,9 @@ const HomeSprites = ({ pokemon }) => {
                   ) : (
                     <div className="h-32 w-32 flex items-center justify-center text-gray-500">
                       Not Available
-                    </div>
+          </div>
                   )}
-                </div>
+        </div>
                 <div className="w-1/2 flex flex-col items-center">
                   {homeSprites.front_shiny ? (
                     <SpriteImage 
@@ -1044,11 +1020,11 @@ const HomeSprites = ({ pokemon }) => {
                   ) : (
                     <div className="h-32 w-32 flex items-center justify-center text-gray-500">
                       Not Available
-                    </div>
+          </div>
                   )}
+                  </div>
+                  </div>
                 </div>
-              </div>
-            </div>
             
             {/* Female form if available */}
             {(homeSprites.front_female || homeSprites.front_shiny_female) && (
@@ -1066,9 +1042,9 @@ const HomeSprites = ({ pokemon }) => {
                     ) : (
                       <div className="h-32 w-32 flex items-center justify-center text-gray-500">
                         Not Available
-                      </div>
+          </div>
                     )}
-                  </div>
+        </div>
                   <div className="w-1/2 flex flex-col items-center">
                     {homeSprites.front_shiny_female ? (
                       <SpriteImage 
@@ -1080,19 +1056,19 @@ const HomeSprites = ({ pokemon }) => {
                     ) : (
                       <div className="h-32 w-32 flex items-center justify-center text-gray-500">
                         Not Available
-                      </div>
-                    )}
                   </div>
+                    )}
+                </div>
                 </div>
               </div>
             )}
-          </div>
-        </div>
-      )}
-      
+              </div>
+            </div>
+          )}
+          
       {/* Official artwork */}
       {artworkSprites && (
-        <div className="mt-6">
+            <div className="mt-6">
           <h4 className="font-medium mb-3">Official Artwork</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex flex-col items-center">
@@ -1174,9 +1150,9 @@ const VersionSprites = ({ versionId, generation, pokemon }) => {
               ) : (
                 <div className="h-20 w-20 flex items-center justify-center text-gray-500">
                   N/A
-                </div>
+          </div>
               )}
-            </div>
+          </div>
             <div className="w-1/2 flex flex-col items-center">
               {hasAnimated && versionSprites.animated?.front_shiny ? (
                 <SpriteImage 
@@ -1195,9 +1171,9 @@ const VersionSprites = ({ versionId, generation, pokemon }) => {
               ) : (
                 <div className="h-20 w-20 flex items-center justify-center text-gray-500">
                   N/A
-                </div>
+        </div>
               )}
-            </div>
+                    </div>
           </div>
         </div>
         
@@ -1279,7 +1255,7 @@ const VersionSprites = ({ versionId, generation, pokemon }) => {
                 ) : (
                   <div className="h-20 w-20 flex items-center justify-center text-gray-500">
                     N/A
-                  </div>
+                    </div>
                 )}
               </div>
               <div className="w-1/2 flex flex-col items-center">
@@ -1359,8 +1335,8 @@ const VersionSprites = ({ versionId, generation, pokemon }) => {
           )}
         </div>
       )}
-    </div>
-  );
+              </div>
+                );
 };
 
 // Improved SpriteImage component to ensure animations work properly
@@ -1381,8 +1357,8 @@ const SpriteImage = ({ src, alt, label, animated = false, large = false, extraLa
     sizeClass = 'w-32 h-32';
     imgSizeClass = 'max-w-[100px] max-h-[100px]';
   }
-  
-  return (
+
+                return (
     <div className="flex flex-col items-center">
       <div className={`relative ${sizeClass} bg-gray-900 rounded-lg flex items-center justify-center p-2`}>
         {!isLoaded && (
@@ -1396,10 +1372,10 @@ const SpriteImage = ({ src, alt, label, animated = false, large = false, extraLa
           onLoad={() => setIsLoaded(true)}
           onError={() => setIsError(true)}
         />
-      </div>
+                    </div>
       {label && <div className="text-xs text-gray-400 mt-1 text-center">{label}</div>}
-    </div>
-  );
+                      </div>
+                );
 };
 
 // Main component
@@ -1566,7 +1542,7 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
         <Navigation />
         <div className="container mx-auto px-4 py-16 flex justify-center items-center">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-500"></div>
-        </div>
+                    </div>
       </div>
     );
   }
@@ -1683,15 +1659,15 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
                             {ability.is_hidden ? (
                               <span className="text-purple-400">
                                 {ability.ability.name.replace(/-/g, ' ')} (Hidden)
-                              </span>
+                          </span>
                             ) : (
                               ability.ability.name.replace(/-/g, ' ')
                             )}
                           </li>
                         ))}
                       </ul>
-                    </div>
-                  </div>
+                </div>
+              </div>
                 </div>
               </div>
               
@@ -1762,38 +1738,38 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
               <div>
                 {pokemon.stats.map((stat, index) => {
                   const statName = formatStatName(stat.stat.name);
-                  const statValue = stat.base_stat;
+                      const statValue = stat.base_stat;
                   const statPercentage = Math.min(100, (statValue / 255) * 100);
-                  
-                  return (
+                      
+                      return (
                     <div key={index} className="mb-4">
-                      <div className="flex justify-between mb-1">
+                          <div className="flex justify-between mb-1">
                         <span className="text-gray-300">{statName}</span>
                         <span className="font-medium">{statValue}</span>
-                      </div>
-                      <div className="w-full bg-gray-700 rounded-full h-2.5">
-                        <div 
+                    </div>
+                          <div className="w-full bg-gray-700 rounded-full h-2.5">
+                            <div 
                           className="h-2.5 rounded-full" 
                           style={{ 
                             width: `${statPercentage}%`,
                             backgroundColor: mainTypeColor.mainColor 
                           }}
-                        ></div>
+                            ></div>
+                  </div>
                       </div>
-                    </div>
-                  );
-                })}
-                
+                      );
+                    })}
+                    
                 <div className="mt-6">
                   <div className="flex justify-between mb-1">
                     <span className="text-gray-300">Total</span>
                     <span className="font-medium">
                       {pokemon.stats.reduce((sum, stat) => sum + stat.base_stat, 0)}
-                    </span>
-                  </div>
+                        </span>
                 </div>
               </div>
-              
+                </div>
+                
               <div className="bg-gray-700 rounded-lg p-4">
                 <h3 className="text-lg font-medium mb-4">Training</h3>
                 <div className="grid grid-cols-2 gap-y-4">
@@ -1804,8 +1780,8 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
                   <div>
                     <p className="text-gray-400">Growth Rate</p>
                     <p className="capitalize">{species.growth_rate?.name?.replace(/-/g, ' ') || 'N/A'}</p>
-                  </div>
-                  
+                    </div>
+                    
                   <div>
                     <p className="text-gray-400">EV Yield</p>
                     <p>
@@ -1815,11 +1791,11 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
                         .join(', ') || 'None'}
                     </p>
                   </div>
-                  
+                    
                   <div>
                     <p className="text-gray-400">Catch Rate</p>
                     <p>{species.capture_rate} ({Math.round((species.capture_rate / 255) * 100)}%)</p>
-                  </div>
+                    </div>
                 </div>
               </div>
             </div>
@@ -1830,8 +1806,8 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
           <div style={cardStyle} className="rounded-lg p-6">
             <div className="mb-6">
               <h2 className="text-xl font-bold">Evolution Chain</h2>
-            </div>
-            
+                  </div>
+                    
             {evolutionChain?.chain ? (
               <div className="w-full overflow-visible pb-6">
                 <div className="min-w-full">
@@ -1839,14 +1815,14 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
                     chain={evolutionChain.chain} 
                     currentPokemonId={pokemon.id}
                   />
-                </div>
-              </div>
+                    </div>
+                  </div>
             ) : (
               <div className="text-center py-4 text-gray-400">
                 No evolution information available
-              </div>
+                    </div>
             )}
-          </div>
+                  </div>
         )}
         
         {activeTab === 'moves' && (
@@ -1871,8 +1847,8 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
                 learnMethod="egg" 
                 title="Egg Moves" 
               />
+              </div>
             </div>
-          </div>
         )}
         
         {activeTab === 'locations' && (
@@ -1881,8 +1857,8 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
             
             <LocationEncounterData pokemonId={pokemon.id} />
           </div>
-        )}
-        
+          )}
+          
         {activeTab === 'tracking' && (
           <div style={cardStyle} className="rounded-lg p-6">
             <h2 className="text-xl font-bold mb-6">Collection Tracking</h2>
@@ -1914,7 +1890,7 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
                     >
                       {caughtStatus['default']?.shiny ? 'Shiny ✓' : 'Mark as Shiny'}
                     </button>
-                  </div>
+                          </div>
                   
                   <button
                     onClick={() => updateCaughtStatus('alpha', 'default')}
@@ -1926,7 +1902,7 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
                   >
                     {caughtStatus['default']?.alpha ? 'Alpha ✓' : 'Mark as Alpha'}
                   </button>
-                </div>
+                        </div>
               </div>
               
               {/* Alternative Forms */}
@@ -2005,20 +1981,20 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
                   </div>
                 );
               })}
-            </div>
-          </div>
-        )}
-        
+                          </div>
+                        </div>
+                      )}
+          
         {activeTab === 'ribbons' && (
           <div style={cardStyle} className="rounded-lg p-6">
             <RibbonsTab 
-              pokemon={pokemon} 
+                pokemon={pokemon} 
               caughtStatus={caughtStatus} 
               updateRibbonStatus={updateRibbonStatus} 
-            />
-          </div>
-        )}
-        
+              />
+                    </div>
+          )}
+          
         {activeTab === 'marks' && (
           <div style={cardStyle} className="rounded-lg p-6">
             <MarksTab 
@@ -2055,10 +2031,10 @@ export async function getStaticPaths() {
     };
   } catch (error) {
     console.error("Error in getStaticPaths:", error);
-    return {
-      paths: [],
+  return { 
+    paths: [],
       fallback: true
-    };
+  };
   }
 }
 
@@ -2092,11 +2068,11 @@ export async function getStaticProps({ params }) {
     const resSpecies = await fetch(pokemon.species.url);
     if (!resSpecies.ok) throw new Error('Failed to fetch species');
     const species = await resSpecies.json();
-    
+
     // Fetch evolution chain
     let evolutionChain = null;
     try {
-      const evolutionChainRes = await fetch(species.evolution_chain.url);
+    const evolutionChainRes = await fetch(species.evolution_chain.url);
       if (evolutionChainRes.ok) {
         evolutionChain = await evolutionChainRes.json();
       }
@@ -2111,21 +2087,21 @@ export async function getStaticProps({ params }) {
         const formPromises = species.varieties
           .filter(v => v.pokemon.name !== pokemonName)
           .map(async (variety) => {
-            try {
-              const resForm = await fetch(variety.pokemon.url);
-              if (!resForm.ok) return null;
-              const formData = await resForm.json();
+        try {
+        const resForm = await fetch(variety.pokemon.url);
+        if (!resForm.ok) return null;
+        const formData = await resForm.json();
               
-              return {
+        return {
                 id: formData.id,
                 name: formData.name,
                 sprites: formData.sprites,
                 types: formData.types
-              };
-            } catch (error) {
-              console.error(`Error fetching form data for ${variety.pokemon.name}:`, error);
-              return null;
-            }
+        };
+        } catch (error) {
+          console.error(`Error fetching form data for ${variety.pokemon.name}:`, error);
+          return null;
+        }
           });
           
         const forms = await Promise.all(formPromises);
