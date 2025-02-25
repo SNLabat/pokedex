@@ -148,7 +148,7 @@ const getImmunities = (types) => {
   return [...immunities];
 };
 
-// Evolution Chain Renderer Component
+// Update the EvolutionChainRenderer component to use a horizontal layout
 const EvolutionChainRenderer = ({ chain, currentPokemonId, isExpanded }) => {
   if (!chain || !chain.species) return null;
   
@@ -205,49 +205,82 @@ const EvolutionChainRenderer = ({ chain, currentPokemonId, isExpanded }) => {
     }
     
     return (
-      <div className="flex flex-col items-center text-sm text-gray-400 mx-2">
-        <div className="h-0.5 w-12 bg-gray-600 my-2"></div>
-        <span>{evolutionMethod}</span>
-        <div className="h-0.5 w-12 bg-gray-600 my-2"></div>
+      <div className="flex flex-col items-center justify-center mx-4">
+        <div className="flex items-center">
+          <div className="h-0.5 w-8 bg-gray-600"></div>
+          <svg className="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+          </svg>
+          <div className="h-0.5 w-8 bg-gray-600"></div>
+        </div>
+        <span className="text-xs text-center text-gray-400 mt-1">{evolutionMethod}</span>
       </div>
     );
   };
   
-  // Render first evolution stage
+  // Render evolution chain horizontally
   const renderEvolutionStage = (evolutionData, depth = 0) => {
     if (!evolutionData || !evolutionData.species) return null;
-    
-    // For each evolution path
-    return (
-      <>
-        <div className="flex flex-col items-center">
+
+    // Simple case: single evolution line
+    if (!evolutionData.evolves_to || evolutionData.evolves_to.length <= 1) {
+      return (
+        <div className="flex flex-wrap justify-center items-center">
           {renderPokemonInChain(evolutionData.species)}
           
-          {/* Handle divergent evolution paths */}
           {evolutionData.evolves_to && evolutionData.evolves_to.length > 0 && (
-            <div className="flex flex-wrap justify-center mt-4">
-              {evolutionData.evolves_to.map((evo, index) => (
-                <div key={index} className="flex flex-col items-center mx-2">
-                  {renderEvolutionDetails(evo.evolution_details)}
-                  {renderPokemonInChain(evo.species)}
-                  
-                  {/* Third evolution stage */}
-                  {isExpanded && evo.evolves_to && evo.evolves_to.length > 0 && (
-                    <div className="flex flex-wrap justify-center mt-4">
-                      {evo.evolves_to.map((thirdEvo, thirdIndex) => (
-                        <div key={thirdIndex} className="flex flex-col items-center mx-2">
-                          {renderEvolutionDetails(thirdEvo.evolution_details)}
-                          {renderPokemonInChain(thirdEvo.species)}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
+            <>
+              {renderEvolutionDetails(evolutionData.evolves_to[0].evolution_details)}
+              {renderPokemonInChain(evolutionData.evolves_to[0].species)}
+              
+              {/* Third evolution */}
+              {isExpanded && evolutionData.evolves_to[0].evolves_to && evolutionData.evolves_to[0].evolves_to.length > 0 && (
+                <>
+                  {renderEvolutionDetails(evolutionData.evolves_to[0].evolves_to[0].evolution_details)}
+                  {renderPokemonInChain(evolutionData.evolves_to[0].evolves_to[0].species)}
+                </>
+              )}
+            </>
           )}
         </div>
-      </>
+      );
+    }
+    
+    // Complex case: branched evolution
+    return (
+      <div className="flex flex-col items-center">
+        <div className="mb-4">
+          {renderPokemonInChain(evolutionData.species)}
+        </div>
+        
+        {/* Branch point indicator */}
+        <div className="h-8 w-0.5 bg-gray-600 mb-2"></div>
+        
+        {/* Horizontal branches */}
+        <div className="flex flex-wrap justify-center gap-8">
+          {evolutionData.evolves_to.map((evo, index) => (
+            <div key={index} className="flex flex-col items-center">
+              <div className="mb-2 px-3 py-1 bg-gray-700 rounded-full text-xs text-gray-400">
+                {evo.evolution_details[0]?.trigger?.name === 'level-up' 
+                  ? `Level ${evo.evolution_details[0]?.min_level || '?'}`
+                  : evo.evolution_details[0]?.trigger?.name || 'Special'}
+              </div>
+              
+              <div className="flex items-center">
+                {renderPokemonInChain(evo.species)}
+                
+                {/* Third evolution */}
+                {isExpanded && evo.evolves_to && evo.evolves_to.length > 0 && (
+                  <>
+                    {renderEvolutionDetails(evo.evolves_to[0].evolution_details)}
+                    {renderPokemonInChain(evo.evolves_to[0].species)}
+                  </>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     );
   };
   
