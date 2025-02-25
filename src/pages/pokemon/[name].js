@@ -2275,13 +2275,53 @@ const SpritesTab = ({ pokemon }) => {
 
 // Official Artwork Section
 const OfficialArtworkSection = ({ pokemon }) => {
-// Update the HomeSprites component to ensure it works correctly
-const HomeSprites = ({ pokemon }) => {
+  const [isShiny, setIsShiny] = useState(false);
+  
+  // Official artwork URLs
+  const artworkNormalUrl = pokemon.sprites.other?.['official-artwork']?.front_default || 
+    `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemon.id}.png`;
+  const artworkShinyUrl = pokemon.sprites.other?.['official-artwork']?.front_shiny || 
+    `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/${pokemon.id}.png`;
+  
+  return (
+    <div className="space-y-4">
+      <h3 className="text-xl font-semibold">Official Artwork</h3>
+      
+      <div className="flex justify-center mb-4">
+        <button
+          onClick={() => setIsShiny(false)}
+          className={`px-4 py-2 rounded-l-lg ${!isShiny ? 'bg-red-600 text-white' : 'bg-gray-700 text-gray-300'}`}
+        >
+          Regular
+        </button>
+        <button
+          onClick={() => setIsShiny(true)}
+          className={`px-4 py-2 rounded-r-lg ${isShiny ? 'bg-red-600 text-white' : 'bg-gray-700 text-gray-300'}`}
+        >
+          Shiny
+        </button>
+      </div>
+      
+      <div className="flex justify-center">
+        <SpriteImage 
+          src={isShiny ? artworkShinyUrl : artworkNormalUrl}
+          alt={`${pokemon.name} ${isShiny ? 'shiny' : 'regular'} artwork`}
+          extraLarge={true}
+        />
+      </div>
+    </div>
+  );
+};
+
+// HOME Sprites Section
+const HomeSpritesSection = ({ pokemon }) => {
   const [isShiny, setIsShiny] = useState(false);
   
   // HOME sprite URLs
-  const homeNormalUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/${pokemon.id}.png`;
-  const homeShinyUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/${pokemon.id}.png`;
+  const homeNormalUrl = pokemon.sprites.other?.home?.front_default || 
+    `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/${pokemon.id}.png`;
+  const homeShinyUrl = pokemon.sprites.other?.home?.front_shiny || 
+    `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/${pokemon.id}.png`;
   
   return (
     <div className="space-y-4">
@@ -2313,8 +2353,8 @@ const HomeSprites = ({ pokemon }) => {
   );
 };
 
-// Update the SpriteGeneration component to fix loading issues
-const SpriteGeneration = ({ generation, pokemon }) => {
+// Generation Sprites Section
+const GenerationSpritesSection = ({ generation, pokemon }) => {
   const [isShiny, setIsShiny] = useState(false);
   
   // Map generation IDs to their corresponding sprite paths
@@ -3121,10 +3161,10 @@ export async function getStaticPaths() {
     };
   } catch (error) {
     console.error("Error in getStaticPaths:", error);
-  return { 
-    paths: [],
+    return { 
+      paths: [],
       fallback: true
-  };
+    };
   }
 }
 
@@ -3219,6 +3259,3 @@ export async function getStaticProps({ params }) {
     };
   }
 }
-
-export { getStaticPaths, getStaticProps };
-export default PokemonDetail;
