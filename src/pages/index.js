@@ -210,12 +210,26 @@ export default function Home() {
         <meta name="description" content="Track your Pokémon collection across all games and generations" />
         <style jsx global>{`
           @keyframes bounce {
-            0% {
+            0%, 100% {
               transform: translateY(0);
             }
-            100% {
-              transform: translateY(-15px);
+            50% {
+              transform: translateY(-20px);
             }
+          }
+          
+          .pokeball-bounce-1 {
+            animation: bounce 1.2s infinite ease-in-out;
+          }
+          
+          .pokeball-bounce-2 {
+            animation: bounce 1.2s infinite ease-in-out;
+            animation-delay: 0.2s;
+          }
+          
+          .pokeball-bounce-3 {
+            animation: bounce 1.2s infinite ease-in-out;
+            animation-delay: 0.4s;
           }
         `}</style>
       </Head>
@@ -261,26 +275,21 @@ export default function Home() {
             </button>
           </div>
 
-          <div className="flex justify-center items-center mb-8 md:mb-12 mt-8 md:mt-10">
-            <div className="flex space-x-8 md:space-x-12">
+          <div className="flex justify-center items-center mb-10 md:mb-16 mt-10 md:mt-16">
+            <div className="flex space-x-10 md:space-x-16">
               {[1, 2, 3].map((_, index) => (
-                <div key={index} className="relative w-12 h-12 md:w-16 md:h-16">
-                  <div 
-                    className="w-full h-full"
-                    style={{
-                      animation: `bounce ${1.2 + index * 0.2}s infinite alternate ease-in-out`,
-                      animationDelay: `${index * 0.2}s`
-                    }}
-                  >
-                    <Image
-                      src="/img/pokeball.png"
-                      alt="Pokeball"
-                      width={64}
-                      height={64}
-                      layout="responsive"
-                      className="drop-shadow-lg"
-                    />
-                  </div>
+                <div 
+                  key={index} 
+                  className={`relative w-16 h-16 md:w-20 md:h-20 pokeball-bounce-${index + 1}`}
+                >
+                  <Image
+                    src="/img/pokeball.png"
+                    alt="Pokeball"
+                    width={80}
+                    height={80}
+                    layout="responsive"
+                    className="drop-shadow-xl"
+                  />
                 </div>
               ))}
             </div>
