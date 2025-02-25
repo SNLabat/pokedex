@@ -162,9 +162,7 @@ const EvolutionChainRenderer = ({ chain, currentPokemonId }) => {
     
     return (
       <Link href={`/pokemon/${speciesData.name}`} passHref>
-        <a className={`flex flex-col items-center p-3 m-1 rounded-lg transition-all ${
-          isCurrentPokemon ? 'bg-gray-700 ring-2 ring-red-500' : 'hover:bg-gray-700 hover:shadow-lg'
-        }`}>
+        <a className="flex flex-col items-center p-3 m-1 rounded-lg">
           <div className="relative w-24 h-24">
             <Image
               src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`}
@@ -173,7 +171,11 @@ const EvolutionChainRenderer = ({ chain, currentPokemonId }) => {
               objectFit="contain"
             />
           </div>
-          <span className="mt-2 text-center capitalize">
+          <span className={`mt-2 text-center capitalize ${
+            isCurrentPokemon 
+              ? 'font-bold text-red-400 border-b-2 border-red-400' 
+              : 'hover:border-b-2 hover:border-gray-300 transition-all'
+          }`}>
             {speciesData.name.replace(/-/g, ' ')}
           </span>
         </a>
