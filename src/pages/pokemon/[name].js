@@ -903,10 +903,10 @@ const ribbonIcons = {
   color: '#FF4444',
   fallback: '🎀'
 },
-'cool-contest-hyper-s': { 
-  icon: '/img/Ribbons-Marks/coolcontesthyperrankribbon-s.png', 
-  color: '#FF4444',
-  fallback: '🎀'
+'cool-contest-ultra-s': { 
+  icon: 'https://www.serebii.net/ribbons/coolcontesthyperrankribbon-s.png',
+  color: '#FF6666',
+  fallback: '🔥'
 },
 'cool-contest-master-s': { 
   icon: '/img/Ribbons-Marks/coolcontestmasterrankribbon-s.png', 
@@ -923,10 +923,10 @@ const ribbonIcons = {
   color: '#FF88DD',
   fallback: '🎀'
 },
-'beauty-contest-hyper-s': { 
-  icon: '/img/Ribbons-Marks/beautycontesthyperrankribbon-s.png', 
-  color: '#FF88DD',
-  fallback: '🎀'
+'beauty-contest-ultra-s': { 
+  icon: 'https://www.serebii.net/ribbons/beautycontesthyperrankribbon-s.png',
+  color: '#6699FF',
+  fallback: '💙'
 },
 'beauty-contest-master-s': { 
   icon: '/img/Ribbons-Marks/beautycontestmasterrankribbon-s.png', 
@@ -943,10 +943,10 @@ const ribbonIcons = {
   color: '#FFAA44',
   fallback: '🎀'
 },
-'cute-contest-hyper-s': { 
-  icon: '/img/Ribbons-Marks/cutecontesthyperrankribbon-s.png', 
-  color: '#FFAA44',
-  fallback: '🎀'
+'cute-contest-ultra-s': { 
+  icon: 'https://www.serebii.net/ribbons/cutecontesthyperrankribbon-s.png',
+  color: '#FF99CC',
+  fallback: '💕'
 },
 'cute-contest-master-s': { 
   icon: '/img/Ribbons-Marks/cutecontestmasterrankribbon-s.png', 
@@ -963,10 +963,10 @@ const ribbonIcons = {
   color: '#44BB44',
   fallback: '🎀'
 },
-'smart-contest-hyper-s': { 
-  icon: '/img/Ribbons-Marks/smartcontesthyperrankribbon-s.png', 
-  color: '#44BB44',
-  fallback: '🎀'
+'smart-contest-ultra-s': { 
+  icon: 'https://www.serebii.net/ribbons/smartcontesthyperrankribbon-s.png',
+  color: '#99CC33',
+  fallback: '🧠'
 },
 'smart-contest-master-s': { 
   icon: '/img/Ribbons-Marks/smartcontestmasterrankribbon-s.png', 
@@ -983,10 +983,10 @@ const ribbonIcons = {
   color: '#BB6644',
   fallback: '🎀'
 },
-'tough-contest-hyper-s': { 
-  icon: '/img/Ribbons-Marks/toughcontesthyperrankribbon-s.png', 
-  color: '#BB6644',
-  fallback: '🎀'
+'tough-contest-ultra-s': { 
+  icon: 'https://www.serebii.net/ribbons/toughcontesthyperrankribbon-s.png',
+  color: '#FF9900',
+  fallback: '💪'
 },
 'tough-contest-master-s': { 
   icon: '/img/Ribbons-Marks/toughcontestmasterrankribbon-s.png', 
