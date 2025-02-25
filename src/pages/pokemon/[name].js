@@ -347,6 +347,19 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
   const [caughtStatus, setCaughtStatus] = useState({});
   const [isEvolutionExpanded, setIsEvolutionExpanded] = useState(false);
   
+  // Add this loading state handling
+  if (router.isFallback) {
+    return (
+      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
+        <div className="text-center p-8">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-500 mb-4"></div>
+          <h1 className="text-2xl font-bold mb-2">Loading Pokémon data...</h1>
+          <p>Please wait while we fetch the details</p>
+        </div>
+      </div>
+    );
+  }
+  
   // Update recently viewed in localStorage
   useEffect(() => {
     if (pokemon && typeof window !== 'undefined') {
@@ -411,17 +424,6 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
     }
   };
   
-  if (router.isFallback || !pokemon || !species) {
-    return (
-      <div className="min-h-screen bg-gray-900 text-white">
-        <Navigation />
-        <div className="container mx-auto px-4 py-16 flex justify-center items-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-500"></div>
-        </div>
-      </div>
-    );
-  }
-
   // Get basic Pokémon data
   const id = pokemon.id;
   const name = pokemon.name.replace(/-/g, ' ');
@@ -990,9 +992,9 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
 }
 
 export async function getStaticPaths() {
-  // Only pre-render the first few Pokemon for better build times
   try {
-    const res = await fetch('https://pokeapi.co/api/v2/pokemon?limit=20');
+    // Fetch a larger set of initial Pokémon to pre-render
+    const res = await fetch('https://pokeapi.co/api/v2/pokemon?limit=151'); // At least first generation
     const data = await res.json();
     
     const paths = data.results.map(pokemon => ({
@@ -1001,13 +1003,13 @@ export async function getStaticPaths() {
     
     return { 
       paths,
-      fallback: 'blocking' // Generate other pages on-demand
+      fallback: true // Change from 'blocking' to true for better UX
     };
   } catch (error) {
     console.error("Error in getStaticPaths:", error);
     return {
       paths: [],
-      fallback: 'blocking'
+      fallback: true
     };
   }
 }
