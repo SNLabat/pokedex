@@ -208,6 +208,16 @@ export default function Home() {
       <Head>
         <title>Pokédex Live - Track Your Pokémon Collection</title>
         <meta name="description" content="Track your Pokémon collection across all games and generations" />
+        <style jsx global>{`
+          @keyframes bounce {
+            0% {
+              transform: translateY(0);
+            }
+            100% {
+              transform: translateY(-15px);
+            }
+          }
+        `}</style>
       </Head>
 
       {/* Hero Section */}
@@ -249,6 +259,31 @@ export default function Home() {
             >
               Random Pokémon
             </button>
+          </div>
+
+          <div className="flex justify-center items-center mb-8 md:mb-12 mt-8 md:mt-10">
+            <div className="flex space-x-8 md:space-x-12">
+              {[1, 2, 3].map((_, index) => (
+                <div key={index} className="relative w-12 h-12 md:w-16 md:h-16">
+                  <div 
+                    className="w-full h-full"
+                    style={{
+                      animation: `bounce ${1.2 + index * 0.2}s infinite alternate ease-in-out`,
+                      animationDelay: `${index * 0.2}s`
+                    }}
+                  >
+                    <Image
+                      src="/img/pokeball.svg"
+                      alt="Pokeball"
+                      width={64}
+                      height={64}
+                      layout="responsive"
+                      className="drop-shadow-lg"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
