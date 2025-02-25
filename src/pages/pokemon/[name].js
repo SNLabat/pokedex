@@ -346,15 +346,38 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
   const [activeTab, setActiveTab] = useState('info');
   const [caughtStatus, setCaughtStatus] = useState({});
   const [isEvolutionExpanded, setIsEvolutionExpanded] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   
-  // Add this loading state handling
-  if (router.isFallback) {
+  // Add effect to track loading state for client-side transitions
+  useEffect(() => {
+    // Reset component state when the route changes
+    setIsShiny(false);
+    setActiveTab('info');
+    setCaughtStatus({});
+    setIsEvolutionExpanded(false);
+    
+    const handleStart = () => setIsLoading(true);
+    const handleComplete = () => setIsLoading(false);
+
+    router.events.on('routeChangeStart', handleStart);
+    router.events.on('routeChangeComplete', handleComplete);
+    router.events.on('routeChangeError', handleComplete);
+
+    return () => {
+      router.events.off('routeChangeStart', handleStart);
+      router.events.off('routeChangeComplete', handleComplete);
+      router.events.off('routeChangeError', handleComplete);
+    };
+  }, [router]);
+
+  // Enhanced fallback and loading states
+  if (router.isFallback || isLoading || !pokemon || !species) {
     return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
-        <div className="text-center p-8">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-500 mb-4"></div>
-          <h1 className="text-2xl font-bold mb-2">Loading Pokémon data...</h1>
-          <p>Please wait while we fetch the details</p>
+      <div className="min-h-screen bg-gray-900 text-white">
+        <Navigation />
+        <div className="container mx-auto px-4 py-16 flex justify-center items-center flex-col">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-500 mb-4"></div>
+          <p className="text-xl">Loading Pokémon data...</p>
         </div>
       </div>
     );
@@ -993,8 +1016,8 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
 
 export async function getStaticPaths() {
   try {
-    // Fetch a larger set of initial Pokémon to pre-render
-    const res = await fetch('https://pokeapi.co/api/v2/pokemon?limit=151'); // At least first generation
+    // Get the first 151 Pokémon for better initial loading
+    const res = await fetch('https://pokeapi.co/api/v2/pokemon?limit=151');
     const data = await res.json();
     
     const paths = data.results.map(pokemon => ({
@@ -1003,49 +1026,41 @@ export async function getStaticPaths() {
     
     return { 
       paths,
-      fallback: true // Change from 'blocking' to true for better UX
+      fallback: 'blocking' // Change back to 'blocking' for better UX
     };
   } catch (error) {
     console.error("Error in getStaticPaths:", error);
     return {
       paths: [],
-      fallback: true
+      fallback: 'blocking'
     };
   }
 }
 
 export async function getStaticProps({ params }) {
   try {
-    const specialCases = {
-      'deoxys': 'deoxys-normal',
-      'wormadam': 'wormadam-plant',
-      'giratina': 'giratina-altered',
-      'shaymin': 'shaymin-land',
-      'basculin': 'basculin-red-striped',
-      'darmanitan': 'darmanitan-standard',
-      'tornadus': 'tornadus-incarnate',
-      'thundurus': 'thundurus-incarnate',
-      'landorus': 'landorus-incarnate',
-      'keldeo': 'keldeo-ordinary',
-      'meloetta': 'meloetta-aria',
-      'meowstic': 'meowstic-male',
-      'aegislash': 'aegislash-shield',
-      'pumpkaboo': 'pumpkaboo-average',
-      'gourgeist': 'gourgeist-average',
-      'urshifu': 'urshifu-single-strike',
-      'enamorus': 'enamorus-incarnate',
-      'oricorio': 'oricorio-baile',
-      'lycanroc': 'lycanroc-midday',
-      'wishiwashi': 'wishiwashi-solo',
-      'minior': 'minior-red-meteor',
-      'toxtricity': 'toxtricity-amped'
+    // Use a direct fetch with a timeout to ensure it doesn't hang
+    const fetchWithTimeout = async (url, options = {}, timeout = 10000) => {
+      const controller = new AbortController();
+      const id = setTimeout(() => controller.abort(), timeout);
+      const response = await fetch(url, { ...options, signal: controller.signal });
+      clearTimeout(id);
+      return response;
     };
 
-    const pokemonName = specialCases[params.name] || params.name;
+    const pokemonName = params.name.toLowerCase();
     
-    // Fetch basic Pokemon data
-    const resPokemon = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonName}`);
+    // Try to fetch by name first
+    let resPokemon = await fetchWithTimeout(`https://pokeapi.co/api/v2/pokemon/${pokemonName}`);
+    
+    // If that fails, try to fetch by ID
+    if (!resPokemon.ok && !isNaN(pokemonName)) {
+      resPokemon = await fetchWithTimeout(`https://pokeapi.co/api/v2/pokemon/${pokemonName}`);
+    }
+    
+    // If still not OK, throw an error
     if (!resPokemon.ok) throw new Error('Failed to fetch Pokemon');
+    
     const pokemon = await resPokemon.json();
     
     // Fetch species data
@@ -1095,16 +1110,15 @@ export async function getStaticProps({ params }) {
       console.error('Error processing form data:', error);
     }
     
-    // Ensure data is serializable
+    // Return with a short revalidation time for dynamic content
     return {
       props: JSON.parse(JSON.stringify({
         pokemon,
         species,
         evolutionChain,
-        alternativeForms,
-        currentUser: currentUserPlaceholder
+        alternativeForms
       })),
-      revalidate: 86400 // Revalidate once per day
+      revalidate: 60 // Revalidate more frequently to ensure fresh data
     };
   } catch (error) {
     console.error('Error fetching Pokémon data:', error);

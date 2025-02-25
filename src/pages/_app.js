@@ -21,3 +21,8 @@ export default function App({ Component, pageProps }) {
   
   return <Component {...pageProps} />;
 }
+
+// Add this to disable automatic static optimization for dynamic routes
+export const config = {
+  unstable_runtimeJS: true
+};

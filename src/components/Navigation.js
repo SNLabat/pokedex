@@ -119,7 +119,22 @@ export default function Navigation() {
   // Programmatic navigation to clean up state
   const handleNavigation = (path) => {
     setIsMenuOpen(false);
-    router.push(path, undefined, { shallow: false });
+    setIsSearchFocused(false);
+    
+    // For Pokemon pages, use a specific pattern
+    if (path.startsWith('/pokemon/')) {
+      router.push({
+        pathname: path
+      }, undefined, { 
+        shallow: false,
+        scroll: true
+      });
+    } else {
+      router.push(path, undefined, { 
+        shallow: false,
+        scroll: true 
+      });
+    }
   };
   
   return (

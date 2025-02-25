@@ -167,7 +167,12 @@ export default function PokedexPage({ initialPokemon }) {
     return (
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
         {pokemonToShow.map(pokemon => (
-          <Link key={pokemon.id} href={`/pokemon/${pokemon.name}`} passHref>
+          <Link 
+            key={pokemon.id} 
+            href={`/pokemon/${pokemon.name}`} 
+            passHref
+            prefetch={false}
+          >
             <a className="bg-gray-800 hover:bg-gray-700 rounded-lg p-4 transition-transform hover:scale-105 flex flex-col items-center">
               <div className="relative w-32 h-32">
                 {pokemon.sprite ? (
