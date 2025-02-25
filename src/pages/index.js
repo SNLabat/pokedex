@@ -8,7 +8,6 @@ import pokeballOutline from '/public/img/pokeballoutline.png';
 import Head from 'next/head';
 import { getPokemonCollection } from '../lib/dataManagement';
 import GenerationCard from '../components/GenerationCard';
-import Navigation from '../components/Navigation';
 
 export default function Home() {
   const router = useRouter();
@@ -20,7 +19,11 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [isHovered, setIsHovered] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [showSearchResults, setShowSearchResults] = useState(false);
+  const [allPokemon, setAllPokemon] = useState([]);
   const heroRef = useRef(null);
+  const searchRef = useRef(null);
   
   const generations = [
     { id: 1, name: 'Kanto', years: '1996-1999', pokemon: 151, color: 'from-red-600 to-blue-600', starters: [1, 4, 7] },
@@ -61,9 +64,44 @@ export default function Home() {
       const formattedSearch = searchTerm.trim().toLowerCase().replace(/\s+/g, '-');
       router.push(`/pokemon/${formattedSearch}`);
     }
+    
+    setShowSearchResults(false);
+  }
+  
+  // Navigate to selected Pokémon from autocomplete
+  function selectPokemon(pokemon) {
+    setSearchTerm('');
+    setShowSearchResults(false);
+    router.push(`/pokemon/${pokemon.name}`);
   }
 
   useEffect(() => {
+    // Fetch all Pokémon for search autocomplete
+    const fetchAllPokemon = async () => {
+      try {
+        const res = await fetch('https://pokeapi.co/api/v2/pokemon?limit=1008');
+        const data = await res.json();
+        
+        setAllPokemon(data.results.map((p, index) => ({
+          id: index + 1,
+          name: p.name,
+        })));
+      } catch (error) {
+        console.error('Error fetching Pokémon data:', error);
+      }
+    };
+    
+    fetchAllPokemon();
+    
+    // Close search results when clicking outside
+    const handleClickOutside = (event) => {
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setShowSearchResults(false);
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    
     const fetchData = async () => {
       setIsLoading(true);
       
@@ -131,8 +169,39 @@ export default function Home() {
     };
     
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, []);
+  
+  // Filter Pokémon based on search term
+  useEffect(() => {
+    if (searchTerm.length < 2) {
+      setSearchResults([]);
+      setShowSearchResults(false);
+      return;
+    }
+    
+    // Check if searchTerm is a number
+    const isNumber = !isNaN(searchTerm) && !isNaN(parseFloat(searchTerm));
+    
+    let results;
+    if (isNumber) {
+      // If it's a number, filter by ID
+      results = allPokemon
+        .filter(p => p.id.toString().startsWith(searchTerm))
+        .slice(0, 8);
+    } else {
+      // If it's text, filter by name
+      results = allPokemon
+        .filter(p => p.name.includes(searchTerm.toLowerCase()))
+        .slice(0, 8);
+    }
+      
+    setSearchResults(results);
+    setShowSearchResults(true);
+  }, [searchTerm, allPokemon]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white">
@@ -140,8 +209,6 @@ export default function Home() {
         <title>Pokédex Live - Track Your Pokémon Collection</title>
         <meta name="description" content="Track your Pokémon collection across all games and generations" />
       </Head>
-
-      <Navigation />
 
       {/* Hero Section */}
       <div className="relative h-[80vh] flex items-center justify-center overflow-hidden">
@@ -188,25 +255,54 @@ export default function Home() {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-12">
-        {/* Search Section */}
+        {/* Search Section with Autocomplete */}
         <div className="max-w-3xl mx-auto mb-16">
           <div className="bg-gray-800 rounded-xl p-6 shadow-lg">
             <h2 className="text-2xl font-bold mb-4">Find a Pokémon</h2>
-            <div className="flex flex-col md:flex-row gap-4">
-              <input
-                type="text"
-                placeholder="Enter Pokémon name or number..."
-                className="flex-1 px-4 py-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:border-blue-500 focus:outline-none"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-              />
-              <button
-                onClick={handleSearch}
-                className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium transition-colors"
-              >
-                Search
-              </button>
+            <div className="relative" ref={searchRef}>
+              <div className="flex flex-col md:flex-row gap-4">
+                <input
+                  type="text"
+                  placeholder="Enter Pokémon name or number..."
+                  className="flex-1 px-4 py-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:border-blue-500 focus:outline-none"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                  onFocus={() => searchTerm.length >= 2 && setShowSearchResults(true)}
+                />
+                <button
+                  onClick={handleSearch}
+                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium transition-colors"
+                >
+                  Search
+                </button>
+              </div>
+              
+              {/* Autocomplete dropdown */}
+              {showSearchResults && searchResults.length > 0 && (
+                <div className="absolute z-50 left-0 right-0 mt-1 bg-gray-700 rounded-lg shadow-lg overflow-hidden">
+                  <ul>
+                    {searchResults.map(pokemon => (
+                      <li key={pokemon.id}>
+                        <button 
+                          onClick={() => selectPokemon(pokemon)}
+                          className="w-full text-left px-4 py-2 hover:bg-gray-600 flex items-center"
+                        >
+                          <div className="w-8 h-8 relative mr-2">
+                            <Image
+                              src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.id}.png`}
+                              alt={pokemon.name}
+                              layout="fill"
+                            />
+                          </div>
+                          <span className="text-gray-400 mr-2">#{String(pokemon.id).padStart(3, '0')}</span>
+                          <span className="capitalize">{pokemon.name.replace(/-/g, ' ')}</span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
             
             {/* Quick type filters */}
@@ -367,6 +463,84 @@ export default function Home() {
             </div>
           </div>
         )}
+        
+        {/* Features Section */}
+        <div className="mb-16">
+          <h2 className="text-3xl font-bold mb-8 text-center">App Features</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="bg-gradient-to-br from-blue-900 to-indigo-900 rounded-xl p-6 shadow-lg text-center">
+              <div className="w-16 h-16 mx-auto bg-white bg-opacity-20 rounded-full flex items-center justify-center mb-4">
+                <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold mb-2">Track Your Collection</h3>
+              <p className="text-blue-100">
+                Mark Pokémon as caught, shiny, or alpha. Track all forms and regional variants across all games.
+              </p>
+            </div>
+            
+            <div className="bg-gradient-to-br from-green-900 to-teal-900 rounded-xl p-6 shadow-lg text-center">
+              <div className="w-16 h-16 mx-auto bg-white bg-opacity-20 rounded-full flex items-center justify-center mb-4">
+                <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold mb-2">Team Builder</h3>
+              <p className="text-green-100">
+                Create and save your dream teams. Analyze type coverage, strengths, and weaknesses.
+              </p>
+            </div>
+            
+            <div className="bg-gradient-to-br from-purple-900 to-pink-900 rounded-xl p-6 shadow-lg text-center">
+              <div className="w-16 h-16 mx-auto bg-white bg-opacity-20 rounded-full flex items-center justify-center mb-4">
+                <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold mb-2">Share Progress</h3>
+              <p className="text-purple-100">
+                Share your collection progress with friends. Export your data for safekeeping.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Discover Random Pokémon */}
+        <div className="mb-16">
+          <h2 className="text-3xl font-bold mb-6 text-center">Discover Pokémon</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+            {randomPokemon.map(pokemon => (
+              <Link key={pokemon.id} href={`/pokemon/${pokemon.id}`}>
+                <a className="block bg-gray-800 hover:bg-gray-700 rounded-lg p-4 text-center transition-all transform hover:scale-105">
+                  <div className="relative w-24 h-24 mx-auto mb-2">
+                    <Image
+                      src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemon.id}.png`}
+                      alt={`Pokémon #${pokemon.id}`}
+                      layout="fill"
+                      objectFit="contain"
+                    />
+                  </div>
+                  <span className="text-gray-400 text-xs">#{pokemon.id}</span>
+                </a>
+              </Link>
+            ))}
+          </div>
+          <div className="text-center mt-6">
+            <button
+              onClick={() => {
+                const randomIds = Array.from({ length: 6 }, () => Math.floor(Math.random() * 898) + 1);
+                setRandomPokemon(randomIds.map(id => ({ id, name: `pokemon-${id}` })));
+              }}
+              className="px-6 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg font-medium transition-colors inline-flex items-center"
+            >
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              Show More Random Pokémon
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Footer */}
@@ -401,87 +575,4 @@ export default function Home() {
       </footer>
     </div>
   );
-}
-
-// Extracted PokemonCard component
-const PokemonCard = ({ pokemon, caughtStatus }) => {
-  const id = pokemon.url.split('/').slice(-2)[0];
-  const imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`;
-  
-  // Check both default and form variants for caught status
-  const isCaught = caughtStatus?.default?.regular || Object.values(caughtStatus || {}).some(form => form.regular);
-  const isShiny = caughtStatus?.default?.shiny || Object.values(caughtStatus || {}).some(form => form.shiny);
-  
-  return (
-    <Link href={`/pokemon/${pokemon.name}`}>
-      <a className={`bg-gray-800 rounded-lg p-4 flex flex-col items-center transform hover:scale-105 transition-transform duration-200 relative ${
-        isCaught ? 'border-green-500' : 'border-gray-700 hover:border-red-500'
-      }`}>
-        {/* Pokeball indicator with static import */}
-        <div className="absolute -top-2 -right-2 w-8 h-8">
-          <Image
-            src={pokeballOutline}
-            alt="Pokeball"
-            width={32}
-            height={32}
-            className={`${!isCaught && !isShiny ? 'opacity-75 filter-white' : 'opacity-0'}`}
-            unoptimized // Since it's a small icon
-          />
-          <Image
-            src={pokeballOutline}
-            alt="Caught"
-            width={32}
-            height={32}
-            className={`absolute top-0 left-0 ${isCaught ? 'opacity-100 filter-red' : 'opacity-0'}`}
-            unoptimized
-          />
-          <Image
-            src={pokeballOutline}
-            alt="Shiny"
-            width={32}
-            height={32}
-            className={`absolute top-0 left-0 ${isShiny ? 'opacity-100 filter-yellow' : 'opacity-0'}`}
-            unoptimized
-          />
-        </div>
-
-        {/* Pokemon artwork with optimization */}
-        <div className="relative w-32 h-32 mb-4">
-          <Image
-            src={imageUrl}
-            alt={pokemon.name}
-            layout="fill"
-            objectFit="contain"
-            className="drop-shadow-lg"
-            sizes="(max-width: 640px) 128px, 256px" // Limit size variations
-            priority={parseInt(id) <= 151} // Prioritize loading for first gen Pokemon
-          />
-        </div>
-        <p className="font-semibold text-lg text-center capitalize mb-1">
-          {pokemon.name.replace('-', ' ')}
-        </p>
-        <p className="text-red-400 font-mono">#{id.padStart(3, '0')}</p>
-      </a>
-    </Link>
-  );
-};
-
-export async function getStaticProps() {
-  const res = await fetch('https://pokeapi.co/api/v2/generation');
-  const data = await res.json();
-
-  const generations = data.results.map((gen) => {
-    const idMatch = gen.url.match(/\/generation\/(\d+)\//);
-    return {
-      id: idMatch ? idMatch[1] : '',
-      name: gen.name,
-    };
-  });
-
-  return {
-    props: {
-      generations,
-    },
-    revalidate: 3600, // Revalidate every hour
-  };
 }

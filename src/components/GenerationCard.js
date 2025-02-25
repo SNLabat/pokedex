@@ -19,7 +19,7 @@ const GenerationCard = ({ gen }) => {
 
   return (
     <Link href={`/pokedex?gen=${gen.id}`}>
-      <a className="block relative group rounded-xl overflow-hidden shadow-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl h-60">
+      <a className="block relative group rounded-xl overflow-hidden shadow-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl h-72">
         {/* Gradient background */}
         <div className={`absolute inset-0 bg-gradient-to-br ${gradientColors[gen.id] || 'from-gray-700 to-gray-900'} opacity-80 group-hover:opacity-90 transition-opacity`}></div>
         
@@ -40,16 +40,16 @@ const GenerationCard = ({ gen }) => {
             <p className="text-sm text-gray-100 mt-1">{gen.years}</p>
           </div>
           
-          {/* Starter Pokémon */}
+          {/* Starter Pokémon - Larger and without circles */}
           <div>
-            <div className="flex justify-center mt-4 space-x-2">
+            <div className="flex justify-center mt-4 space-x-4">
               {gen.starters.map(id => (
-                <div key={id} className="w-16 h-16 bg-white bg-opacity-20 rounded-full p-1 transform transition-transform hover:scale-110">
+                <div key={id} className="transform transition-transform hover:scale-110">
                   <Image
-                    src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`}
+                    src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`}
                     alt={`Starter ${id}`}
-                    width={64}
-                    height={64}
+                    width={80}
+                    height={80}
                   />
                 </div>
               ))}
