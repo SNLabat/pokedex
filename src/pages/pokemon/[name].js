@@ -616,789 +616,789 @@ const pokemonMarks = [
 
 // Update the ribbonIcons object to use local images
 const ribbonIcons = {
-  // Gen 3 Contest Ribbons
-  'champion-hoenn': { 
-    icon: '/img/Ribbons-Marks/championribbon.png', 
-    color: '#22AA44',
-    fallback: '🎀'
-  },
-  'cool-normal': { 
-    icon: '/img/Ribbons-Marks/coolnormalribbon.png', 
-    color: '#FF4444',
-    fallback: '🎀'
-  },
-  'cool-super': { 
-    icon: '/img/Ribbons-Marks/coolsuperribbon.png', 
-    color: '#FF4444',
-    fallback: '🎀'
-  },
-  'cool-hyper': { 
-    icon: '/img/Ribbons-Marks/coolhyperribbon.png', 
-    color: '#FF4444',
-    fallback: '🎀'
-  },
-  'cool-master': { 
-    icon: '/img/Ribbons-Marks/coolmasterribbon.png', 
-    color: '#FF4444',
-    fallback: '🎀'
-  },
-  'beauty-normal': { 
-    icon: 'https://www.serebii.net/games/ribbons/beautynormalribbon.png', 
-    color: '#FF88DD',
-    fallback: '🎀'
-  },
-  'beauty-super': { 
-    icon: 'https://www.serebii.net/games/ribbons/beautysuperribbon.png', 
-    color: '#FF88DD',
-    fallback: '🎀'
-  },
-  'beauty-hyper': { 
-    icon: 'https://www.serebii.net/games/ribbons/beautyhyperribbon.png', 
-    color: '#FF88DD',
-    fallback: '🎀'
-  },
-  'beauty-master': { 
-    icon: 'https://www.serebii.net/games/ribbons/beautymasterribbon.png', 
-    color: '#FF88DD',
-    fallback: '🎀'
-  },
-  'cute-normal': { 
-    icon: 'https://www.serebii.net/games/ribbons/cutenormalribbon.png', 
-    color: '#FFAA44',
-    fallback: '🎀'
-  },
-  'cute-super': { 
-    icon: 'https://www.serebii.net/games/ribbons/cutesuperribbon.png', 
-    color: '#FFAA44',
-    fallback: '🎀'
-  },
-  'cute-hyper': { 
-    icon: 'https://www.serebii.net/games/ribbons/cutehyperribbon.png', 
-    color: '#FFAA44',
-    fallback: '🎀'
-  },
-  'cute-master': { 
-    icon: 'https://www.serebii.net/games/ribbons/cutemasterribbon.png', 
-    color: '#FFAA44',
-    fallback: '🎀'
-  },
-  'smart-normal': { 
-    icon: 'https://www.serebii.net/games/ribbons/smartnormalribbon.png', 
-    color: '#44BB44',
-    fallback: '🎀'
-  },
-  'smart-super': { 
-    icon: 'https://www.serebii.net/games/ribbons/smartsuperribbon.png', 
-    color: '#44BB44',
-    fallback: '🎀'
-  },
-  'smart-hyper': { 
-    icon: 'https://www.serebii.net/games/ribbons/smarthyperribbon.png', 
-    color: '#44BB44',
-    fallback: '🎀'
-  },
-  'smart-master': { 
-    icon: 'https://www.serebii.net/games/ribbons/smartmasterribbon.png', 
-    color: '#44BB44',
-    fallback: '🎀'
-  },
-  'tough-normal': { 
-    icon: 'https://www.serebii.net/games/ribbons/toughnormalribbon.png', 
-    color: '#BB6644',
-    fallback: '🎀'
-  },
-  'tough-super': { 
-    icon: 'https://www.serebii.net/games/ribbons/toughsuperribbon.png', 
-    color: '#BB6644',
-    fallback: '🎀'
-  },
-  'tough-hyper': { 
-    icon: 'https://www.serebii.net/games/ribbons/toughhyperribbon.png', 
-    color: '#BB6644',
-    fallback: '🎀'
-  },
-  'tough-master': { 
-    icon: 'https://www.serebii.net/games/ribbons/toughmasterribbon.png', 
-    color: '#BB6644',
-    fallback: '🎀'
-  },
-  'winning': { 
-    icon: 'https://www.serebii.net/games/ribbons/winningribbon.png', 
-    color: '#DDAA22',
-    fallback: '🎀'
-  },
-  'victory': { 
-    icon: 'https://www.serebii.net/games/ribbons/victoryribbon.png', 
-    color: '#DDAA22',
-    fallback: '🎀'
-  },
-  'artist': { 
-    icon: 'https://www.serebii.net/games/ribbons/artistribbon.png', 
-    color: '#FF88AA',
-    fallback: '🎀'
-  },
-  'effort': { 
-    icon: 'https://www.serebii.net/games/ribbons/effortribbon.png', 
-    color: '#DDAA22',
-    fallback: '🎀'
-  },
-  'marine': { 
-    icon: 'https://www.serebii.net/games/ribbons/marineribbon.png', 
-    color: '#4488DD',
-    fallback: '🎀'
-  },
-  'land': { 
-    icon: 'https://www.serebii.net/games/ribbons/landribbon.png', 
-    color: '#BB6644',
-    fallback: '🎀'
-  },
-  'sky': { 
-    icon: 'https://www.serebii.net/games/ribbons/skyribbon.png', 
-    color: '#88AAFF',
-    fallback: '🎀'
-  },
-  'country': { 
-    icon: 'https://www.serebii.net/games/ribbons/countryribbon.png', 
-    color: '#DDAA22',
-    fallback: '🎀'
-  },
-  'national': { 
-    icon: 'https://www.serebii.net/games/ribbons/nationalribbon.png', 
-    color: '#DD2222',
-    fallback: '🎀'
-  },
-  'earth': { 
-    icon: 'https://www.serebii.net/games/ribbons/earthribbon.png', 
-    color: '#44BB44',
-    fallback: '🎀'
-  },
-  'world': { 
-    icon: 'https://www.serebii.net/games/ribbons/worldribbon.png', 
-    color: '#4488DD',
-    fallback: '🎀'
-  },
-  'sinnoh-champ': { 
-    icon: 'https://www.serebii.net/games/ribbons/sinnohchampribbon.png', 
-    color: '#22AA44',
-    fallback: '🎀'
-  },
-  'cool-contest-normal-s': { 
-    icon: 'https://www.serebii.net/games/ribbons/coolcontestnormalrankribbon-s.png', 
-    color: '#FF4444',
-    fallback: '🎀'
-  },
-  'cool-contest-super-s': { 
-    icon: 'https://www.serebii.net/games/ribbons/coolcontestsuperrankribbon-s.png', 
-    color: '#FF4444',
-    fallback: '🎀'
-  },
-  'cool-contest-hyper-s': { 
-    icon: 'https://www.serebii.net/games/ribbons/coolcontesthyperrankribbon-s.png', 
-    color: '#FF4444',
-    fallback: '🎀'
-  },
-  'cool-contest-master-s': { 
-    icon: 'https://www.serebii.net/games/ribbons/coolcontestmasterrankribbon-s.png', 
-    color: '#FF4444',
-    fallback: '🎀'
-  },
-  'beauty-contest-normal-s': { 
-    icon: 'https://www.serebii.net/games/ribbons/beautycontestnormalrankribbon-s.png', 
-    color: '#FF88DD',
-    fallback: '🎀'
-  },
-  'beauty-contest-super-s': { 
-    icon: 'https://www.serebii.net/games/ribbons/beautycontestsuperrankribbon-s.png', 
-    color: '#FF88DD',
-    fallback: '🎀'
-  },
-  'beauty-contest-hyper-s': { 
-    icon: 'https://www.serebii.net/games/ribbons/beautycontesthyperrankribbon-s.png', 
-    color: '#FF88DD',
-    fallback: '🎀'
-  },
-  'beauty-contest-master-s': { 
-    icon: 'https://www.serebii.net/games/ribbons/beautycontestmasterrankribbon-s.png', 
-    color: '#FF88DD',
-    fallback: '🎀'
-  },
-  'cute-contest-normal-s': { 
-    icon: 'https://www.serebii.net/games/ribbons/cutecontestnormalrankribbon-s.png', 
-    color: '#FFAA44',
-    fallback: '🎀'
-  },
-  'cute-contest-super-s': { 
-    icon: 'https://www.serebii.net/games/ribbons/cutecontestsuperrankribbon-s.png', 
-    color: '#FFAA44',
-    fallback: '🎀'
-  },
-  'cute-contest-hyper-s': { 
-    icon: 'https://www.serebii.net/games/ribbons/cutecontesthyperrankribbon-s.png', 
-    color: '#FFAA44',
-    fallback: '🎀'
-  },
-  'cute-contest-master-s': { 
-    icon: 'https://www.serebii.net/games/ribbons/cutecontestmasterrankribbon-s.png', 
-    color: '#FFAA44',
-    fallback: '🎀'
-  },
-  'smart-contest-normal-s': { 
-    icon: 'https://www.serebii.net/games/ribbons/smartcontestnormalrankribbon-s.png', 
-    color: '#44BB44',
-    fallback: '🎀'
-  },
-  'smart-contest-super-s': { 
-    icon: 'https://www.serebii.net/games/ribbons/smartcontestsuperrankribbon-s.png', 
-    color: '#44BB44',
-    fallback: '🎀'
-  },
-  'smart-contest-hyper-s': { 
-    icon: 'https://www.serebii.net/games/ribbons/smartcontesthyperrankribbon-s.png', 
-    color: '#44BB44',
-    fallback: '🎀'
-  },
-  'smart-contest-master-s': { 
-    icon: 'https://www.serebii.net/games/ribbons/smartcontestmasterrankribbon-s.png', 
-    color: '#44BB44',
-    fallback: '🎀'
-  },
-  'tough-contest-normal-s': { 
-    icon: 'https://www.serebii.net/games/ribbons/toughcontestnormalrankribbon-s.png', 
-    color: '#BB6644',
-    fallback: '🎀'
-  },
-  'tough-contest-super-s': { 
-    icon: 'https://www.serebii.net/games/ribbons/toughcontestsuperrankribbon-s.png', 
-    color: '#BB6644',
-    fallback: '🎀'
-  },
-  'tough-contest-hyper-s': { 
-    icon: 'https://www.serebii.net/games/ribbons/toughcontesthyperrankribbon-s.png', 
-    color: '#BB6644',
-    fallback: '🎀'
-  },
-  'tough-contest-master-s': { 
-    icon: 'https://www.serebii.net/games/ribbons/toughcontestmasterrankribbon-s.png', 
-    color: '#BB6644',
-    fallback: '🎀'
-  },
-  'ability': { 
-    icon: 'https://www.serebii.net/games/ribbons/abilityribbon.png', 
-    color: '#4488DD',
-    fallback: '🎀'
-  },
-  'great-ability': { 
-    icon: 'https://www.serebii.net/games/ribbons/greatabilityribbon.png', 
-    color: '#4488DD',
-    fallback: '🎀'
-  },
-  'double-ability': { 
-    icon: 'https://www.serebii.net/games/ribbons/doubleabilityribbon.png', 
-    color: '#4488DD',
-    fallback: '🎀'
-  },
-  'multi-ability': { 
-    icon: 'https://www.serebii.net/games/ribbons/multiabilityribbon.png', 
-    color: '#4488DD',
-    fallback: '🎀'
-  },
-  'pair-ability': { 
-    icon: 'https://www.serebii.net/games/ribbons/pairabilityribbon.png', 
-    color: '#4488DD',
-    fallback: '🎀'
-  },
-  'world-ability': { 
-    icon: 'https://www.serebii.net/games/ribbons/worldabilityribbon.png', 
-    color: '#4488DD',
-    fallback: '🎀'
-  },
-  'alert': { 
-    icon: 'https://www.serebii.net/games/ribbons/alertribbon.png', 
-    color: '#FFAA44',
-    fallback: '🎀'
-  },
-  'shock': { 
-    icon: 'https://www.serebii.net/games/ribbons/shockribbon.png', 
-    color: '#FFCC44',
-    fallback: '🎀'
-  },
-  'downcast': { 
-    icon: 'https://www.serebii.net/games/ribbons/downcastribbon.png', 
-    color: '#8888AA',
-    fallback: '🎀'
-  },
-  'careless': { 
-    icon: 'https://www.serebii.net/games/ribbons/carelessribbon.png', 
-    color: '#AAAAAA',
-    fallback: '🎀'
-  },
-  'relax': { 
-    icon: 'https://www.serebii.net/games/ribbons/relaxribbon.png', 
-    color: '#88CCAA',
-    fallback: '🎀'
-  },
-  'snooze': { 
-    icon: 'https://www.serebii.net/games/ribbons/snoozeribbon.png', 
-    color: '#99AAFF',
-    fallback: '🎀'
-  },
-  'smile': { 
-    icon: 'https://www.serebii.net/games/ribbons/smileribbon.png', 
-    color: '#FFCC44',
-    fallback: '🎀'
-  },
-  'gorgeous': { 
-    icon: 'https://www.serebii.net/games/ribbons/gorgeousribbon.png', 
-    color: '#FF88AA',
-    fallback: '🎀'
-  },
-  'royal': { 
-    icon: 'https://www.serebii.net/games/ribbons/royalribbon.png', 
-    color: '#AA66CC',
-    fallback: '🎀'
-  },
-  'gorgeous-royal': { 
-    icon: 'https://www.serebii.net/games/ribbons/gorgeousroyalribbon.png', 
-    color: '#FF88AA',
-    fallback: '🎀'
-  },
-  'footprint': { 
-    icon: 'https://www.serebii.net/games/ribbons/footprintribbon.png', 
-    color: '#88CCAA',
-    fallback: '🎀'
-  },
-  'legend': { 
-    icon: 'https://www.serebii.net/games/ribbons/legendribbon.png', 
-    color: '#DDAA22',
-    fallback: '🎀'
-  },
-  'classic': { 
-    icon: 'https://www.serebii.net/games/ribbons/classicribbon.png', 
-    color: '#DDAA22',
-    fallback: '🎀'
-  },
-  'premier': { 
-    icon: 'https://www.serebii.net/games/ribbons/premierribbon.png', 
-    color: '#DD2222',
-    fallback: '🎀'
-  },
-  'birthday': { 
-    icon: 'https://www.serebii.net/games/ribbons/birthdayribbon.png', 
-    color: '#FF88AA',
-    fallback: '🎀'
-  },
-  'special': { 
-    icon: 'https://www.serebii.net/games/ribbons/specialribbon.png', 
-    color: '#DD2222',
-    fallback: '🎀'
-  },
-  'event': { 
-    icon: 'https://www.serebii.net/games/ribbons/eventribbon.png', 
-    color: '#DD2222',
-    fallback: '🎀'
-  },
-  'souvenir': { 
-    icon: 'https://www.serebii.net/games/ribbons/souvenirribbon.png', 
-    color: '#DDAA22',
-    fallback: '🎀'
-  },
-  'battle-champ': { 
-    icon: 'https://www.serebii.net/games/ribbons/battlechampribbon.png', 
-    color: '#22AA44',
-    fallback: '🎀'
-  },
-  'regional-champ': { 
-    icon: 'https://www.serebii.net/games/ribbons/regionalchampribbon.png', 
-    color: '#22AA44',
-    fallback: '🎀'
-  },
-  'national-champ': { 
-    icon: 'https://www.serebii.net/games/ribbons/nationalchampribbon.png', 
-    color: '#22AA44',
-    fallback: '🎀'
-  },
-  'kalos-champion': { 
-    icon: 'https://www.serebii.net/games/ribbons/kaloschampionribbon.png', 
-    color: '#22AA44',
-    fallback: '🎀'
-  },
-  'training': { 
-    icon: 'https://www.serebii.net/games/ribbons/trainingribbon.png', 
-    color: '#4488DD',
-    fallback: '🎀'
-  },
-  'skillful-battler': { 
-    icon: 'https://www.serebii.net/games/ribbons/skillfulbattlerribbon.png', 
-    color: '#4488DD',
-    fallback: '🎀'
-  },
-  'expert-battler': { 
-    icon: 'https://www.serebii.net/games/ribbons/expertbattlerribbon.png', 
-    color: '#4488DD',
-    fallback: '🎀'
-  },
-  'best-friends': { 
-    icon: 'https://www.serebii.net/games/ribbons/bestfriendsribbon.png', 
-    color: '#FF88AA',
-    fallback: '🎀'
-  },
-  'contest-memory': { 
-    icon: 'https://www.serebii.net/games/ribbons/contestmemoryribbon.png', 
-    color: '#FF88AA',
-    fallback: '🎀'
-  },
-  'battle-memory': { 
-    icon: 'https://www.serebii.net/games/ribbons/battlememoryribbon.png', 
-    color: '#4488DD',
-    fallback: '🎀'
-  },
-  'contest-memory-2': { 
-    icon: 'https://www.serebii.net/games/ribbons/contestmemoryribbon2.png', 
-    color: '#FF88AA',
-    fallback: '🎀'
-  },
-  'battle-memory-2': { 
-    icon: 'https://www.serebii.net/games/ribbons/battlememoryribbon2.png', 
-    color: '#4488DD',
-    fallback: '🎀'
-  },
-  'alola-champion': { 
-    icon: 'https://www.serebii.net/games/ribbons/alolachampionribbon.png', 
-    color: '#22AA44',
-    fallback: '🎀'
-  },
-  'battle-royal-master': { 
-    icon: 'https://www.serebii.net/games/ribbons/battleroyalmasterribbon.png', 
-    color: '#DDAA22',
-    fallback: '🎀'
-  },
-  'battle-tree-great': { 
-    icon: 'https://www.serebii.net/games/ribbons/battletreegreatribbon.png', 
-    color: '#4488DD',
-    fallback: '🎀'
-  },
-  'battle-tree-master': { 
-    icon: 'https://www.serebii.net/games/ribbons/battletreemasterribbon.png', 
-    color: '#4488DD',
-    fallback: '🎀'
-  },
-  'galar-champion': { 
-    icon: 'https://www.serebii.net/games/ribbons/galarchampionribbon.png', 
-    color: '#22AA44',
-    fallback: '🎀'
-  },
-  'tower-master': { 
-    icon: 'https://www.serebii.net/games/ribbons/towermasterribbon.png', 
-    color: '#4488DD',
-    fallback: '🎀'
-  },
-  'master-rank': { 
-    icon: 'https://www.serebii.net/games/ribbons/masterrankribbon.png', 
-    color: '#DDAA22',
-    fallback: '🎀'
-  },
-  'record': { 
-    icon: 'https://www.serebii.net/games/ribbons/recordribbon.png', 
-    color: '#DDAA22',
-    fallback: '🎀'
-  },
-  'history': { 
-    icon: 'https://www.serebii.net/games/ribbons/historyribbon.png', 
-    color: '#DDAA22',
-    fallback: '🎀'
-  },
-  'red': { 
-    icon: 'https://www.serebii.net/games/ribbons/redribbon.png', 
-    color: '#DD2222',
-    fallback: '🎀'
-  },
-  'green': { 
-    icon: 'https://www.serebii.net/games/ribbons/greenribbon.png', 
-    color: '#44BB44',
-    fallback: '🎀'
-  },
-  'blue': { 
-    icon: 'https://www.serebii.net/games/ribbons/blueribbon.png', 
-    color: '#4488DD',
-    fallback: '🎀'
-  },
-  'festival': { 
-    icon: 'https://www.serebii.net/games/ribbons/festivalribbon.png', 
-    color: '#FF88AA',
-    fallback: '🎀'
-  },
-  'carnival': { 
-    icon: 'https://www.serebii.net/games/ribbons/carnivalribbon.png', 
-    color: '#FFAA44',
-    fallback: '🎀'
-  },
-  'beauty-master-2': { 
-    icon: 'https://www.serebii.net/games/ribbons/beautymasterribbon2.png', 
-    color: '#FF88DD',
-    fallback: '🎀'
-  },
-  'cleverness-master': { 
-    icon: 'https://www.serebii.net/games/ribbons/clevernessmasterribbon.png', 
-    color: '#44BB44',
-    fallback: '🎀'
-  },
-  'coolness-master': { 
-    icon: 'https://www.serebii.net/games/ribbons/coolnessmasterribbon.png', 
-    color: '#FF4444',
-    fallback: '🎀'
-  },
-  'cuteness-master': { 
-    icon: 'https://www.serebii.net/games/ribbons/cutenessmasterribbon.png', 
-    color: '#FFAA44',
-    fallback: '🎀'
-  },
-  'toughness-master': { 
-    icon: 'https://www.serebii.net/games/ribbons/toughnessmasterribbon.png', 
-    color: '#BB6644',
-    fallback: '🎀'
-  },
-  'contest-star': { 
-    icon: 'https://www.serebii.net/games/ribbons/conteststarribbon.png', 
-    color: '#FFCC44',
-    fallback: '🎀'
-  },
-  'twinkling-star': { 
-    icon: 'https://www.serebii.net/games/ribbons/twinklingstarribbon.png', 
-    color: '#FFCC44',
-    fallback: '🎀'
-  }
+// Gen 3 Contest Ribbons
+'champion-hoenn': { 
+  icon: '/img/Ribbons-Marks/championribbon.png', 
+  color: '#22AA44',
+  fallback: '🎀'
+},
+'cool-normal': { 
+  icon: '/img/Ribbons-Marks/coolnormalribbon.png', 
+  color: '#FF4444',
+  fallback: '🎀'
+},
+'cool-super': { 
+  icon: '/img/Ribbons-Marks/coolsuperribbon.png', 
+  color: '#FF4444',
+  fallback: '🎀'
+},
+'cool-hyper': { 
+  icon: '/img/Ribbons-Marks/coolhyperribbon.png', 
+  color: '#FF4444',
+  fallback: '🎀'
+},
+'cool-master': { 
+  icon: '/img/Ribbons-Marks/coolmasterribbon.png', 
+  color: '#FF4444',
+  fallback: '🎀'
+},
+'beauty-normal': { 
+  icon: '/img/Ribbons-Marks/beautynormalribbon.png', 
+  color: '#FF88DD',
+  fallback: '🎀'
+},
+'beauty-super': { 
+  icon: '/img/Ribbons-Marks/beautysuperribbon.png', 
+  color: '#FF88DD',
+  fallback: '🎀'
+},
+'beauty-hyper': { 
+  icon: '/img/Ribbons-Marks/beautyhyperribbon.png', 
+  color: '#FF88DD',
+  fallback: '🎀'
+},
+'beauty-master': { 
+  icon: '/img/Ribbons-Marks/beautymasterribbon.png', 
+  color: '#FF88DD',
+  fallback: '🎀'
+},
+'cute-normal': { 
+  icon: '/img/Ribbons-Marks/cutenormalribbon.png', 
+  color: '#FFAA44',
+  fallback: '🎀'
+},
+'cute-super': { 
+  icon: '/img/Ribbons-Marks/cutesuperribbon.png', 
+  color: '#FFAA44',
+  fallback: '🎀'
+},
+'cute-hyper': { 
+  icon: '/img/Ribbons-Marks/cutehyperribbon.png', 
+  color: '#FFAA44',
+  fallback: '🎀'
+},
+'cute-master': { 
+  icon: '/img/Ribbons-Marks/cutemasterribbon.png', 
+  color: '#FFAA44',
+  fallback: '🎀'
+},
+'smart-normal': { 
+  icon: '/img/Ribbons-Marks/smartnormalribbon.png', 
+  color: '#44BB44',
+  fallback: '🎀'
+},
+'smart-super': { 
+  icon: '/img/Ribbons-Marks/smartsuperribbon.png', 
+  color: '#44BB44',
+  fallback: '🎀'
+},
+'smart-hyper': { 
+  icon: '/img/Ribbons-Marks/smarthyperribbon.png', 
+  color: '#44BB44',
+  fallback: '🎀'
+},
+'smart-master': { 
+  icon: '/img/Ribbons-Marks/smartmasterribbon.png', 
+  color: '#44BB44',
+  fallback: '🎀'
+},
+'tough-normal': { 
+  icon: '/img/Ribbons-Marks/toughnormalribbon.png', 
+  color: '#BB6644',
+  fallback: '🎀'
+},
+'tough-super': { 
+  icon: '/img/Ribbons-Marks/toughsuperribbon.png', 
+  color: '#BB6644',
+  fallback: '🎀'
+},
+'tough-hyper': { 
+  icon: '/img/Ribbons-Marks/toughhyperribbon.png', 
+  color: '#BB6644',
+  fallback: '🎀'
+},
+'tough-master': { 
+  icon: '/img/Ribbons-Marks/toughmasterribbon.png', 
+  color: '#BB6644',
+  fallback: '🎀'
+},
+'winning': { 
+  icon: '/img/Ribbons-Marks/winningribbon.png', 
+  color: '#DDAA22',
+  fallback: '🎀'
+},
+'victory': { 
+  icon: '/img/Ribbons-Marks/victoryribbon.png', 
+  color: '#DDAA22',
+  fallback: '🎀'
+},
+'artist': { 
+  icon: '/img/Ribbons-Marks/artistribbon.png', 
+  color: '#FF88AA',
+  fallback: '🎀'
+},
+'effort': { 
+  icon: '/img/Ribbons-Marks/effortribbon.png', 
+  color: '#DDAA22',
+  fallback: '🎀'
+},
+'marine': { 
+  icon: '/img/Ribbons-Marks/marineribbon.png', 
+  color: '#4488DD',
+  fallback: '🎀'
+},
+'land': { 
+  icon: '/img/Ribbons-Marks/landribbon.png', 
+  color: '#BB6644',
+  fallback: '🎀'
+},
+'sky': { 
+  icon: '/img/Ribbons-Marks/skyribbon.png', 
+  color: '#88AAFF',
+  fallback: '🎀'
+},
+'country': { 
+  icon: '/img/Ribbons-Marks/countryribbon.png', 
+  color: '#DDAA22',
+  fallback: '🎀'
+},
+'national': { 
+  icon: '/img/Ribbons-Marks/nationalribbon.png', 
+  color: '#DD2222',
+  fallback: '🎀'
+},
+'earth': { 
+  icon: '/img/Ribbons-Marks/earthribbon.png', 
+  color: '#44BB44',
+  fallback: '🎀'
+},
+'world': { 
+  icon: '/img/Ribbons-Marks/worldribbon.png', 
+  color: '#4488DD',
+  fallback: '🎀'
+},
+'sinnoh-champ': { 
+  icon: '/img/Ribbons-Marks/sinnohchampribbon.png', 
+  color: '#22AA44',
+  fallback: '🎀'
+},
+'cool-contest-normal-s': { 
+  icon: '/img/Ribbons-Marks/coolcontestnormalrankribbon-s.png', 
+  color: '#FF4444',
+  fallback: '🎀'
+},
+'cool-contest-super-s': { 
+  icon: '/img/Ribbons-Marks/coolcontestsuperrankribbon-s.png', 
+  color: '#FF4444',
+  fallback: '🎀'
+},
+'cool-contest-hyper-s': { 
+  icon: '/img/Ribbons-Marks/coolcontesthyperrankribbon-s.png', 
+  color: '#FF4444',
+  fallback: '🎀'
+},
+'cool-contest-master-s': { 
+  icon: '/img/Ribbons-Marks/coolcontestmasterrankribbon-s.png', 
+  color: '#FF4444',
+  fallback: '🎀'
+},
+'beauty-contest-normal-s': { 
+  icon: '/img/Ribbons-Marks/beautycontestnormalrankribbon-s.png', 
+  color: '#FF88DD',
+  fallback: '🎀'
+},
+'beauty-contest-super-s': { 
+  icon: '/img/Ribbons-Marks/beautycontestsuperrankribbon-s.png', 
+  color: '#FF88DD',
+  fallback: '🎀'
+},
+'beauty-contest-hyper-s': { 
+  icon: '/img/Ribbons-Marks/beautycontesthyperrankribbon-s.png', 
+  color: '#FF88DD',
+  fallback: '🎀'
+},
+'beauty-contest-master-s': { 
+  icon: '/img/Ribbons-Marks/beautycontestmasterrankribbon-s.png', 
+  color: '#FF88DD',
+  fallback: '🎀'
+},
+'cute-contest-normal-s': { 
+  icon: '/img/Ribbons-Marks/cutecontestnormalrankribbon-s.png', 
+  color: '#FFAA44',
+  fallback: '🎀'
+},
+'cute-contest-super-s': { 
+  icon: '/img/Ribbons-Marks/cutecontestsuperrankribbon-s.png', 
+  color: '#FFAA44',
+  fallback: '🎀'
+},
+'cute-contest-hyper-s': { 
+  icon: '/img/Ribbons-Marks/cutecontesthyperrankribbon-s.png', 
+  color: '#FFAA44',
+  fallback: '🎀'
+},
+'cute-contest-master-s': { 
+  icon: '/img/Ribbons-Marks/cutecontestmasterrankribbon-s.png', 
+  color: '#FFAA44',
+  fallback: '🎀'
+},
+'smart-contest-normal-s': { 
+  icon: '/img/Ribbons-Marks/smartcontestnormalrankribbon-s.png', 
+  color: '#44BB44',
+  fallback: '🎀'
+},
+'smart-contest-super-s': { 
+  icon: '/img/Ribbons-Marks/smartcontestsuperrankribbon-s.png', 
+  color: '#44BB44',
+  fallback: '🎀'
+},
+'smart-contest-hyper-s': { 
+  icon: '/img/Ribbons-Marks/smartcontesthyperrankribbon-s.png', 
+  color: '#44BB44',
+  fallback: '🎀'
+},
+'smart-contest-master-s': { 
+  icon: '/img/Ribbons-Marks/smartcontestmasterrankribbon-s.png', 
+  color: '#44BB44',
+  fallback: '🎀'
+},
+'tough-contest-normal-s': { 
+  icon: '/img/Ribbons-Marks/toughcontestnormalrankribbon-s.png', 
+  color: '#BB6644',
+  fallback: '🎀'
+},
+'tough-contest-super-s': { 
+  icon: '/img/Ribbons-Marks/toughcontestsuperrankribbon-s.png', 
+  color: '#BB6644',
+  fallback: '🎀'
+},
+'tough-contest-hyper-s': { 
+  icon: '/img/Ribbons-Marks/toughcontesthyperrankribbon-s.png', 
+  color: '#BB6644',
+  fallback: '🎀'
+},
+'tough-contest-master-s': { 
+  icon: '/img/Ribbons-Marks/toughcontestmasterrankribbon-s.png', 
+  color: '#BB6644',
+  fallback: '🎀'
+},
+'ability': { 
+  icon: '/img/Ribbons-Marks/abilityribbon.png', 
+  color: '#4488DD',
+  fallback: '🎀'
+},
+'great-ability': { 
+  icon: '/img/Ribbons-Marks/greatabilityribbon.png', 
+  color: '#4488DD',
+  fallback: '🎀'
+},
+'double-ability': { 
+  icon: '/img/Ribbons-Marks/doubleabilityribbon.png', 
+  color: '#4488DD',
+  fallback: '🎀'
+},
+'multi-ability': { 
+  icon: '/img/Ribbons-Marks/multiabilityribbon.png', 
+  color: '#4488DD',
+  fallback: '🎀'
+},
+'pair-ability': { 
+  icon: '/img/Ribbons-Marks/pairabilityribbon.png', 
+  color: '#4488DD',
+  fallback: '🎀'
+},
+'world-ability': { 
+  icon: '/img/Ribbons-Marks/worldabilityribbon.png', 
+  color: '#4488DD',
+  fallback: '🎀'
+},
+'alert': { 
+  icon: '/img/Ribbons-Marks/alertribbon.png', 
+  color: '#FFAA44',
+  fallback: '🎀'
+},
+'shock': { 
+  icon: '/img/Ribbons-Marks/shockribbon.png', 
+  color: '#FFCC44',
+  fallback: '🎀'
+},
+'downcast': { 
+  icon: '/img/Ribbons-Marks/downcastribbon.png', 
+  color: '#8888AA',
+  fallback: '🎀'
+},
+'careless': { 
+  icon: '/img/Ribbons-Marks/carelessribbon.png', 
+  color: '#AAAAAA',
+  fallback: '🎀'
+},
+'relax': { 
+  icon: '/img/Ribbons-Marks/relaxribbon.png', 
+  color: '#88CCAA',
+  fallback: '🎀'
+},
+'snooze': { 
+  icon: '/img/Ribbons-Marks/snoozeribbon.png', 
+  color: '#99AAFF',
+  fallback: '🎀'
+},
+'smile': { 
+  icon: '/img/Ribbons-Marks/smileribbon.png', 
+  color: '#FFCC44',
+  fallback: '🎀'
+},
+'gorgeous': { 
+  icon: '/img/Ribbons-Marks/gorgeousribbon.png', 
+  color: '#FF88AA',
+  fallback: '🎀'
+},
+'royal': { 
+  icon: '/img/Ribbons-Marks/royalribbon.png', 
+  color: '#AA66CC',
+  fallback: '🎀'
+},
+'gorgeous-royal': { 
+  icon: '/img/Ribbons-Marks/gorgeousroyalribbon.png', 
+  color: '#FF88AA',
+  fallback: '🎀'
+},
+'footprint': { 
+  icon: '/img/Ribbons-Marks/footprintribbon.png', 
+  color: '#88CCAA',
+  fallback: '🎀'
+},
+'legend': { 
+  icon: '/img/Ribbons-Marks/legendribbon.png', 
+  color: '#DDAA22',
+  fallback: '🎀'
+},
+'classic': { 
+  icon: '/img/Ribbons-Marks/classicribbon.png', 
+  color: '#DDAA22',
+  fallback: '🎀'
+},
+'premier': { 
+  icon: '/img/Ribbons-Marks/premierribbon.png', 
+  color: '#DD2222',
+  fallback: '🎀'
+},
+'birthday': { 
+  icon: '/img/Ribbons-Marks/birthdayribbon.png', 
+  color: '#FF88AA',
+  fallback: '🎀'
+},
+'special': { 
+  icon: '/img/Ribbons-Marks/specialribbon.png', 
+  color: '#DD2222',
+  fallback: '🎀'
+},
+'event': { 
+  icon: '/img/Ribbons-Marks/eventribbon.png', 
+  color: '#DD2222',
+  fallback: '🎀'
+},
+'souvenir': { 
+  icon: '/img/Ribbons-Marks/souvenirribbon.png', 
+  color: '#DDAA22',
+  fallback: '🎀'
+},
+'battle-champ': { 
+  icon: '/img/Ribbons-Marks/battlechampribbon.png', 
+  color: '#22AA44',
+  fallback: '🎀'
+},
+'regional-champ': { 
+  icon: '/img/Ribbons-Marks/regionalchampribbon.png', 
+  color: '#22AA44',
+  fallback: '🎀'
+},
+'national-champ': { 
+  icon: '/img/Ribbons-Marks/nationalchampribbon.png', 
+  color: '#22AA44',
+  fallback: '🎀'
+},
+'kalos-champion': { 
+  icon: '/img/Ribbons-Marks/kaloschampionribbon.png', 
+  color: '#22AA44',
+  fallback: '🎀'
+},
+'training': { 
+  icon: '/img/Ribbons-Marks/trainingribbon.png', 
+  color: '#4488DD',
+  fallback: '🎀'
+},
+'skillful-battler': { 
+  icon: '/img/Ribbons-Marks/skillfulbattlerribbon.png', 
+  color: '#4488DD',
+  fallback: '🎀'
+},
+'expert-battler': { 
+  icon: '/img/Ribbons-Marks/expertbattlerribbon.png', 
+  color: '#4488DD',
+  fallback: '🎀'
+},
+'best-friends': { 
+  icon: '/img/Ribbons-Marks/bestfriendsribbon.png', 
+  color: '#FF88AA',
+  fallback: '🎀'
+},
+'contest-memory': { 
+  icon: '/img/Ribbons-Marks/contestmemoryribbon.png', 
+  color: '#FF88AA',
+  fallback: '🎀'
+},
+'battle-memory': { 
+  icon: '/img/Ribbons-Marks/battlememoryribbon.png', 
+  color: '#4488DD',
+  fallback: '🎀'
+},
+'contest-memory-2': { 
+  icon: '/img/Ribbons-Marks/contestmemoryribbon2.png', 
+  color: '#FF88AA',
+  fallback: '🎀'
+},
+'battle-memory-2': { 
+  icon: '/img/Ribbons-Marks/battlememoryribbon2.png', 
+  color: '#4488DD',
+  fallback: '🎀'
+},
+'alola-champion': { 
+  icon: '/img/Ribbons-Marks/alolachampionribbon.png', 
+  color: '#22AA44',
+  fallback: '🎀'
+},
+'battle-royal-master': { 
+  icon: '/img/Ribbons-Marks/battleroyalmasterribbon.png', 
+  color: '#DDAA22',
+  fallback: '🎀'
+},
+'battle-tree-great': { 
+  icon: '/img/Ribbons-Marks/battletreegreatribbon.png', 
+  color: '#4488DD',
+  fallback: '🎀'
+},
+'battle-tree-master': { 
+  icon: '/img/Ribbons-Marks/battletreemasterribbon.png', 
+  color: '#4488DD',
+  fallback: '🎀'
+},
+'galar-champion': { 
+  icon: '/img/Ribbons-Marks/galarchampionribbon.png', 
+  color: '#22AA44',
+  fallback: '🎀'
+},
+'tower-master': { 
+  icon: '/img/Ribbons-Marks/towermasterribbon.png', 
+  color: '#4488DD',
+  fallback: '🎀'
+},
+'master-rank': { 
+  icon: '/img/Ribbons-Marks/masterrankribbon.png', 
+  color: '#DDAA22',
+  fallback: '🎀'
+},
+'record': { 
+  icon: '/img/Ribbons-Marks/recordribbon.png', 
+  color: '#DDAA22',
+  fallback: '🎀'
+},
+'history': { 
+  icon: '/img/Ribbons-Marks/historyribbon.png', 
+  color: '#DDAA22',
+  fallback: '🎀'
+},
+'red': { 
+  icon: '/img/Ribbons-Marks/redribbon.png', 
+  color: '#DD2222',
+  fallback: '🎀'
+},
+'green': { 
+  icon: '/img/Ribbons-Marks/greenribbon.png', 
+  color: '#44BB44',
+  fallback: '🎀'
+},
+'blue': { 
+  icon: '/img/Ribbons-Marks/blueribbon.png', 
+  color: '#4488DD',
+  fallback: '🎀'
+},
+'festival': { 
+  icon: '/img/Ribbons-Marks/festivalribbon.png', 
+  color: '#FF88AA',
+  fallback: '🎀'
+},
+'carnival': { 
+  icon: '/img/Ribbons-Marks/carnivalribbon.png', 
+  color: '#FFAA44',
+  fallback: '🎀'
+},
+'beauty-master-2': { 
+  icon: '/img/Ribbons-Marks/beautymasterribbon2.png', 
+  color: '#FF88DD',
+  fallback: '🎀'
+},
+'cleverness-master': { 
+  icon: '/img/Ribbons-Marks/clevernessmasterribbon.png', 
+  color: '#44BB44',
+  fallback: '🎀'
+},
+'coolness-master': { 
+  icon: '/img/Ribbons-Marks/coolnessmasterribbon.png', 
+  color: '#FF4444',
+  fallback: '🎀'
+},
+'cuteness-master': { 
+  icon: '/img/Ribbons-Marks/cutenessmasterribbon.png', 
+  color: '#FFAA44',
+  fallback: '🎀'
+},
+'toughness-master': { 
+  icon: '/img/Ribbons-Marks/toughnessmasterribbon.png', 
+  color: '#BB6644',
+  fallback: '🎀'
+},
+'contest-star': { 
+  icon: '/img/Ribbons-Marks/conteststarribbon.png', 
+  color: '#FFCC44',
+  fallback: '🎀'
+},
+'twinkling-star': { 
+  icon: '/img/Ribbons-Marks/twinklingstarribbon.png', 
+  color: '#FFCC44',
+  fallback: '🎀'
+}
 };
 
 // Update the markIcons object to use local images
 const markIcons = {
-  'lunchtime': { 
-    icon: '/img/Ribbons-Marks/lunchtimemark.png', 
-    color: '#FF9944',
-    fallback: '❌'
-  },
-  'sleepy-time': { 
-    icon: '/img/Ribbons-Marks/sleepy-timemark.png', 
-    color: '#99AAFF',
-    fallback: '❌'
-  },
-  'dusk': { 
-    icon: '/img/Ribbons-Marks/duskmark.png', 
-    color: '#9977CC',
-    fallback: '❌'
-  },
-  'dawn': { 
-    icon: 'https://www.serebii.net/games/ribbons/dawnmark.png', 
-    color: '#FFBB77',
-    fallback: '❌'
-  },
-  'cloudy': { 
-    icon: 'https://www.serebii.net/games/ribbons/cloudymark.png', 
-    color: '#AABBCC',
-    fallback: '❌'
-  },
-  'rainy': { 
-    icon: 'https://www.serebii.net/games/ribbons/rainymark.png', 
-    color: '#6699FF',
-    fallback: '❌'
-  },
-  'stormy': { 
-    icon: 'https://www.serebii.net/games/ribbons/stormymark.png', 
-    color: '#7766CC',
-    fallback: '❌'
-  },
-  'snowy': { 
-    icon: 'https://www.serebii.net/games/ribbons/snowymark.png', 
-    color: '#AADDFF',
-    fallback: '❌'
-  },
-  'blizzard': { 
-    icon: 'https://www.serebii.net/games/ribbons/blizzardmark.png', 
-    color: '#AADDFF',
-    fallback: '❌'
-  },
-  'dry': { 
-    icon: 'https://www.serebii.net/games/ribbons/drymark.png', 
-    color: '#FFAA44',
-    fallback: '❌'
-  },
-  'sandstorm': { 
-    icon: 'https://www.serebii.net/games/ribbons/sandstormmark.png', 
-    color: '#DDBB66',
-    fallback: '❌'
-  },
-  'misty': { 
-    icon: 'https://www.serebii.net/games/ribbons/mistymark.png', 
-    color: '#AABBCC',
-    fallback: '❌'
-  },
-  'destiny': { 
-    icon: 'https://www.serebii.net/games/ribbons/destinymark.png', 
-    color: '#AA66CC',
-    fallback: '❌'
-  },
-  'fishing': { 
-    icon: 'https://www.serebii.net/games/ribbons/fishingmark.png', 
-    color: '#4488DD',
-    fallback: '❌'
-  },
-  'curry': { 
-    icon: 'https://www.serebii.net/games/ribbons/currymark.png', 
-    color: '#FF6622',
-    fallback: '❌'
-  },
-  'uncommon': { 
-    icon: 'https://www.serebii.net/games/ribbons/uncommonmark.png', 
-    color: '#DDAA22',
-    fallback: '❌'
-  },
-  'rare': { 
-    icon: 'https://www.serebii.net/games/ribbons/raremark.png', 
-    color: '#DD2222',
-    fallback: '❌'
-  },
-  'rowdy': { 
-    icon: 'https://www.serebii.net/games/ribbons/rowdymark.png', 
-    color: '#FF5544',
-    fallback: '❌'
-  },
-  'absent-minded': { 
-    icon: 'https://www.serebii.net/games/ribbons/absent-mindedmark.png', 
-    color: '#AAAAAA',
-    fallback: '❌'
-  },
-  'jittery': { 
-    icon: 'https://www.serebii.net/games/ribbons/jitterymark.png', 
-    color: '#FFAA44',
-    fallback: '❌'
-  },
-  'excited': { 
-    icon: 'https://www.serebii.net/games/ribbons/excitedmark.png', 
-    color: '#FFCC44',
-    fallback: '❌'
-  },
-  'charismatic': { 
-    icon: 'https://www.serebii.net/games/ribbons/charismaticmark.png', 
-    color: '#FF88AA',
-    fallback: '❌'
-  },
-  'calmness': { 
-    icon: 'https://www.serebii.net/games/ribbons/calmnessmark.png', 
-    color: '#88CCFF',
-    fallback: '❌'
-  },
-  'intense': { 
-    icon: 'https://www.serebii.net/games/ribbons/intensemark.png', 
-    color: '#FF4422',
-    fallback: '❌'
-  },
-  'zoned-out': { 
-    icon: 'https://www.serebii.net/games/ribbons/zoned-outmark.png', 
-    color: '#AAAAAA',
-    fallback: '❌'
-  },
-  'joyful': { 
-    icon: 'https://www.serebii.net/games/ribbons/joyfulmark.png', 
-    color: '#FFAA44',
-    fallback: '❌'
-  },
-  'angry': { 
-    icon: 'https://www.serebii.net/games/ribbons/angrymark.png', 
-    color: '#FF4422',
-    fallback: '❌'
-  },
-  'smiley': { 
-    icon: 'https://www.serebii.net/games/ribbons/smileymark.png', 
-    color: '#FFCC44',
-    fallback: '❌'
-  },
-  'teary': { 
-    icon: 'https://www.serebii.net/games/ribbons/tearymark.png', 
-    color: '#88AAFF',
-    fallback: '❌'
-  },
-  'upbeat': { 
-    icon: 'https://www.serebii.net/games/ribbons/upbeatmark.png', 
-    color: '#FFAA44',
-    fallback: '❌'
-  },
-  'peeved': { 
-    icon: 'https://www.serebii.net/games/ribbons/peevedmark.png', 
-    color: '#FF6644',
-    fallback: '❌'
-  },
-  'intellectual': { 
-    icon: 'https://www.serebii.net/games/ribbons/intellectualmark.png', 
-    color: '#44AADD',
-    fallback: '❌'
-  },
-  'ferocious': { 
-    icon: 'https://www.serebii.net/games/ribbons/ferociousmark.png', 
-    color: '#FF4422',
-    fallback: '❌'
-  },
-  'crafty': { 
-    icon: 'https://www.serebii.net/games/ribbons/craftymark.png', 
-    color: '#AA66CC',
-    fallback: '❌'
-  },
-  'scowling': { 
-    icon: 'https://www.serebii.net/games/ribbons/scowlingmark.png', 
+'lunchtime': { 
+  icon: '/img/Ribbons-Marks/lunchtimemark.png', 
+  color: '#FF9944',
+  fallback: '❌'
+},
+'sleepy-time': { 
+  icon: '/img/Ribbons-Marks/sleepy-timemark.png', 
+  color: '#99AAFF',
+  fallback: '❌'
+},
+'dusk': { 
+  icon: '/img/Ribbons-Marks/duskmark.png', 
+  color: '#9977CC',
+  fallback: '❌'
+},
+'dawn': { 
+  icon: '/img/Ribbons-Marks/dawnmark.png', 
+  color: '#FFBB77',
+  fallback: '❌'
+},
+'cloudy': { 
+  icon: '/img/Ribbons-Marks/cloudymark.png', 
+  color: '#AABBCC',
+  fallback: '❌'
+},
+'rainy': { 
+  icon: '/img/Ribbons-Marks/rainymark.png', 
+  color: '#6699FF',
+  fallback: '❌'
+},
+'stormy': { 
+  icon: '/img/Ribbons-Marks/stormymark.png', 
+  color: '#7766CC',
+  fallback: '❌'
+},
+'snowy': { 
+  icon: '/img/Ribbons-Marks/snowymark.png', 
+  color: '#AADDFF',
+  fallback: '❌'
+},
+'blizzard': { 
+  icon: '/img/Ribbons-Marks/blizzardmark.png', 
+  color: '#AADDFF',
+  fallback: '❌'
+},
+'dry': { 
+  icon: '/img/Ribbons-Marks/drymark.png', 
+  color: '#FFAA44',
+  fallback: '❌'
+},
+'sandstorm': { 
+  icon: '/img/Ribbons-Marks/sandstormmark.png', 
+  color: '#DDBB66',
+  fallback: '❌'
+},
+'misty': { 
+  icon: '/img/Ribbons-Marks/mistymark.png', 
+  color: '#AABBCC',
+  fallback: '❌'
+},
+'destiny': { 
+  icon: '/img/Ribbons-Marks/destinymark.png', 
+  color: '#AA66CC',
+  fallback: '❌'
+},
+'fishing': { 
+  icon: '/img/Ribbons-Marks/fishingmark.png', 
+  color: '#4488DD',
+  fallback: '❌'
+},
+'curry': { 
+  icon: '/img/Ribbons-Marks/currymark.png', 
+  color: '#FF6622',
+  fallback: '❌'
+},
+'uncommon': { 
+  icon: '/img/Ribbons-Marks/uncommonmark.png', 
+  color: '#DDAA22',
+  fallback: '❌'
+},
+'rare': { 
+  icon: '/img/Ribbons-Marks/raremark.png', 
+  color: '#DD2222',
+  fallback: '❌'
+},
+'rowdy': { 
+  icon: '/img/Ribbons-Marks/rowdymark.png', 
+  color: '#FF5544',
+  fallback: '❌'
+},
+'absent-minded': { 
+  icon: '/img/Ribbons-Marks/absent-mindedmark.png', 
+  color: '#AAAAAA',
+  fallback: '❌'
+},
+'jittery': { 
+  icon: '/img/Ribbons-Marks/jitterymark.png', 
+  color: '#FFAA44',
+  fallback: '❌'
+},
+'excited': { 
+  icon: '/img/Ribbons-Marks/excitedmark.png', 
+  color: '#FFCC44',
+  fallback: '❌'
+},
+'charismatic': { 
+  icon: '/img/Ribbons-Marks/charismaticmark.png', 
+  color: '#FF88AA',
+  fallback: '❌'
+},
+'calmness': { 
+  icon: '/img/Ribbons-Marks/calmnessmark.png', 
+  color: '#88CCFF',
+  fallback: '❌'
+},
+'intense': { 
+  icon: '/img/Ribbons-Marks/intensemark.png', 
+  color: '#FF4422',
+  fallback: '❌'
+},
+'zoned-out': { 
+  icon: '/img/Ribbons-Marks/zoned-outmark.png', 
+  color: '#AAAAAA',
+  fallback: '❌'
+},
+'joyful': { 
+  icon: '/img/Ribbons-Marks/joyfulmark.png', 
+  color: '#FFAA44',
+  fallback: '❌'
+},
+'angry': { 
+  icon: '/img/Ribbons-Marks/angrymark.png', 
+  color: '#FF4422',
+  fallback: '❌'
+},
+'smiley': { 
+  icon: '/img/Ribbons-Marks/smileymark.png', 
+  color: '#FFCC44',
+  fallback: '❌'
+},
+'teary': { 
+  icon: '/img/Ribbons-Marks/tearymark.png', 
+  color: '#88AAFF',
+  fallback: '❌'
+},
+'upbeat': { 
+  icon: '/img/Ribbons-Marks/upbeatmark.png', 
+  color: '#FFAA44',
+  fallback: '❌'
+},
+'peeved': { 
+  icon: '/img/Ribbons-Marks/peevedmark.png', 
+  color: '#FF6644',
+  fallback: '❌'
+},
+'intellectual': { 
+  icon: '/img/Ribbons-Marks/intellectualmark.png', 
+  color: '#44AADD',
+  fallback: '❌'
+},
+'ferocious': { 
+  icon: '/img/Ribbons-Marks/ferociousmark.png', 
+  color: '#FF4422',
+  fallback: '❌'
+},
+'crafty': { 
+  icon: '/img/Ribbons-Marks/craftymark.png', 
+  color: '#AA66CC',
+  fallback: '❌'
+},
+'scowling': { 
+    icon: '/img/Ribbons-Marks/scowlingmark.png', 
     color: '#666666',
     fallback: '❌'
   },
   'kindly': { 
-    icon: 'https://www.serebii.net/games/ribbons/kindlymark.png', 
+    icon: '/img/Ribbons-Marks/kindlymark.png', 
     color: '#FFAACC',
     fallback: '❌'
   },
   'flustered': { 
-    icon: 'https://www.serebii.net/games/ribbons/flusteredmark.png', 
+    icon: '/img/Ribbons-Marks/flusteredmark.png', 
     color: '#FF88AA',
     fallback: '❌'
   },
   'pumped-up': { 
-    icon: 'https://www.serebii.net/games/ribbons/pumped-upmark.png', 
+    icon: '/img/Ribbons-Marks/pumped-upmark.png', 
     color: '#FF5544',
     fallback: '❌'
   },
   'zeroenergy': { 
-    icon: 'https://www.serebii.net/games/ribbons/zeroenergymark.png', 
+    icon: '/img/Ribbons-Marks/zeroenergymark.png', 
     color: '#AAAAAA',
     fallback: '❌'
   },
   'prideful': { 
-    icon: 'https://www.serebii.net/games/ribbons/pridefulmark.png', 
+    icon: '/img/Ribbons-Marks/pridefulmark.png', 
     color: '#FFCC44',
     fallback: '❌'
   },
   'unsure': { 
-    icon: 'https://www.serebii.net/games/ribbons/unsuremark.png', 
+    icon: '/img/Ribbons-Marks/unsuremark.png', 
     color: '#AAAAAA',
     fallback: '❌'
   },
   'humble': { 
-    icon: 'https://www.serebii.net/games/ribbons/humblemark.png', 
+    icon: '/img/Ribbons-Marks/humblemark.png', 
     color: '#88CCAA',
     fallback: '❌'
   },
   'thorny': { 
-    icon: 'https://www.serebii.net/games/ribbons/thornymark.png', 
+    icon: '/img/Ribbons-Marks/thornymark.png', 
     color: '#CC6644',
     fallback: '❌'
   },
   'vigor': { 
-    icon: 'https://www.serebii.net/games/ribbons/vigormark.png', 
+    icon: '/img/Ribbons-Marks/vigormark.png', 
     color: '#FF5544',
     fallback: '❌'
   },
   'slump': { 
-    icon: 'https://www.serebii.net/games/ribbons/slumpmark.png', 
+    icon: '/img/Ribbons-Marks/slumpmark.png', 
     color: '#8888AA',
     fallback: '❌'
   }
 };
 
-// Updated RibbonsTab component with consistent icon sizing
+// Updated RibbonsTab component with table view option
 const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus }) => {
   const [failedImages, setFailedImages] = useState({});
   const [activeCategory, setActiveCategory] = useState('all');
@@ -1415,83 +1415,83 @@ const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus }) => {
       const category = ribbon.category;
       if (!acc[category]) acc[category] = [];
       acc[category].push(ribbon);
-      return acc;
-    }, {});
+    return acc;
+  }, {});
   }, [searchText]);
   
   const handleImageError = (ribbonId) => {
     setFailedImages(prev => ({ ...prev, [ribbonId]: true }));
   };
-
+  
   return (
     <div className="pt-6">
-      <div className="bg-gray-800 rounded-lg p-6">
-        <h2 className="text-xl font-bold mb-6">Ribbon Collection</h2>
+    <div className="bg-gray-800 rounded-lg p-6">
+      <h2 className="text-xl font-bold mb-6">Ribbon Collection</h2>
         <p className="text-gray-400 mb-4">Track the ribbons you&apos;ve earned with this Pokémon.</p>
-        
-        <div className="space-y-6">
-          {Object.keys(ribbonsByCategory).map(category => (
+      
+      <div className="space-y-6">
+        {Object.keys(ribbonsByCategory).map(category => (
             <div key={category} className="bg-gray-700 rounded-lg p-4">
               <h3 className="text-lg font-semibold capitalize mb-4">{category} Ribbons</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {ribbonsByCategory[category].map(ribbon => {
-                  const iconData = ribbonIcons[ribbon.id] || { 
-                    icon: 'https://www.serebii.net/ribbons/classicribbon.png', // Default icon
-                    color: '#AA99CC', 
-                    fallback: '🎀'  // Standard ribbon fallback
-                  };
-                  const hasRibbon = caughtStatus.ribbons?.[ribbon.id];
-                  const useIconFallback = failedImages[ribbon.id];
-                  
-                  return (
-                    <button
-                      key={ribbon.id}
-                      onClick={() => updateRibbonStatus(ribbon.id, pokemon.name)}
-                      className={`py-3 px-4 rounded-lg text-left transition-colors ${
-                        hasRibbon 
-                          ? 'bg-indigo-600 hover:bg-indigo-700 text-white' 
-                          : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
-                      }`}
-                    >
-                      <div className="flex items-center">
-                        <div 
+              {ribbonsByCategory[category].map(ribbon => {
+                const iconData = ribbonIcons[ribbon.id] || { 
+                  icon: 'https://www.serebii.net/ribbons/classicribbon.png', // Default icon
+                  color: '#AA99CC', 
+                  fallback: '🎀'  // Standard ribbon fallback
+                };
+                const hasRibbon = caughtStatus.ribbons?.[ribbon.id];
+                const useIconFallback = failedImages[ribbon.id];
+                
+                return (
+              <button
+                    key={ribbon.id}
+                    onClick={() => updateRibbonStatus(ribbon.id, pokemon.name)}
+                    className={`py-3 px-4 rounded-lg text-left transition-colors ${
+                      hasRibbon 
+                        ? 'bg-indigo-600 hover:bg-indigo-700 text-white' 
+                        : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+                    }`}
+                  >
+                    <div className="flex items-center">
+                      <div 
                           className="w-16 h-16 rounded-full flex items-center justify-center mr-3 bg-gray-800"
-                          style={{ 
-                            border: `2px solid ${iconData.color}`
-                          }}
-                        >
-                          {useIconFallback ? (
-                            <span className="text-xl">{iconData.fallback}</span>
-                          ) : (
+                        style={{ 
+                          border: `2px solid ${iconData.color}`
+                        }}
+                      >
+                        {useIconFallback ? (
+                          <span className="text-xl">{iconData.fallback}</span>
+                        ) : (
                             <Image 
-                              src={iconData.icon} 
-                              alt={ribbon.name}
+                            src={iconData.icon} 
+                            alt={ribbon.name}
                               width={48}
                               height={48}
                               className="object-contain"
-                              onError={() => handleImageError(ribbon.id)}
-                            />
-                          )}
-                        </div>
-                        <div className="flex-1">
-                          <p className="font-medium">{ribbon.name}</p>
-                          {hasRibbon && (
-                            <p className="text-xs opacity-80">Obtained</p>
-                          )}
-                        </div>
-                        {hasRibbon && (
-                          <span className="ml-2 text-xl">✓</span>
+                            onError={() => handleImageError(ribbon.id)}
+                          />
                         )}
                       </div>
-                    </button>
-                  );
-                })}
+                      <div className="flex-1">
+                        <p className="font-medium">{ribbon.name}</p>
+                        {hasRibbon && (
+                          <p className="text-xs opacity-80">Obtained</p>
+                        )}
+                      </div>
+                      {hasRibbon && (
+                        <span className="ml-2 text-xl">✓</span>
+                      )}
+                    </div>
+              </button>
+                );
+              })}
+            </div>
+          </div>
+            ))}
+        </div>
               </div>
             </div>
-          ))}
-        </div>
-      </div>
-    </div>
   );
 };
 
@@ -1514,18 +1514,18 @@ const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus }) => {
       const category = mark.category;
       if (!acc[category]) acc[category] = [];
       acc[category].push(mark);
-      return acc;
-    }, {});
+    return acc;
+  }, {});
   }, [searchText]);
   
   const handleImageError = (markId) => {
     setFailedImages(prev => ({ ...prev, [markId]: true }));
   };
-
+  
   return (
     <div className="pt-6">
-      <div className="bg-gray-800 rounded-lg p-6">
-        <h2 className="text-xl font-bold mb-6">Mark Collection</h2>
+          <div className="bg-gray-800 rounded-lg p-6">
+      <h2 className="text-xl font-bold mb-6">Mark Collection</h2>
         <p className="text-gray-400 mb-4">Track the marks you&apos;ve found on this Pokémon.</p>
         
         <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -1568,67 +1568,67 @@ const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus }) => {
         
         {viewMode === 'grid' ? (
           // Grid view (original)
-          <div className="space-y-6">
-            {Object.keys(marksByCategory).map(category => (
+      <div className="space-y-6">
+        {Object.keys(marksByCategory).map(category => (
               <div key={category} className="bg-gray-700 rounded-lg p-4">
                 <h3 className="text-lg font-semibold capitalize mb-4">{category} Marks</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {marksByCategory[category].map(mark => {
-                    const iconData = markIcons[mark.id] || { 
+              {marksByCategory[category].map(mark => {
+                const iconData = markIcons[mark.id] || { 
                       icon: 'https://www.serebii.net/ribbons/raremark.png',
-                      color: '#99CCFF', 
+                  color: '#99CCFF', 
                       fallback: '❌'
-                    };
-                    const hasMark = caughtStatus.marks?.[mark.id];
-                    const useIconFallback = failedImages[mark.id];
-                    
-                    return (
-                      <button
-                        key={mark.id}
-                        onClick={() => updateMarkStatus(mark.id, pokemon.name)}
-                        className={`py-3 px-4 rounded-lg text-left transition-colors ${
-                          hasMark 
-                            ? 'bg-green-600 hover:bg-green-700 text-white' 
-                            : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
-                        }`}
-                      >
-                        <div className="flex items-center">
-                          <div 
+                };
+                const hasMark = caughtStatus.marks?.[mark.id];
+                const useIconFallback = failedImages[mark.id];
+                
+                return (
+                  <button
+                    key={mark.id}
+                    onClick={() => updateMarkStatus(mark.id, pokemon.name)}
+                    className={`py-3 px-4 rounded-lg text-left transition-colors ${
+                      hasMark 
+                        ? 'bg-green-600 hover:bg-green-700 text-white' 
+                        : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+                    }`}
+                  >
+                    <div className="flex items-center">
+                      <div 
                             className="w-16 h-16 rounded-full flex items-center justify-center mr-3 bg-gray-800"
-                            style={{ 
-                              border: `2px solid ${iconData.color}`
-                            }}
-                          >
-                            {useIconFallback ? (
-                              <span className="text-xl">{iconData.fallback}</span>
-                            ) : (
+                        style={{ 
+                          border: `2px solid ${iconData.color}`
+                        }}
+                      >
+                        {useIconFallback ? (
+                          <span className="text-xl">{iconData.fallback}</span>
+                        ) : (
                               <Image 
-                                src={iconData.icon} 
-                                alt={mark.name}
+                            src={iconData.icon} 
+                            alt={mark.name}
                                 width={48}
                                 height={48}
                                 className="object-contain"
-                                onError={() => handleImageError(mark.id)}
-                              />
-                            )}
-                          </div>
-                          <div className="flex-1">
-                            <p className="font-medium">{mark.name}</p>
-                            {hasMark && (
-                              <p className="text-xs opacity-80">Found</p>
-                            )}
-                          </div>
-                          {hasMark && (
-                            <span className="ml-2 text-xl">✓</span>
-                          )}
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
+                            onError={() => handleImageError(mark.id)}
+                          />
+                        )}
               </div>
-            ))}
+                      <div className="flex-1">
+                        <p className="font-medium">{mark.name}</p>
+                        {hasMark && (
+                          <p className="text-xs opacity-80">Found</p>
+                        )}
           </div>
+                      {hasMark && (
+                        <span className="ml-2 text-xl">✓</span>
+                      )}
+              </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
         ) : (
           // Table view (new)
           <div className="space-y-8">
