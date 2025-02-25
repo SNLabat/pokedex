@@ -1579,9 +1579,9 @@ const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus }) => {
                 <tbody className="divide-y divide-gray-600">
                   {ribbonsByCategory[category].map(ribbon => {
                     const iconData = ribbonIcons[ribbon.id] || { 
-                      icon: 'https://www.serebii.net/ribbons/classicribbon.png', // Default icon
+                      icon: 'https://www.serebii.net/ribbons/classicribbon.png',
                       color: '#AA99CC', 
-                      fallback: '🎀'  // Standard ribbon fallback
+                      fallback: '🎀'
                     };
                     const hasRibbon = caughtStatus.ribbons?.[ribbon.id];
                     const useIconFallback = failedImages[ribbon.id];
@@ -1591,51 +1591,50 @@ const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus }) => {
                         key={ribbon.id}
                         onClick={() => updateRibbonStatus(ribbon.id, pokemon.name)}
                         className={`hover:bg-gray-600 cursor-pointer transition-colors ${
-                          hasRibbon 
-                            ? 'bg-indigo-600 hover:bg-indigo-700 text-white' 
-                            : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+                          hasRibbon ? 'bg-indigo-900 bg-opacity-30' : ''
                         }`}
                       >
                         <td className="py-3 px-4">
-                          <div className="flex items-center">
-                            <div 
-                                className="w-16 h-16 rounded-full flex items-center justify-center mr-3 bg-gray-800"
-                              style={{ 
-                                border: `2px solid ${iconData.color}`
-                              }}
-                            >
-                              {useIconFallback ? (
-                                <span className="text-xl">{iconData.fallback}</span>
-                              ) : (
-                                  <Image 
-                                  src={iconData.icon} 
-                                  alt={ribbon.name}
-                                    width={48}
-                                    height={48}
-                                    className="object-contain"
-                                  onError={() => handleImageError(ribbon.id)}
-                                />
-                              )}
-                            </div>
-                            <div className="flex-1">
-                              <p className="font-medium">{ribbon.name}</p>
-                                  <p className="text-xs text-gray-400 truncate">{ribbon.description}</p>
-                              {hasRibbon && (
-                                    <p className="text-xs opacity-80 mt-1">Obtained</p>
-                              )}
-                            </div>
-                            {hasRibbon && (
-                              <span className="ml-2 text-xl">✓</span>
+                          <div 
+                            className="w-12 h-12 rounded-full flex items-center justify-center mx-auto bg-gray-800"
+                            style={{ 
+                              border: `2px solid ${iconData.color}`
+                            }}
+                          >
+                            {useIconFallback ? (
+                              <span className="text-lg">{iconData.fallback}</span>
+                            ) : (
+                              <Image 
+                                src={iconData.icon} 
+                                alt={ribbon.name}
+                                width={40}
+                                height={40}
+                                className="object-contain"
+                                onError={() => handleImageError(ribbon.id)}
+                              />
                             )}
                           </div>
-                    </td>
-                  </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
+                        </td>
+                        <td className="py-3 px-4 font-medium">{ribbon.name}</td>
+                        <td className="py-3 px-4 text-gray-300">{ribbon.description}</td>
+                        <td className="py-3 px-4 text-gray-300">{ribbon.obtainMethod}</td>
+                        <td className="py-3 px-4">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            hasRibbon 
+                              ? 'bg-indigo-100 text-indigo-800' 
+                              : 'bg-gray-100 text-gray-800'
+                          }`}>
+                            {hasRibbon ? 'Obtained' : 'Missing'}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -1723,29 +1722,49 @@ const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus }) => {
                         key={mark.id}
                         onClick={() => updateMarkStatus(mark.id, pokemon.name)}
                         className={`hover:bg-gray-600 cursor-pointer transition-colors ${
-                          hasMark 
-                            ? 'bg-green-600 hover:bg-green-700 text-white' 
-                            : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+                          hasMark ? 'bg-green-600 hover:bg-green-700 text-white' : ''
                         }`}
                       >
                         <td className="py-3 px-4">
-                          <div className="flex items-center">
-                            <div 
-          <div className="w-1/2 text-center px-2 py-1 bg-gray-700 rounded-l-lg">Regular</div>
-          <div className="w-1/2 text-center px-2 py-1 bg-yellow-800 rounded-r-lg">Shiny ✨</div>
+                          <div 
+                            className="w-12 h-12 rounded-full flex items-center justify-center mx-auto bg-gray-800"
+                            style={{ 
+                              border: `2px solid ${iconData.color}`
+                            }}
+                          >
+                            {useIconFallback ? (
+                              <span className="text-lg">{iconData.fallback}</span>
+                            ) : (
+                              <Image 
+                                src={iconData.icon} 
+                                alt={mark.name}
+                                width={40}
+                                height={40}
+                                className="object-contain"
+                                onError={() => handleImageError(mark.id)}
+                              />
+                            )}
+                          </div>
+                        </td>
+                        <td className="py-3 px-4 font-medium">{mark.name}</td>
+                        <td className="py-3 px-4 text-gray-300">{mark.description}</td>
+                        <td className="py-3 px-4 text-gray-300">{mark.method}</td>
+                        <td className="py-3 px-4">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            hasMark ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                          }`}>
+                            {hasMark ? 'Obtained' : 'Missing'}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          ))}
         </div>
-              </div>
-                    
-      {/* Sprite sections by generation */}
-      <div className="space-y-8">
-        {generations.map(gen => (
-          <SpriteGeneration
-            key={gen.id}
-            generation={gen}
-            pokemon={pokemon}
-          />
-        ))}
-              </div>
+      </div>
     </div>
   );
 };
