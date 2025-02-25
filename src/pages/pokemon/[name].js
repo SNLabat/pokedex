@@ -2205,6 +2205,93 @@ const SpriteImage = ({ src, alt, label, animated = false, large = false, extraLa
                 );
 };
 
+// Add this component before the PokemonDetail export
+const SpritesTab = ({ pokemon }) => {
+  const [selectedGeneration, setSelectedGeneration] = useState('all');
+  const generations = [
+    { id: 'all', name: 'All Sprites' },
+    { id: 'home', name: 'Pokémon HOME' },
+    { id: 'gen1', name: 'Generation 1' },
+    { id: 'gen2', name: 'Generation 2' },
+    { id: 'gen3', name: 'Generation 3' },
+    { id: 'gen4', name: 'Generation 4' },
+    { id: 'gen5', name: 'Generation 5' },
+    { id: 'gen6', name: 'Generation 6' },
+    { id: 'gen7', name: 'Generation 7' },
+    { id: 'gen8', name: 'Generation 8' }
+  ];
+  
+  // Filter generations that have sprites for this Pokémon
+  const availableGenerations = generations.filter(gen => {
+    if (gen.id === 'all') return true;
+    if (gen.id === 'home') return true;
+    
+    // For other generations, check if there are sprites
+    const genNumber = parseInt(gen.id.replace('gen', ''));
+    return pokemon.id <= getMaxIdForGeneration(genNumber);
+  });
+  
+  // Helper function to get max Pokémon ID for each generation
+  function getMaxIdForGeneration(gen) {
+    const maxIds = {
+      1: 151,    // Gen 1: 151 Pokémon
+      2: 251,    // Gen 2: 100 new Pokémon
+      3: 386,    // Gen 3: 135 new Pokémon
+      4: 493,    // Gen 4: 107 new Pokémon
+      5: 649,    // Gen 5: 156 new Pokémon
+      6: 721,    // Gen 6: 72 new Pokémon
+      7: 809,    // Gen 7: 88 new Pokémon
+      8: 898     // Gen 8: 89 new Pokémon
+    };
+    return maxIds[gen] || 898;
+  }
+  
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-wrap gap-2">
+        {availableGenerations.map(gen => (
+          <button
+            key={gen.id}
+            onClick={() => setSelectedGeneration(gen.id)}
+            className={`px-3 py-1 rounded-full text-sm ${
+              selectedGeneration === gen.id
+                ? 'bg-red-600 text-white'
+                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+            }`}
+          >
+            {gen.name}
+          </button>
+        ))}
+      </div>
+      
+      <div className="space-y-8">
+        {selectedGeneration === 'all' && (
+          <>
+            <HomeSprites pokemon={pokemon} />
+            
+            {pokemon.id <= 151 && <SpriteGeneration generation="gen1" pokemon={pokemon} />}
+            {pokemon.id <= 251 && <SpriteGeneration generation="gen2" pokemon={pokemon} />}
+            {pokemon.id <= 386 && <SpriteGeneration generation="gen3" pokemon={pokemon} />}
+            {pokemon.id <= 493 && <SpriteGeneration generation="gen4" pokemon={pokemon} />}
+            {pokemon.id <= 649 && <SpriteGeneration generation="gen5" pokemon={pokemon} />}
+            {pokemon.id <= 721 && <SpriteGeneration generation="gen6" pokemon={pokemon} />}
+            {pokemon.id <= 809 && <SpriteGeneration generation="gen7" pokemon={pokemon} />}
+            {pokemon.id <= 898 && <SpriteGeneration generation="gen8" pokemon={pokemon} />}
+          </>
+        )}
+        
+        {selectedGeneration === 'home' && (
+          <HomeSprites pokemon={pokemon} />
+        )}
+        
+        {selectedGeneration.startsWith('gen') && (
+          <SpriteGeneration generation={selectedGeneration} pokemon={pokemon} />
+        )}
+      </div>
+    </div>
+  );
+};
+
 // Main component
 export default function PokemonDetail({ pokemon, species, evolutionChain, alternativeForms }) {
   const router = useRouter();
