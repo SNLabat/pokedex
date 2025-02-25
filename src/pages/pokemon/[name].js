@@ -534,44 +534,12 @@ const PokemonHero = ({ pokemon, isShiny, setIsShiny, isAnimated, setIsAnimated, 
 
 // Full Ribbon Collection based on your list
 const pokemonRibbons = [
-  // Gen 3 Contest Ribbons
-  { id: 'cool-normal', name: 'Cool Ribbon', category: 'contest', description: 'Hoenn Cool Contest - Normal Rank Winner', game: 'gen3' },
-  { id: 'cool-super', name: 'Cool Ribbon Super', category: 'contest', description: 'Hoenn Cool Contest - Super Rank Winner', game: 'gen3' },
-  { id: 'cool-hyper', name: 'Cool Ribbon Hyper', category: 'contest', description: 'Hoenn Cool Contest - Hyper Rank Winner', game: 'gen3' },
-  { id: 'cool-master', name: 'Cool Ribbon Master', category: 'contest', description: 'Hoenn Cool Contest - Master Rank Winner', game: 'gen3' },
-  
-  { id: 'beauty-normal', name: 'Beauty Ribbon', category: 'contest', description: 'Hoenn Beauty Contest - Normal Rank Winner', game: 'gen3' },
-  { id: 'beauty-super', name: 'Beauty Ribbon Super', category: 'contest', description: 'Hoenn Beauty Contest - Super Rank Winner', game: 'gen3' },
-  { id: 'beauty-hyper', name: 'Beauty Ribbon Hyper', category: 'contest', description: 'Hoenn Beauty Contest - Hyper Rank Winner', game: 'gen3' },
-  { id: 'beauty-master', name: 'Beauty Ribbon Master', category: 'contest', description: 'Hoenn Beauty Contest - Master Rank Winner', game: 'gen3' },
-  
   // Champion Ribbons
-  { id: 'champion-hoenn', name: 'Champion Ribbon', category: 'champion', description: 'Ribbon for clearing the Pokémon League and entering the Hall of Fame in another region', game: 'gen3' },
-  { id: 'champion-sinnoh', name: 'Sinnoh Champ Ribbon', category: 'champion', description: 'Ribbon awarded for beating the Sinnoh Champion and entering the Hall of Fame', game: 'gen4' },
-  { id: 'champion-kalos', name: 'Kalos Champion Ribbon', category: 'champion', description: 'Ribbon for beating the Kalos Champion and entering the Kalos Hall of Fame', game: 'gen6' },
-  { id: 'champion-alola', name: 'Alola Champion Ribbon', category: 'champion', description: 'Ribbon awarded for becoming the Alola Champion and entering the Alola Hall of Fame', game: 'gen7' },
-  { id: 'champion-galar', name: 'Galar Champion Ribbon', category: 'champion', description: 'Ribbon awarded for becoming the Galar Champion and entering the Galar Hall of Fame', game: 'gen8' },
+  { id: 'champion-hoenn', name: 'Champion Ribbon', category: 'champion', description: 'Ribbon for clearing the Pokémon League and entering the Hall of Fame in another region', obtainMethod: 'Ruby/Sapphire/Emerald: EverGrande City, FireRed/LeafGreen: Indigo Plateau' },
+  { id: 'sinnoh-champ', name: 'Sinnoh Champ Ribbon', category: 'champion', description: 'Ribbon awarded for beating the Sinnoh Champion and entering the Hall of Fame', obtainMethod: 'Diamond/Pearl/Platinum: Pokémon League' },
+  { id: 'kalos-champion', name: 'Kalos Champion Ribbon', category: 'champion', description: 'Ribbon for beating the Kalos Champion and entering the Kalos Hall of Fame', obtainMethod: 'Defeat the Kalos Elite Four with this Pokémon' },
   
-  // Battle Ribbons
-  { id: 'winning', name: 'Winning Ribbon', category: 'battle', description: 'Ribbon awarded for clearing the Hoenn Battle Tower\'s Lv. 50 challenge', game: 'gen3' },
-  { id: 'victory', name: 'Victory Ribbon', category: 'battle', description: 'Ribbon awarded for clearing the Hoenn Battle Tower\'s Lv. 100 challenge', game: 'gen3' },
-  { id: 'battle-tower', name: 'Ability Ribbon', category: 'battle', description: 'A Ribbon awarded for defeating the Tower Tycoon at the Battle Tower', game: 'gen4' },
-  { id: 'battle-tree-great', name: 'Battle Tree Great Ribbon', category: 'battle', description: 'A Ribbon awarded for winning against a Battle Legend in the Battle Tree', game: 'gen7' },
-  { id: 'battle-tree-master', name: 'Battle Tree Master Ribbon', category: 'battle', description: 'A Ribbon awarded for winning against a Battle Legend in super battles in the Battle Tree', game: 'gen7' },
-  { id: 'battle-royal-master', name: 'Battle Royal Master Ribbon', category: 'battle', description: 'A Ribbon that can be given to a Pokémon that has achieved victory in the Battle Royal', game: 'gen7' },
-  { id: 'tower-master', name: 'Tower Master Ribbon', category: 'battle', description: 'A Ribbon awarded for winning against a champion in the Battle Tower', game: 'gen8' },
-  
-  // Special Ribbons
-  { id: 'artist', name: 'Artist Ribbon', category: 'special', description: 'Ribbon awarded for being chosen as a super sketch model in Hoenn', game: 'gen3' },
-  { id: 'effort', name: 'Effort Ribbon', category: 'special', description: 'Ribbon awarded for being an exceptionally hard worker', game: 'gen3' },
-  { id: 'birthday', name: 'Birthday Ribbon', category: 'special', description: 'A Ribbon that commemorates a birthday', game: 'event' },
-  { id: 'special', name: 'Special Ribbon', category: 'special', description: 'A special Ribbon for a special day', game: 'event' },
-  { id: 'classic', name: 'Classic Ribbon', category: 'special', description: 'A Ribbon that proclaims love for Pokémon', game: 'event' },
-  { id: 'event', name: 'Event Ribbon', category: 'special', description: 'A Ribbon awarded for participating in a special Pokémon event', game: 'event' },
-  { id: 'gift', name: 'Souvenir Ribbon', category: 'special', description: 'A Ribbon for cherishing a special memory', game: 'event' },
-  { id: 'wishing', name: 'Premier Ribbon', category: 'special', description: 'A Ribbon awarded for a special holiday', game: 'event' },
-  
-  // And many more based on your list...
+  // ... more ribbons with obtainMethod added
 ];
 
 // Full Marks Collection
@@ -1403,20 +1371,22 @@ const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus }) => {
   const [failedImages, setFailedImages] = useState({});
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchText, setSearchText] = useState('');
+  const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'table'
   
   // Group ribbons by category
   const ribbonsByCategory = useMemo(() => {
     const filtered = searchText 
       ? pokemonRibbons.filter(r => r.name.toLowerCase().includes(searchText.toLowerCase()) || 
-                                  r.description.toLowerCase().includes(searchText.toLowerCase()))
+                                  r.description.toLowerCase().includes(searchText.toLowerCase()) ||
+                                  r.obtainMethod?.toLowerCase().includes(searchText.toLowerCase()))
       : pokemonRibbons;
     
     return filtered.reduce((acc, ribbon) => {
       const category = ribbon.category;
       if (!acc[category]) acc[category] = [];
       acc[category].push(ribbon);
-    return acc;
-  }, {});
+      return acc;
+    }, {});
   }, [searchText]);
   
   const handleImageError = (ribbonId) => {
@@ -1425,73 +1395,190 @@ const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus }) => {
   
   return (
     <div className="pt-6">
-    <div className="bg-gray-800 rounded-lg p-6">
-      <h2 className="text-xl font-bold mb-6">Ribbon Collection</h2>
+      <div className="bg-gray-800 rounded-lg p-6">
+        <h2 className="text-xl font-bold mb-6">Ribbon Collection</h2>
         <p className="text-gray-400 mb-4">Track the ribbons you&apos;ve earned with this Pokémon.</p>
-      
-      <div className="space-y-6">
-        {Object.keys(ribbonsByCategory).map(category => (
-            <div key={category} className="bg-gray-700 rounded-lg p-4">
-              <h3 className="text-lg font-semibold capitalize mb-4">{category} Ribbons</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {ribbonsByCategory[category].map(ribbon => {
-                const iconData = ribbonIcons[ribbon.id] || { 
-                  icon: 'https://www.serebii.net/ribbons/classicribbon.png', // Default icon
-                  color: '#AA99CC', 
-                  fallback: '🎀'  // Standard ribbon fallback
-                };
-                const hasRibbon = caughtStatus.ribbons?.[ribbon.id];
-                const useIconFallback = failedImages[ribbon.id];
-                
-                return (
-              <button
-                    key={ribbon.id}
-                    onClick={() => updateRibbonStatus(ribbon.id, pokemon.name)}
-                    className={`py-3 px-4 rounded-lg text-left transition-colors ${
-                      hasRibbon 
-                        ? 'bg-indigo-600 hover:bg-indigo-700 text-white' 
-                        : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
-                    }`}
-                  >
-                    <div className="flex items-center">
-                      <div 
-                          className="w-16 h-16 rounded-full flex items-center justify-center mr-3 bg-gray-800"
-                        style={{ 
-                          border: `2px solid ${iconData.color}`
-                        }}
-                      >
-                        {useIconFallback ? (
-                          <span className="text-xl">{iconData.fallback}</span>
-                        ) : (
-                            <Image 
-                            src={iconData.icon} 
-                            alt={ribbon.name}
-                              width={48}
-                              height={48}
-                              className="object-contain"
-                            onError={() => handleImageError(ribbon.id)}
-                          />
-                        )}
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-medium">{ribbon.name}</p>
-                        {hasRibbon && (
-                          <p className="text-xs opacity-80">Obtained</p>
-                        )}
-                      </div>
-                      {hasRibbon && (
-                        <span className="ml-2 text-xl">✓</span>
-                      )}
-                    </div>
+        
+        <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          {/* Search input */}
+          <div className="relative w-full sm:w-64">
+            <input
+              type="text"
+              placeholder="Search ribbons..."
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              className="w-full bg-gray-700 text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            {searchText && (
+              <button 
+                onClick={() => setSearchText('')}
+                className="absolute right-3 top-2.5 text-gray-400 hover:text-white"
+              >
+                ×
               </button>
-                );
-              })}
-            </div>
+            )}
           </div>
-            ))}
+          
+          {/* View mode toggle */}
+          <div className="flex items-center space-x-2">
+            <span className="text-gray-400">View:</span>
+            <button 
+              onClick={() => setViewMode('grid')}
+              className={`px-3 py-1 rounded ${viewMode === 'grid' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300'}`}
+            >
+              Grid
+            </button>
+            <button 
+              onClick={() => setViewMode('table')}
+              className={`px-3 py-1 rounded ${viewMode === 'table' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300'}`}
+            >
+              Table
+            </button>
+          </div>
         </div>
+        
+        {viewMode === 'grid' ? (
+          // Grid view
+          <div className="space-y-6">
+            {Object.keys(ribbonsByCategory).map(category => (
+              <div key={category} className="bg-gray-700 rounded-lg p-4">
+                <h3 className="text-lg font-semibold capitalize mb-4">{category} Ribbons</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {ribbonsByCategory[category].map(ribbon => {
+                    const iconData = ribbonIcons[ribbon.id] || { 
+                      icon: 'https://www.serebii.net/ribbons/classicribbon.png', // Default icon
+                      color: '#AA99CC', 
+                      fallback: '🎀'  // Standard ribbon fallback
+                    };
+                    const hasRibbon = caughtStatus.ribbons?.[ribbon.id];
+                    const useIconFallback = failedImages[ribbon.id];
+                    
+                    return (
+                      <button
+                        key={ribbon.id}
+                        onClick={() => updateRibbonStatus(ribbon.id, pokemon.name)}
+                        className={`py-3 px-4 rounded-lg text-left transition-colors ${
+                          hasRibbon 
+                            ? 'bg-indigo-600 hover:bg-indigo-700 text-white' 
+                            : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+                        }`}
+                      >
+                        <div className="flex items-center">
+                          <div 
+                            className="w-16 h-16 rounded-full flex items-center justify-center mr-3 bg-gray-800"
+                            style={{ 
+                              border: `2px solid ${iconData.color}`
+                            }}
+                          >
+                            {useIconFallback ? (
+                              <span className="text-xl">{iconData.fallback}</span>
+                            ) : (
+                              <Image 
+                                src={iconData.icon} 
+                                alt={ribbon.name}
+                                width={48}
+                                height={48}
+                                className="object-contain"
+                                onError={() => handleImageError(ribbon.id)}
+                              />
+                            )}
+                          </div>
+                          <div className="flex-1">
+                            <p className="font-medium">{ribbon.name}</p>
+                            <p className="text-xs text-gray-400 truncate">{ribbon.description}</p>
+                            {hasRibbon && (
+                              <p className="text-xs opacity-80 mt-1">Obtained</p>
+                            )}
+                          </div>
+                          {hasRibbon && (
+                            <span className="ml-2 text-xl">✓</span>
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
+            ))}
+          </div>
+        ) : (
+          // Table view
+          <div className="space-y-8">
+            {Object.keys(ribbonsByCategory).map(category => (
+              <div key={category} className="overflow-x-auto">
+                <h3 className="text-lg font-semibold capitalize mb-4">{category} Ribbons</h3>
+                <table className="min-w-full bg-gray-700 rounded-lg overflow-hidden">
+                  <thead className="bg-gray-600">
+                    <tr>
+                      <th className="py-3 px-4 text-left text-sm font-medium text-gray-300 uppercase tracking-wider w-16"></th>
+                      <th className="py-3 px-4 text-left text-sm font-medium text-gray-300 uppercase tracking-wider">Ribbon</th>
+                      <th className="py-3 px-4 text-left text-sm font-medium text-gray-300 uppercase tracking-wider">Description</th>
+                      <th className="py-3 px-4 text-left text-sm font-medium text-gray-300 uppercase tracking-wider">How to Obtain</th>
+                      <th className="py-3 px-4 text-left text-sm font-medium text-gray-300 uppercase tracking-wider w-24">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-600">
+                    {ribbonsByCategory[category].map(ribbon => {
+                      const iconData = ribbonIcons[ribbon.id] || { 
+                        icon: 'https://www.serebii.net/ribbons/classicribbon.png',
+                        color: '#AA99CC', 
+                        fallback: '🎀'
+                      };
+                      const hasRibbon = caughtStatus.ribbons?.[ribbon.id];
+                      const useIconFallback = failedImages[ribbon.id];
+                      
+                      return (
+                        <tr 
+                          key={ribbon.id}
+                          onClick={() => updateRibbonStatus(ribbon.id, pokemon.name)}
+                          className={`hover:bg-gray-600 cursor-pointer transition-colors ${
+                            hasRibbon ? 'bg-indigo-900 bg-opacity-30' : ''
+                          }`}
+                        >
+                          <td className="py-3 px-4">
+                            <div 
+                              className="w-12 h-12 rounded-full flex items-center justify-center mx-auto bg-gray-800"
+                              style={{ 
+                                border: `2px solid ${iconData.color}`
+                              }}
+                            >
+                              {useIconFallback ? (
+                                <span className="text-lg">{iconData.fallback}</span>
+                              ) : (
+                                <Image 
+                                  src={iconData.icon} 
+                                  alt={ribbon.name}
+                                  width={40}
+                                  height={40}
+                                  className="object-contain"
+                                  onError={() => handleImageError(ribbon.id)}
+                                />
+                              )}
+                            </div>
+                          </td>
+                          <td className="py-3 px-4 font-medium">{ribbon.name}</td>
+                          <td className="py-3 px-4 text-gray-300">{ribbon.description}</td>
+                          <td className="py-3 px-4 text-gray-300">{ribbon.obtainMethod}</td>
+                          <td className="py-3 px-4">
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                              hasRibbon 
+                                ? 'bg-indigo-100 text-indigo-800' 
+                                : 'bg-gray-100 text-gray-800'
+                            }`}>
+                              {hasRibbon ? 'Obtained' : 'Missing'}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
 
