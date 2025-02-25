@@ -162,8 +162,8 @@ const EvolutionChainRenderer = ({ chain, currentPokemonId }) => {
     
     return (
       <Link href={`/pokemon/${speciesData.name}`} passHref>
-        <a className={`flex flex-col items-center p-3 rounded-lg transition-transform hover:scale-105 ${
-          isCurrentPokemon ? 'bg-gray-700 ring-2 ring-red-500' : 'hover:bg-gray-700'
+        <a className={`flex flex-col items-center p-3 m-1 rounded-lg transition-all ${
+          isCurrentPokemon ? 'bg-gray-700 ring-2 ring-red-500' : 'hover:bg-gray-700 hover:shadow-lg'
         }`}>
           <div className="relative w-24 h-24">
             <Image
@@ -226,7 +226,7 @@ const EvolutionChainRenderer = ({ chain, currentPokemonId }) => {
     // Simple case: single evolution line
     if (!evolutionData.evolves_to || evolutionData.evolves_to.length <= 1) {
       return (
-        <div className="flex flex-wrap justify-center items-center">
+        <div className="flex flex-wrap justify-center items-center overflow-visible p-2">
           {renderPokemonInChain(evolutionData.species)}
           
           {evolutionData.evolves_to && evolutionData.evolves_to.length > 0 && (
@@ -234,7 +234,6 @@ const EvolutionChainRenderer = ({ chain, currentPokemonId }) => {
               {renderEvolutionDetails(evolutionData.evolves_to[0].evolution_details)}
               {renderPokemonInChain(evolutionData.evolves_to[0].species)}
               
-              {/* Third evolution - always show it now */}
               {evolutionData.evolves_to[0].evolves_to && evolutionData.evolves_to[0].evolves_to.length > 0 && (
                 <>
                   {renderEvolutionDetails(evolutionData.evolves_to[0].evolves_to[0].evolution_details)}
@@ -249,8 +248,8 @@ const EvolutionChainRenderer = ({ chain, currentPokemonId }) => {
     
     // Complex case: branched evolution
     return (
-      <div className="flex flex-col items-center">
-        <div className="mb-4">
+      <div className="flex flex-col items-center overflow-visible">
+        <div className="mb-4 p-2">
           {renderPokemonInChain(evolutionData.species)}
         </div>
         
@@ -258,19 +257,18 @@ const EvolutionChainRenderer = ({ chain, currentPokemonId }) => {
         <div className="h-8 w-0.5 bg-gray-600 mb-2"></div>
         
         {/* Horizontal branches */}
-        <div className="flex flex-wrap justify-center gap-8">
+        <div className="flex flex-wrap justify-center gap-8 overflow-visible p-2">
           {evolutionData.evolves_to.map((evo, index) => (
-            <div key={index} className="flex flex-col items-center">
+            <div key={index} className="flex flex-col items-center overflow-visible">
               <div className="mb-2 px-3 py-1 bg-gray-700 rounded-full text-xs text-gray-400">
                 {evo.evolution_details[0]?.trigger?.name === 'level-up' 
                   ? `Level ${evo.evolution_details[0]?.min_level || '?'}`
                   : evo.evolution_details[0]?.trigger?.name || 'Special'}
               </div>
               
-              <div className="flex items-center">
+              <div className="flex items-center overflow-visible">
                 {renderPokemonInChain(evo.species)}
                 
-                {/* Third evolution - always show it now */}
                 {evo.evolves_to && evo.evolves_to.length > 0 && (
                   <>
                     {renderEvolutionDetails(evo.evolves_to[0].evolution_details)}
@@ -1321,8 +1319,8 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
             </div>
             
             {evolutionChain?.chain ? (
-              <div className="w-full overflow-x-auto pb-4">
-                <div className="inline-block min-w-full">
+              <div className="w-full overflow-visible pb-6">
+                <div className="min-w-full">
                   <EvolutionChainRenderer 
                     chain={evolutionChain.chain} 
                     currentPokemonId={pokemon.id}
