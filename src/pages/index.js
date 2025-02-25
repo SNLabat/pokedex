@@ -273,7 +273,7 @@ export default function Home() {
                     }}
                   >
                     <Image
-                      src="/img/pokeball.svg"
+                      src="/img/pokeball.png"
                       alt="Pokeball"
                       width={64}
                       height={64}
