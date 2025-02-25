@@ -272,37 +272,26 @@ const MovesTable = ({ moves, learnMethod, title }) => {
         return false;
       })
     )
-    .map(moveData => {
-      // Find the relevant version group detail
-      const detail = moveData.version_group_details.find(d => {
-        if (learnMethod === 'level-up') {
-          return d.move_learn_method.name === 'level-up';
-        } else if (learnMethod === 'machine') {
-          return d.move_learn_method.name === 'machine';
-        } else if (learnMethod === 'egg') {
-          return d.move_learn_method.name === 'egg';
-        }
-        return false;
-      });
-      
-      return {
-        name: moveData.move.name,
-        level: detail?.level_learned_at || 0
-      };
+    .sort((a, b) => {
+      if (learnMethod === 'level-up') {
+        // Sort by level
+        const levelA = Math.min(...a.version_group_details
+          .filter(d => d.move_learn_method.name === 'level-up')
+          .map(d => d.level_learned_at));
+        const levelB = Math.min(...b.version_group_details
+          .filter(d => d.move_learn_method.name === 'level-up')
+          .map(d => d.level_learned_at));
+        return levelA - levelB;
+      }
+      // Sort alphabetically by default
+      return a.move.name.localeCompare(b.move.name);
     });
-  
-  // Sort moves appropriately
-  if (learnMethod === 'level-up') {
-    filteredMoves.sort((a, b) => a.level - b.level);
-  } else {
-    filteredMoves.sort((a, b) => a.name.localeCompare(b.name));
-  }
   
   if (filteredMoves.length === 0) {
     return (
       <div>
         <h3 className="text-lg font-medium mb-3">{title}</h3>
-        <p className="text-gray-400 italic">No moves available via this method</p>
+        <p className="text-gray-400">No moves found for this method</p>
       </div>
     );
   }
@@ -311,24 +300,38 @@ const MovesTable = ({ moves, learnMethod, title }) => {
     <div>
       <h3 className="text-lg font-medium mb-3">{title}</h3>
       <div className="overflow-x-auto">
-        <table className="min-w-full">
+        <table className="w-full table-auto">
           <thead className="bg-gray-700">
             <tr>
-              {learnMethod === 'level-up' && (
-                <th className="px-4 py-2 text-left">Level</th>
-              )}
+              {learnMethod === 'level-up' && <th className="px-4 py-2 text-left">Level</th>}
               <th className="px-4 py-2 text-left">Move</th>
+              <th className="px-4 py-2 text-left">Type</th>
+              <th className="px-4 py-2 text-left">Category</th>
+              <th className="px-4 py-2 text-right">Power</th>
+              <th className="px-4 py-2 text-right">Accuracy</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-700">
-            {filteredMoves.map((move, index) => (
-              <tr key={index} className={index % 2 === 0 ? 'bg-gray-800' : 'bg-gray-750'}>
-                {learnMethod === 'level-up' && (
-                  <td className="px-4 py-2">{move.level}</td>
-                )}
-                <td className="px-4 py-2 capitalize">{move.name.replace(/-/g, ' ')}</td>
-              </tr>
-            ))}
+            {filteredMoves.map(moveData => {
+              // For simplicity, we'll use placeholder values for move details
+              // In a real app, you'd fetch these from an API
+              return (
+                <tr key={moveData.move.name} className="hover:bg-gray-700">
+                  {learnMethod === 'level-up' && (
+                    <td className="px-4 py-2">
+                      {Math.min(...moveData.version_group_details
+                        .filter(d => d.move_learn_method.name === 'level-up')
+                        .map(d => d.level_learned_at))}
+                    </td>
+                  )}
+                  <td className="px-4 py-2 capitalize">{moveData.move.name.replace('-', ' ')}</td>
+                  <td className="px-4 py-2">-</td>
+                  <td className="px-4 py-2">-</td>
+                  <td className="px-4 py-2 text-right">-</td>
+                  <td className="px-4 py-2 text-right">-</td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -987,11 +990,26 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
 }
 
 export async function getStaticPaths() {
-  // Return empty paths array for incremental static regeneration
-  return { 
-    paths: [],
-    fallback: 'blocking' // On-demand rendering for Pokemon pages
-  };
+  // Only pre-render the first few Pokemon for better build times
+  try {
+    const res = await fetch('https://pokeapi.co/api/v2/pokemon?limit=20');
+    const data = await res.json();
+    
+    const paths = data.results.map(pokemon => ({
+      params: { name: pokemon.name }
+    }));
+    
+    return { 
+      paths,
+      fallback: 'blocking' // Generate other pages on-demand
+    };
+  } catch (error) {
+    console.error("Error in getStaticPaths:", error);
+    return {
+      paths: [],
+      fallback: 'blocking'
+    };
+  }
 }
 
 export async function getStaticProps({ params }) {
