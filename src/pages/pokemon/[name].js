@@ -396,6 +396,31 @@ const PokemonHero = ({ pokemon, isShiny, setIsShiny, isAnimated, setIsAnimated, 
     };
   }
 
+  // Get Gen 6 sprites for animations if available
+  const getSprite = () => {
+    if (isAnimated) {
+      // Use Gen 5 animated sprites since Gen 6 doesn't have animations in the API
+      if (isShiny) {
+        return pokemon.sprites.versions?.['generation-v']?.['black-white']?.animated?.front_shiny || 
+               pokemon.sprites.front_shiny;
+      } else {
+        return pokemon.sprites.versions?.['generation-v']?.['black-white']?.animated?.front_default || 
+               pokemon.sprites.front_default;
+      }
+    } else {
+      // Use official artwork or Gen 6 sprites for static images
+      if (isShiny) {
+        return pokemon.sprites.other['official-artwork'].front_shiny || 
+               pokemon.sprites.versions?.['generation-vi']?.['x-y']?.front_shiny ||
+               pokemon.sprites.front_shiny;
+      } else {
+        return pokemon.sprites.other['official-artwork'].front_default || 
+               pokemon.sprites.versions?.['generation-vi']?.['x-y']?.front_default ||
+               pokemon.sprites.front_default;
+      }
+    }
+  };
+
   return (
     <div style={heroBgStyle} className="py-10 mb-8">
       <div className="container mx-auto px-4">
@@ -419,23 +444,15 @@ const PokemonHero = ({ pokemon, isShiny, setIsShiny, isAnimated, setIsAnimated, 
               
               {/* Pokemon sprite */}
               <div className="relative z-10 w-56 h-56 bg-gray-900 rounded-full flex items-center justify-center">
-              <Image
-                  src={
-                    isAnimated
-                      ? (isShiny 
-                          ? pokemon.sprites.versions?.['generation-v']?.['black-white']?.animated?.front_shiny || pokemon.sprites.front_shiny 
-                          : pokemon.sprites.versions?.['generation-v']?.['black-white']?.animated?.front_default || pokemon.sprites.front_default)
-                      : (isShiny
-                          ? pokemon.sprites.other['official-artwork'].front_shiny || pokemon.sprites.front_shiny
-                          : pokemon.sprites.other['official-artwork'].front_default || pokemon.sprites.front_default)
-                  }
+                <Image
+                  src={getSprite()}
                   alt={pokemon.name}
                   width={isAnimated ? 120 : 200}
                   height={isAnimated ? 120 : 200}
-                priority
-              />
+                  priority
+                />
+              </div>
             </div>
-          </div>
           
             {/* Type Pills */}
             <div className="flex justify-center mt-4 space-x-2">
@@ -455,7 +472,60 @@ const PokemonHero = ({ pokemon, isShiny, setIsShiny, isAnimated, setIsAnimated, 
                 );
               })}
             </div>
+            
+            {/* Sprite Toggle Buttons - Reorganized as 2x2 grid */}
+            <div className="flex flex-col gap-2 mt-4">
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    setIsAnimated(false);
+                    setIsShiny(false);
+                  }}
+                  style={!isAnimated && !isShiny ? { backgroundColor: mainTypeColor.mainColor, color: mainTypeColor.textColor } : {}}
+                  className={`flex-1 px-4 py-2 rounded-lg transition-colors ${
+                    !isAnimated && !isShiny ? '' : 'bg-gray-700 hover:bg-gray-600 text-white'
+                  }`}
+                >
+                  Static
+                </button>
+                <button
+                  onClick={() => {
+                    setIsAnimated(false);
+                    setIsShiny(true);
+                  }}
+                  className={`flex-1 px-4 py-2 rounded-lg transition-colors ${
+                    !isAnimated && isShiny ? 'bg-yellow-500 text-gray-900' : 'bg-gray-700 hover:bg-gray-600 text-white'
+                  }`}
+                >
+                  Static Shiny
+                </button>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    setIsAnimated(true);
+                    setIsShiny(false);
+                  }}
+                  className={`flex-1 px-4 py-2 rounded-lg transition-colors ${
+                    isAnimated && !isShiny ? 'bg-blue-600 text-white' : 'bg-gray-700 hover:bg-gray-600 text-white'
+                  }`}
+                >
+                  Animated
+                </button>
+                <button
+                  onClick={() => {
+                    setIsAnimated(true);
+                    setIsShiny(true);
+                  }}
+                  className={`flex-1 px-4 py-2 rounded-lg transition-colors ${
+                    isAnimated && isShiny ? 'bg-purple-600 text-white' : 'bg-gray-700 hover:bg-gray-600 text-white'
+                  }`}
+                >
+                  Animated Shiny
+                </button>
+              </div>
             </div>
+          </div>
             
           {/* Rest of the hero content */}
           <div className="flex-1">
@@ -464,43 +534,6 @@ const PokemonHero = ({ pokemon, isShiny, setIsShiny, isAnimated, setIsAnimated, 
                 <p className="text-gray-300 text-xl mb-1">#{String(pokemon.id).padStart(3, '0')}</p>
                 <h1 className="text-4xl md:text-5xl font-bold capitalize mb-2 text-white">{pokemon.name.replace(/-/g, ' ')}</h1>
                 <p className="text-xl text-gray-300 italic">{speciesText}</p>
-              </div>
-              
-              {/* Sprite Toggle Buttons */}
-              <div className="flex flex-wrap gap-3 mb-6">
-                <button
-                  onClick={() => setIsShiny(false)}
-                  style={!isShiny ? { backgroundColor: mainTypeColor.mainColor, color: mainTypeColor.textColor } : {}}
-                  className={`px-4 py-2 rounded-lg transition-colors ${
-                    !isShiny ? '' : 'bg-gray-700 hover:bg-gray-600 text-white'
-                  }`}
-                >
-                  Normal
-                </button>
-                <button
-                  onClick={() => setIsShiny(true)}
-                  className={`px-4 py-2 rounded-lg transition-colors ${
-                    isShiny ? 'bg-yellow-500 text-gray-900' : 'bg-gray-700 hover:bg-gray-600 text-white'
-                  }`}
-                >
-                  Shiny
-                </button>
-                <button
-                  onClick={() => setIsAnimated(false)}
-                  className={`px-4 py-2 rounded-lg transition-colors ${
-                    !isAnimated ? 'bg-blue-600 text-white' : 'bg-gray-700 hover:bg-gray-600 text-white'
-                  }`}
-                >
-                  Static
-                </button>
-                <button
-                  onClick={() => setIsAnimated(true)}
-                  className={`px-4 py-2 rounded-lg transition-colors ${
-                    isAnimated ? 'bg-purple-600 text-white' : 'bg-gray-700 hover:bg-gray-600 text-white'
-                  }`}
-                >
-                  Animated
-                </button>
               </div>
               
               {/* Basic Stats */}
