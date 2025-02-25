@@ -161,9 +161,32 @@ export default function Home() {
           setRecentlyViewed(viewed.slice(0, 6));
         }
         
-        // Get 6 random Pokémon
-        const randomIds = Array.from({ length: 6 }, () => Math.floor(Math.random() * 898) + 1);
-        setRandomPokemon(randomIds.map(id => ({ id, name: `pokemon-${id}` })));
+        // Get 6 random Pokémon with proper names
+        const fetchRandomPokemon = async () => {
+          const randomIds = Array.from({ length: 6 }, () => Math.floor(Math.random() * 898) + 1);
+          
+          const randomPokemonData = await Promise.all(
+            randomIds.map(async id => {
+              try {
+                const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
+                const data = await res.json();
+                return {
+                  id: data.id,
+                  name: data.name,
+                  formattedName: data.name.split('-').map(word => 
+                    word.charAt(0).toUpperCase() + word.slice(1)
+                  ).join(' ')
+                };
+              } catch (error) {
+                return { id, name: `pokemon-${id}`, formattedName: `Pokémon #${id}` };
+              }
+            })
+          );
+          
+          setRandomPokemon(randomPokemonData);
+        };
+        
+        fetchRandomPokemon();
         
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -217,34 +240,6 @@ export default function Home() {
     setSearchResults(results);
     setShowSearchResults(true);
   }, [searchTerm, allPokemon]);
-
-  // Ensure exactly 6 random Pokémon with proper names
-  const getRandomPokemon = async () => {
-    // Ensure we get exactly 6
-    const randomIds = Array.from({ length: 6 }, () => Math.floor(Math.random() * 898) + 1);
-    
-    // Fetch Pokémon names from the API
-    const randomPokemonData = await Promise.all(
-      randomIds.map(async id => {
-        try {
-          const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
-          const data = await res.json();
-          return {
-            id: data.id,
-            name: data.name,
-            formattedName: data.name.split('-').map(word => 
-              word.charAt(0).toUpperCase() + word.slice(1)
-            ).join(' ')
-          };
-        } catch (error) {
-          // Fallback in case of error
-          return { id, name: `pokemon-${id}`, formattedName: `Pokémon #${id}` };
-        }
-      })
-    );
-    
-    return randomPokemonData;
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white">
@@ -621,9 +616,28 @@ export default function Home() {
           </div>
           <div className="text-center mt-6">
             <button
-              onClick={() => {
+              onClick={async () => {
                 const randomIds = Array.from({ length: 6 }, () => Math.floor(Math.random() * 898) + 1);
-                setRandomPokemon(randomIds.map(id => ({ id, name: `pokemon-${id}` })));
+                
+                const randomPokemonData = await Promise.all(
+                  randomIds.map(async id => {
+                    try {
+                      const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
+                      const data = await res.json();
+                      return {
+                        id: data.id,
+                        name: data.name,
+                        formattedName: data.name.split('-').map(word => 
+                          word.charAt(0).toUpperCase() + word.slice(1)
+                        ).join(' ')
+                      };
+                    } catch (error) {
+                      return { id, name: `pokemon-${id}`, formattedName: `Pokémon #${id}` };
+                    }
+                  })
+                );
+                
+                setRandomPokemon(randomPokemonData);
               }}
               className="px-6 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg font-medium transition-colors inline-flex items-center"
             >

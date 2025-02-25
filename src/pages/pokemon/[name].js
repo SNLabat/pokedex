@@ -161,7 +161,7 @@ const EvolutionChainRenderer = ({ chain, currentPokemonId, isExpanded }) => {
     const isCurrentPokemon = id === currentPokemonId?.toString();
     
     return (
-      <Link href={`/pokemon/${speciesData.name}`}>
+      <Link href={`/pokemon/${speciesData.name}`} passHref>
         <a className={`flex flex-col items-center p-3 rounded-lg transition-transform hover:scale-105 ${
           isCurrentPokemon ? 'bg-gray-700 ring-2 ring-red-500' : 'hover:bg-gray-700'
         }`}>
@@ -348,104 +348,44 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
   const [isEvolutionExpanded, setIsEvolutionExpanded] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   
-  // Add effect to track loading state for client-side transitions
+  // Reset states when the route changes to handle direct navigation
   useEffect(() => {
-    // Reset component state when the route changes
-    setIsShiny(false);
-    setActiveTab('info');
-    setCaughtStatus({});
-    setIsEvolutionExpanded(false);
-    
-    const handleStart = () => setIsLoading(true);
-    const handleComplete = () => setIsLoading(false);
-
-    router.events.on('routeChangeStart', handleStart);
-    router.events.on('routeChangeComplete', handleComplete);
-    router.events.on('routeChangeError', handleComplete);
-
-    return () => {
-      router.events.off('routeChangeStart', handleStart);
-      router.events.off('routeChangeComplete', handleComplete);
-      router.events.off('routeChangeError', handleComplete);
-    };
-  }, [router]);
-
-  // Enhanced fallback and loading states
-  if (router.isFallback || isLoading || !pokemon || !species) {
-    return (
-      <div className="min-h-screen bg-gray-900 text-white">
-        <Navigation />
-        <div className="container mx-auto px-4 py-16 flex justify-center items-center flex-col">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-500 mb-4"></div>
-          <p className="text-xl">Loading Pokémon data...</p>
-        </div>
-      </div>
-    );
-  }
-  
-  // Update recently viewed in localStorage
-  useEffect(() => {
-    if (pokemon && typeof window !== 'undefined') {
-      try {
-        // Get existing recently viewed
-        const recentlyViewed = JSON.parse(localStorage.getItem('recentlyViewed') || '[]');
-        
-        // Remove this Pokémon from the list if it exists
-        const filteredRecent = recentlyViewed.filter(p => p.id !== pokemon.id);
-        
-        // Add this Pokémon to the start of the list
-        const updatedRecent = [
-          { id: pokemon.id, name: pokemon.name },
-          ...filteredRecent
-        ].slice(0, 10); // Keep only the 10 most recent
-        
-        localStorage.setItem('recentlyViewed', JSON.stringify(updatedRecent));
-      } catch (error) {
-        console.error('Error updating recently viewed:', error);
-      }
-    }
-  }, [pokemon]);
-  
-  // Get caught status from localStorage
-  useEffect(() => {
+    // Get caught status from localStorage when Pokémon data changes
     if (pokemon && typeof window !== 'undefined') {
       try {
         const caughtData = JSON.parse(localStorage.getItem('caughtPokemon') || '{}');
         setCaughtStatus(caughtData[pokemon.id] || {});
+        
+        // Update recently viewed
+        const recentlyViewed = JSON.parse(localStorage.getItem('recentlyViewed') || '[]');
+        const filteredRecent = recentlyViewed.filter(p => p.id !== pokemon.id);
+        const updatedRecent = [
+          { id: pokemon.id, name: pokemon.name },
+          ...filteredRecent
+        ].slice(0, 10);
+        localStorage.setItem('recentlyViewed', JSON.stringify(updatedRecent));
       } catch (error) {
-        console.error('Error getting caught status:', error);
+        console.error('Error getting caught status or updating recently viewed:', error);
       }
     }
-  }, [pokemon]);
-  
-  // Update caught status
-  const updateCaughtStatus = (statusType, formName = 'default') => {
-    if (!pokemon) return;
     
-    try {
-      // Get current caught data
-      const caughtData = JSON.parse(localStorage.getItem('caughtPokemon') || '{}');
-      
-      // Initialize if needed
-      if (!caughtData[pokemon.id]) {
-        caughtData[pokemon.id] = {};
-      }
-      
-      if (!caughtData[pokemon.id][formName]) {
-        caughtData[pokemon.id][formName] = {};
-      }
-      
-      // Toggle the status
-      caughtData[pokemon.id][formName][statusType] = !caughtData[pokemon.id][formName][statusType];
-      
-      // Update state and localStorage
-      setCaughtStatus(caughtData[pokemon.id]);
-      localStorage.setItem('caughtPokemon', JSON.stringify(caughtData));
-      localStorage.setItem('lastUpdated', new Date().toISOString());
-    } catch (error) {
-      console.error('Error updating caught status:', error);
-    }
-  };
+    // Reset other states
+    setIsShiny(false);
+    setActiveTab('info');
+    setIsEvolutionExpanded(false);
+  }, [pokemon?.id]); // Only depend on pokemon.id to avoid unnecessary resets
+  
+  // If the page is loading from a fallback route
+  if (router.isFallback || !pokemon || !species) {
+    return (
+      <div className="min-h-screen bg-gray-900 text-white">
+        <Navigation />
+        <div className="container mx-auto px-4 py-16 flex justify-center items-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-500"></div>
+        </div>
+      </div>
+    );
+  }
   
   // Get basic Pokémon data
   const id = pokemon.id;
@@ -1027,13 +967,13 @@ export async function getStaticPaths() {
     
     return { 
       paths,
-      fallback: 'blocking' // Change back to 'blocking' for better UX
+      fallback: true // Change to true instead of 'blocking' for better UX
     };
   } catch (error) {
     console.error("Error in getStaticPaths:", error);
     return {
       paths: [],
-      fallback: 'blocking'
+      fallback: true
     };
   }
 }
@@ -1123,6 +1063,9 @@ export async function getStaticProps({ params }) {
     };
   } catch (error) {
     console.error('Error fetching Pokémon data:', error);
-    return { notFound: true };
+    return { 
+      notFound: true,
+      revalidate: 30 // Try again after 30 seconds in case of temporary API issues
+    };
   }
 }

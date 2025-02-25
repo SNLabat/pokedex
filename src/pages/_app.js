@@ -1,28 +1,46 @@
 import "@/styles/globals.css";
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 
 export default function App({ Component, pageProps }) {
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
   
   useEffect(() => {
-    // Handle route change complete
-    const handleRouteChangeComplete = () => {
-      // Scroll to top on page changes
-      window.scrollTo(0, 0);
+    // Handle route change start
+    const handleStart = () => {
+      setLoading(true);
     };
     
-    router.events.on('routeChangeComplete', handleRouteChangeComplete);
+    // Handle route change complete
+    const handleComplete = () => {
+      setLoading(false);
+    };
+    
+    router.events.on('routeChangeStart', handleStart);
+    router.events.on('routeChangeComplete', handleComplete);
+    router.events.on('routeChangeError', handleComplete);
     
     return () => {
-      router.events.off('routeChangeComplete', handleRouteChangeComplete);
+      router.events.off('routeChangeStart', handleStart);
+      router.events.off('routeChangeComplete', handleComplete);
+      router.events.off('routeChangeError', handleComplete);
     };
   }, [router]);
   
-  return <Component {...pageProps} />;
+  return (
+    <>
+      {loading && (
+        <div className="fixed top-0 left-0 z-50 w-full h-1 bg-red-600">
+          <div className="h-full bg-red-400 animate-pulse" style={{ width: '100%' }}></div>
+        </div>
+      )}
+      <Component {...pageProps} />
+    </>
+  );
 }
 
-// Add this to disable automatic static optimization for dynamic routes
+// This ensures the pages are rendered correctly on both client and server
 export const config = {
   unstable_runtimeJS: true
 };
