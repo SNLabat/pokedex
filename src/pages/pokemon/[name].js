@@ -538,8 +538,151 @@ const pokemonRibbons = [
   { id: 'champion-hoenn', name: 'Champion Ribbon', category: 'champion', description: 'Ribbon for clearing the Pokémon League and entering the Hall of Fame in another region', obtainMethod: 'Ruby/Sapphire/Emerald: EverGrande City, FireRed/LeafGreen: Indigo Plateau' },
   { id: 'sinnoh-champ', name: 'Sinnoh Champ Ribbon', category: 'champion', description: 'Ribbon awarded for beating the Sinnoh Champion and entering the Hall of Fame', obtainMethod: 'Diamond/Pearl/Platinum: Pokémon League' },
   { id: 'kalos-champion', name: 'Kalos Champion Ribbon', category: 'champion', description: 'Ribbon for beating the Kalos Champion and entering the Kalos Hall of Fame', obtainMethod: 'Defeat the Kalos Elite Four with this Pokémon' },
+  { id: 'alola-champion', name: 'Alola Champion Ribbon', category: 'champion', description: 'A Ribbon awarded for becoming the Alola Champion and entering the Alola Hall of Fame', obtainMethod: 'Sun/Moon: Defeat the Alola Elite Four with this Pokémon' },
+  { id: 'galar-champion', name: 'Galar Champion Ribbon', category: 'champion', description: 'A Ribbon awarded for becoming the Galar Champion and entering the Galar Hall of Fame', obtainMethod: 'Defeat the Champion Cup' },
   
-  // ... more ribbons with obtainMethod added
+  // Hoenn Contest Ribbons
+  { id: 'cool-normal', name: 'Cool Ribbon', category: 'contest', description: 'Hoenn Cool Contest - Normal Rank Winner', obtainMethod: 'Ruby/Sapphire: Verdanturf Town, Emerald: Lilycove City' },
+  { id: 'cool-super', name: 'Cool Ribbon Super', category: 'contest', description: 'Hoenn Cool Contest - Super Rank Winner', obtainMethod: 'Ruby/Sapphire: Fallabor Town, Emerald: Lilycove City' },
+  { id: 'cool-hyper', name: 'Cool Ribbon Hyper', category: 'contest', description: 'Hoenn Cool Contest - Hyper Rank Winner', obtainMethod: 'Ruby/Sapphire: Slateport City, Emerald: Lilycove City' },
+  { id: 'cool-master', name: 'Cool Ribbon Master', category: 'contest', description: 'Hoenn Cool Contest - Master Rank Winner', obtainMethod: 'Ruby/Sapphire/Emerald: Lilycove City' },
+  
+  { id: 'beauty-normal', name: 'Beauty Ribbon', category: 'contest', description: 'Hoenn Beauty Contest - Normal Rank Winner', obtainMethod: 'Ruby/Sapphire: Verdanturf Town, Emerald: Lilycove City' },
+  { id: 'beauty-super', name: 'Beauty Ribbon Super', category: 'contest', description: 'Hoenn Beauty Contest - Super Rank Winner', obtainMethod: 'Ruby/Sapphire: Fallabor Town, Emerald: Lilycove City' },
+  { id: 'beauty-hyper', name: 'Beauty Ribbon Hyper', category: 'contest', description: 'Hoenn Beauty Contest - Hyper Rank Winner', obtainMethod: 'Ruby/Sapphire: Slateport City, Emerald: Lilycove City' },
+  { id: 'beauty-master', name: 'Beauty Ribbon Master', category: 'contest', description: 'Hoenn Beauty Contest - Master Rank Winner', obtainMethod: 'Ruby/Sapphire/Emerald: Lilycove City' },
+  
+  { id: 'cute-normal', name: 'Cute Ribbon', category: 'contest', description: 'Hoenn Cute Contest - Normal Rank Winner', obtainMethod: 'Ruby/Sapphire: Verdanturf Town, Emerald: Lilycove City' },
+  { id: 'cute-super', name: 'Cute Ribbon Super', category: 'contest', description: 'Hoenn Cute Contest - Super Rank Winner', obtainMethod: 'Ruby/Sapphire: Fallabor Town, Emerald: Lilycove City' },
+  { id: 'cute-hyper', name: 'Cute Ribbon Hyper', category: 'contest', description: 'Hoenn Cute Contest - Hyper Rank Winner', obtainMethod: 'Ruby/Sapphire: Slateport City, Emerald: Lilycove City' },
+  { id: 'cute-master', name: 'Cute Ribbon Master', category: 'contest', description: 'Hoenn Cute Contest - Master Rank Winner', obtainMethod: 'Ruby/Sapphire/Emerald: Lilycove City' },
+  
+  { id: 'smart-normal', name: 'Smart Ribbon', category: 'contest', description: 'Hoenn Smart Contest - Normal Rank Winner', obtainMethod: 'Ruby/Sapphire: Verdanturf Town, Emerald: Lilycove City' },
+  { id: 'smart-super', name: 'Smart Ribbon Super', category: 'contest', description: 'Hoenn Smart Contest - Super Rank Winner', obtainMethod: 'Ruby/Sapphire: Fallabor Town, Emerald: Lilycove City' },
+  { id: 'smart-hyper', name: 'Smart Ribbon Hyper', category: 'contest', description: 'Hoenn Smart Contest - Hyper Rank Winner', obtainMethod: 'Ruby/Sapphire: Slateport City, Emerald: Lilycove City' },
+  { id: 'smart-master', name: 'Smart Ribbon Master', category: 'contest', description: 'Hoenn Smart Contest - Master Rank Winner', obtainMethod: 'Ruby/Sapphire/Emerald: Lilycove City' },
+  
+  { id: 'tough-normal', name: 'Tough Ribbon', category: 'contest', description: 'Hoenn Tough Contest - Normal Rank Winner', obtainMethod: 'Ruby/Sapphire: Verdanturf Town, Emerald: Lilycove City' },
+  { id: 'tough-super', name: 'Tough Ribbon Super', category: 'contest', description: 'Hoenn Tough Contest - Super Rank Winner', obtainMethod: 'Ruby/Sapphire: Fallabor Town, Emerald: Lilycove City' },
+  { id: 'tough-hyper', name: 'Tough Ribbon Hyper', category: 'contest', description: 'Hoenn Tough Contest - Hyper Rank Winner', obtainMethod: 'Ruby/Sapphire: Slateport City, Emerald: Lilycove City' },
+  { id: 'tough-master', name: 'Tough Ribbon Master', category: 'contest', description: 'Hoenn Tough Contest - Master Rank Winner', obtainMethod: 'Ruby/Sapphire/Emerald: Lilycove City' },
+  
+  // Sinnoh Contest Ribbons
+  { id: 'cool-contest-normal-s', name: 'Cool Ribbon', category: 'contest', description: 'Super Contest Cool Category Normal Rank winner!', obtainMethod: 'Diamond/Pearl/Platinum: Hearthome City' },
+  { id: 'cool-contest-super-s', name: 'Cool Ribbon Super', category: 'contest', description: 'Super Contest Cool Category Super Rank winner!', obtainMethod: 'Diamond/Pearl/Platinum: Hearthome City' },
+  { id: 'cool-contest-ultra-s', name: 'Cool Ribbon Ultra', category: 'contest', description: 'Super Contest Cool Category Ultra Rank winner!', obtainMethod: 'Diamond/Pearl/Platinum: Hearthome City' },
+  { id: 'cool-contest-master-s', name: 'Cool Ribbon Master', category: 'contest', description: 'Super Contest Cool Category Master Rank winner!', obtainMethod: 'Diamond/Pearl/Platinum: Hearthome City' },
+  
+  { id: 'beauty-contest-normal-s', name: 'Beauty Ribbon', category: 'contest', description: 'Super Contest Beauty Category Normal Rank winner!', obtainMethod: 'Diamond/Pearl/Platinum: Hearthome City' },
+  { id: 'beauty-contest-super-s', name: 'Beauty Ribbon Super', category: 'contest', description: 'Super Contest Beauty Category Super Rank winner!', obtainMethod: 'Diamond/Pearl/Platinum: Hearthome City' },
+  { id: 'beauty-contest-ultra-s', name: 'Beauty Ribbon Ultra', category: 'contest', description: 'Super Contest Beauty Category Ultra Rank winner!', obtainMethod: 'Diamond/Pearl/Platinum: Hearthome City' },
+  { id: 'beauty-contest-master-s', name: 'Beauty Ribbon Master', category: 'contest', description: 'Super Contest Beauty Category Master Rank winner!', obtainMethod: 'Diamond/Pearl/Platinum: Hearthome City' },
+  
+  { id: 'cute-contest-normal-s', name: 'Cute Ribbon', category: 'contest', description: 'Super Contest Cute Category Normal Rank winner!', obtainMethod: 'Diamond/Pearl/Platinum: Hearthome City' },
+  { id: 'cute-contest-super-s', name: 'Cute Ribbon Super', category: 'contest', description: 'Super Contest Cute Category Super Rank winner!', obtainMethod: 'Diamond/Pearl/Platinum: Hearthome City' },
+  { id: 'cute-contest-ultra-s', name: 'Cute Ribbon Ultra', category: 'contest', description: 'Super Contest Cute Category Ultra Rank winner!', obtainMethod: 'Diamond/Pearl/Platinum: Hearthome City' },
+  { id: 'cute-contest-master-s', name: 'Cute Ribbon Master', category: 'contest', description: 'Super Contest Cute Category Master Rank winner!', obtainMethod: 'Diamond/Pearl/Platinum: Hearthome City' },
+  
+  { id: 'smart-contest-normal-s', name: 'Smart Ribbon', category: 'contest', description: 'Super Contest Smart Category Normal Rank winner!', obtainMethod: 'Diamond/Pearl/Platinum: Hearthome City' },
+  { id: 'smart-contest-super-s', name: 'Smart Ribbon Super', category: 'contest', description: 'Super Contest Smart Category Super Rank winner!', obtainMethod: 'Diamond/Pearl/Platinum: Hearthome City' },
+  { id: 'smart-contest-ultra-s', name: 'Smart Ribbon Ultra', category: 'contest', description: 'Super Contest Smart Category Ultra Rank winner!', obtainMethod: 'Diamond/Pearl/Platinum: Hearthome City' },
+  { id: 'smart-contest-master-s', name: 'Smart Ribbon Master', category: 'contest', description: 'Super Contest Smart Category Master Rank winner!', obtainMethod: 'Diamond/Pearl/Platinum: Hearthome City' },
+  
+  { id: 'tough-contest-normal-s', name: 'Tough Ribbon', category: 'contest', description: 'Super Contest Tough Category Normal Rank winner!', obtainMethod: 'Diamond/Pearl/Platinum: Hearthome City' },
+  { id: 'tough-contest-super-s', name: 'Tough Ribbon Super', category: 'contest', description: 'Super Contest Tough Category Super Rank winner!', obtainMethod: 'Diamond/Pearl/Platinum: Hearthome City' },
+  { id: 'tough-contest-ultra-s', name: 'Tough Ribbon Ultra', category: 'contest', description: 'Super Contest Tough Category Ultra Rank winner!', obtainMethod: 'Diamond/Pearl/Platinum: Hearthome City' },
+  { id: 'tough-contest-master-s', name: 'Tough Ribbon Master', category: 'contest', description: 'Super Contest Tough Category Master Rank winner!', obtainMethod: 'Diamond/Pearl/Platinum: Hearthome City' },
+  
+  // Master Ribbons from BDSP
+  { id: 'beauty-master-2', name: 'Beauty Master Ribbon', category: 'contest', description: 'A Ribbon awarded to a Pokémon that has perfectly embodied Beauty in Pokémon Contests', obtainMethod: 'Win the Beauty Master Rank Contest' },
+  { id: 'cleverness-master', name: 'Cleverness Master Ribbon', category: 'contest', description: 'A Ribbon awarded to a Pokémon that has perfectly embodied Cleverness in Pokémon Contests', obtainMethod: 'Win the Cleverness Master Rank Contest' },
+  { id: 'coolness-master', name: 'Coolness Master Ribbon', category: 'contest', description: 'A Ribbon awarded to a Pokémon that has perfectly embodied Coolness in Pokémon Contests', obtainMethod: 'Win the Coolness Master Rank Contest' },
+  { id: 'cuteness-master', name: 'Cuteness Master Ribbon', category: 'contest', description: 'A Ribbon awarded to a Pokémon that has perfectly embodied Cuteness in Pokémon Contests', obtainMethod: 'Win the Cuteness Master Rank Contest' },
+  { id: 'toughness-master', name: 'Toughness Master Ribbon', category: 'contest', description: 'A Ribbon awarded to a Pokémon that has perfectly embodied Toughness in Pokémon Contests', obtainMethod: 'Win the Toughness Master Rank Contest' },
+  { id: 'contest-star', name: 'Contest Star Ribbon', category: 'contest', description: 'A Ribbon awarded to a Pokémon that has performed superbly in the Master Rank at a Super Contest Show', obtainMethod: 'Hearthome City - Get Master Rank in all 5 Ranks' },
+  { id: 'twinkling-star', name: 'Twinkling Star Ribbon', category: 'contest', description: 'A Ribbon awarded to a Pokémon that has perfectly embodied shining brilliance in Super Contest Shows', obtainMethod: 'Hearthome City - Be Star of the Show in all Ranks of Super Contest' },
+  
+  // Battle Ribbons - Hoenn
+  { id: 'winning', name: 'Winning Ribbon', category: 'battle', description: 'Ribbon awarded for clearing the Hoenn Battle Tower\'s Lv. 50 challenge', obtainMethod: 'Ruby/Sapphire: Battle Tower, Emerald: Battle Frontier' },
+  { id: 'victory', name: 'Victory Ribbon', category: 'battle', description: 'Ribbon awarded for clearing the Hoenn Battle Tower\'s Lv. 100 challenge', obtainMethod: 'Ruby/Sapphire: Battle Tower, Emerald: Battle Frontier' },
+  
+  // Battle Ribbons - Sinnoh
+  { id: 'ability', name: 'Ability Ribbon', category: 'battle', description: 'A Ribbon awarded for defeating the Tower Tycoon at the Battle Tower', obtainMethod: 'Diamond/Pearl: Battle Tower, Platinum/HeartGold/SoulSilver: Battle Frontier' },
+  { id: 'great-ability', name: 'Great Ability Ribbon', category: 'battle', description: 'A Ribbon awarded for defeating the Tower Tycoon at the Battle Tower', obtainMethod: 'Diamond/Pearl: Battle Tower, Platinum/HeartGold/SoulSilver: Battle Frontier' },
+  { id: 'double-ability', name: 'Double Ability Ribbon', category: 'battle', description: 'A Ribbon awarded for completing the Battle Tower Double challenge', obtainMethod: 'Diamond/Pearl: Battle Tower, Platinum/HeartGold/SoulSilver: Battle Frontier' },
+  { id: 'multi-ability', name: 'Multi Ability Ribbon', category: 'battle', description: 'A Ribbon awarded for completing the Battle Tower Multi challenge', obtainMethod: 'Diamond/Pearl: Battle Tower, Platinum/HeartGold/SoulSilver: Battle Frontier' },
+  { id: 'pair-ability', name: 'Pair Ability Ribbon', category: 'battle', description: 'A Ribbon awarded for completing the Battle Tower Link Multi challenge', obtainMethod: 'Diamond/Pearl: Battle Tower, Platinum/HeartGold/SoulSilver: Battle Frontier' },
+  { id: 'world-ability', name: 'World Ability Ribbon', category: 'battle', description: 'A Ribbon awarded for completing the Wi-Fi Battle Tower challenge', obtainMethod: 'Diamond/Pearl: Battle Tower, Platinum/HeartGold/SoulSilver: Battle Frontier' },
+  
+  // Battle Ribbons - Kalos
+  { id: 'skillful-battler', name: 'Skillful Battler Ribbon', category: 'battle', description: 'Ribbon that can be given to a Pokémon that has achieved victory in difficult battles', obtainMethod: 'Defeat one of the heads of the Battle Maison with the Pokémon' },
+  { id: 'expert-battler', name: 'Expert Battler Ribbon', category: 'battle', description: 'Ribbon that can be given to a Pokémon that has achieved victory in difficult battles', obtainMethod: 'Defeat one of the heads of the Battle Maison with the Pokémon in the Super battles' },
+  
+  // Battle Ribbons - Alola
+  { id: 'battle-royal-master', name: 'Battle Royal Master Ribbon', category: 'battle', description: 'A Ribbon that can be given to a Pokémon that has achieved victory in the Battle Royal', obtainMethod: 'Sun/Moon: Defeat Battle Royal Master Rank battle at Royal Avenue' },
+  { id: 'battle-tree-great', name: 'Battle Tree Great Ribbon', category: 'battle', description: 'A Ribbon awarded for winning against a Battle Legend in the Battle Tree', obtainMethod: 'Sun/Moon: Battle Tree' },
+  { id: 'battle-tree-master', name: 'Battle Tree Master Ribbon', category: 'battle', description: 'A Ribbon awarded for winning against a Battle Legend in super battles in the Battle Tree', obtainMethod: 'Sun/Moon: Battle Tree' },
+  
+  // Battle Ribbons - Galar
+  { id: 'tower-master', name: 'Tower Master Ribbon', category: 'battle', description: 'A Ribbon awarded for winning against a champion in the Battle Tower', obtainMethod: 'Defeat Leon in one of the higher tiers of the Battle Tower' },
+  { id: 'master-rank', name: 'Master Rank Ribbon', category: 'battle', description: 'A Ribbon awarded for winning against a Trainer in the Master Ball Tier of Ranked Battles', obtainMethod: 'Defeat a Master Ball tier trainer in Ranked Battle' },
+  
+  // Memory Ribbons
+  { id: 'contest-memory', name: 'Contest Memory Ribbon', category: 'memory', description: 'A commemorative Ribbon representing all the Ribbons you collected in far-off lands for contests', obtainMethod: 'Transfer a Pokémon who had ribbons from Contests in Ruby, Sapphire or Emerald, or Super Contests in Diamond, Pearl or Platinum' },
+  { id: 'battle-memory', name: 'Battle Memory Ribbon', category: 'memory', description: 'A commemorative Ribbon representing all the Ribbons you collected in far-off lands for battling', obtainMethod: 'Transfer a Pokémon who had ribbons from Battle Tower in Diamond, Pearl, Platinum, HeartGold or SoulSilver' },
+  { id: 'contest-memory-2', name: 'Contest Memory Ribbon (All)', category: 'memory', description: 'A commemorative Ribbon representing all the Ribbons you collected in far-off lands for contests', obtainMethod: 'Transfer a Pokémon who had all the ribbons from Contests in Ruby, Sapphire or Emerald, or Super Contests in Diamond, Pearl or Platinum' },
+  { id: 'battle-memory-2', name: 'Battle Memory Ribbon (All)', category: 'memory', description: 'A commemorative Ribbon representing all the Ribbons you collected in far-off lands for battling', obtainMethod: 'Transfer a Pokémon who had all the ribbons from Battle Tower in Diamond, Pearl, Platinum, HeartGold or SoulSilver' },
+  
+  // Colosseum/XD Ribbons  
+  { id: 'national', name: 'National Ribbon', category: 'special', description: 'A Ribbon awarded for overcoming all difficult challenges', obtainMethod: 'Colosseum: Relic Stone, XD: Purification Chamber - Purify the Pokémon' },
+  { id: 'earth', name: 'Earth Ribbon', category: 'special', description: 'A Ribbon awarded for winning 100 matches in a row', obtainMethod: 'Colosseum/XD: Mt. Battle' },
+  
+  // Special Event Ribbons
+  { id: 'country', name: 'Country Ribbon', category: 'event', description: 'Pokémon League - Champion Ribbon', obtainMethod: 'Given to the Pokemon on the team of the winners of Japanese Regionals in 2003 and 2004' },
+  { id: 'world', name: 'World Ribbon', category: 'event', description: 'Pokémon League - Champion Ribbon', obtainMethod: 'Given to the Pokemon on the team of the winners of Japanese Nationals in 2003 and 2004' },
+  { id: 'marine', name: 'Marine Ribbon', category: 'event', description: '2005 National Tournament Runner-up Ribbon', obtainMethod: 'Special Event Only' },
+  { id: 'land', name: 'Land Ribbon', category: 'event', description: '2003 National Tournament Semifinalist Ribbon', obtainMethod: 'Special Event Only' },
+  { id: 'sky', name: 'Sky Ribbon', category: 'event', description: 'A Commemorative Ribbon obtained in a Mystery Zone', obtainMethod: 'Special Event Only' },
+  { id: 'classic', name: 'Classic Ribbon', category: 'event', description: 'A Ribbon that proclaims love for Pokémon', obtainMethod: 'Placed on Event Download Pokémon - Prevents trade on Global Trade Station' },
+  { id: 'premier', name: 'Premier Ribbon', category: 'event', description: 'A Ribbon awarded for a special holiday', obtainMethod: 'Special Event' },
+  { id: 'birthday', name: 'Birthday Ribbon', category: 'event', description: 'A Ribbon that commemorates a birthday', obtainMethod: 'Special Event' },
+  { id: 'special', name: 'Special Ribbon', category: 'event', description: 'A special Ribbon for a special day', obtainMethod: 'Special Event' },
+  { id: 'event', name: 'Event Ribbon', category: 'event', description: 'A Ribbon awarded for participating in a special Pokémon event', obtainMethod: 'Special Event' },
+  { id: 'souvenir', name: 'Souvenir Ribbon', category: 'event', description: 'A Ribbon for cherishing a special memory', obtainMethod: 'Special Event' },
+  { id: 'battle-champ', name: 'Battle Champion Ribbon', category: 'event', description: 'A Ribbon awarded to a Battle Competition Champion', obtainMethod: 'Special Event' },
+  { id: 'regional-champ', name: 'Regional Champion Ribbon', category: 'event', description: 'A Ribbon awarded to a Regional Champion in the Pokémon World Championships', obtainMethod: 'Special Event' },
+  { id: 'national-champ', name: 'National Champion Ribbon', category: 'event', description: 'A Ribbon awarded to a National Champion in the Pokémon World Championships', obtainMethod: 'Special Event' },
+  
+  // Special Merit Ribbons
+  { id: 'legend', name: 'Legend Ribbon', category: 'special', description: 'A Ribbon awarded for setting a legendary record', obtainMethod: 'HeartGold/SoulSilver: Defeat Red at Mt. Silver' },
+  { id: 'artist', name: 'Artist Ribbon', category: 'special', description: 'Ribbon awarded for being chosen as a super sketch model in Hoenn', obtainMethod: 'Ruby/Sapphire/Emerald: Lilycove City - Defeat Master Rank with top score' },
+  { id: 'effort', name: 'Effort Ribbon', category: 'special', description: 'Ribbon awarded for being an exceptionally hard worker', obtainMethod: 'Ruby/Sapphire/Emerald: Slateport City, Diamond/Pearl/Platinum: Sunyshore City, HeartGold/SoulSilver: Blackthorn City, Sun/Moon: Royal Avenue - Max out Effort Values on the Pokémon' },
+  { id: 'training', name: 'Training Ribbon', category: 'special', description: 'Ribbon that can be given to a Pokémon that has overcome rigorous trials and training', obtainMethod: 'Show a Pokémon who has gold medalled every Super Training event to man in Lumiose City café' },
+  { id: 'best-friends', name: 'Best Friends Ribbon', category: 'special', description: 'Ribbon that can be given to a Pokémon with which you share a close and meaningful bond', obtainMethod: 'X/Y: Max affection with a Pokémon in Pokémon Amie and show Bonnie in Lumiose City Centrico Plaza, Sun/Moon: Max affection with a Pokémon in Pokémon Amie and show person in Malie City Community Center' },
+  { id: 'footprint', name: 'Footprint Ribbon', category: 'special', description: 'A Ribbon awarded to a Pokémon deemed to have a top-quality footprint', obtainMethod: 'Diamond/Pearl/Platinum: Route 213, Sun/Moon: Hano Grand Resort - Show Mr. Footprint a Pokémon that has gained 30 Levels' },
+  
+  // Mood/Feeling Ribbons from Sinnoh
+  { id: 'alert', name: 'Alert Ribbon', category: 'mood', description: 'A Ribbon for recalling an invigorating event that created life energy', obtainMethod: 'Diamond/Pearl/Platinum: Sunyshore City - Monday, HeartGold/SoulSilver: Route 40 - Monday' },
+  { id: 'shock', name: 'Shock Ribbon', category: 'mood', description: 'A Ribbon for recalling a thrilling event that made life more exciting', obtainMethod: 'Diamond/Pearl/Platinum: Sunyshore City - Tuesday, HeartGold/SoulSilver: Route 29 - Tuesday' },
+  { id: 'downcast', name: 'Downcast Ribbon', category: 'mood', description: 'A Ribbon for recalling feelings of sadness that added spice to life', obtainMethod: 'Diamond/Pearl/Platinum: Sunyshore City - Wednesday, HeartGold/SoulSilver: Lake of Rage - Wednesday' },
+  { id: 'careless', name: 'Careless Ribbon', category: 'mood', description: 'A Ribbon for recalling a careless error that helped steer life decisions', obtainMethod: 'Diamond/Pearl/Platinum: Sunyshore City - Thursday, HeartGold/SoulSilver: Route 36 - Thursday' },
+  { id: 'relax', name: 'Relax Ribbon', category: 'mood', description: 'A Ribbon for recalling a refreshing event that added sparkle to life', obtainMethod: 'Diamond/Pearl/Platinum: Sunyshore City - Friday, HeartGold/SoulSilver: Route 32 - Friday' },
+  { id: 'snooze', name: 'Snooze Ribbon', category: 'mood', description: 'A Ribbon for recalling a deep slumber that made life soothing', obtainMethod: 'Diamond/Pearl/Platinum: Sunyshore City - Saturday, HeartGold/SoulSilver: Blackthorn City - Saturday' },
+  { id: 'smile', name: 'Smile Ribbon', category: 'mood', description: 'A Ribbon for recalling that smiles enrich the quality of life', obtainMethod: 'Diamond/Pearl/Platinum: Sunyshore City - Sunday, HeartGold/SoulSilver: Route 37 - Sunday' },
+  
+  // Luxury Ribbons from Sinnoh
+  { id: 'gorgeous', name: 'Gorgeous Ribbon', category: 'luxury', description: 'An extraordinary gorgeous and extravagant Ribbon', obtainMethod: 'Diamond/Pearl/Platinum: Resort Area - Buy for 10,000' },
+  { id: 'royal', name: 'Royal Ribbon', category: 'luxury', description: 'An incredibly regal Ribbon with an air of nobility', obtainMethod: 'Diamond/Pearl/Platinum: Resort Area - Buy for 100,000' },
+  { id: 'gorgeous-royal', name: 'Gorgeous Royal Ribbon', category: 'luxury', description: 'A gorgeous and regal Ribbon that is the peak of fabulous', obtainMethod: 'Diamond/Pearl/Platinum: Resort Area - Buy for 999,999' },
+  
+  // Removed Ribbons (for completeness)
+  { id: 'record', name: 'Record Ribbon', category: 'removed', description: 'A Ribbon awarded for setting an incredible record', obtainMethod: 'Removed from code after Gen 4' },
+  { id: 'history', name: 'History Ribbon', category: 'removed', description: 'A Ribbon awarded for setting a historical record', obtainMethod: 'Removed from code after Gen 4' },
+  { id: 'red', name: 'Red Ribbon', category: 'removed', description: 'A commemorative Ribbon obtained in a Mystery Zone', obtainMethod: 'Removed from code after Gen 4' },
+  { id: 'green', name: 'Green Ribbon', category: 'removed', description: 'A commemorative Ribbon obtained in a Mystery Zone', obtainMethod: 'Removed from code after Gen 4' },
+  { id: 'blue', name: 'Blue Ribbon', category: 'removed', description: 'A commemorative Ribbon obtained in a Mystery Zone', obtainMethod: 'Removed from code after Gen 4' },
+  { id: 'festival', name: 'Festival Ribbon', category: 'removed', description: 'A commemorative Ribbon obtained in a Mystery Zone', obtainMethod: 'Removed from code after Gen 4' },
+  { id: 'carnival', name: 'Carnival Ribbon', category: 'removed', description: 'A commemorative Ribbon obtained in a Mystery Zone', obtainMethod: 'Removed from code after Gen 4' }
 ];
 
 // Full Marks Collection
