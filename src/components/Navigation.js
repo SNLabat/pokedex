@@ -13,6 +13,22 @@ export default function Navigation() {
   const [isLoading, setIsLoading] = useState(false);
   const searchRef = useRef(null);
   
+  // Clean search state when route changes
+  useEffect(() => {
+    const handleRouteChange = () => {
+      setSearchTerm('');
+      setSearchResults([]);
+      setIsSearchFocused(false);
+      setIsMenuOpen(false);
+    };
+
+    router.events.on('routeChangeStart', handleRouteChange);
+    
+    return () => {
+      router.events.off('routeChangeStart', handleRouteChange);
+    };
+  }, [router]);
+  
   // Fetch all Pokémon for search
   useEffect(() => {
     const fetchAllPokemon = async () => {
@@ -80,7 +96,7 @@ export default function Navigation() {
       const searchQuery = searchTerm.toLowerCase().trim();
       
       // Handle both name and ID searches
-      const isNumber = !isNaN(searchQuery) && !isNaN(parseFloat(searchQuery));
+      const isNumber = /^\d+$/.test(searchQuery);
       if (isNumber) {
         // If it's a number, try to find the pokemon with that ID
         const pokemonWithId = allPokemon.find(p => p.id.toString() === searchQuery);
@@ -92,7 +108,7 @@ export default function Navigation() {
         }
       } else {
         // If it's a name, navigate directly
-        router.push(`/pokemon/${searchQuery}`);
+        router.push(`/pokemon/${searchQuery.replace(/\s+/g, '-')}`);
       }
       
       setSearchTerm('');
@@ -100,38 +116,44 @@ export default function Navigation() {
     }
   };
   
+  // Programmatic navigation to clean up state
+  const handleNavigation = (path) => {
+    setIsMenuOpen(false);
+    router.push(path);
+  };
+  
   return (
     <nav className="bg-gray-900 border-b border-gray-800 sticky top-0 z-50">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link href="/">
-            <a className="flex items-center space-x-2">
-              <div className="relative w-8 h-8">
-                <Image
-                  src="/img/pokeball.svg"
-                  alt="Pokédex Live"
-                  layout="fill"
-                  className="filter-red"
-                />
-              </div>
-              <span className="text-xl font-bold">Pokédex Live</span>
-            </a>
-          </Link>
+          <div className="flex items-center space-x-2 cursor-pointer" onClick={() => handleNavigation('/')}>
+            <div className="relative w-8 h-8">
+              <Image
+                src="/img/pokeball.png"
+                alt="Pokédex Live"
+                layout="fill"
+                className="filter-red"
+              />
+            </div>
+            <span className="text-xl font-bold">Pokédex Live</span>
+          </div>
           
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            <Link href="/pokedex">
-              <a className="text-gray-300 hover:text-white transition-colors">
-                Browse Pokédex
-              </a>
-            </Link>
+            <button
+              onClick={() => handleNavigation('/pokedex')}
+              className="text-gray-300 hover:text-white transition-colors"
+            >
+              Browse Pokédex
+            </button>
             
-            <Link href="/team-builder">
-              <a className="text-gray-300 hover:text-white transition-colors">
-                Team Builder
-              </a>
-            </Link>
+            <button
+              onClick={() => handleNavigation('/team-builder')}
+              className="text-gray-300 hover:text-white transition-colors"
+            >
+              Team Builder
+            </button>
             
             <div className="relative" ref={searchRef}>
               <form onSubmit={handleSearch} className="flex items-center">
@@ -165,24 +187,23 @@ export default function Navigation() {
                     <ul>
                       {searchResults.map(pokemon => (
                         <li key={pokemon.id}>
-                          <Link href={`/pokemon/${pokemon.name}`}>
-                            <a 
-                              className="block px-4 py-3 hover:bg-gray-700 transition-colors flex items-center"
-                              onClick={() => {
-                                setSearchTerm('');
-                                setIsSearchFocused(false);
-                              }}
-                            >
-                              <span className="text-gray-400 mr-2">#{String(pokemon.id).padStart(3, '0')}</span>
-                              <span className="capitalize">{pokemon.name.replace(/-/g, ' ')}</span>
-                            </a>
-                          </Link>
+                          <button
+                            onClick={() => {
+                              handleNavigation(`/pokemon/${pokemon.name}`);
+                              setSearchTerm('');
+                              setIsSearchFocused(false);
+                            }}
+                            className="block w-full text-left px-4 py-3 hover:bg-gray-700 transition-colors flex items-center"
+                          >
+                            <span className="text-gray-400 mr-2">#{String(pokemon.id).padStart(3, '0')}</span>
+                            <span className="capitalize">{pokemon.name.replace(/-/g, ' ')}</span>
+                          </button>
                         </li>
                       ))}
                     </ul>
                   ) : searchTerm.length > 0 ? (
                     <div className="p-4 text-center text-gray-400">
-                      No Pokémon found matching &quot;{searchTerm}&quot;
+                      No Pokémon found matching "{searchTerm}"
                     </div>
                   ) : null}
                 </div>
@@ -208,17 +229,19 @@ export default function Navigation() {
         {/* Mobile menu */}
         {isMenuOpen && (
           <div className="md:hidden py-4 border-t border-gray-800">
-            <Link href="/pokedex">
-              <a className="block py-2 text-gray-300 hover:text-white transition-colors">
-                Browse Pokédex
-              </a>
-            </Link>
+            <button
+              onClick={() => handleNavigation('/pokedex')}
+              className="block py-2 text-gray-300 hover:text-white transition-colors w-full text-left"
+            >
+              Browse Pokédex
+            </button>
             
-            <Link href="/team-builder">
-              <a className="block py-2 text-gray-300 hover:text-white transition-colors">
-                Team Builder
-              </a>
-            </Link>
+            <button
+              onClick={() => handleNavigation('/team-builder')}
+              className="block py-2 text-gray-300 hover:text-white transition-colors w-full text-left"
+            >
+              Team Builder
+            </button>
             
             <form onSubmit={handleSearch} className="mt-4 flex">
               <input
@@ -243,18 +266,17 @@ export default function Navigation() {
                 <ul>
                   {searchResults.map(pokemon => (
                     <li key={pokemon.id}>
-                      <Link href={`/pokemon/${pokemon.name}`}>
-                        <a 
-                          className="block px-4 py-3 hover:bg-gray-700 transition-colors flex items-center"
-                          onClick={() => {
-                            setSearchTerm('');
-                            setIsMenuOpen(false);
-                          }}
-                        >
-                          <span className="text-gray-400 mr-2">#{String(pokemon.id).padStart(3, '0')}</span>
-                          <span className="capitalize">{pokemon.name.replace(/-/g, ' ')}</span>
-                        </a>
-                      </Link>
+                      <button
+                        onClick={() => {
+                          handleNavigation(`/pokemon/${pokemon.name}`);
+                          setSearchTerm('');
+                          setIsMenuOpen(false);
+                        }}
+                        className="block w-full text-left px-4 py-3 hover:bg-gray-700 transition-colors flex items-center"
+                      >
+                        <span className="text-gray-400 mr-2">#{String(pokemon.id).padStart(3, '0')}</span>
+                        <span className="capitalize">{pokemon.name.replace(/-/g, ' ')}</span>
+                      </button>
                     </li>
                   ))}
                 </ul>
