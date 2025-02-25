@@ -9,30 +9,30 @@ import LocationEncounterData from '../../components/LocationEncounterData';
 import EnhancedTrackingPanel from '../../components/EnhancedTrackingPanel';
 import { currentUserPlaceholder } from '../../lib/dataManagement';
 
-// Type color mapping for visual styling
+// Update typeColors object with explicit color values instead of Tailwind class names
 const typeColors = {
-  normal: { bg: 'bg-gray-700', text: 'text-gray-100', accent: 'bg-gray-500', light: 'bg-gray-600' },
-  fire: { bg: 'bg-orange-900', text: 'text-orange-50', accent: 'bg-orange-600', light: 'bg-orange-800' },
-  water: { bg: 'bg-blue-900', text: 'text-blue-50', accent: 'bg-blue-600', light: 'bg-blue-800' },
-  electric: { bg: 'bg-yellow-700', text: 'text-yellow-50', accent: 'bg-yellow-500', light: 'bg-yellow-600' },
-  grass: { bg: 'bg-green-800', text: 'text-green-50', accent: 'bg-green-600', light: 'bg-green-700' },
-  ice: { bg: 'bg-cyan-800', text: 'text-cyan-50', accent: 'bg-cyan-500', light: 'bg-cyan-700' },
-  fighting: { bg: 'bg-red-900', text: 'text-red-50', accent: 'bg-red-600', light: 'bg-red-800' },
-  poison: { bg: 'bg-purple-900', text: 'text-purple-50', accent: 'bg-purple-600', light: 'bg-purple-800' },
-  ground: { bg: 'bg-amber-900', text: 'text-amber-50', accent: 'bg-amber-600', light: 'bg-amber-800' },
-  flying: { bg: 'bg-indigo-800', text: 'text-indigo-50', accent: 'bg-indigo-500', light: 'bg-indigo-700' },
-  psychic: { bg: 'bg-pink-800', text: 'text-pink-50', accent: 'bg-pink-500', light: 'bg-pink-700' },
-  bug: { bg: 'bg-lime-800', text: 'text-lime-50', accent: 'bg-lime-600', light: 'bg-lime-700' },
-  rock: { bg: 'bg-stone-800', text: 'text-stone-50', accent: 'bg-stone-600', light: 'bg-stone-700' },
-  ghost: { bg: 'bg-purple-950', text: 'text-purple-50', accent: 'bg-purple-700', light: 'bg-purple-900' },
-  dragon: { bg: 'bg-violet-900', text: 'text-violet-50', accent: 'bg-violet-600', light: 'bg-violet-800' },
-  dark: { bg: 'bg-neutral-900', text: 'text-neutral-50', accent: 'bg-neutral-700', light: 'bg-neutral-800' },
-  steel: { bg: 'bg-zinc-800', text: 'text-zinc-50', accent: 'bg-zinc-600', light: 'bg-zinc-700' },
-  fairy: { bg: 'bg-pink-700', text: 'text-pink-50', accent: 'bg-pink-500', light: 'bg-pink-600' }
+  normal: { mainColor: '#A8A878', darkColor: '#6D6D4E', textColor: '#FFFFFF' },
+  fire: { mainColor: '#F08030', darkColor: '#9C531F', textColor: '#FFFFFF' },
+  water: { mainColor: '#6890F0', darkColor: '#445E9C', textColor: '#FFFFFF' },
+  electric: { mainColor: '#F8D030', darkColor: '#A1871F', textColor: '#000000' },
+  grass: { mainColor: '#78C850', darkColor: '#4E8234', textColor: '#FFFFFF' },
+  ice: { mainColor: '#98D8D8', darkColor: '#638D8D', textColor: '#000000' },
+  fighting: { mainColor: '#C03028', darkColor: '#7D1F1A', textColor: '#FFFFFF' },
+  poison: { mainColor: '#A040A0', darkColor: '#682A68', textColor: '#FFFFFF' },
+  ground: { mainColor: '#E0C068', darkColor: '#927D44', textColor: '#000000' },
+  flying: { mainColor: '#A890F0', darkColor: '#6D5E9C', textColor: '#FFFFFF' },
+  psychic: { mainColor: '#F85888', darkColor: '#A13959', textColor: '#FFFFFF' },
+  bug: { mainColor: '#A8B820', darkColor: '#6D7815', textColor: '#FFFFFF' },
+  rock: { mainColor: '#B8A038', darkColor: '#786824', textColor: '#FFFFFF' },
+  ghost: { mainColor: '#705898', darkColor: '#493963', textColor: '#FFFFFF' },
+  dragon: { mainColor: '#7038F8', darkColor: '#4924A1', textColor: '#FFFFFF' },
+  dark: { mainColor: '#705848', darkColor: '#49392F', textColor: '#FFFFFF' },
+  steel: { mainColor: '#B8B8D0', darkColor: '#787887', textColor: '#000000' },
+  fairy: { mainColor: '#EE99AC', darkColor: '#9B6470', textColor: '#000000' }
 };
 
 // Default theme if no type is available
-const defaultTheme = { bg: 'bg-gray-800', text: 'text-white', accent: 'bg-gray-600', light: 'bg-gray-700' };
+const defaultTheme = { mainColor: '#68A090', darkColor: '#426658', textColor: '#FFFFFF' };
 
 // Utility function for proper casing
 const properCase = (str) => {
@@ -346,37 +346,41 @@ const PokemonHero = ({ pokemon, isShiny, setIsShiny, isAnimated, setIsAnimated, 
   const secondType = pokemon.types[1]?.type.name;
   
   // Get theme colors for the main type
-  const mainTheme = typeColors[mainType] || defaultTheme;
+  const mainTypeColor = typeColors[mainType] || defaultTheme;
+  const secondTypeColor = secondType ? typeColors[secondType] || defaultTheme : null;
   
-  // Create hero background class based on types
-  let heroBgClass;
+  // Create background style
+  let heroBgStyle;
   
   if (mainType && secondType) {
-    // For dual types, create a gradient using the full bg colors (not the light versions)
-    // We'll use the darker 900 variant for better visual contrast
-    heroBgClass = `bg-gradient-to-r from-${mainType}-900 to-${secondType}-900`;
+    // Gradient for dual types
+    heroBgStyle = {
+      background: `linear-gradient(to right, ${mainTypeColor.darkColor}, ${secondTypeColor.darkColor})`
+    };
   } else {
-    // For single type, use a darker version of the type color (900 instead of 800)
-    heroBgClass = `bg-${mainType}-900`;
+    // Solid color for single type
+    heroBgStyle = {
+      backgroundColor: mainTypeColor.darkColor
+    };
   }
 
   return (
-    <div className={`${heroBgClass} py-10 mb-8`}>
+    <div style={heroBgStyle} className="py-10 mb-8">
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row items-center">
-          {/* Pokémon Image in Circle */}
+          {/* Pokemon Image in Circle */}
           <div className="relative mb-6 md:mb-0 md:mr-10">
             <div className="w-64 h-64 rounded-full overflow-hidden relative flex items-center justify-center bg-gray-900">
               {/* Type-based outer ring based on number of types */}
               <div className="absolute inset-0 rounded-full overflow-hidden border-8 border-gray-900">
                 {pokemon.types.length === 1 ? (
                   // Single type - full circle
-                  <div className={`absolute inset-0 ${typeColors[mainType]?.accent || 'bg-gray-600'}`}></div>
+                  <div className="absolute inset-0" style={{ backgroundColor: mainTypeColor.mainColor }}></div>
                 ) : pokemon.types.length === 2 ? (
                   // Two types - half and half
                   <>
-                    <div className={`absolute top-0 left-0 w-1/2 h-full ${typeColors[mainType]?.accent || 'bg-gray-600'}`}></div>
-                    <div className={`absolute top-0 right-0 w-1/2 h-full ${typeColors[secondType]?.accent || 'bg-gray-600'}`}></div>
+                    <div className="absolute top-0 left-0 w-1/2 h-full" style={{ backgroundColor: mainTypeColor.mainColor }}></div>
+                    <div className="absolute top-0 right-0 w-1/2 h-full" style={{ backgroundColor: secondTypeColor.mainColor }}></div>
                   </>
                 ) : null}
               </div>
@@ -403,15 +407,21 @@ const PokemonHero = ({ pokemon, isShiny, setIsShiny, isAnimated, setIsAnimated, 
             
             {/* Type Pills */}
             <div className="flex justify-center mt-4 space-x-2">
-              {pokemon.types.map(typeData => (
-                <span
-                  key={typeData.type.name}
-                  className={`${typeColors[typeData.type.name]?.accent || 'bg-gray-600'} 
-                    px-4 py-2 rounded-full text-sm capitalize font-medium`}
-                >
-                  {typeData.type.name}
-                </span>
-              ))}
+              {pokemon.types.map(typeData => {
+                const typeStyle = typeColors[typeData.type.name] || defaultTheme;
+                return (
+                  <span
+                    key={typeData.type.name}
+                    style={{ 
+                      backgroundColor: typeStyle.mainColor,
+                      color: typeStyle.textColor
+                    }}
+                    className="px-4 py-2 rounded-full text-sm capitalize font-medium"
+                  >
+                    {typeData.type.name}
+                  </span>
+                );
+              })}
             </div>
           </div>
           
@@ -428,8 +438,9 @@ const PokemonHero = ({ pokemon, isShiny, setIsShiny, isAnimated, setIsAnimated, 
               <div className="flex flex-wrap gap-3 mb-6">
                 <button
                   onClick={() => setIsShiny(false)}
+                  style={!isShiny ? { backgroundColor: mainTypeColor.mainColor, color: mainTypeColor.textColor } : {}}
                   className={`px-4 py-2 rounded-lg transition-colors ${
-                    !isShiny ? `${mainTheme.accent} text-white` : 'bg-gray-700 hover:bg-gray-600'
+                    !isShiny ? '' : 'bg-gray-700 hover:bg-gray-600 text-white'
                   }`}
                 >
                   Normal
@@ -437,7 +448,7 @@ const PokemonHero = ({ pokemon, isShiny, setIsShiny, isAnimated, setIsAnimated, 
                 <button
                   onClick={() => setIsShiny(true)}
                   className={`px-4 py-2 rounded-lg transition-colors ${
-                    isShiny ? 'bg-yellow-500 text-gray-900' : 'bg-gray-700 hover:bg-gray-600'
+                    isShiny ? 'bg-yellow-500 text-gray-900' : 'bg-gray-700 hover:bg-gray-600 text-white'
                   }`}
                 >
                   Shiny
@@ -445,7 +456,7 @@ const PokemonHero = ({ pokemon, isShiny, setIsShiny, isAnimated, setIsAnimated, 
                 <button
                   onClick={() => setIsAnimated(false)}
                   className={`px-4 py-2 rounded-lg transition-colors ${
-                    !isAnimated ? 'bg-blue-600 text-white' : 'bg-gray-700 hover:bg-gray-600'
+                    !isAnimated ? 'bg-blue-600 text-white' : 'bg-gray-700 hover:bg-gray-600 text-white'
                   }`}
                 >
                   Static
@@ -453,7 +464,7 @@ const PokemonHero = ({ pokemon, isShiny, setIsShiny, isAnimated, setIsAnimated, 
                 <button
                   onClick={() => setIsAnimated(true)}
                   className={`px-4 py-2 rounded-lg transition-colors ${
-                    isAnimated ? 'bg-purple-600 text-white' : 'bg-gray-700 hover:bg-gray-600'
+                    isAnimated ? 'bg-purple-600 text-white' : 'bg-gray-700 hover:bg-gray-600 text-white'
                   }`}
                 >
                   Animated
@@ -635,54 +646,23 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
         
         {/* Tab Navigation - use the main type's theming */}
         <div className="flex flex-wrap border-b border-gray-700 mb-6">
-          <button
-            onClick={() => setActiveTab('info')}
-            className={`mr-2 px-4 py-2 rounded-t-lg ${
-              activeTab === 'info' ? theme.accent : 'bg-gray-800 hover:bg-gray-700'
-            }`}
-          >
-            Info
-          </button>
-          <button
-            onClick={() => setActiveTab('stats')}
-            className={`mr-2 px-4 py-2 rounded-t-lg ${
-              activeTab === 'stats' ? theme.accent : 'bg-gray-800 hover:bg-gray-700'
-            }`}
-          >
-            Stats
-          </button>
-          <button
-            onClick={() => setActiveTab('evolution')}
-            className={`mr-2 px-4 py-2 rounded-t-lg ${
-              activeTab === 'evolution' ? theme.accent : 'bg-gray-800 hover:bg-gray-700'
-            }`}
-          >
-            Evolution
-          </button>
-          <button
-            onClick={() => setActiveTab('moves')}
-            className={`mr-2 px-4 py-2 rounded-t-lg ${
-              activeTab === 'moves' ? theme.accent : 'bg-gray-800 hover:bg-gray-700'
-            }`}
-          >
-            Moves
-          </button>
-          <button
-            onClick={() => setActiveTab('locations')}
-            className={`mr-2 px-4 py-2 rounded-t-lg ${
-              activeTab === 'locations' ? theme.accent : 'bg-gray-800 hover:bg-gray-700'
-            }`}
-          >
-            Locations
-          </button>
-          <button
-            onClick={() => setActiveTab('tracking')}
-            className={`mr-2 px-4 py-2 rounded-t-lg ${
-              activeTab === 'tracking' ? theme.accent : 'bg-gray-800 hover:bg-gray-700'
-            }`}
-          >
-            Tracking
-          </button>
+          {['info', 'stats', 'evolution', 'moves', 'locations', 'tracking'].map((tab) => {
+            const isActive = activeTab === tab;
+            const mainTypeColor = typeColors[mainType] || defaultTheme;
+            
+            return (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`mr-2 px-4 py-2 rounded-t-lg ${
+                  isActive ? '' : 'bg-gray-800 hover:bg-gray-700'
+                }`}
+                style={isActive ? { backgroundColor: mainTypeColor.mainColor, color: mainTypeColor.textColor } : {}}
+              >
+                {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              </button>
+            );
+          })}
         </div>
         
         {/* Tab content - where appropriate, use the theme colors */}
