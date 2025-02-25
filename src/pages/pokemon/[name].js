@@ -2800,14 +2800,21 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
                     <h3 className="text-lg font-medium mb-2">Weaknesses</h3>
                     <div className="flex flex-wrap gap-2">
                       {weaknesses.length > 0 ? (
-                        weaknesses.map(type => (
-                          <span 
-                            key={type} 
-                            className={`${typeColors[type]?.accent || 'bg-gray-600'} px-3 py-1 rounded-full text-sm capitalize`}
-                          >
-                            {type}
-                          </span>
-                        ))
+                        weaknesses.map(type => {
+                          const typeStyle = typeColors[type] || defaultTheme;
+                          return (
+                            <span 
+                              key={type} 
+                              style={{ 
+                                backgroundColor: typeStyle.mainColor,
+                                color: typeStyle.textColor
+                              }}
+                              className="px-3 py-1 rounded-full text-sm capitalize font-medium"
+                            >
+                              {type}
+                            </span>
+                          );
+                        })
                       ) : (
                         <p className="text-gray-400">No specific weaknesses</p>
                       )}
@@ -2818,14 +2825,21 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
                     <h3 className="text-lg font-medium mb-2">Resistances</h3>
                     <div className="flex flex-wrap gap-2">
                       {resistances.length > 0 ? (
-                        resistances.map(type => (
-                          <span 
-                            key={type} 
-                            className={`${typeColors[type]?.accent || 'bg-gray-600'} px-3 py-1 rounded-full text-sm capitalize`}
-                          >
-                            {type}
-                          </span>
-                        ))
+                        resistances.map(type => {
+                          const typeStyle = typeColors[type] || defaultTheme;
+                          return (
+                            <span 
+                              key={type} 
+                              style={{ 
+                                backgroundColor: typeStyle.mainColor,
+                                color: typeStyle.textColor
+                              }}
+                              className="px-3 py-1 rounded-full text-sm capitalize font-medium"
+                            >
+                              {type}
+                            </span>
+                          );
+                        })
                       ) : (
                         <p className="text-gray-400">No specific resistances</p>
                       )}
@@ -2836,14 +2850,21 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
                     <div>
                       <h3 className="text-lg font-medium mb-2">Immunities</h3>
                       <div className="flex flex-wrap gap-2">
-                        {immunities.map(type => (
-                          <span 
-                            key={type} 
-                            className={`${typeColors[type]?.accent || 'bg-gray-600'} px-3 py-1 rounded-full text-sm capitalize`}
-                          >
-                            {type}
-                          </span>
-                        ))}
+                        {immunities.map(type => {
+                          const typeStyle = typeColors[type] || defaultTheme;
+                          return (
+                            <span 
+                              key={type} 
+                              style={{ 
+                                backgroundColor: typeStyle.mainColor,
+                                color: typeStyle.textColor
+                              }}
+                              className="px-3 py-1 rounded-full text-sm capitalize font-medium"
+                            >
+                              {type}
+                            </span>
+                          );
+                        })}
                       </div>
                     </div>
                   )}
