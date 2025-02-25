@@ -339,10 +339,139 @@ const MovesTable = ({ moves, learnMethod, title }) => {
   );
 };
 
+// Hero section redesign with circular pokemon image and sprite toggles
+const PokemonHero = ({ pokemon, isShiny, setIsShiny, isAnimated, setIsAnimated, theme, speciesText }) => {
+  return (
+    <div className="bg-gray-950 py-10 mb-8">
+      <div className="container mx-auto px-4">
+        <div className="flex flex-col md:flex-row items-center">
+          {/* Pokemon Image in Circle */}
+          <div className="relative mb-6 md:mb-0 md:mr-10">
+            <div className={`w-64 h-64 rounded-full overflow-hidden relative flex items-center justify-center
+              ${pokemon.types.length > 0 ? theme.light : defaultTheme.light}`}
+            >
+              {/* Type-based outer ring */}
+              <div className={`absolute inset-0 rounded-full ${
+                pokemon.types.length > 1 
+                  ? `bg-gradient-to-r from-${pokemon.types[0].type.name} to-${pokemon.types[1].type.name}` 
+                  : theme.accent
+                } z-0 p-3`}>
+                <div className="w-full h-full bg-gray-900 rounded-full"></div>
+              </div>
+              
+              {/* Pokemon sprite */}
+              <div className="relative z-10 w-56 h-56">
+                <Image
+                  src={
+                    isAnimated
+                      ? (isShiny 
+                          ? pokemon.sprites.versions?.['generation-v']?.['black-white']?.animated?.front_shiny || pokemon.sprites.front_shiny 
+                          : pokemon.sprites.versions?.['generation-v']?.['black-white']?.animated?.front_default || pokemon.sprites.front_default)
+                      : (isShiny
+                          ? pokemon.sprites.other['official-artwork'].front_shiny || pokemon.sprites.front_shiny
+                          : pokemon.sprites.other['official-artwork'].front_default || pokemon.sprites.front_default)
+                  }
+                  alt={pokemon.name}
+                  layout="fill"
+                  objectFit="contain"
+                  priority
+                />
+              </div>
+            </div>
+            
+            {/* Type Pills */}
+            <div className="flex justify-center mt-4 space-x-2">
+              {pokemon.types.map(typeData => (
+                <span
+                  key={typeData.type.name}
+                  className={`${typeColors[typeData.type.name]?.accent || 'bg-gray-600'} 
+                    px-4 py-2 rounded-full text-sm capitalize font-medium`}
+                >
+                  {typeData.type.name}
+                </span>
+              ))}
+            </div>
+          </div>
+          
+          {/* Pokemon Info and Toggles */}
+          <div className="flex-1">
+            <div className="flex flex-col">
+              <div className="mb-4">
+                <p className="text-gray-400 text-xl mb-1">#{String(pokemon.id).padStart(3, '0')}</p>
+                <h1 className="text-4xl md:text-5xl font-bold capitalize mb-2">{pokemon.name.replace(/-/g, ' ')}</h1>
+                <p className="text-xl text-gray-300 italic">{speciesText}</p>
+              </div>
+              
+              {/* Sprite Toggle Buttons */}
+              <div className="flex flex-wrap gap-3 mb-6">
+                <button
+                  onClick={() => setIsShiny(false)}
+                  className={`px-4 py-2 rounded-lg transition-colors ${
+                    !isShiny ? 'bg-red-600 text-white' : 'bg-gray-700 hover:bg-gray-600'
+                  }`}
+                >
+                  Normal
+                </button>
+                <button
+                  onClick={() => setIsShiny(true)}
+                  className={`px-4 py-2 rounded-lg transition-colors ${
+                    isShiny ? 'bg-yellow-500 text-gray-900' : 'bg-gray-700 hover:bg-gray-600'
+                  }`}
+                >
+                  Shiny
+                </button>
+                <button
+                  onClick={() => setIsAnimated(false)}
+                  className={`px-4 py-2 rounded-lg transition-colors ${
+                    !isAnimated ? 'bg-blue-600 text-white' : 'bg-gray-700 hover:bg-gray-600'
+                  }`}
+                >
+                  Static
+                </button>
+                <button
+                  onClick={() => setIsAnimated(true)}
+                  className={`px-4 py-2 rounded-lg transition-colors ${
+                    isAnimated ? 'bg-purple-600 text-white' : 'bg-gray-700 hover:bg-gray-600'
+                  }`}
+                >
+                  Animated
+                </button>
+              </div>
+              
+              {/* Basic Stats */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                <div className="bg-gray-800 rounded-lg p-3">
+                  <p className="text-gray-400 text-sm">Height</p>
+                  <p className="font-medium">{(pokemon.height / 10).toFixed(1)}m</p>
+                </div>
+                <div className="bg-gray-800 rounded-lg p-3">
+                  <p className="text-gray-400 text-sm">Weight</p>
+                  <p className="font-medium">{(pokemon.weight / 10).toFixed(1)}kg</p>
+                </div>
+                <div className="bg-gray-800 rounded-lg p-3">
+                  <p className="text-gray-400 text-sm">Base XP</p>
+                  <p className="font-medium">{pokemon.base_experience || 'N/A'}</p>
+                </div>
+                <div className="bg-gray-800 rounded-lg p-3">
+                  <p className="text-gray-400 text-sm">Abilities</p>
+                  <p className="font-medium capitalize">
+                    {pokemon.abilities.map(a => a.ability.name.replace(/-/g, ' ')).join(', ')}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Main component
 export default function PokemonDetail({ pokemon, species, evolutionChain, alternativeForms }) {
   const router = useRouter();
   const [isShiny, setIsShiny] = useState(false);
+  const [isAnimated, setIsAnimated] = useState(false);
   const [activeTab, setActiveTab] = useState('info');
   const [caughtStatus, setCaughtStatus] = useState({});
   const [isEvolutionExpanded, setIsEvolutionExpanded] = useState(false);
@@ -371,6 +500,7 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
     
     // Reset other states
     setIsShiny(false);
+    setIsAnimated(false);
     setActiveTab('info');
     setIsEvolutionExpanded(false);
   }, [pokemon?.id]); // Only depend on pokemon.id to avoid unnecessary resets
@@ -427,476 +557,180 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
   const nextId = id < 1008 ? id + 1 : null;
 
   return (
-    <div className={`min-h-screen ${theme.bg} ${theme.text}`}>
+    <div className="min-h-screen bg-gray-900 text-white">
       <Head>
-        <title>{properCase(name)} (#{id.toString().padStart(3, '0')}) | Pokédex Live</title>
-        <meta name="description" content={`View detailed information about ${properCase(name)}, a ${primaryType}-type Pokémon.${pokedexEntry ? ` ${pokedexEntry.slice(0, 100)}...` : ''}`} />
-        <meta property="og:image" content={displaySprite} />
+        <title>{properCase(name)} | Pokédex Live</title>
+        <meta name="description" content={`View details for ${properCase(name)} - ${category}`} />
       </Head>
-
-      <Navigation />
-
-      {/* Hero section with background */}
-      <div className={`${theme.light} py-4 md:py-8`}>
-        <div className="container mx-auto px-4">
-          {/* Navigation links */}
-          <div className="flex justify-between items-center mb-4">
-            <button 
-              onClick={() => router.push('/pokedex', undefined, { shallow: false })}
-              className="text-white hover:text-gray-300 flex items-center"
-            >
-              <span className="mr-2">←</span> Back to Pokédex
-            </button>
-            
-            <div className="flex space-x-4">
-              {prevId && (
-                <Link href={`/pokemon/${prevId}`}>
-                  <a className="text-white hover:text-gray-300 flex items-center">
-                    <span className="mr-1">←</span> #{prevId}
-                  </a>
-                </Link>
-              )}
-              
-              {nextId && (
-                <Link href={`/pokemon/${nextId}`}>
-                  <a className="text-white hover:text-gray-300 flex items-center">
-                    #{nextId} <span className="ml-1">→</span>
-                  </a>
-                </Link>
-              )}
-            </div>
-          </div>
-          
-          {/* Pokémon header */}
-          <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
-            {/* Pokémon image */}
-            <div className="md:w-1/3 flex flex-col items-center">
-              <div className="relative w-56 h-56 mb-4">
-                {displaySprite && (
-                  <Image
-                    src={displaySprite}
-                    alt={name}
-                    layout="fill"
-                    objectFit="contain"
-                    priority
-                    className="drop-shadow-lg"
-                  />
-                )}
-              </div>
-              <div className="flex space-x-2">
-                <button
-                  onClick={() => setIsShiny(!isShiny)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium ${
-                    isShiny 
-                      ? 'bg-yellow-500 text-black' 
-                      : 'bg-gray-700 text-white hover:bg-gray-600'
-                  }`}
-                >
-                  {isShiny ? 'View Normal' : 'View Shiny'}
-                </button>
-                
-                <button
-                  onClick={() => updateCaughtStatus('caught', 'default')}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center ${
-                    caughtStatus?.default?.caught
-                      ? 'bg-green-600 text-white'
-                      : 'bg-gray-700 text-white hover:bg-gray-600'
-                  }`}
-                >
-                  <span className="mr-1">
-                    {caughtStatus?.default?.caught ? '✓' : ''}
-                  </span>
-                  {caughtStatus?.default?.caught ? 'Caught' : 'Mark as Caught'}
-                </button>
-              </div>
-              <div className="mt-2">
-                <button
-                  onClick={() => updateCaughtStatus('shiny', 'default')}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center ${
-                    caughtStatus?.default?.shiny
-                      ? 'bg-yellow-500 text-black'
-                      : 'bg-gray-700 text-white hover:bg-gray-600'
-                  }`}
-                >
-                  <span className="mr-1">
-                    {caughtStatus?.default?.shiny ? '✓' : ''}
-                  </span>
-                  {caughtStatus?.default?.shiny ? 'Shiny Caught' : 'Mark as Shiny'}
-                </button>
-              </div>
-            </div>
-
-            {/* Pokémon info */}
-            <div className="md:w-2/3">
-              <div className="flex flex-wrap justify-between mb-4">
-                <div>
-                  <p className="text-gray-400 text-lg">#{String(id).padStart(3, '0')}</p>
-                  <h1 className="text-4xl font-bold capitalize mb-1">{name}</h1>
-                  {category && (
-                    <p className="text-lg italic opacity-80">{category}</p>
-                  )}
-                </div>
-                <div className="flex flex-wrap gap-2 mt-2 md:mt-0">
-                  {pokemon.types?.map(typeData => (
-                    <span
-                      key={typeData.type.name}
-                      className={`${typeColors[typeData.type.name]?.accent || 'bg-gray-600'} 
-                        px-4 py-2 rounded-lg text-white capitalize text-lg`}
-                    >
-                      {typeData.type.name}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-6 mb-6">
-                <div>
-                  <p className="text-gray-400 text-sm mb-1">Height</p>
-                  <p className="text-lg">{heightMeters} m ({heightFeet}&apos;{heightInches}&quot;)</p>
-                </div>
-                <div>
-                  <p className="text-gray-400 text-sm mb-1">Weight</p>
-                  <p className="text-lg">{weightKg} kg ({weightLbs} lbs)</p>
-                </div>
-                <div>
-                  <p className="text-gray-400 text-sm mb-1">Abilities</p>
-                  <div className="flex flex-wrap gap-2">
-                    {pokemon.abilities?.map(abilityData => (
-                      <span
-                        key={abilityData.ability.name}
-                        className="bg-gray-700 px-3 py-1 rounded text-sm capitalize"
-                      >
-                        {abilityData.ability.name.replace('-', ' ')}
-                        {abilityData.is_hidden && (
-                          <span className="ml-1 text-yellow-500" title="Hidden Ability">*</span>
-                        )}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <p className="text-gray-400 text-sm mb-1">Base Experience</p>
-                  <p className="text-lg">{pokemon.base_experience || '?'} XP</p>
-                </div>
-              </div>
-
-              {pokedexEntry && (
-                <div className="bg-black bg-opacity-20 rounded-lg p-4 mb-4">
-                  <p className="text-gray-400 text-sm mb-1">Pokédex Entry</p>
-                  <p className="italic">{pokedexEntry}</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
       
-      {/* Tab navigation */}
-      <div className="bg-black bg-opacity-30 sticky top-16 z-40">
-        <div className="container mx-auto px-4">
-          <div className="flex overflow-x-auto space-x-1 py-2">
-            <button 
-              onClick={() => setActiveTab('info')}
-              className={`px-4 py-2 rounded-t-lg text-sm font-medium transition-colors whitespace-nowrap
-                ${activeTab === 'info' 
-                  ? `${theme.accent} text-white` 
-                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'}`}
+      <Navigation />
+      
+      {/* Updated hero section with circular image and toggles */}
+      <PokemonHero 
+        pokemon={pokemon} 
+        isShiny={isShiny} 
+        setIsShiny={setIsShiny} 
+        isAnimated={isAnimated}
+        setIsAnimated={setIsAnimated}
+        theme={theme}
+        speciesText={category}
+      />
+      
+      {/* Main content - rest of your existing tabs */}
+      <div className="container mx-auto px-4 pb-12">
+        {/* Navigation links */}
+        <div className="flex justify-between items-center mb-4">
+          <button 
+            onClick={() => router.push('/pokedex', undefined, { shallow: false })}
+            className="text-white hover:text-gray-300 flex items-center"
+          >
+            <span className="mr-2">←</span> Back to Pokédex
+          </button>
+          
+          <div className="flex space-x-4">
+            <button
+              onClick={() => router.push(`/pokemon/${prevId}`)}
+              className="text-white hover:text-gray-300"
+              disabled={!prevId}
             >
-              Stats & Info
+              ← Prev
             </button>
-            <button 
-              onClick={() => setActiveTab('evolution')}
-              className={`px-4 py-2 rounded-t-lg text-sm font-medium transition-colors whitespace-nowrap
-                ${activeTab === 'evolution' 
-                  ? `${theme.accent} text-white` 
-                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'}`}
+            <button
+              onClick={() => router.push(`/pokemon/${nextId}`)}
+              className="text-white hover:text-gray-300"
+              disabled={!nextId}
             >
-              Evolution Chain
-            </button>
-            <button 
-              onClick={() => setActiveTab('moves')}
-              className={`px-4 py-2 rounded-t-lg text-sm font-medium transition-colors whitespace-nowrap
-                ${activeTab === 'moves' 
-                  ? `${theme.accent} text-white` 
-                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'}`}
-            >
-              Moves
-            </button>
-            <button 
-              onClick={() => setActiveTab('locations')}
-              className={`px-4 py-2 rounded-t-lg text-sm font-medium transition-colors whitespace-nowrap
-                ${activeTab === 'locations' 
-                  ? `${theme.accent} text-white` 
-                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'}`}
-            >
-              Locations
-            </button>
-            <button 
-              onClick={() => setActiveTab('forms')}
-              className={`px-4 py-2 rounded-t-lg text-sm font-medium transition-colors whitespace-nowrap
-                ${activeTab === 'forms' 
-                  ? `${theme.accent} text-white` 
-                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'}`}
-            >
-              Forms
-            </button>
-            <button 
-              onClick={() => setActiveTab('tracking')}
-              className={`px-4 py-2 rounded-t-lg text-sm font-medium transition-colors whitespace-nowrap
-                ${activeTab === 'tracking' 
-                  ? `${theme.accent} text-white` 
-                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'}`}
-            >
-              Tracking
+              Next →
             </button>
           </div>
         </div>
-      </div>
-
-      {/* Main content area */}
-      <div className="container mx-auto px-4 py-8">
-        {/* Stats & Info Tab */}
-        {activeTab === 'info' && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Base Stats */}
-            <div className="bg-gray-800 rounded-lg p-6 col-span-1 md:col-span-2">
-              <h2 className="text-xl font-bold mb-4">Base Stats</h2>
-              <div className="space-y-4">
-                {pokemon.stats?.map(stat => (
-                  <div key={stat.stat.name}>
-                    <div className="flex justify-between mb-1">
-                      <span className="capitalize">{formatStatName(stat.stat.name)}</span>
-                      <span>{stat.base_stat}</span>
-                    </div>
-                    <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
-                      <div
-                        className={`h-2 ${theme.accent} rounded-full`}
-                        style={{ width: `${Math.min(100, (stat.base_stat / 255) * 100)}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                ))}
-                <div className="pt-4 border-t border-gray-700">
-                  <div className="flex justify-between">
-                    <span className="font-semibold">Total</span>
-                    <span className="font-semibold">{totalStats}</span>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Additional Pokédex entries */}
-              {additionalEntries.length > 0 && (
-                <div className="mt-6">
-                  <h3 className="text-lg font-medium mb-3">Additional Pokédex Entries</h3>
-                  <div className="space-y-3">
-                    {additionalEntries.map((entry, index) => (
-                      <div key={index} className="bg-gray-700 rounded-lg p-3 italic">
-                        &quot;{entry}&quot;
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-            
-            {/* Type effectiveness */}
-            <div className="bg-gray-800 rounded-lg p-6">
-              <h2 className="text-xl font-bold mb-4">Type Effectiveness</h2>
-              
-              {/* Implement a type effectiveness calculator here */}
-              <div className="space-y-4">
-                {pokemon.types?.length > 0 && (
-                  <>
-                    <div>
-                      <h3 className="text-md font-medium mb-2">Weak To (Takes 2x Damage)</h3>
-                      <div className="flex flex-wrap gap-1">
-                        {/* This would be populated by a type calculator */}
-                        {getWeaknesses(pokemon.types.map(t => t.type.name)).map(type => (
-                          <span
-                            key={type}
-                            className={`${typeColors[type]?.accent || 'bg-gray-600'} 
-                              px-2 py-1 rounded capitalize text-white text-sm`}
-                          >
-                            {type}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <h3 className="text-md font-medium mb-2">Resistant To (Takes 0.5x Damage)</h3>
-                      <div className="flex flex-wrap gap-1">
-                        {/* This would be populated by a type calculator */}
-                        {getResistances(pokemon.types.map(t => t.type.name)).map(type => (
-                          <span
-                            key={type}
-                            className={`${typeColors[type]?.accent || 'bg-gray-600'} 
-                              px-2 py-1 rounded capitalize text-white text-sm`}
-                          >
-                            {type}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <h3 className="text-md font-medium mb-2">Immune To (Takes 0x Damage)</h3>
-                      <div className="flex flex-wrap gap-1">
-                        {/* This would be populated by a type calculator */}
-                        {getImmunities(pokemon.types.map(t => t.type.name)).map(type => (
-                          <span
-                            key={type}
-                            className={`${typeColors[type]?.accent || 'bg-gray-600'} 
-                              px-2 py-1 rounded capitalize text-white text-sm`}
-                          >
-                            {type}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </>
-                )}
-              </div>
-              
-              {/* Breeding info */}
-              <div className="mt-6">
-                <h3 className="text-lg font-medium mb-3">Breeding Info</h3>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <p className="text-gray-400 text-sm">Egg Groups</p>
-                    <div className="mt-1">
-                      {species.egg_groups?.map(group => (
-                        <span 
-                          key={group.name}
-                          className="bg-gray-700 px-2 py-1 rounded text-sm capitalize mr-2"
-                        >
-                          {group.name}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-gray-400 text-sm">Gender Ratio</p>
-                    <p className="mt-1">
-                      {species.gender_rate === -1 
-                        ? 'Genderless' 
-                        : `${(8 - species.gender_rate) * 12.5}% ♂ / ${species.gender_rate * 12.5}% ♀`}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-gray-400 text-sm">Hatch Steps</p>
-                    <p className="mt-1">
-                      {species.hatch_counter ? species.hatch_counter * 257 : 'Unknown'}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-gray-400 text-sm">Base Happiness</p>
-                    <p className="mt-1">{species.base_happiness}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
         
-        {/* Evolution Chain Tab */}
-        {activeTab === 'evolution' && (
+        {/* Tab Navigation */}
+        <div className="flex flex-wrap border-b border-gray-700 mb-6">
+          <button
+            onClick={() => setActiveTab('info')}
+            className={`mr-2 px-4 py-2 rounded-t-lg ${
+              activeTab === 'info' ? theme.accent : 'bg-gray-800 hover:bg-gray-700'
+            }`}
+          >
+            Info
+          </button>
+          <button
+            onClick={() => setActiveTab('stats')}
+            className={`mr-2 px-4 py-2 rounded-t-lg ${
+              activeTab === 'stats' ? theme.accent : 'bg-gray-800 hover:bg-gray-700'
+            }`}
+          >
+            Stats
+          </button>
+          <button
+            onClick={() => setActiveTab('evolution')}
+            className={`mr-2 px-4 py-2 rounded-t-lg ${
+              activeTab === 'evolution' ? theme.accent : 'bg-gray-800 hover:bg-gray-700'
+            }`}
+          >
+            Evolution
+          </button>
+          <button
+            onClick={() => setActiveTab('moves')}
+            className={`mr-2 px-4 py-2 rounded-t-lg ${
+              activeTab === 'moves' ? theme.accent : 'bg-gray-800 hover:bg-gray-700'
+            }`}
+          >
+            Moves
+          </button>
+          <button
+            onClick={() => setActiveTab('locations')}
+            className={`mr-2 px-4 py-2 rounded-t-lg ${
+              activeTab === 'locations' ? theme.accent : 'bg-gray-800 hover:bg-gray-700'
+            }`}
+          >
+            Locations
+          </button>
+          <button
+            onClick={() => setActiveTab('tracking')}
+            className={`mr-2 px-4 py-2 rounded-t-lg ${
+              activeTab === 'tracking' ? theme.accent : 'bg-gray-800 hover:bg-gray-700'
+            }`}
+          >
+            Tracking
+          </button>
+        </div>
+        
+        {/* Tab Content - keep your existing tabs, but update the tracking tab */}
+        
+        {/* Tracking Tab with Forms */}
+        {activeTab === 'tracking' && (
           <div className="bg-gray-800 rounded-lg p-6">
-            <h2 className="text-xl font-bold mb-6">Evolution Chain</h2>
+            <h2 className="text-xl font-bold mb-6">Collection Tracking</h2>
             
-            {evolutionChain && evolutionChain.chain ? (
-              <div className="flex flex-col items-center">
-                <EvolutionChainRenderer 
-                  chain={evolutionChain.chain} 
-                  currentPokemonId={pokemon.id}
-                  isExpanded={isEvolutionExpanded}
-                />
-                
-                {(evolutionChain.chain.evolves_to?.length > 0 && 
-                 evolutionChain.chain.evolves_to[0]?.evolves_to?.length > 0) && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Default Form */}
+              <div className="bg-gray-700 rounded-lg p-4">
+                <h3 className="text-lg font-medium mb-3">Default Form</h3>
+                <div className="flex flex-col space-y-3">
+                  <div className="flex items-center">
+                    <button
+                      onClick={() => updateCaughtStatus('caught', 'default')}
+                      className={`flex-1 py-2 rounded-lg mr-2 ${
+                        caughtStatus['default']?.caught 
+                          ? 'bg-green-600 text-white' 
+                          : 'bg-gray-600 hover:bg-gray-500'
+                      }`}
+                    >
+                      {caughtStatus['default']?.caught ? 'Caught ✓' : 'Mark as Caught'}
+                    </button>
+                    
+                    <button
+                      onClick={() => updateCaughtStatus('shiny', 'default')}
+                      className={`flex-1 py-2 rounded-lg ${
+                        caughtStatus['default']?.shiny
+                          ? 'bg-yellow-500 text-black'
+                          : 'bg-gray-600 hover:bg-gray-500'
+                      }`}
+                    >
+                      {caughtStatus['default']?.shiny ? 'Shiny ✓' : 'Mark as Shiny'}
+                    </button>
+                  </div>
+                  
                   <button
-                    onClick={() => setIsEvolutionExpanded(!isEvolutionExpanded)}
-                    className="mt-4 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg"
+                    onClick={() => updateCaughtStatus('alpha', 'default')}
+                    className={`py-2 rounded-lg ${
+                      caughtStatus['default']?.alpha
+                        ? 'bg-purple-600 text-white'
+                        : 'bg-gray-600 hover:bg-gray-500'
+                    }`}
                   >
-                    {isEvolutionExpanded ? 'Collapse' : 'Show All Evolutions'}
+                    {caughtStatus['default']?.alpha ? 'Alpha ✓' : 'Mark as Alpha'}
                   </button>
-                )}
+                </div>
               </div>
-            ) : (
-              <p className="text-center text-gray-400">No evolution information available</p>
-            )}
-          </div>
-        )}
-        
-        {/* Moves Tab */}
-        {activeTab === 'moves' && (
-          <div className="bg-gray-800 rounded-lg p-6">
-            <h2 className="text-xl font-bold mb-6">Moves</h2>
-            
-            <div className="mb-4">
-              <MovesTable 
-                moves={pokemon.moves}
-                learnMethod="level-up"
-                title="Moves Learned by Leveling Up"
-              />
-            </div>
-            
-            <div className="mb-4">
-              <MovesTable 
-                moves={pokemon.moves}
-                learnMethod="machine"
-                title="Moves Learned by TM/HM"
-              />
-            </div>
-            
-            <div className="mb-4">
-              <MovesTable 
-                moves={pokemon.moves}
-                learnMethod="egg"
-                title="Egg Moves"
-              />
-            </div>
-          </div>
-        )}
-        
-        {/* Locations Tab */}
-        {activeTab === 'locations' && (
-          <LocationEncounterData pokemon={pokemon} theme={theme} />
-        )}
-        
-        {/* Forms Tab */}
-        {activeTab === 'forms' && (
-          <div className="bg-gray-800 rounded-lg p-6">
-            <h2 className="text-xl font-bold mb-6">Alternative Forms</h2>
-            
-            {alternativeForms && alternativeForms.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                {alternativeForms.map((form, index) => {
-                  if (!form) return null;
-                  
-                  const formSprite = form.sprites?.other?.['official-artwork']?.front_default || 
-                                   form.sprites?.front_default;
-                  
-                  // Extract form name from full name
-                  let formName = form.name;
-                  const displayName = properCase(formName.replace(pokemon.name + '-', ''));
-                  
-                  return (
-                    <div key={index} className="bg-gray-700 rounded-lg p-4 flex flex-col items-center">
-                      <h3 className="text-lg font-medium mb-3">{displayName || 'Alternative Form'}</h3>
-                      
-                      <div className="relative w-32 h-32 mb-4">
-                        {formSprite && (
-                          <Image
-                            src={formSprite}
-                            alt={formName}
-                            layout="fill"
-                            objectFit="contain"
-                          />
-                        )}
+              
+              {/* Alternative Forms */}
+              {alternativeForms && alternativeForms.map((form, index) => {
+                if (!form) return null;
+                
+                // Extract form name from full name
+                let formName = form.name;
+                const displayName = properCase(formName.replace(pokemon.name + '-', ''));
+                
+                return (
+                  <div key={index} className="bg-gray-700 rounded-lg p-4">
+                    <h3 className="text-lg font-medium mb-3">{displayName || 'Alternative Form'}</h3>
+                    
+                    <div className="flex items-center mb-3">
+                      <div className="relative w-16 h-16 mr-3">
+                        <Image
+                          src={form.sprites?.other?.['official-artwork']?.front_default || 
+                              form.sprites?.front_default ||
+                              '/img/unknown-pokemon.png'}
+                          alt={formName}
+                          layout="fill"
+                          objectFit="contain"
+                        />
                       </div>
                       
-                      <div className="flex gap-2 mb-3">
+                      <div className="flex gap-1">
                         {form.types?.map(typeData => (
                           <span
                             key={typeData.type.name}
@@ -907,48 +741,49 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
                           </span>
                         ))}
                       </div>
-                      
-                      <div className="flex space-x-2 mt-2">
+                    </div>
+                    
+                    <div className="flex flex-col space-y-3">
+                      <div className="flex items-center">
                         <button
                           onClick={() => updateCaughtStatus('caught', formName)}
-                          className={`px-3 py-1 text-xs rounded ${
-                            caughtStatus[formName]?.caught
-                              ? 'bg-green-600 text-white'
+                          className={`flex-1 py-2 rounded-lg mr-2 ${
+                            caughtStatus[formName]?.caught 
+                              ? 'bg-green-600 text-white' 
                               : 'bg-gray-600 hover:bg-gray-500'
                           }`}
                         >
-                          {caughtStatus[formName]?.caught ? 'Caught ✓' : 'Mark Caught'}
+                          {caughtStatus[formName]?.caught ? 'Caught ✓' : 'Mark as Caught'}
                         </button>
                         
                         <button
                           onClick={() => updateCaughtStatus('shiny', formName)}
-                          className={`px-3 py-1 text-xs rounded ${
+                          className={`flex-1 py-2 rounded-lg ${
                             caughtStatus[formName]?.shiny
                               ? 'bg-yellow-500 text-black'
                               : 'bg-gray-600 hover:bg-gray-500'
                           }`}
                         >
-                          {caughtStatus[formName]?.shiny ? 'Shiny ✓' : 'Mark Shiny'}
+                          {caughtStatus[formName]?.shiny ? 'Shiny ✓' : 'Mark as Shiny'}
                         </button>
                       </div>
+                      
+                      <button
+                        onClick={() => updateCaughtStatus('alpha', formName)}
+                        className={`py-2 rounded-lg ${
+                          caughtStatus[formName]?.alpha
+                            ? 'bg-purple-600 text-white'
+                            : 'bg-gray-600 hover:bg-gray-500'
+                        }`}
+                      >
+                        {caughtStatus[formName]?.alpha ? 'Alpha ✓' : 'Mark as Alpha'}
+                      </button>
                     </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <p className="text-center text-gray-400">No alternative forms available for this Pokémon</p>
-            )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
-        )}
-        
-        {/* Tracking Tab */}
-        {activeTab === 'tracking' && (
-          <EnhancedTrackingPanel 
-            pokemon={pokemon} 
-            caughtStatus={caughtStatus}
-            updateCaughtStatus={updateCaughtStatus}
-            currentUser={currentUserPlaceholder}
-          />
         )}
       </div>
     </div>
