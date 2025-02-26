@@ -161,7 +161,7 @@ export default function PokedexPage({ initialPokemon }) {
     if (!pokemonStatus) return '';
     
     if (pokemonStatus.shiny) return 'border-2 border-yellow-400';
-    if (pokemonStatus.regular) return 'border-2 border-green-500';
+    if (pokemonStatus.caught) return 'border-2 border-green-500';
     
     return '';
   };
