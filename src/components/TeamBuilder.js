@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { XCircleIcon, SaveIcon, PlusCircleIcon, ChartBarIcon, LightningBoltIcon } from '@heroicons/react/outline';
+import { XCircleIcon, SaveIcon, PlusCircleIcon, ChartBarIcon, LightningBoltIcon, TrashIcon, DownloadIcon } from '@heroicons/react/outline';
 
 // Component for a single team slot
 const TeamSlot = ({ pokemon, onRemove, index, onDragStart, onDragOver, onDrop }) => {
@@ -383,6 +383,59 @@ const TeamBuilder = ({ pokemonList = [] }) => {
     localStorage.setItem('savedTeams', JSON.stringify(updatedTeams));
   };
   
+  // Delete a saved team
+  const deleteTeam = (teamId) => {
+    if (confirm("Are you sure you want to delete this team?")) {
+      const updatedTeams = savedTeams.filter(team => team.id !== teamId);
+      setSavedTeams(updatedTeams);
+      localStorage.setItem('savedTeams', JSON.stringify(updatedTeams));
+    }
+  };
+  
+  // Export team to CSV
+  const exportTeamToCSV = (savedTeam) => {
+    try {
+      // Build CSV header
+      const headers = ['ID', 'Name', 'Types'];
+      
+      // Build CSV content from team Pokémon
+      const csvContent = savedTeam.pokemon
+        .filter(Boolean)
+        .map(pokemon => {
+          const row = [
+            pokemon.id,
+            pokemon.name,
+            pokemon.types.join('/')
+          ];
+          return row.join(',');
+        });
+      
+      // Combine header and rows
+      const csvData = [
+        `Team: ${savedTeam.name}`,
+        headers.join(','),
+        ...csvContent
+      ].join('\n');
+      
+      // Create download link
+      const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      
+      // Create temporary link for download
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `${savedTeam.name.replace(/\s+/g, '-')}_team.csv`);
+      
+      // Trigger download and cleanup
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error('Error exporting team to CSV:', error);
+      alert('Failed to export team. Please try again.');
+    }
+  };
+  
   // Remove Pokemon from team
   const removePokemon = (index) => {
     const newTeam = [...team];
@@ -542,12 +595,26 @@ const TeamBuilder = ({ pokemonList = [] }) => {
                     </div>
                   ))}
                 </div>
-                <div className="flex justify-end mt-2">
+                <div className="flex justify-end mt-2 gap-2">
+                  <button
+                    onClick={() => exportTeamToCSV(savedTeam)}
+                    className="text-sm text-green-400 hover:text-green-300 flex items-center"
+                  >
+                    <DownloadIcon className="h-4 w-4 mr-1" />
+                    Export
+                  </button>
                   <button
                     onClick={() => setTeam(savedTeam.pokemon)}
                     className="text-sm text-blue-400 hover:text-blue-300"
                   >
                     Load
+                  </button>
+                  <button 
+                    onClick={() => deleteTeam(savedTeam.id)}
+                    className="text-sm text-red-400 hover:text-red-300 flex items-center"
+                  >
+                    <TrashIcon className="h-4 w-4 mr-1" />
+                    Delete
                   </button>
                 </div>
               </div>
