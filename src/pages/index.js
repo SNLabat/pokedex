@@ -283,43 +283,58 @@ export default function Home() {
           </p>
           <div className="flex flex-wrap gap-4">
             <Link href="/pokedex">
-              <a className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-full font-medium transition-colors inline-flex items-center">
-                <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M2 4a1 1 0 011-1h14a1 1 0 011 1v14a1 1 0 01-1 1H3a1 1 0 01-1-1V4z"></path>
-                </svg>
+              <a className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-full font-medium transition-colors">
                 Browse Pokédex
               </a>
             </Link>
             <button 
               onClick={() => router.push(`/pokemon/${Math.floor(Math.random() * 898) + 1}`)}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-full font-medium transition-colors inline-flex items-center"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-full font-medium transition-colors"
             >
-              <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clipRule="evenodd"></path>
-              </svg>
               Random Pokémon
             </button>
             <Link href="/mystery-gift">
-              <a className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-full font-medium transition-colors inline-flex items-center">
-                <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M5 5a3 3 0 015-2.236A3 3 0 0114.83 6H16a2 2 0 110 4h-5V9a1 1 0 10-2 0v1H4a2 2 0 110-4h1.17C5.06 5.687 5 5.35 5 5zm4 1V5a1 1 0 10-1 1h1zm3 0a1 1 0 10-1-1v1h1z" clipRule="evenodd"></path>
-                  <path d="M9 11H3v5a2 2 0 002 2h4v-7zM11 18h4a2 2 0 002-2v-5h-6v7z"></path>
-                </svg>
+              <a className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-full font-medium transition-colors">
                 Mystery Gift Unboxer
               </a>
             </Link>
           </div>
         </div>
+        
+        {/* Full Pokeball background instead of outline */}
         <div 
-          className="absolute -right-40 -bottom-32 transform rotate-12 opacity-20 pointer-events-none" 
+          className="absolute -right-20 -bottom-20 transform rotate-12 opacity-20 pointer-events-none" 
           style={{zIndex: "1"}}
         >
           <Image 
-            src={pokeballOutline} 
+            src="/img/pokeball.png" 
             alt="Pokeball" 
-            width={600} 
-            height={600} 
+            width={500} 
+            height={500} 
           />
+        </div>
+        
+        {/* Floating Pokéballs (restored from previous design) */}
+        <div className="absolute bottom-0 left-0 w-full">
+          <div className="container mx-auto px-4">
+            <div className="flex justify-between items-end pb-8">
+              {[1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className="w-16 h-16 md:w-24 md:h-24 rounded-full bg-white shadow-lg relative overflow-hidden"
+                  style={{ 
+                    animation: `bounce ${i * 0.5 + 1.5}s infinite ease-in-out`,
+                    animationDelay: `${i * 0.2}s` 
+                  }}
+                >
+                  <div className="absolute inset-0 bg-red-600 rounded-t-full h-1/2"></div>
+                  <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center">
+                    <div className="w-1/3 h-1/3 bg-white rounded-full border-4 border-gray-800"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
