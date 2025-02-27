@@ -3,16 +3,19 @@ function createDataView(buffer) {
   return new DataView(buffer instanceof ArrayBuffer ? buffer : buffer.buffer);
 }
 
-function readUInt8(dataView, offset) {
-  return dataView.getUint8(offset);
+function readUInt8(buffer, offset) {
+  return buffer[offset];
 }
 
-function readUInt16LE(dataView, offset) {
-  return dataView.getUint16(offset, true);
+function readUInt16LE(buffer, offset) {
+  return buffer[offset] | (buffer[offset + 1] << 8);
 }
 
-function readUInt32LE(dataView, offset) {
-  return dataView.getUint32(offset, true);
+function readUInt32LE(buffer, offset) {
+  return buffer[offset] | 
+         (buffer[offset + 1] << 8) | 
+         (buffer[offset + 2] << 16) | 
+         (buffer[offset + 3] << 24);
 }
 
 const parseWCBuffer = (buf) => {
@@ -124,19 +127,19 @@ function parseWC6(dataView) {
 }
 
 // Helper function to read UTF-16 strings from DataView
-function readUTF16String(dataView, offset, maxLength) {
-  try {
-    let str = '';
-    for (let i = 0; i < maxLength && (offset + i + 1) < dataView.byteLength; i += 2) {
-      const code = dataView.getUint16(offset + i, true);
-      if (code === 0) break;
-      str += String.fromCharCode(code);
-    }
-    return str.trim();
-  } catch (error) {
-    console.error('Error in readUTF16String:', error);
-    throw error;
+function readUTF16String(buffer, offset, maxLength) {
+  let result = '';
+  let currOffset = offset;
+  
+  while (currOffset < buffer.length && currOffset < offset + maxLength) {
+    const charCode = readUInt16LE(buffer, currOffset);
+    if (charCode === 0) break;
+    
+    result += String.fromCharCode(charCode);
+    currOffset += 2;
   }
+  
+  return result.replace(/\u0000/g, ''); // Remove null terminators
 }
 
 function parseGameFlags(flags) {

@@ -3,6 +3,7 @@ import Head from 'next/head';
 import Navigation from '../components/Navigation';
 import { parseWCBuffer } from '../utils/wcparse';
 import ErrorBoundary from '../components/ErrorBoundary';
+import PlaceholderImage from '../components/PlaceholderImage';
 
 export default function MysteryGiftPage() {
   const [result, setResult] = useState(null);
@@ -129,13 +130,24 @@ export default function MysteryGiftPage() {
           <div className="relative -mt-40 z-10">
             <div className="bg-white text-gray-900 rounded-lg shadow-xl p-6 mb-8 max-w-2xl mx-auto">
               <div className="flex items-center mb-4">
-                {pokemonImage && (
+                {pokemonImage ? (
                   <div className="mr-4">
                     <img 
                       src={pokemonImage} 
                       alt="Pokémon" 
                       className="w-24 h-24 object-contain"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.nextSibling.style.display = 'block';
+                      }}
                     />
+                    <div style={{ display: 'none' }}>
+                      <PlaceholderImage width={96} height={96} text={result?.pokemonName || "Pokémon"} />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="mr-4">
+                    <PlaceholderImage width={96} height={96} text="Pokémon" />
                   </div>
                 )}
                 <div>
