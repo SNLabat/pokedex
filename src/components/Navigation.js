@@ -161,6 +161,13 @@ export default function Navigation() {
               Team Builder
             </button>
             
+            <button
+              onClick={() => handleNavigation('/mystery-gift')}
+              className="text-gray-300 hover:text-white transition-colors"
+            >
+              Mystery Gift Unboxer
+            </button>
+            
             <div className="relative" ref={searchRef}>
               <form onSubmit={handleSearch} className="flex items-center">
                 <input
@@ -247,6 +254,13 @@ export default function Navigation() {
               className="block py-2 text-gray-300 hover:text-white transition-colors w-full text-left"
             >
               Team Builder
+            </button>
+            
+            <button
+              onClick={() => handleNavigation('/mystery-gift')}
+              className="block py-2 text-gray-300 hover:text-white transition-colors w-full text-left"
+            >
+              Mystery Gift Unboxer
             </button>
             
             <form onSubmit={handleSearch} className="mt-4 flex">
