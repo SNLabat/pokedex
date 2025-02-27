@@ -15,55 +15,59 @@ export default async function handler(req, res) {
   try {
     // Format the ID with leading zeros
     const formattedId = String(id).padStart(3, '0');
+    const pokemonName = await getPokemonName(id); // We'll need to implement this function
     
-    // Try to use the direct Serebii URL approach
-    const url = `https://www.serebii.net/events/dex/${formattedId}.shtml`;
+    console.log(`Fetching event data for Pokémon #${formattedId} (${pokemonName})`);
+
+    // Bulbapedia URLs for different generations
+    const bulbapediaUrls = [
+      `https://bulbapedia.bulbagarden.net/wiki/List_of_English_event_Pokémon_distributions_in_Generation_III`,
+      `https://bulbapedia.bulbagarden.net/wiki/List_of_local_English_event_Pokémon_distributions_in_Generation_IV`,
+      `https://bulbapedia.bulbagarden.net/wiki/List_of_Wi-Fi_English_event_Pokémon_distributions_in_Generation_IV`,
+      `https://bulbapedia.bulbagarden.net/wiki/List_of_local_English_event_Pokémon_distributions_in_Generation_V`,
+      `https://bulbapedia.bulbagarden.net/wiki/List_of_Wi-Fi_English_event_Pokémon_distributions_in_Generation_V`,
+      `https://bulbapedia.bulbagarden.net/wiki/List_of_American_region_Nintendo_Network_event_Pokémon_distributions_in_Generation_VI`
+    ];
     
-    console.log(`Fetching event data for Pokémon #${formattedId}`);
+    // Collect events from all generations
+    const allEvents = [];
     
-    // Add comprehensive headers to avoid being blocked
-    const response = await fetch(url, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-        'Accept-Language': 'en-US,en;q=0.9',
-        'Cache-Control': 'no-cache',
-        'Pragma': 'no-cache',
-        'Referer': 'https://www.serebii.net/events/',
-        'Sec-Fetch-Dest': 'document',
-        'Sec-Fetch-Mode': 'navigate',
-        'Sec-Fetch-Site': 'same-origin',
-        'Sec-Fetch-User': '?1',
-        'Upgrade-Insecure-Requests': '1'
-      },
-      next: { revalidate: 3600 } // Cache for 1 hour in Vercel
-    });
-    
-    if (!response.ok) {
-      console.error(`Error fetching Serebii data: ${response.status} ${response.statusText}`);
-      throw new Error(`Failed to fetch data: ${response.status}`);
+    for (const url of bulbapediaUrls) {
+      try {
+        console.log(`Fetching from: ${url}`);
+        
+        const response = await fetch(url, {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.9',
+          },
+          cache: 'no-store' // Disable caching
+        });
+        
+        if (!response.ok) {
+          console.warn(`Skipping URL ${url} due to ${response.status} response`);
+          continue;
+        }
+        
+        const html = await response.text();
+        
+        // Parse events for the specific Pokémon
+        const events = parseBulbapediaEvents(html, formattedId, pokemonName);
+        allEvents.push(...events);
+        
+        console.log(`Found ${events.length} events for ${pokemonName} in ${url}`);
+      } catch (error) {
+        console.error(`Error fetching from ${url}:`, error);
+        // Continue with other URLs even if one fails
+      }
     }
     
-    const html = await response.text();
+    // Sort events by year (newest first)
+    allEvents.sort((a, b) => b.year - a.year);
     
-    // Validate the HTML response
-    if (!html || html.length < 500) {
-      console.error('Received empty or invalid HTML response');
-      throw new Error('Received empty or invalid HTML response');
-    }
-    
-    // Parse the HTML to extract event data
-    const events = parseSerebiiEventHtml(html, formattedId);
-    
-    // Check if we got any events
-    if (events.length === 0) {
-      console.log(`No events found for Pokémon #${formattedId}`);
-    } else {
-      console.log(`Found ${events.length} events for Pokémon #${formattedId}`);
-    }
-    
-    // Return the events data
-    return res.status(200).json(events);
+    // Return the events
+    return res.status(200).json(allEvents);
     
   } catch (error) {
     console.error('Error processing request:', error);
@@ -76,268 +80,261 @@ export default async function handler(req, res) {
 }
 
 /**
- * Parse Serebii event HTML
+ * Get the Pokémon name from its ID
  */
-function parseSerebiiEventHtml(html, pokemonId) {
+async function getPokemonName(id) {
+  try {
+    // Use the PokeAPI to get the name
+    const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}/`);
+    const data = await response.json();
+    return data.name.charAt(0).toUpperCase() + data.name.slice(1);
+  } catch (error) {
+    console.error('Error fetching Pokémon name:', error);
+    return `Pokemon-${id}`;
+  }
+}
+
+/**
+ * Parse Bulbapedia HTML to extract event data for a specific Pokémon
+ */
+function parseBulbapediaEvents(html, formattedId, pokemonName) {
   const events = [];
   
-  try {
-    // First check if this is a "no events" page
-    if (html.includes("No Events have been released for this Pokémon") || 
-        html.includes("No event Pokémon have been released")) {
-      console.log(`Serebii indicates no events for Pokémon #${pokemonId}`);
-      return [];
-    }
-    
-    // Use a combination of approaches to extract events
-    
-    // 1. Look for tables with specific event data structure
-    const eventTables = findEventTables(html);
-    
-    for (const table of eventTables) {
-      const event = extractEventFromTable(table);
-      if (event && Object.keys(event).length > 3) {
-        // Add generation and year data
-        event.generation = determineGeneration(event.games);
-        event.year = extractYear(event.startDate);
-        events.push(event);
-      }
-    }
-    
-    // Sort events by year (newest first)
-    return events.sort((a, b) => b.year - a.year);
-    
-  } catch (error) {
-    console.error('Error parsing HTML:', error);
-    return [];
-  }
-}
-
-/**
- * Find all event tables in the HTML
- */
-function findEventTables(html) {
-  const tables = [];
+  // Convert the HTML to lowercase for case-insensitive matching
+  const lowerPokemonName = pokemonName.toLowerCase();
+  const lowerHtml = html.toLowerCase();
   
-  try {
-    // First, check for standard dextable structure
-    let tableRegex = /<table[^>]*class=["']dextable["'][^>]*>([\s\S]*?)<\/table>/gi;
-    let match;
-    
-    while ((match = tableRegex.exec(html)) !== null) {
-      const tableContent = match[0];
-      
-      // Check if this table has event-related content
-      if (tableContent.includes('Location') || 
-          tableContent.includes('Distribution') || 
-          tableContent.includes('Games') || 
-          tableContent.includes('Level')) {
-        
-        tables.push(tableContent);
-      }
-    }
-    
-    // If we didn't find any tables with the normal approach,
-    // try a more general table search
-    if (tables.length === 0) {
-      tableRegex = /<table[^>]*>([\s\S]*?)<\/table>/gi;
-      
-      while ((match = tableRegex.exec(html)) !== null) {
-        const tableContent = match[0];
-        
-        // Check if this looks like an event table
-        if ((tableContent.includes('Location') || tableContent.includes('Level')) && 
-            tableContent.includes('<td') && 
-            tableContent.length > 200) {
-          
-          tables.push(tableContent);
+  // Look for tables that mention this Pokémon
+  // Bulbapedia uses specific table formats for event Pokémon
+  const tableRegex = /<table.*?<\/table>/gs;
+  const tables = html.match(tableRegex) || [];
+  
+  // Also look for sections that might mention this Pokémon
+  const sectionRegex = /<h3.*?>(.*?)<\/h3>/gs;
+  const sections = html.match(sectionRegex) || [];
+  
+  // Check each table for our Pokémon
+  for (const table of tables) {
+    if (table.toLowerCase().includes(lowerPokemonName) || 
+        table.includes(`Dex No. ${formattedId}`)) {
+      try {
+        const event = extractEventFromTable(table, pokemonName);
+        if (event) {
+          events.push(event);
         }
-      }
-    }
-    
-    return tables;
-    
-  } catch (error) {
-    console.error('Error finding event tables:', error);
-    return [];
-  }
-}
-
-/**
- * Extract event data from a table
- */
-function extractEventFromTable(tableHtml) {
-  try {
-    // Extract event name (often in the first row)
-    const nameMatch = tableHtml.match(/<tr[^>]*>\s*<td[^>]*>\s*(?:<b>|<a[^>]*>)?\s*([^<]+)/i);
-    const eventName = nameMatch ? nameMatch[1].trim() : 'Unknown Event';
-    
-    // Create the event object
-    const event = {
-      name: eventName,
-      location: '',
-      distributionType: '',
-      region: '',
-      startDate: '',
-      endDate: '',
-      games: [],
-      level: 0,
-      OT: '',
-      ID: '',
-      ability: '',
-      heldItem: '',
-      nature: '',
-      isShiny: false,
-      moves: [],
-      ribbons: [],
-      notes: ''
-    };
-    
-    // Define the fields we want to extract with their possible labels
-    const fields = [
-      { name: 'location', labels: ['Location', 'Event Location', 'Locations'] },
-      { name: 'distributionType', labels: ['Distribution', 'Method', 'Distribution Method'] },
-      { name: 'region', labels: ['Region', 'Area', 'Countries'] },
-      { name: 'startDate', labels: ['Start Date', 'Starting', 'Begin'] },
-      { name: 'endDate', labels: ['End Date', 'Ending', 'End'] },
-      { name: 'games', labels: ['Games', 'Compatible Games', 'Game'] },
-      { name: 'level', labels: ['Level', 'Levels'] },
-      { name: 'OT', labels: ['OT', 'Original Trainer', 'Trainer'] },
-      { name: 'ID', labels: ['ID', 'Trainer ID', 'TID'] },
-      { name: 'ability', labels: ['Ability', 'Abilities'] },
-      { name: 'heldItem', labels: ['Held Item', 'Item', 'Items'] },
-      { name: 'nature', labels: ['Nature', 'Natures'] },
-      { name: 'isShiny', labels: ['Shiny', 'Shining'] },
-      { name: 'moves', labels: ['Moves', 'Known Moves', 'Attacks'] },
-      { name: 'ribbons', labels: ['Ribbons', 'Ribbon'] },
-      { name: 'notes', labels: ['Notes', 'Additional Information', 'Comments'] }
-    ];
-    
-    // Extract rows from the table
-    const rows = [];
-    const rowRegex = /<tr[^>]*>([\s\S]*?)<\/tr>/gi;
-    let rowMatch;
-    
-    while ((rowMatch = rowRegex.exec(tableHtml)) !== null) {
-      rows.push(rowMatch[1]);
-    }
-    
-    // Extract field values from the rows
-    for (const field of fields) {
-      const value = extractFieldFromRows(rows, field.labels);
-      
-      // Handle different field types
-      if (field.name === 'games' || field.name === 'moves' || field.name === 'ribbons') {
-        event[field.name] = parseListValue(value);
-      } else if (field.name === 'isShiny') {
-        event[field.name] = value.toLowerCase().includes('yes');
-      } else if (field.name === 'level') {
-        event[field.name] = parseInt(value, 10) || 0;
-      } else {
-        event[field.name] = value;
-      }
-    }
-    
-    return event;
-    
-  } catch (error) {
-    console.error('Error extracting event from table:', error);
-    return null;
-  }
-}
-
-/**
- * Extract field value from table rows
- */
-function extractFieldFromRows(rows, labelVariations) {
-  for (const row of rows) {
-    for (const label of labelVariations) {
-      // Check for various label formats
-      if (row.includes(`<td>${label}</td>`) || 
-          row.includes(`<td>${label}:</td>`) ||
-          row.includes(`<td><b>${label}</b></td>`) ||
-          row.includes(`<td class="fooinfo">${label}</td>`)) {
-        
-        // Extract the value cell
-        const valueMatch = row.match(/<td[^>]*>.*?<\/td>\s*<td[^>]*>([\s\S]*?)<\/td>/i);
-        
-        if (valueMatch) {
-          // Clean up the value
-          return cleanHtmlValue(valueMatch[1]);
-        }
+      } catch (e) {
+        console.error('Error parsing table:', e);
       }
     }
   }
   
-  return '';
+  // Look for metadata sections that might mention the Pokémon
+  for (let i = 0; i < sections.length; i++) {
+    const sectionTitle = sections[i];
+    if (sectionTitle.toLowerCase().includes(lowerPokemonName)) {
+      try {
+        // Get content until next h3
+        let endIndex = html.indexOf('<h3', html.indexOf(sectionTitle) + sectionTitle.length);
+        if (endIndex === -1) endIndex = html.length;
+        
+        const sectionContent = html.substring(
+          html.indexOf(sectionTitle) + sectionTitle.length,
+          endIndex
+        );
+        
+        const event = extractEventFromSection(sectionContent, sectionTitle, pokemonName);
+        if (event) {
+          events.push(event);
+        }
+      } catch (e) {
+        console.error('Error parsing section:', e);
+      }
+    }
+  }
+  
+  return events;
 }
 
 /**
- * Clean HTML value by removing tags and normalizing whitespace
+ * Extract event data from a Bulbapedia table
  */
-function cleanHtmlValue(html) {
+function extractEventFromTable(tableHtml, pokemonName) {
+  // Extract the event name/title
+  const titleMatch = tableHtml.match(/<h3.*?>(.*?)<\/h3>/i) || 
+                    tableHtml.match(/<tr.*?><th.*?>(.*?)<\/th>/i) ||
+                    tableHtml.match(/<caption.*?>(.*?)<\/caption>/i);
+  
+  let name = titleMatch ? cleanHtml(titleMatch[1]) : `${pokemonName} Event`;
+  
+  // Extract the distribution date/period
+  const dateMatch = tableHtml.match(/This Pokémon was available in.*?from.*?(January|February|March|April|May|June|July|August|September|October|November|December).*?(?:to|through).*?(\d{4})/i) ||
+                   tableHtml.match(/This Pokémon was available in.*?(January|February|March|April|May|June|July|August|September|October|November|December).*?(\d{4})/i) ||
+                   tableHtml.match(/Available.*?from.*?(January|February|March|April|May|June|July|August|September|October|November|December).*?(\d{4})/i);
+  
+  let startDate = null;
+  let endDate = null;
+  let year = new Date().getFullYear();
+  
+  if (dateMatch) {
+    const monthName = dateMatch[1];
+    year = parseInt(dateMatch[2], 10);
+    startDate = `${monthName} ${year}`;
+    endDate = dateMatch[3] ? `${dateMatch[3]} ${year}` : startDate;
+  }
+  
+  // Extract location(s)
+  const locationMatch = tableHtml.match(/This Pokémon was available in\s+<b>(.*?)<\/b>/i) ||
+                       tableHtml.match(/This Pokémon was available in\s+(.*?)(?:from|in|on)/i);
+  
+  let location = locationMatch ? cleanHtml(locationMatch[1]) : 'Various Locations';
+  
+  // Extract moves
+  const movesMatch = tableHtml.match(/<td.*?>Battle Moves<\/td>.*?<td.*?>(.*?)<\/td>/is);
+  let moves = [];
+  if (movesMatch) {
+    moves = cleanHtml(movesMatch[1])
+      .split(/(,|\n)/)
+      .map(move => move.trim())
+      .filter(move => move && !move.match(/^(,|\n)$/));
+  }
+  
+  // Extract generation
+  let generation = 'unknown';
+  if (tableHtml.includes('Generation III')) generation = 'gen3';
+  else if (tableHtml.includes('Generation IV')) generation = 'gen4';
+  else if (tableHtml.includes('Generation V')) generation = 'gen5';
+  else if (tableHtml.includes('Generation VI')) generation = 'gen6';
+  else if (tableHtml.includes('Generation VII')) generation = 'gen7';
+  else if (tableHtml.includes('Generation VIII')) generation = 'gen8';
+  else if (tableHtml.includes('Generation IX')) generation = 'gen9';
+  
+  // Extract Original Trainer
+  const otMatch = tableHtml.match(/<td.*?>OT<\/td>.*?<td.*?>(.*?)<\/td>/is);
+  let ot = otMatch ? cleanHtml(otMatch[1]) : 'Event';
+  
+  // Extract whether it's shiny
+  const isShiny = tableHtml.toLowerCase().includes('shiny') || 
+                 tableHtml.includes('spr_') && tableHtml.includes('_s.png');
+  
+  return {
+    name,
+    startDate,
+    endDate,
+    year,
+    location,
+    distributionType: 'Official Event',
+    region: 'International',
+    games: extractGamesFromHtml(tableHtml),
+    generation,
+    OT: ot,
+    isShiny,
+    moves,
+    notes: `This event distribution was documented on Bulbapedia.`
+  };
+}
+
+/**
+ * Extract event data from a Bulbapedia section
+ */
+function extractEventFromSection(sectionHtml, sectionTitle, pokemonName) {
+  // Similar to table extraction but adapted for section content
+  const cleanTitle = cleanHtml(sectionTitle);
+  const name = cleanTitle || `${pokemonName} Event`;
+  
+  // Extract year - will look for patterns like "2011" or "in 2011"
+  const yearMatch = sectionHtml.match(/\b(20\d{2})\b/);
+  const year = yearMatch ? parseInt(yearMatch[1], 10) : new Date().getFullYear();
+  
+  // Extract dates - look for month names
+  const dateMatch = sectionHtml.match(/(January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2}(?:\s*[-–]\s*\d{1,2})?,\s+\d{4}/i);
+  const startDate = dateMatch ? dateMatch[0] : null;
+  
+  // Extract location - often in the first paragraph
+  const locationMatch = sectionHtml.match(/distributed(?:\s+at|\s+in|\s+via|\s+through)\s+(.*?)(?:\.|from|on|during|to)/i);
+  const location = locationMatch ? cleanHtml(locationMatch[1]) : 'Various Locations';
+  
+  // Try to determine if shiny
+  const isShiny = sectionHtml.toLowerCase().includes('shiny') || 
+                 sectionTitle.toLowerCase().includes('shiny');
+  
+  return {
+    name,
+    startDate,
+    endDate: null,
+    year,
+    location,
+    distributionType: 'Official Event',
+    region: 'International',
+    games: extractGamesFromHtml(sectionHtml),
+    generation: determineGenerationFromYear(year),
+    isShiny,
+    notes: `This event distribution was documented on Bulbapedia.`
+  };
+}
+
+/**
+ * Extract game names from HTML
+ */
+function extractGamesFromHtml(html) {
+  const games = [];
+  
+  // Check for common game abbreviations used in Bulbapedia
+  if (html.includes('D') || html.includes('Diamond')) games.push('Diamond');
+  if (html.includes('P') || html.includes('Pearl')) games.push('Pearl');
+  if (html.includes('Pt') || html.includes('Platinum')) games.push('Platinum');
+  if (html.includes('HG') || html.includes('HeartGold')) games.push('HeartGold');
+  if (html.includes('SS') || html.includes('SoulSilver')) games.push('SoulSilver');
+  if (html.includes('B') || html.includes('Black')) games.push('Black');
+  if (html.includes('W') || html.includes('White')) games.push('White');
+  if (html.includes('B2') || html.includes('Black 2')) games.push('Black 2');
+  if (html.includes('W2') || html.includes('White 2')) games.push('White 2');
+  if (html.includes('X')) games.push('X');
+  if (html.includes('Y')) games.push('Y');
+  if (html.includes('OR') || html.includes('Omega Ruby')) games.push('Omega Ruby');
+  if (html.includes('AS') || html.includes('Alpha Sapphire')) games.push('Alpha Sapphire');
+  if (html.includes('S') || html.includes('Sun')) games.push('Sun');
+  if (html.includes('M') || html.includes('Moon')) games.push('Moon');
+  if (html.includes('US') || html.includes('Ultra Sun')) games.push('Ultra Sun');
+  if (html.includes('UM') || html.includes('Ultra Moon')) games.push('Ultra Moon');
+  if (html.includes('SW') || html.includes('Sword')) games.push('Sword');
+  if (html.includes('SH') || html.includes('Shield')) games.push('Shield');
+  if (html.includes('BD') || html.includes('Brilliant Diamond')) games.push('Brilliant Diamond');
+  if (html.includes('SP') || html.includes('Shining Pearl')) games.push('Shining Pearl');
+  if (html.includes('PLA') || html.includes('Legends Arceus')) games.push('Legends Arceus');
+  if (html.includes('SV') || html.includes('Scarlet') || html.includes('Violet')) {
+    games.push('Scarlet');
+    games.push('Violet');
+  }
+  
+  return games.length > 0 ? games : ['Unknown'];
+}
+
+/**
+ * Determine generation based on year
+ */
+function determineGenerationFromYear(year) {
+  if (year <= 2002) return 'gen2';
+  if (year <= 2006) return 'gen3';
+  if (year <= 2010) return 'gen4';
+  if (year <= 2013) return 'gen5';
+  if (year <= 2016) return 'gen6';
+  if (year <= 2019) return 'gen7';
+  if (year <= 2022) return 'gen8';
+  return 'gen9';
+}
+
+/**
+ * Clean HTML content
+ */
+function cleanHtml(html) {
+  if (!html) return '';
+  
   return html
-    .replace(/<(?!br\s*\/?>)[^>]+>/g, '') // Remove all HTML tags except <br>
-    .replace(/<br\s*\/?>/gi, ', ')        // Replace <br> with commas
-    .replace(/&nbsp;/g, ' ')              // Replace &nbsp; with spaces
-    .replace(/&amp;/g, '&')               // Replace &amp; with &
-    .replace(/&lt;/g, '<')                // Replace &lt; with <
-    .replace(/&gt;/g, '>')                // Replace &gt; with >
-    .replace(/,\s*,/g, ',')               // Remove double commas
-    .replace(/\s+/g, ' ')                 // Normalize whitespace
+    .replace(/<[^>]+>/g, '') // Remove HTML tags
+    .replace(/&nbsp;/g, ' ')  // Replace &nbsp; with spaces
+    .replace(/&amp;/g, '&')   // Replace &amp; with &
+    .replace(/&lt;/g, '<')    // Replace &lt; with <
+    .replace(/&gt;/g, '>')    // Replace &gt; with >
+    .replace(/\s+/g, ' ')     // Normalize whitespace
     .trim();
-}
-
-/**
- * Parse a comma-separated list value
- */
-function parseListValue(value) {
-  if (!value) return [];
-  
-  return value
-    .split(/,\s*/)
-    .map(item => item.trim())
-    .filter(Boolean);
-}
-
-/**
- * Determine generation based on games
- */
-function determineGeneration(games) {
-  if (!games || games.length === 0) return 'unknown';
-  
-  const gamesText = games.join(' ').toLowerCase();
-  
-  if (gamesText.includes('scarlet') || gamesText.includes('violet')) return 'gen9';
-  if (gamesText.includes('sword') || gamesText.includes('shield') || 
-      gamesText.includes('brilliant diamond') || gamesText.includes('shining pearl') ||
-      gamesText.includes('legends') || gamesText.includes('arceus') ||
-      gamesText.includes('home')) return 'gen8';
-  if (gamesText.includes('sun') || gamesText.includes('moon') || 
-      gamesText.includes('ultra') || gamesText.includes('let\'s go')) return 'gen7';
-  if (gamesText.includes('x') || gamesText.includes('y') || 
-      gamesText.includes('omega ruby') || gamesText.includes('alpha sapphire')) return 'gen6';
-  if (gamesText.includes('black') || gamesText.includes('white')) return 'gen5';
-  if (gamesText.includes('diamond') || gamesText.includes('pearl') || 
-      gamesText.includes('platinum') || gamesText.includes('heartgold') || 
-      gamesText.includes('soulsilver')) return 'gen4';
-  if (gamesText.includes('ruby') || gamesText.includes('sapphire') || 
-      gamesText.includes('emerald') || gamesText.includes('firered') || 
-      gamesText.includes('leafgreen')) return 'gen3';
-  if (gamesText.includes('gold') || gamesText.includes('silver') || 
-      gamesText.includes('crystal')) return 'gen2';
-  if (gamesText.includes('red') || gamesText.includes('blue') || 
-      gamesText.includes('yellow')) return 'gen1';
-  
-  return 'unknown';
-}
-
-/**
- * Extract year from date text
- */
-function extractYear(dateText) {
-  if (!dateText) return new Date().getFullYear();
-  
-  const yearMatch = dateText.match(/\b(19|20)\d{2}\b/);
-  return yearMatch ? parseInt(yearMatch[0], 10) : new Date().getFullYear();
 } 
