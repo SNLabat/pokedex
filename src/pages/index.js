@@ -273,68 +273,53 @@ export default function Home() {
       </Head>
 
       {/* Hero Section */}
-      <div className="relative h-[80vh] flex items-center justify-center overflow-hidden">
-        <div 
-          ref={heroRef}
-          className="absolute inset-0 z-0"
-          style={{ 
-            backgroundImage: 'url(/img/hero-background.jpg)', 
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            filter: 'brightness(0.6)'
-          }}
-        ></div>
-        
-        <div className="relative z-10 text-center px-4 max-w-5xl mx-auto">
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 text-white drop-shadow-lg">
-            Pokédex Live
+      <div className="relative overflow-hidden mb-16" ref={heroRef}>
+        <div className="container mx-auto px-4 py-16 relative z-10">
+          <h1 className="text-5xl md:text-6xl font-bold mb-4">
+            Your Ultimate <span className="text-red-500">Pokémon</span> Companion
           </h1>
-          <p className="text-xl md:text-2xl mb-8 text-gray-100 max-w-3xl mx-auto">
-            Track your Pokémon collection across all games and generations.
-            Mark caught, shiny, and special forms. Build teams and share your progress.
+          <p className="text-xl mb-8 max-w-2xl">
+            Track your Pokémon collection, build teams, and explore the entire Pokédex with detailed information on all Pokémon from every generation.
           </p>
-          
-          <div className="flex flex-wrap justify-center gap-4">
-            <button
-              onClick={() => router.push('/pokedex')}
-              className="px-8 py-3 bg-red-600 hover:bg-red-700 text-white rounded-full text-lg font-semibold transition-all transform hover:scale-105"
+          <div className="flex flex-wrap gap-4">
+            <Link href="/pokedex">
+              <a className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-full font-medium transition-colors inline-flex items-center">
+                <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M2 4a1 1 0 011-1h14a1 1 0 011 1v14a1 1 0 01-1 1H3a1 1 0 01-1-1V4z"></path>
+                </svg>
+                Browse Pokédex
+              </a>
+            </Link>
+            <button 
+              onClick={() => router.push(`/pokemon/${Math.floor(Math.random() * 898) + 1}`)}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-full font-medium transition-colors inline-flex items-center"
             >
-              Browse Pokédex
-            </button>
-            
-            <button
-              onClick={() => {
-                const randomId = Math.floor(Math.random() * 898) + 1;
-                router.push(`/pokemon/${randomId}`);
-              }}
-              className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full text-lg font-semibold transition-all transform hover:scale-105"
-            >
+              <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clipRule="evenodd"></path>
+              </svg>
               Random Pokémon
             </button>
+            <Link href="/mystery-gift">
+              <a className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-full font-medium transition-colors inline-flex items-center">
+                <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M5 5a3 3 0 015-2.236A3 3 0 0114.83 6H16a2 2 0 110 4h-5V9a1 1 0 10-2 0v1H4a2 2 0 110-4h1.17C5.06 5.687 5 5.35 5 5zm4 1V5a1 1 0 10-1 1h1zm3 0a1 1 0 10-1-1v1h1z" clipRule="evenodd"></path>
+                  <path d="M9 11H3v5a2 2 0 002 2h4v-7zM11 18h4a2 2 0 002-2v-5h-6v7z"></path>
+                </svg>
+                Mystery Gift Unboxer
+              </a>
+            </Link>
           </div>
         </div>
-
-        {/* Floating Pokéballs */}
-        <div className="absolute bottom-0 left-0 w-full">
-          <div className="container mx-auto px-4">
-            <div className="flex justify-between items-end pb-8">
-              {[1, 2, 3].map((i) => (
-                <div
-                  key={i}
-                  className="w-16 h-16 md:w-24 md:h-24 rounded-full bg-white shadow-lg relative overflow-hidden animate-bounce"
-                  style={{ 
-                    animationDuration: `${i * 0.5 + 1.5}s`,
-                    animationDelay: `${i * 0.2}s` 
-                  }}
-                >
-                  <div className="absolute inset-0 bg-red-600 rounded-t-full h-1/2"></div>
-                  <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center">
-                    <div className="w-1/3 h-1/3 bg-white rounded-full border-4 border-gray-800"></div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+        <div 
+          className="absolute -right-40 -bottom-32 transform rotate-12 opacity-20 pointer-events-none" 
+          style={{zIndex: "1"}}
+        >
+          <Image 
+            src={pokeballOutline} 
+            alt="Pokeball" 
+            width={600} 
+            height={600} 
+          />
         </div>
       </div>
 
