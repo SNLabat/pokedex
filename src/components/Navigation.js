@@ -241,26 +241,37 @@ export default function Navigation() {
         {/* Mobile menu */}
         {isMenuOpen && (
           <div className="md:hidden py-4 border-t border-gray-800">
-            <button
-              onClick={() => handleNavigation('/pokedex')}
-              className="block py-2 text-gray-300 hover:text-white transition-colors w-full text-left"
-            >
-              Browse Pokédex
-            </button>
-            
-            <button
-              onClick={() => handleNavigation('/team-builder')}
-              className="block py-2 text-gray-300 hover:text-white transition-colors w-full text-left"
-            >
-              Team Builder
-            </button>
-            
-            <button
-              onClick={() => handleNavigation('/mystery-gift')}
-              className="block py-2 text-gray-300 hover:text-white transition-colors w-full text-left"
-            >
-              Mystery Gift Unboxer
-            </button>
+            <div className="flex flex-col space-y-3 mb-4">
+              <button
+                onClick={() => handleNavigation('/pokedex')}
+                className="py-3 px-4 text-gray-200 bg-red-600 hover:bg-red-700 rounded-lg text-center font-medium transition-colors flex items-center justify-center"
+              >
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
+                </svg>
+                Browse Pokédex
+              </button>
+              
+              <button
+                onClick={() => handleNavigation('/team-builder')}
+                className="py-3 px-4 text-gray-200 bg-blue-600 hover:bg-blue-700 rounded-lg text-center font-medium transition-colors flex items-center justify-center"
+              >
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                Team Builder
+              </button>
+              
+              <button
+                onClick={() => handleNavigation('/mystery-gift')}
+                className="py-3 px-4 text-gray-200 bg-purple-600 hover:bg-purple-700 rounded-lg text-center font-medium transition-colors flex items-center justify-center"
+              >
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+                </svg>
+                Mystery Gift Unboxer
+              </button>
+            </div>
             
             <form onSubmit={handleSearch} className="mt-4 flex">
               <input
