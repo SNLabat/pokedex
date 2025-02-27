@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/router';
 import AdvancedSearch from '../components/AdvancedSearch';
 import Navigation from '../components/Navigation';
+import EnhancedExport from '../components/EnhancedExport';
 import { getPokemonCollection } from '../lib/dataManagement';
 
 export default function PokedexPage({ initialPokemon }) {
@@ -14,6 +15,13 @@ export default function PokedexPage({ initialPokemon }) {
   const [selectedGen, setSelectedGen] = useState('all');
   const [searchFilters, setSearchFilters] = useState({});
   const [caughtStatus, setCaughtStatus] = useState({});
+  
+  // New state for modals
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [importFile, setImportFile] = useState(null);
+  const [importError, setImportError] = useState(null);
+  const [importSuccess, setImportSuccess] = useState(false);
   
   const generations = [
     { id: 'all', name: 'All Generations' },
@@ -252,6 +260,97 @@ export default function PokedexPage({ initialPokemon }) {
     );
   };
 
+  // Function to handle CSV import
+  const handleImport = async (e) => {
+    e.preventDefault();
+    setImportError(null);
+    setImportSuccess(false);
+    
+    if (!importFile) {
+      setImportError("Please select a file to import");
+      return;
+    }
+    
+    try {
+      const reader = new FileReader();
+      
+      reader.onload = async (e) => {
+        try {
+          const csvData = e.target.result;
+          const lines = csvData.split('\n');
+          const headers = lines[0].split(',');
+          
+          // Find the column indices for the data we need
+          const idIdx = headers.findIndex(h => h.toLowerCase() === 'id');
+          const caughtIdx = headers.findIndex(h => h.toLowerCase() === 'caught');
+          const shinyIdx = headers.findIndex(h => h.toLowerCase() === 'shiny' || h.toLowerCase() === 'status');
+          
+          if (idIdx === -1) {
+            setImportError("The CSV file must contain an 'id' column");
+            return;
+          }
+          
+          // Parse the CSV data
+          const newCollection = { ...caughtStatus };
+          
+          for (let i = 1; i < lines.length; i++) {
+            if (!lines[i].trim()) continue;
+            
+            const values = lines[i].split(',');
+            const id = values[idIdx].trim();
+            
+            if (!id || isNaN(parseInt(id))) continue;
+            
+            // Initialize the Pokemon in the collection if it doesn't exist
+            if (!newCollection[id]) {
+              newCollection[id] = { default: {} };
+            }
+            
+            // Update caught status if the column exists
+            if (caughtIdx !== -1) {
+              const caughtValue = values[caughtIdx].trim().toLowerCase();
+              newCollection[id].default.caught = (caughtValue === 'yes' || caughtValue === 'true' || caughtValue === '1');
+            }
+            
+            // Update shiny status if the column exists
+            if (shinyIdx !== -1) {
+              const shinyValue = values[shinyIdx].trim().toLowerCase();
+              newCollection[id].default.shiny = (shinyValue === 'shiny' || shinyValue === 'yes' || shinyValue === 'true' || shinyValue === '1');
+            }
+          }
+          
+          // Save the updated collection
+          const { saveCollection } = await import('../lib/dataManagement');
+          await saveCollection(newCollection);
+          
+          // Update the UI
+          setCaughtStatus(newCollection);
+          setImportSuccess(true);
+          
+          // Close the modal after a delay
+          setTimeout(() => {
+            setShowImportModal(false);
+            setImportSuccess(false);
+          }, 2000);
+          
+        } catch (error) {
+          console.error("Error parsing CSV:", error);
+          setImportError("Error parsing the CSV file. Please check the format.");
+        }
+      };
+      
+      reader.onerror = () => {
+        setImportError("Error reading the file");
+      };
+      
+      reader.readAsText(importFile);
+      
+    } catch (error) {
+      console.error("Import error:", error);
+      setImportError("An error occurred during import");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       <Head>
@@ -265,12 +364,32 @@ export default function PokedexPage({ initialPokemon }) {
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">Pokédex</h1>
           
-          {/* Stats counter */}
-          <div className="bg-gray-800 px-4 py-2 rounded-lg">
-            <span className="text-sm text-gray-400">Displaying:</span>
-            <span className="ml-2 font-semibold">
-              {filteredPokemon.length > 0 ? filteredPokemon.length : pokemonData.length} Pokémon
-            </span>
+          {/* Add Export/Import buttons */}
+          <div className="flex space-x-2">
+            <button 
+              onClick={() => setShowExportModal(true)}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+              </svg>
+              Export
+            </button>
+            <button 
+              onClick={() => setShowImportModal(true)}
+              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" transform="rotate(180, 10, 10)" />
+              </svg>
+              Import
+            </button>
+            <div className="bg-gray-800 px-4 py-2 rounded-lg">
+              <span className="text-sm text-gray-400">Displaying:</span>
+              <span className="ml-2 font-semibold">
+                {filteredPokemon.length > 0 ? filteredPokemon.length : pokemonData.length} Pokémon
+              </span>
+            </div>
           </div>
         </div>
         
@@ -334,6 +453,123 @@ export default function PokedexPage({ initialPokemon }) {
             <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg">
               Load More Pokémon
             </button>
+          </div>
+        )}
+
+        {/* Export Modal */}
+        {showExportModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+            <div className="bg-gray-900 rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-2xl font-bold">Export Collection</h2>
+                  <button 
+                    onClick={() => setShowExportModal(false)}
+                    className="text-gray-400 hover:text-white"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+                <EnhancedExport 
+                  caughtData={caughtStatus} 
+                  pokemonData={pokemonData} 
+                  onClose={() => setShowExportModal(false)}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Import Modal */}
+        {showImportModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+            <div className="bg-gray-900 rounded-lg max-w-lg w-full">
+              <div className="p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-2xl font-bold">Import Collection</h2>
+                  <button 
+                    onClick={() => {
+                      setShowImportModal(false);
+                      setImportFile(null);
+                      setImportError(null);
+                      setImportSuccess(false);
+                    }}
+                    className="text-gray-400 hover:text-white"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+                
+                <form onSubmit={handleImport}>
+                  <div className="mb-6">
+                    <p className="text-gray-300 mb-4">
+                      Upload a CSV file to import your Pokémon collection. The file should contain at least columns for "id" and either "caught" or "status".
+                    </p>
+                    
+                    <div className="border-2 border-dashed border-gray-700 rounded-lg p-6 text-center">
+                      <input
+                        type="file"
+                        id="importFile"
+                        accept=".csv"
+                        className="hidden"
+                        onChange={(e) => setImportFile(e.target.files[0])}
+                      />
+                      <label 
+                        htmlFor="importFile"
+                        className="cursor-pointer flex flex-col items-center"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-gray-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                        <span className="text-gray-300">
+                          {importFile ? importFile.name : "Choose a file or drag it here"}
+                        </span>
+                      </label>
+                    </div>
+                    
+                    {importError && (
+                      <div className="mt-4 p-3 bg-red-900 bg-opacity-50 border border-red-700 rounded-lg text-white">
+                        {importError}
+                      </div>
+                    )}
+                    
+                    {importSuccess && (
+                      <div className="mt-4 p-3 bg-green-900 bg-opacity-50 border border-green-700 rounded-lg text-white">
+                        Collection imported successfully!
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="flex justify-end">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowImportModal(false);
+                        setImportFile(null);
+                        setImportError(null);
+                      }}
+                      className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg mr-2"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg flex items-center"
+                      disabled={!importFile}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" transform="rotate(180, 10, 10)" />
+                      </svg>
+                      Import
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
           </div>
         )}
       </main>
