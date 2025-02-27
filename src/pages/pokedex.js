@@ -249,8 +249,8 @@ export default function PokedexPage({ initialPokemon }) {
                 })()}
               </div>
               
-              {/* Caught indicator moved to top left */}
-              <div className="absolute -top-2 -left-2">
+              {/* Caught indicator moved to top left with adjusted vertical position */}
+              <div className="absolute -top-1 -left-2">
                 {(() => {
                   // Check if any form of this Pokémon is caught
                   const forms = caughtStatus[pokemon.id] || {};
