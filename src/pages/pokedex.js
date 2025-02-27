@@ -131,6 +131,19 @@ export default function PokedexPage({ initialPokemon }) {
       }
     }
     
+    // Apply caught filter
+    if (searchFilters.showOnlyCaught) {
+      const pokemonForms = caughtStatus[pokemon.id];
+      if (!pokemonForms) return false;
+      
+      // Check if any form of this Pokémon is caught or shiny
+      const hasCaught = Object.values(pokemonForms).some(form => 
+        form.caught || form.shiny || Object.values(form).some(Boolean)
+      );
+      
+      if (!hasCaught) return false;
+    }
+    
     // Add more filters as needed
     
     return true;
@@ -467,6 +480,7 @@ export default function PokedexPage({ initialPokemon }) {
           pokemonData={pokemonData}
           hideStatusFilters={true}
           hideSortOptions={true}
+          caughtStatus={caughtStatus}
         />
         
         {/* Pokemon list */}

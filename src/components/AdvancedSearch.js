@@ -54,7 +54,8 @@ const AdvancedSearch = ({
   onSearchClient, 
   pokemonData = [],
   hideStatusFilters = false,
-  hideSortOptions = false
+  hideSortOptions = false,
+  caughtStatus = {}
 }) => {
   // Initialize with provided filters or defaults
   const [searchTerm, setSearchTerm] = useState(initialFilters.searchTerm || '');
@@ -63,6 +64,7 @@ const AdvancedSearch = ({
   const [catchStatus, setCatchStatus] = useState(initialFilters.catchStatus || 'all');
   const [shinyStatus, setShinyStatus] = useState(initialFilters.shinyStatus || 'all');
   const [sortBy, setSortBy] = useState(initialFilters.sortBy || 'id');
+  const [showOnlyCaught, setShowOnlyCaught] = useState(initialFilters.showOnlyCaught || false);
   
   // Get all available types from the data
   const allTypes = Object.keys(typeColors);
@@ -83,6 +85,7 @@ const AdvancedSearch = ({
     setCatchStatus('all');
     setShinyStatus('all');
     setSortBy('id');
+    setShowOnlyCaught(false);
   };
   
   // Use callback to prevent recreation on every render
@@ -92,14 +95,15 @@ const AdvancedSearch = ({
       types: selectedTypes,
       catchStatus,
       shinyStatus,
-      sortBy
+      sortBy,
+      showOnlyCaught
     };
     
     // Only call onSearchClient if it's a function (client-side)
     if (typeof onSearchClient === 'function') {
       onSearchClient(filters);
     }
-  }, [searchTerm, selectedTypes, catchStatus, shinyStatus, sortBy, onSearchClient]);
+  }, [searchTerm, selectedTypes, catchStatus, shinyStatus, sortBy, showOnlyCaught, onSearchClient]);
   
   // Trigger search when filters change
   useEffect(() => {
@@ -161,6 +165,26 @@ const AdvancedSearch = ({
                   onClick={toggleType}
                 />
               ))}
+            </div>
+          </div>
+          
+          {/* Show Only Caught filter */}
+          <div>
+            <h3 className="text-sm font-medium text-gray-400 mb-2">Collection Filter</h3>
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="showOnlyCaught"
+                checked={showOnlyCaught}
+                onChange={() => {
+                  setShowOnlyCaught(!showOnlyCaught);
+                  setTimeout(handleSearch, 0);
+                }}
+                className="rounded text-red-500 focus:ring-red-500"
+              />
+              <label htmlFor="showOnlyCaught" className="text-gray-300">
+                Show only caught Pokémon
+              </label>
             </div>
           </div>
           
