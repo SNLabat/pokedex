@@ -67,4 +67,14 @@ body {
   border: 2px solid #FBBF24; /* Yellow border */
 }
 
+/* Hide scrollbar but maintain scroll functionality */
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
+}
+
 /* Remove any .filter-yellow, .filter-red, etc. classes if they're causing issues */

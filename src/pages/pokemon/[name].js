@@ -2657,6 +2657,20 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
     setActiveTab('info');
   }, [pokemon?.id]); // Only depend on pokemon.id to avoid unnecessary resets
   
+  // Add a new useEffect to scroll the active tab into view
+  useEffect(() => {
+    // Scroll active tab into view when tab changes
+    if (activeTab) {
+      setTimeout(() => {
+        document.getElementById(`tab-${activeTab}`)?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'center'
+        });
+      }, 100);
+    }
+  }, [activeTab]);
+  
   // If the page is loading from a fallback route
   if (router.isFallback || !pokemon || !species) {
     return (
@@ -2721,35 +2735,55 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
           </div>
         </div>
         
-        {/* Tab Navigation - use the main type's theming with darker accents */}
-        <div className="flex flex-wrap border-b border-gray-700 mb-6">
-          {['info', 'stats', 'evolution', 'moves', 'locations', 'tracking', 'ribbons', 'marks', 'sprites'].map((tab) => {
-            const isActive = activeTab === tab;
-            
-            // Create a style for active and inactive tabs
-            const tabStyle = isActive 
-              ? { 
-                  backgroundColor: mainTypeColor.mainColor, 
-                  color: mainTypeColor.textColor,
-                  borderBottom: `3px solid ${mainTypeColor.darkColor}`
-                }
-              : { 
-                  backgroundColor: mainTypeColor.darkColor,
-                  color: mainTypeColor.textColor,
-                  opacity: 0.7
-                };
-            
-            return (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`mr-2 px-4 py-2 rounded-t-lg transition-all hover:opacity-100`}
-                style={tabStyle}
-              >
-                {tab.charAt(0).toUpperCase() + tab.slice(1)}
-              </button>
-            );
-          })}
+        {/* Tab Navigation - scrollable for mobile */}
+        <div className="relative">
+          {/* Scrollable tab container */}
+          <div className="overflow-x-auto hide-scrollbar pb-1">
+            <div className="flex whitespace-nowrap border-b border-gray-700 mb-6">
+              {['info', 'stats', 'evolution', 'moves', 'locations', 'tracking', 'ribbons', 'marks', 'sprites'].map((tab) => {
+                const isActive = activeTab === tab;
+                
+                // Create a style for active and inactive tabs
+                const tabStyle = isActive 
+                  ? { 
+                      backgroundColor: mainTypeColor.mainColor, 
+                      color: mainTypeColor.textColor,
+                      borderBottom: `3px solid ${mainTypeColor.darkColor}`
+                    }
+                  : { 
+                      backgroundColor: 'transparent',
+                      color: 'white',
+                      opacity: 0.8
+                    };
+                
+                return (
+                  <button
+                    key={tab}
+                    onClick={() => {
+                      setActiveTab(tab);
+                      // Scroll tab into view if needed
+                      document.getElementById(`tab-${tab}`)?.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'nearest',
+                        inline: 'center'
+                      });
+                    }}
+                    id={`tab-${tab}`}
+                    className={`px-5 py-3 text-center transition-all hover:opacity-100 min-w-max ${
+                      isActive ? 'font-medium' : ''
+                    }`}
+                    style={tabStyle}
+                  >
+                    {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+          
+          {/* Add fade indicators to show there's more to scroll */}
+          <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-gray-900 to-transparent pointer-events-none"></div>
+          <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-gray-900 to-transparent pointer-events-none"></div>
         </div>
         
         {/* Tab content with consistent styling */}
