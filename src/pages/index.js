@@ -283,23 +283,36 @@ export default function Home() {
           <p className="text-xl mb-8 max-w-2xl">
             Track your Pokémon collection, build teams, and explore the entire Pokédex with detailed information on all Pokémon from every generation.
           </p>
-          <div className="flex flex-wrap items-center gap-4">
-            <Link href="/pokedex">
-              <a className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-full font-medium transition-colors text-center">
-                Browse Pokédex
-              </a>
-            </Link>
-            <button 
-              onClick={() => router.push(`/pokemon/${Math.floor(Math.random() * 898) + 1}`)}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-full font-medium transition-colors text-center"
+          <div className="flex space-x-4 mt-8">
+            <a 
+              href="/pokedex" 
+              className="px-6 py-3 bg-red-600 hover:bg-red-700 rounded-full text-white font-medium transition-colors shadow-lg flex items-center"
             >
-              Random Pokémon
-            </button>
-            <Link href="/mystery-gift">
-              <a className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-full font-medium transition-colors text-center">
-                Mystery Gift Unboxer
-              </a>
-            </Link>
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
+              </svg>
+              Browse Pokédex
+            </a>
+            
+            <a 
+              href="/team-builder" 
+              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-full text-white font-medium transition-colors shadow-lg flex items-center"
+            >
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+              Team Builder
+            </a>
+            
+            <a 
+              href="/mystery-gift" 
+              className="px-6 py-3 bg-purple-600 hover:bg-purple-700 rounded-full text-white font-medium transition-colors shadow-lg flex items-center"
+            >
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+              </svg>
+              Mystery Gift Unboxer
+            </a>
           </div>
         </div>
         
