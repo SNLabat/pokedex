@@ -273,7 +273,7 @@ export default function Home() {
       </Head>
 
       {/* Hero Section */}
-      <div className="relative overflow-hidden mb-16" ref={heroRef}>
+      <div className="relative overflow-hidden mb-16 pb-16" ref={heroRef}>
         <div className="container mx-auto px-4 py-16 relative z-10">
           <h1 className="text-5xl md:text-6xl font-bold mb-4">
             Your Ultimate <span className="text-red-500">Pokémon</span> Companion
@@ -281,61 +281,40 @@ export default function Home() {
           <p className="text-xl mb-8 max-w-2xl">
             Track your Pokémon collection, build teams, and explore the entire Pokédex with detailed information on all Pokémon from every generation.
           </p>
-          <div className="flex flex-wrap gap-4">
+          <div className="flex flex-wrap items-center gap-4">
             <Link href="/pokedex">
-              <a className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-full font-medium transition-colors">
+              <a className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-full font-medium transition-colors text-center">
                 Browse Pokédex
               </a>
             </Link>
             <button 
               onClick={() => router.push(`/pokemon/${Math.floor(Math.random() * 898) + 1}`)}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-full font-medium transition-colors"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-full font-medium transition-colors text-center"
             >
               Random Pokémon
             </button>
             <Link href="/mystery-gift">
-              <a className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-full font-medium transition-colors">
+              <a className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-full font-medium transition-colors text-center">
                 Mystery Gift Unboxer
               </a>
             </Link>
           </div>
         </div>
         
-        {/* Full Pokeball background instead of outline */}
+        {/* Full Pokeball background - adjusted to be fully visible */}
         <div 
-          className="absolute -right-20 -bottom-20 transform rotate-12 opacity-20 pointer-events-none" 
+          className="absolute right-0 bottom-0 opacity-20 pointer-events-none" 
           style={{zIndex: "1"}}
         >
           <Image 
             src="/img/pokeball.png" 
             alt="Pokeball" 
-            width={500} 
-            height={500} 
+            width={400} 
+            height={400} 
           />
         </div>
         
-        {/* Floating Pokéballs (restored from previous design) */}
-        <div className="absolute bottom-0 left-0 w-full">
-          <div className="container mx-auto px-4">
-            <div className="flex justify-between items-end pb-8">
-              {[1, 2, 3].map((i) => (
-                <div
-                  key={i}
-                  className="w-16 h-16 md:w-24 md:h-24 rounded-full bg-white shadow-lg relative overflow-hidden"
-                  style={{ 
-                    animation: `bounce ${i * 0.5 + 1.5}s infinite ease-in-out`,
-                    animationDelay: `${i * 0.2}s` 
-                  }}
-                >
-                  <div className="absolute inset-0 bg-red-600 rounded-t-full h-1/2"></div>
-                  <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center">
-                    <div className="w-1/3 h-1/3 bg-white rounded-full border-4 border-gray-800"></div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+        {/* Removed animated pokeballs as requested */}
       </div>
 
       {/* Main Content */}
