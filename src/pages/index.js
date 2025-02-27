@@ -275,9 +275,11 @@ export default function Home() {
       {/* Hero Section */}
       <div className="relative overflow-hidden mb-16 pb-16" ref={heroRef}>
         <div className="container mx-auto px-4 py-16 relative z-10">
-          <h1 className="text-5xl md:text-6xl font-bold mb-4">
-            Your Ultimate <span className="text-red-500">Pokémon</span> Companion
-          </h1>
+          <div className="mb-4">
+            <h1 className="text-6xl md:text-7xl font-bold text-white">
+              Pokémon <span className="text-red-500">Live</span>
+            </h1>
+          </div>
           <p className="text-xl mb-8 max-w-2xl">
             Track your Pokémon collection, build teams, and explore the entire Pokédex with detailed information on all Pokémon from every generation.
           </p>
