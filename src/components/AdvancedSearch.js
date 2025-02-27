@@ -49,7 +49,13 @@ const TypeButton = ({ type, isSelected, onClick }) => (
   </button>
 );
 
-const AdvancedSearch = ({ initialFilters = {}, onSearchClient, pokemonData = [] }) => {
+const AdvancedSearch = ({ 
+  initialFilters = {}, 
+  onSearchClient, 
+  pokemonData = [],
+  hideStatusFilters = false,
+  hideSortOptions = false
+}) => {
   // Initialize with provided filters or defaults
   const [searchTerm, setSearchTerm] = useState(initialFilters.searchTerm || '');
   const [showFilters, setShowFilters] = useState(false);
@@ -158,77 +164,83 @@ const AdvancedSearch = ({ initialFilters = {}, onSearchClient, pokemonData = [] 
             </div>
           </div>
           
-          {/* Caught status filter */}
-          <div>
-            <h3 className="text-sm font-medium text-gray-400 mb-2">Caught Status</h3>
-            <div className="flex flex-wrap gap-2">
-              <FilterButton
-                label="All"
-                isActive={catchStatus === 'all'}
-                onClick={() => setCatchStatus('all')}
-              />
-              <FilterButton
-                label="Caught"
-                isActive={catchStatus === 'caught'}
-                onClick={() => setCatchStatus('caught')}
-              />
-              <FilterButton
-                label="Not Caught"
-                isActive={catchStatus === 'uncaught'}
-                onClick={() => setCatchStatus('uncaught')}
-              />
+          {/* Caught status filter - Only show if hideStatusFilters is false */}
+          {!hideStatusFilters && (
+            <div>
+              <h3 className="text-sm font-medium text-gray-400 mb-2">Caught Status</h3>
+              <div className="flex flex-wrap gap-2">
+                <FilterButton
+                  label="All"
+                  isActive={catchStatus === 'all'}
+                  onClick={() => setCatchStatus('all')}
+                />
+                <FilterButton
+                  label="Caught"
+                  isActive={catchStatus === 'caught'}
+                  onClick={() => setCatchStatus('caught')}
+                />
+                <FilterButton
+                  label="Not Caught"
+                  isActive={catchStatus === 'uncaught'}
+                  onClick={() => setCatchStatus('uncaught')}
+                />
+              </div>
             </div>
-          </div>
+          )}
           
-          {/* Shiny status filter */}
-          <div>
-            <h3 className="text-sm font-medium text-gray-400 mb-2">Shiny Status</h3>
-            <div className="flex flex-wrap gap-2">
-              <FilterButton
-                label="All"
-                isActive={shinyStatus === 'all'}
-                onClick={() => setShinyStatus('all')}
-              />
-              <FilterButton
-                label="Shiny"
-                isActive={shinyStatus === 'shiny'}
-                onClick={() => setShinyStatus('shiny')}
-                customClasses="relative"
-              />
-              <FilterButton
-                label="Not Shiny"
-                isActive={shinyStatus === 'not-shiny'}
-                onClick={() => setShinyStatus('not-shiny')}
-              />
+          {/* Shiny status filter - Only show if hideStatusFilters is false */}
+          {!hideStatusFilters && (
+            <div>
+              <h3 className="text-sm font-medium text-gray-400 mb-2">Shiny Status</h3>
+              <div className="flex flex-wrap gap-2">
+                <FilterButton
+                  label="All"
+                  isActive={shinyStatus === 'all'}
+                  onClick={() => setShinyStatus('all')}
+                />
+                <FilterButton
+                  label="Shiny"
+                  isActive={shinyStatus === 'shiny'}
+                  onClick={() => setShinyStatus('shiny')}
+                  customClasses="relative"
+                />
+                <FilterButton
+                  label="Not Shiny"
+                  isActive={shinyStatus === 'not-shiny'}
+                  onClick={() => setShinyStatus('not-shiny')}
+                />
+              </div>
             </div>
-          </div>
+          )}
           
-          {/* Sort by filter */}
-          <div>
-            <h3 className="text-sm font-medium text-gray-400 mb-2">Sort By</h3>
-            <div className="flex flex-wrap gap-2">
-              <FilterButton
-                label="Number"
-                isActive={sortBy === 'id'}
-                onClick={() => setSortBy('id')}
-              />
-              <FilterButton
-                label="Name"
-                isActive={sortBy === 'name'}
-                onClick={() => setSortBy('name')}
-              />
-              <FilterButton
-                label="Type"
-                isActive={sortBy === 'type'}
-                onClick={() => setSortBy('type')}
-              />
-              <FilterButton
-                label="Catch Rate"
-                isActive={sortBy === 'catchRate'}
-                onClick={() => setSortBy('catchRate')}
-              />
+          {/* Sort by filter - Only show if hideSortOptions is false */}
+          {!hideSortOptions && (
+            <div>
+              <h3 className="text-sm font-medium text-gray-400 mb-2">Sort By</h3>
+              <div className="flex flex-wrap gap-2">
+                <FilterButton
+                  label="Number"
+                  isActive={sortBy === 'id'}
+                  onClick={() => setSortBy('id')}
+                />
+                <FilterButton
+                  label="Name"
+                  isActive={sortBy === 'name'}
+                  onClick={() => setSortBy('name')}
+                />
+                <FilterButton
+                  label="Type"
+                  isActive={sortBy === 'type'}
+                  onClick={() => setSortBy('type')}
+                />
+                <FilterButton
+                  label="Catch Rate"
+                  isActive={sortBy === 'catchRate'}
+                  onClick={() => setSortBy('catchRate')}
+                />
+              </div>
             </div>
-          </div>
+          )}
         </div>
       )}
     </div>

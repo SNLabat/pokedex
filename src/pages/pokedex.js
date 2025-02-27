@@ -319,6 +319,8 @@ export default function PokedexPage({ initialPokemon }) {
           initialFilters={searchFilters}
           onSearchClient={handleSearch}
           pokemonData={pokemonData}
+          hideStatusFilters={true}
+          hideSortOptions={true}
         />
         
         {/* Pokemon list */}

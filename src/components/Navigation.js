@@ -139,7 +139,6 @@ export default function Navigation() {
                 src="/img/pokeball.png"
                 alt="Pokédex Live"
                 layout="fill"
-                className="filter-red"
               />
             </div>
             <span className="text-xl font-bold">Pokédex Live</span>
