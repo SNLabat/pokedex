@@ -11,7 +11,7 @@
     }
   ],
   "functions": {
-    "api/pokemon-events.js": {
+    "src/pages/api/**/*": {
       "memory": 1024,
       "maxDuration": 10
     }
