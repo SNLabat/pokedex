@@ -2740,7 +2740,9 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
           {/* Scrollable tab container */}
           <div className="overflow-x-auto hide-scrollbar pb-1">
             <div className="flex whitespace-nowrap">
-              {['info', 'stats', 'evolution', 'moves', 'locations', 'events', 'tracking', 'ribbons', 'marks', 'sprites'].map((tab) => {
+              {['info', 'stats', 'evolution', 'moves', 'locations', 
+                ...(ENABLE_EVENTS_TAB ? ['events'] : []), 
+                'tracking', 'ribbons', 'marks', 'sprites'].map((tab) => {
                 const isActive = activeTab === tab;
                 
                 // Create a style for active and inactive tabs
@@ -3031,13 +3033,6 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
           </div>
           )}
           
-        {activeTab === 'events' && (
-          <div style={cardStyle} className="rounded-lg p-6">
-            <h2 className="text-xl font-bold mb-6">Event Distributions</h2>
-            <EventsTab pokemonId={pokemon.id} pokemonName={pokemon.name} />
-          </div>
-        )}
-        
         {activeTab === 'tracking' && (
           <div style={cardStyle} className="rounded-lg p-6">
             <h2 className="text-xl font-bold mb-6">Collection Tracking</h2>
@@ -3187,6 +3182,13 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
         {activeTab === 'sprites' && (
           <div style={cardStyle} className="rounded-lg p-6">
             <SpritesTab pokemon={pokemon} />
+          </div>
+        )}
+        
+        {ENABLE_EVENTS_TAB && activeTab === 'events' && (
+          <div style={cardStyle} className="rounded-lg p-6">
+            <h2 className="text-xl font-bold mb-6">Event Distributions</h2>
+            <EventsTab pokemonId={pokemon.id} pokemonName={pokemon.name} />
           </div>
         )}
       </div>
@@ -3628,3 +3630,6 @@ const EventCard = ({ event, safeJoin }) => {
     </div>
   );
 };
+
+// Add a feature flag at the top of your component
+const ENABLE_EVENTS_TAB = false; // Set to true when ready to enable
