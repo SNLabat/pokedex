@@ -229,14 +229,14 @@ export default function PokedexPage({ initialPokemon }) {
     }
     
     return (
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
         {pokemonToShow.map(pokemon => (
           <a 
             key={`pokemon-${pokemon.id}`} 
             href={`/pokemon/${pokemon.name}`}
-            className={`bg-gray-800 hover:bg-gray-700 rounded-lg p-4 transition-transform hover:scale-105 flex flex-col items-center ${getTrackingBorderClass(pokemon.id)}`}
+            className={`bg-gray-800 hover:bg-gray-700 rounded-lg p-3 transition-transform hover:scale-105 flex flex-col items-center ${getTrackingBorderClass(pokemon.id)}`}
           >
-            <div className="relative w-32 h-32">
+            <div className="relative w-24 h-24 sm:w-28 sm:h-28">
               {pokemon.sprite ? (
                 <Image
                   src={pokemon.sprite}
@@ -282,14 +282,14 @@ export default function PokedexPage({ initialPokemon }) {
               </div>
             </div>
             
-            <div className="mt-2 text-center">
-              <p className="text-sm text-gray-400">#{String(pokemon.id).padStart(3, '0')}</p>
-              <p className="font-medium capitalize">{pokemon.name.replace(/-/g, ' ')}</p>
-              <div className="flex justify-center gap-1 mt-1">
+            <div className="mt-2 text-center w-full">
+              <p className="text-xs text-gray-400">#{String(pokemon.id).padStart(3, '0')}</p>
+              <p className="font-medium capitalize text-sm truncate">{pokemon.name.replace(/-/g, ' ')}</p>
+              <div className="flex justify-center gap-1 mt-1 flex-wrap">
                 {pokemon.types.map(type => (
                   <span 
                     key={type} 
-                    className={`text-xs px-2 py-1 rounded ${getTypeColor(type)}`}
+                    className={`text-xs px-2 py-0.5 rounded ${getTypeColor(type)}`}
                   >
                     {type}
                   </span>
@@ -402,12 +402,12 @@ export default function PokedexPage({ initialPokemon }) {
       
       <Navigation />
       
-      <main className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-6">
+      <main className="container mx-auto px-4 py-8 max-w-full">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
           <h1 className="text-3xl font-bold">Pokédex</h1>
           
-          {/* Add Export/Import buttons */}
-          <div className="flex space-x-2">
+          {/* Add Export/Import buttons - Make more responsive */}
+          <div className="flex flex-wrap gap-2">
             <button 
               onClick={() => setShowExportModal(true)}
               className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center"
@@ -435,35 +435,37 @@ export default function PokedexPage({ initialPokemon }) {
           </div>
         </div>
         
-        {/* Generation filter */}
-        <div className="mb-8 overflow-x-auto">
-          <div className="flex space-x-2 pb-2">
-            {generations.map(gen => (
-              <button
-                key={gen.id}
-                onClick={() => {
-                  setSelectedGen(gen.id);
-                  router.push({
-                    pathname: '/pokedex',
-                    query: { gen: gen.id },
-                  }, undefined, { shallow: true });
-                }}
-                className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
-                  selectedGen === gen.id 
-                    ? 'bg-red-600 text-white' 
-                    : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                }`}
-              >
-                {gen.name}
-              </button>
-            ))}
+        {/* Generation filter - Make scrollable for mobile */}
+        <div className="mb-8">
+          <div className="overflow-x-auto hide-scrollbar pb-2">
+            <div className="flex space-x-2 min-w-max">
+              {generations.map(gen => (
+                <button
+                  key={gen.id}
+                  onClick={() => {
+                    setSelectedGen(gen.id);
+                    router.push({
+                      pathname: '/pokedex',
+                      query: { gen: gen.id },
+                    }, undefined, { shallow: true });
+                  }}
+                  className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+                    selectedGen === gen.id 
+                      ? 'bg-red-600 text-white' 
+                      : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                  }`}
+                >
+                  {gen.name}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
         
         {/* Legend for tracking indicators */}
         <div className="mb-4 bg-gray-800 p-3 rounded-lg">
           <h3 className="text-sm font-medium mb-2">Tracking Indicators:</h3>
-          <div className="flex items-center space-x-4 text-sm">
+          <div className="flex flex-wrap items-center gap-4 text-sm">
             <div className="flex items-center">
               <div className="w-6 h-6 border-2 border-green-500 bg-gray-700 rounded mr-2"></div>
               <span>Caught</span>
@@ -485,7 +487,7 @@ export default function PokedexPage({ initialPokemon }) {
           caughtStatus={caughtStatus}
         />
         
-        {/* Pokemon list */}
+        {/* Pokemon list - Fix grid for better responsiveness */}
         <div className="mt-6">
           {renderPokemonGrid()}
         </div>

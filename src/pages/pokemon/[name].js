@@ -2736,10 +2736,10 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
         </div>
         
         {/* Tab Navigation - scrollable for mobile */}
-        <div className="relative">
+        <div className="relative mb-6">
           {/* Scrollable tab container */}
           <div className="overflow-x-auto hide-scrollbar pb-1">
-            <div className="flex whitespace-nowrap border-b border-gray-700 mb-6">
+            <div className="flex whitespace-nowrap">
               {['info', 'stats', 'evolution', 'moves', 'locations', 'tracking', 'ribbons', 'marks', 'sprites'].map((tab) => {
                 const isActive = activeTab === tab;
                 
@@ -2748,7 +2748,6 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
                   ? { 
                       backgroundColor: mainTypeColor.mainColor, 
                       color: mainTypeColor.textColor,
-                      borderBottom: `3px solid ${mainTypeColor.darkColor}`
                     }
                   : { 
                       backgroundColor: 'transparent',
@@ -2769,8 +2768,8 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
                       });
                     }}
                     id={`tab-${tab}`}
-                    className={`px-5 py-3 text-center transition-all hover:opacity-100 min-w-max ${
-                      isActive ? 'font-medium' : ''
+                    className={`px-5 py-3 text-center transition-all hover:opacity-100 min-w-max rounded-t-lg ${
+                      isActive ? 'font-medium border-b-2' : ''
                     }`}
                     style={tabStyle}
                   >
@@ -2779,6 +2778,7 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
                 );
               })}
             </div>
+            <div className="h-px w-full bg-gray-700 -mt-[2px]"></div>
           </div>
           
           {/* Add fade indicators to show there's more to scroll */}
