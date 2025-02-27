@@ -277,7 +277,7 @@ export default function Home() {
         <div className="container mx-auto px-4 py-16 relative z-10">
           <div className="mb-4">
             <h1 className="text-6xl md:text-7xl font-bold text-white">
-              Pokémon <span className="text-red-500">Live</span>
+              Pokédex <span className="text-red-500">Live</span>
             </h1>
           </div>
           <p className="text-xl mb-8 max-w-2xl">
