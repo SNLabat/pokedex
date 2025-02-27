@@ -208,7 +208,9 @@ export default function PokedexPage({ initialPokemon }) {
       );
     }
     
-    const pokemonToShow = searchFilters.searchTerm || (searchFilters.types && searchFilters.types.length > 0)
+    const pokemonToShow = searchFilters.searchTerm || 
+                          (searchFilters.types && searchFilters.types.length > 0) ||
+                          searchFilters.showOnlyCaught
       ? filteredPokemon
       : pokemonData;
     
