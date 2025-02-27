@@ -3320,14 +3320,15 @@ const EventsTab = ({ pokemonId, pokemonName }) => {
     const fetchEvents = async () => {
       setIsLoading(true);
       try {
-        // In a production environment, you would use the API route
-        // const response = await fetch(`/api/pokemon-events?id=${pokemonId}`);
-        // const data = await response.json();
+        // Use the API route to fetch event data
+        const response = await fetch(`/api/pokemon-events?id=${pokemonId}`);
         
-        // For now, we'll continue using mock data
-        await new Promise(resolve => setTimeout(resolve, 800));
-        const mockEvents = getMockEventData(pokemonId);
-        setEvents(mockEvents);
+        if (!response.ok) {
+          throw new Error('Failed to fetch event data');
+        }
+        
+        const data = await response.json();
+        setEvents(data);
       } catch (err) {
         console.error("Error fetching event data:", err);
         setError("Failed to load event data. Please try again later.");
