@@ -10,8 +10,12 @@ export default async function handler(req, res) {
     const formattedId = String(id).padStart(3, '0');
     const url = `https://www.serebii.net/events/dex/${formattedId}.shtml`;
     
-    // Fetch the HTML content using native fetch
-    const response = await fetch(url);
+    // Add a User-Agent header to avoid being blocked
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+      }
+    });
     
     if (!response.ok) {
       throw new Error(`Failed to fetch data: ${response.status}`);
@@ -20,7 +24,7 @@ export default async function handler(req, res) {
     const html = await response.text();
     
     // Parse the HTML to extract event data
-    const events = parseSerebiiEventHtml(html);
+    const events = parseSerebiiEventHtml(html, formattedId);
     
     return res.status(200).json(events);
   } catch (error) {
@@ -32,92 +36,67 @@ export default async function handler(req, res) {
 /**
  * Parse Serebii event HTML without using external libraries
  */
-function parseSerebiiEventHtml(html) {
+function parseSerebiiEventHtml(html, pokemonId) {
   const events = [];
   
   try {
-    // Extract event tables - they typically have the class "dextable"
-    const dextableRegex = /<table class="dextable"[^>]*>([\s\S]*?)<\/table>/g;
+    // Check if the page has event data
+    if (!html.includes('Events') || !html.includes('dextable')) {
+      return events;
+    }
+    
+    // Find all event tables - Serebii typically uses tables with a class of "dextable" for event data
+    const tableRegex = /<table class="dextable"[^>]*>([\s\S]*?)<\/table>/g;
     let tableMatch;
     
-    while ((tableMatch = dextableRegex.exec(html)) !== null) {
-      const tableHtml = tableMatch[0];
+    // Process each event table
+    while ((tableMatch = tableRegex.exec(html)) !== null) {
+      const tableContent = tableMatch[1];
       
       // Skip tables that don't contain event data
-      if (!tableHtml.includes('<td>Distribution</td>')) {
+      if (!tableContent.includes('<td>Distribution</td>') && 
+          !tableContent.includes('<td>Method</td>') && 
+          !tableContent.includes('<td>Games</td>')) {
         continue;
       }
       
-      // Extract the event name from the first row
-      const nameMatch = tableHtml.match(/<tr>\s*<td[^>]*>\s*<a[^>]*>\s*([^<]+)/);
+      // Extract event name - typically in the first row, may be in an <a> tag or directly in a <td>
+      const nameRegex = /<tr[^>]*>\s*<td[^>]*>\s*(?:<a[^>]*>)?\s*([^<]+)/;
+      const nameMatch = tableContent.match(nameRegex);
       const eventName = nameMatch ? nameMatch[1].trim() : 'Unknown Event';
       
-      // Extract rows from the table
-      const rowRegex = /<tr[^>]*>([\s\S]*?)<\/tr>/g;
-      let rows = [];
-      let rowMatch;
+      // Extract all rows
+      const rows = extractTableRows(tableContent);
       
-      while ((rowMatch = rowRegex.exec(tableHtml)) !== null) {
-        rows.push(rowMatch[1]);
-      }
-      
-      // Skip tables with too few rows
-      if (rows.length < 10) {
-        continue;
-      }
-      
-      // Extract data fields
-      const location = extractFieldValue(rows, 'Location');
-      const distributionType = extractFieldValue(rows, 'Distribution');
-      const region = extractFieldValue(rows, 'Region');
-      const startDate = extractFieldValue(rows, 'Start Date');
-      const endDate = extractFieldValue(rows, 'End Date');
-      const gamesText = extractFieldValue(rows, 'Games');
-      const level = extractFieldValue(rows, 'Level');
-      const ot = extractFieldValue(rows, 'OT');
-      const id = extractFieldValue(rows, 'ID');
-      const ability = extractFieldValue(rows, 'Ability');
-      const heldItem = extractFieldValue(rows, 'Held Item');
-      const nature = extractFieldValue(rows, 'Nature');
-      const shinyText = extractFieldValue(rows, 'Shiny');
-      const movesText = extractFieldValue(rows, 'Moves');
-      const ribbonsText = extractFieldValue(rows, 'Ribbons');
-      const notes = extractFieldValue(rows, 'Notes');
-      
-      // Process extracted data
-      const games = gamesText.split(',').map(g => g.trim()).filter(Boolean);
-      const moves = movesText.split(',').map(m => m.trim()).filter(Boolean);
-      const ribbons = ribbonsText.split(',').map(r => r.trim()).filter(Boolean);
-      const isShiny = shinyText.toLowerCase().includes('yes');
-      
-      // Determine generation and year
-      const generation = determineGeneration(games);
-      const year = extractYear(startDate);
-      
-      // Create event object
+      // Create event object with extracted data
       const event = {
         name: eventName,
-        location,
-        distributionType,
-        region,
-        startDate,
-        endDate,
-        games,
-        level: parseInt(level, 10) || 0,
-        OT: ot,
-        ID: id,
-        ability,
-        heldItem: heldItem === 'None' ? '' : heldItem,
-        nature,
-        isShiny,
-        moves,
-        ribbons,
-        notes,
-        generation,
-        year
+        location: findFieldValue(rows, ['Location', 'Event Location']),
+        distributionType: findFieldValue(rows, ['Distribution', 'Method', 'Distribution Method']),
+        region: findFieldValue(rows, ['Region', 'Area']),
+        startDate: findFieldValue(rows, ['Start Date', 'Starting']),
+        endDate: findFieldValue(rows, ['End Date', 'Ending']),
+        games: parseListField(findFieldValue(rows, ['Games', 'Compatible Games'])),
+        level: parseInt(findFieldValue(rows, ['Level']), 10) || 0,
+        OT: findFieldValue(rows, ['OT', 'Original Trainer']),
+        ID: findFieldValue(rows, ['ID', 'Trainer ID']),
+        ability: findFieldValue(rows, ['Ability']),
+        heldItem: findFieldValue(rows, ['Held Item', 'Item']),
+        nature: findFieldValue(rows, ['Nature']),
+        isShiny: findFieldValue(rows, ['Shiny']).toLowerCase().includes('yes'),
+        moves: parseListField(findFieldValue(rows, ['Moves', 'Known Moves'])),
+        ribbons: parseListField(findFieldValue(rows, ['Ribbons', 'Ribbon'])),
+        notes: findFieldValue(rows, ['Notes', 'Additional Information']),
       };
       
-      events.push(event);
+      // Add generation and year data
+      event.generation = determineGeneration(event.games);
+      event.year = extractYear(event.startDate);
+      
+      // Only add events with at least some basic data
+      if (event.name && (event.games.length > 0 || event.location || event.distributionType)) {
+        events.push(event);
+      }
     }
   } catch (error) {
     console.error('Error parsing HTML:', error);
@@ -128,19 +107,42 @@ function parseSerebiiEventHtml(html) {
 }
 
 /**
- * Extract field value from table rows
+ * Extract all rows from a table
  */
-function extractFieldValue(rows, fieldName) {
+function extractTableRows(tableContent) {
+  const rows = [];
+  const rowRegex = /<tr[^>]*>([\s\S]*?)<\/tr>/g;
+  let rowMatch;
+  
+  while ((rowMatch = rowRegex.exec(tableContent)) !== null) {
+    rows.push(rowMatch[1]);
+  }
+  
+  return rows;
+}
+
+/**
+ * Find field value by possible field names
+ */
+function findFieldValue(rows, possibleFieldNames) {
   for (const row of rows) {
-    if (row.includes(`<td>${fieldName}</td>`)) {
-      // Extract the content from the second cell in the row
-      const valueMatch = row.match(/<td>.*?<\/td>\s*<td[^>]*>([\s\S]*?)<\/td>/);
-      if (valueMatch) {
-        // Clean up HTML tags and trim whitespace
-        return valueMatch[1]
-          .replace(/<[^>]*>/g, '') // Remove HTML tags
-          .replace(/&nbsp;/g, ' ')  // Replace &nbsp; with spaces
-          .trim();
+    for (const fieldName of possibleFieldNames) {
+      if (row.includes(`<td>${fieldName}</td>`) || 
+          row.includes(`<td>${fieldName}:</td>`) ||
+          row.includes(`<td><b>${fieldName}</b></td>`)) {
+        
+        // Extract content from second cell
+        const valueRegex = /<td[^>]*>.*?<\/td>\s*<td[^>]*>([\s\S]*?)<\/td>/;
+        const valueMatch = row.match(valueRegex);
+        
+        if (valueMatch) {
+          // Clean up HTML tags and trim whitespace
+          return valueMatch[1]
+            .replace(/<[^>]*>/g, '') // Remove HTML tags
+            .replace(/&nbsp;/g, ' ')  // Replace &nbsp; with spaces
+            .replace(/&amp;/g, '&')   // Replace &amp; with &
+            .trim();
+        }
       }
     }
   }
@@ -148,30 +150,42 @@ function extractFieldValue(rows, fieldName) {
 }
 
 /**
+ * Parse a comma-separated list field
+ */
+function parseListField(text) {
+  if (!text) return [];
+  
+  return text
+    .split(/,|<br>/)
+    .map(item => item.trim())
+    .filter(Boolean);
+}
+
+/**
  * Determine generation based on games
  */
 function determineGeneration(games) {
-  const gamesText = games.join(' ');
+  const gamesText = games.join(' ').toLowerCase();
   
-  if (gamesText.includes('Scarlet') || gamesText.includes('Violet')) return 'gen9';
-  if (gamesText.includes('Sword') || gamesText.includes('Shield') || 
-      gamesText.includes('Brilliant Diamond') || gamesText.includes('Shining Pearl') ||
-      gamesText.includes('Legends: Arceus')) return 'gen8';
-  if (gamesText.includes('Sun') || gamesText.includes('Moon') || 
-      gamesText.includes('Ultra') || gamesText.includes('Let\'s Go')) return 'gen7';
-  if (gamesText.includes('X') || gamesText.includes('Y') || 
-      gamesText.includes('Omega Ruby') || gamesText.includes('Alpha Sapphire')) return 'gen6';
-  if (gamesText.includes('Black') || gamesText.includes('White')) return 'gen5';
-  if (gamesText.includes('Diamond') || gamesText.includes('Pearl') || 
-      gamesText.includes('Platinum') || gamesText.includes('HeartGold') || 
-      gamesText.includes('SoulSilver')) return 'gen4';
-  if (gamesText.includes('Ruby') || gamesText.includes('Sapphire') || 
-      gamesText.includes('Emerald') || gamesText.includes('FireRed') || 
-      gamesText.includes('LeafGreen')) return 'gen3';
-  if (gamesText.includes('Gold') || gamesText.includes('Silver') || 
-      gamesText.includes('Crystal')) return 'gen2';
-  if (gamesText.includes('Red') || gamesText.includes('Blue') || 
-      gamesText.includes('Yellow')) return 'gen1';
+  if (gamesText.includes('scarlet') || gamesText.includes('violet')) return 'gen9';
+  if (gamesText.includes('sword') || gamesText.includes('shield') || 
+      gamesText.includes('brilliant diamond') || gamesText.includes('shining pearl') ||
+      gamesText.includes('legends') || gamesText.includes('arceus')) return 'gen8';
+  if (gamesText.includes('sun') || gamesText.includes('moon') || 
+      gamesText.includes('ultra') || gamesText.includes('let\'s go')) return 'gen7';
+  if (gamesText.includes('x') || gamesText.includes('y') || 
+      gamesText.includes('omega ruby') || gamesText.includes('alpha sapphire')) return 'gen6';
+  if (gamesText.includes('black') || gamesText.includes('white')) return 'gen5';
+  if (gamesText.includes('diamond') || gamesText.includes('pearl') || 
+      gamesText.includes('platinum') || gamesText.includes('heartgold') || 
+      gamesText.includes('soulsilver')) return 'gen4';
+  if (gamesText.includes('ruby') || gamesText.includes('sapphire') || 
+      gamesText.includes('emerald') || gamesText.includes('firered') || 
+      gamesText.includes('leafgreen')) return 'gen3';
+  if (gamesText.includes('gold') || gamesText.includes('silver') || 
+      gamesText.includes('crystal')) return 'gen2';
+  if (gamesText.includes('red') || gamesText.includes('blue') || 
+      gamesText.includes('yellow')) return 'gen1';
   
   return 'unknown';
 }

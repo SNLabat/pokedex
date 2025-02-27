@@ -3309,7 +3309,7 @@ export async function getStaticProps({ params }) {
   }
 }
 
-// Update the EventsTab component with improved loading and error states
+// Update the EventsTab component to show more helpful loading/error states
 const EventsTab = ({ pokemonId, pokemonName }) => {
   const [events, setEvents] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -3381,8 +3381,9 @@ const EventsTab = ({ pokemonId, pokemonName }) => {
   
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-500"></div>
+      <div className="flex flex-col items-center justify-center py-12">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-500 mb-4"></div>
+        <p className="text-gray-400">Fetching event data from Serebii.net...</p>
       </div>
     );
   }
@@ -3391,12 +3392,28 @@ const EventsTab = ({ pokemonId, pokemonName }) => {
     return (
       <div className="bg-red-900 bg-opacity-20 border border-red-500 rounded-lg p-4 text-center">
         <p className="text-red-400">{error}</p>
-        <button 
-          onClick={() => window.location.reload()} 
-          className="mt-4 px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg"
-        >
-          Retry
-        </button>
+        <p className="text-gray-400 mt-2">
+          This might be due to network issues or changes to Serebii's website structure.
+        </p>
+        <div className="mt-4 flex justify-center">
+          <button 
+            onClick={() => window.location.reload()} 
+            className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg mr-4"
+          >
+            Retry
+          </button>
+          <a 
+            href={`https://www.serebii.net/events/dex/${String(pokemonId).padStart(3, '0')}.shtml`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg inline-flex items-center"
+          >
+            View on Serebii
+            <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
+          </a>
+        </div>
       </div>
     );
   }
