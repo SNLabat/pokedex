@@ -2740,7 +2740,7 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
           {/* Scrollable tab container */}
           <div className="overflow-x-auto hide-scrollbar pb-1">
             <div className="flex whitespace-nowrap">
-              {['info', 'stats', 'evolution', 'moves', 'locations', 'tracking', 'ribbons', 'marks', 'sprites'].map((tab) => {
+              {['info', 'stats', 'evolution', 'moves', 'locations', 'events', 'tracking', 'ribbons', 'marks', 'sprites'].map((tab) => {
                 const isActive = activeTab === tab;
                 
                 // Create a style for active and inactive tabs
@@ -3031,6 +3031,13 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
           </div>
           )}
           
+        {activeTab === 'events' && (
+          <div style={cardStyle} className="rounded-lg p-6">
+            <h2 className="text-xl font-bold mb-6">Event Distributions</h2>
+            <EventsTab pokemonId={pokemon.id} pokemonName={pokemon.name} />
+          </div>
+        )}
+        
         {activeTab === 'tracking' && (
           <div style={cardStyle} className="rounded-lg p-6">
             <h2 className="text-xl font-bold mb-6">Collection Tracking</h2>
@@ -3301,3 +3308,445 @@ export async function getStaticProps({ params }) {
     };
   }
 }
+
+// New component for Events Tab
+const EventsTab = ({ pokemonId, pokemonName }) => {
+  const [events, setEvents] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [activeGeneration, setActiveGeneration] = useState('all');
+  
+  useEffect(() => {
+    const fetchEvents = async () => {
+      setIsLoading(true);
+      try {
+        // In a production environment, you would use the API route
+        // const response = await fetch(`/api/pokemon-events?id=${pokemonId}`);
+        // const data = await response.json();
+        
+        // For now, we'll continue using mock data
+        await new Promise(resolve => setTimeout(resolve, 800));
+        const mockEvents = getMockEventData(pokemonId);
+        setEvents(mockEvents);
+      } catch (err) {
+        console.error("Error fetching event data:", err);
+        setError("Failed to load event data. Please try again later.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchEvents();
+  }, [pokemonId]);
+  
+  // Filter events by generation
+  const filteredEvents = activeGeneration === 'all' 
+    ? events 
+    : events.filter(event => event.generation === activeGeneration);
+  
+  // Group events by year
+  const eventsByYear = filteredEvents.reduce((acc, event) => {
+    const year = event.year;
+    if (!acc[year]) acc[year] = [];
+    acc[year].push(event);
+    return acc;
+  }, {});
+  
+  // Sort years in descending order
+  const sortedYears = Object.keys(eventsByYear).sort((a, b) => b - a);
+  
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center py-12">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-500"></div>
+      </div>
+    );
+  }
+  
+  if (error) {
+    return (
+      <div className="bg-red-900 bg-opacity-20 border border-red-500 rounded-lg p-4 text-center">
+        <p className="text-red-400">{error}</p>
+        <button 
+          onClick={() => window.location.reload()} 
+          className="mt-4 px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+  
+  if (events.length === 0) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-gray-400">No event distributions found for {properCase(pokemonName)}.</p>
+        <p className="text-sm text-gray-500 mt-2">
+          Event data is sourced from Serebii.net. If you believe this is an error, please check their website for the latest information.
+        </p>
+      </div>
+    );
+  }
+  
+  return (
+    <div>
+      <p className="text-gray-400 mb-6">
+        Event data is sourced from <a href={`https://www.serebii.net/events/dex/${String(pokemonId).padStart(3, '0')}.shtml`} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">Serebii.net</a>. Click on an event for more details.
+      </p>
+      
+      {/* Generation filter */}
+      <div className="mb-6">
+        <h3 className="text-lg font-medium mb-3">Filter by Generation:</h3>
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => setActiveGeneration('all')}
+            className={`px-3 py-1 rounded-full text-sm ${
+              activeGeneration === 'all'
+                ? 'bg-red-600 text-white'
+                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+            }`}
+          >
+            All Generations
+          </button>
+          {['gen1', 'gen2', 'gen3', 'gen4', 'gen5', 'gen6', 'gen7', 'gen8', 'gen9'].map(gen => (
+            <button
+              key={gen}
+              onClick={() => setActiveGeneration(gen)}
+              className={`px-3 py-1 rounded-full text-sm ${
+                activeGeneration === gen
+                  ? 'bg-red-600 text-white'
+                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+              }`}
+            >
+              {gen.replace('gen', 'Gen ')}
+            </button>
+          ))}
+        </div>
+      </div>
+      
+      {/* Events by year */}
+      <div className="space-y-8">
+        {sortedYears.map(year => (
+          <div key={year}>
+            <h3 className="text-xl font-semibold mb-4 border-b border-gray-700 pb-2">{year}</h3>
+            <div className="space-y-4">
+              {eventsByYear[year].map((event, index) => (
+                <EventCard key={index} event={event} />
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// Event Card Component
+const EventCard = ({ event }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  
+  // Format date range
+  const formatDateRange = (startDate, endDate) => {
+    if (!startDate) return 'Unknown date';
+    if (!endDate) return startDate;
+    return `${startDate} - ${endDate}`;
+  };
+  
+  return (
+    <div 
+      className={`bg-gray-800 rounded-lg overflow-hidden transition-all duration-200 ${
+        isExpanded ? 'shadow-lg' : 'hover:bg-gray-700'
+      }`}
+    >
+      {/* Header - always visible */}
+      <div 
+        className="p-4 cursor-pointer flex justify-between items-center"
+        onClick={() => setIsExpanded(!isExpanded)}
+      >
+        <div>
+          <h4 className="font-medium text-lg">{event.name}</h4>
+          <p className="text-gray-400 text-sm">{event.location} • {formatDateRange(event.startDate, event.endDate)}</p>
+        </div>
+        <div className="flex items-center">
+          {event.isShiny && (
+            <span className="mr-2 text-yellow-400" title="Shiny available">✨</span>
+          )}
+          <svg 
+            className={`w-5 h-5 text-gray-400 transform transition-transform ${isExpanded ? 'rotate-180' : ''}`} 
+            fill="none" 
+            viewBox="0 0 24 24" 
+            stroke="currentColor"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
+      </div>
+      
+      {/* Expanded content */}
+      {isExpanded && (
+        <div className="p-4 pt-0 border-t border-gray-700">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <h5 className="font-medium mb-2">Distribution Details</h5>
+              <ul className="space-y-1 text-sm">
+                <li><span className="text-gray-400">Type:</span> {event.distributionType}</li>
+                <li><span className="text-gray-400">Region:</span> {event.region}</li>
+                <li><span className="text-gray-400">Games:</span> {event.games.join(', ')}</li>
+                {event.serialCode && (
+                  <li><span className="text-gray-400">Serial Code:</span> {event.serialCode}</li>
+                )}
+              </ul>
+            </div>
+            
+            <div>
+              <h5 className="font-medium mb-2">Pokémon Details</h5>
+              <ul className="space-y-1 text-sm">
+                <li><span className="text-gray-400">Level:</span> {event.level}</li>
+                <li><span className="text-gray-400">OT:</span> {event.OT}</li>
+                <li><span className="text-gray-400">ID:</span> {event.ID}</li>
+                <li><span className="text-gray-400">Ability:</span> {event.ability}</li>
+                {event.heldItem && (
+                  <li><span className="text-gray-400">Held Item:</span> {event.heldItem}</li>
+                )}
+                <li><span className="text-gray-400">Nature:</span> {event.nature}</li>
+              </ul>
+            </div>
+          </div>
+          
+          {/* Moves */}
+          <div className="mt-4">
+            <h5 className="font-medium mb-2">Moves</h5>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+              {event.moves.map((move, index) => (
+                <div key={index} className="bg-gray-700 rounded px-3 py-1 text-sm">{move}</div>
+              ))}
+            </div>
+          </div>
+          
+          {/* Ribbons if any */}
+          {event.ribbons && event.ribbons.length > 0 && (
+            <div className="mt-4">
+              <h5 className="font-medium mb-2">Ribbons</h5>
+              <div className="flex flex-wrap gap-2">
+                {event.ribbons.map((ribbon, index) => (
+                  <div key={index} className="bg-indigo-900 bg-opacity-50 rounded px-3 py-1 text-sm">{ribbon}</div>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {/* Additional notes */}
+          {event.notes && (
+            <div className="mt-4 text-sm text-gray-400">
+              <p>{event.notes}</p>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Mock data function based on Serebii's Bulbasaur events
+const getMockEventData = (pokemonId) => {
+  // For this example, we'll only return data for Bulbasaur (ID: 1)
+  // In a real implementation, you would fetch from Serebii or your own API
+  
+  // Use the URL from the serebii_events.txt file
+  const serebiiUrl = `https://www.serebii.net/events/dex/${String(pokemonId).padStart(3, '0')}.shtml`;
+  
+  // For now, we'll continue using mock data, but in a real implementation
+  // you would fetch and parse the data from Serebii (with permission)
+  // or create your own database of event information
+  
+  if (pokemonId === 1) {
+    return [
+      {
+        name: "Pokémon HOME June Update Gift",
+        location: "Wi-Fi Global",
+        distributionType: "Mystery Gift",
+        region: "Global",
+        startDate: "17 June 2021",
+        endDate: "30 June 2021",
+        games: ["HOME"],
+        level: 14,
+        OT: "HOME",
+        ID: "210601",
+        ability: "Overgrow",
+        heldItem: "None",
+        nature: "Bold",
+        isShiny: false,
+        moves: ["Vine Whip", "Growth", "Leech Seed", "Razor Leaf"],
+        ribbons: ["Premier Ribbon"],
+        generation: "gen8",
+        year: 2021
+      },
+      {
+        name: "Pokémon HOME June Update Gift",
+        location: "Wi-Fi Global",
+        distributionType: "Mystery Gift",
+        region: "Global",
+        startDate: "17 June 2021",
+        endDate: "30 June 2021",
+        games: ["Sword", "Shield"],
+        level: 14,
+        OT: "HOME",
+        ID: "210601",
+        ability: "Overgrow",
+        heldItem: "None",
+        nature: "Bold",
+        isShiny: false,
+        moves: ["Vine Whip", "Growth", "Leech Seed", "Razor Leaf"],
+        ribbons: ["Premier Ribbon"],
+        generation: "gen8",
+        year: 2021
+      },
+      {
+        name: "Pokémon World Championships Distribution",
+        location: "In-Life North America",
+        distributionType: "Local Wireless",
+        region: "America",
+        startDate: "19 August 2016",
+        endDate: "21 August 2016",
+        games: ["X", "Y", "OmegaRuby", "AlphaSapphire"],
+        level: 5,
+        OT: "WORLDS16",
+        ID: "08196",
+        ability: "Chlorophyll",
+        heldItem: "Venusaurite",
+        nature: "Any",
+        isShiny: false,
+        moves: ["Tackle", "Growl", "Celebrate"],
+        ribbons: ["Event Ribbon"],
+        generation: "gen6",
+        year: 2016
+      },
+      {
+        name: "Pokémon Lab Event - Special Distribution",
+        location: "Serial Code Japan",
+        distributionType: "Serial Code",
+        region: "Japan",
+        startDate: "8 July 2015",
+        endDate: "31 November 2015",
+        games: ["X", "Y", "OmegaRuby", "AlphaSapphire"],
+        level: 5,
+        OT: "ポケモンラボ",
+        ID: "07085",
+        ability: "Overgrow",
+        heldItem: "Venusaurite",
+        nature: "Any",
+        isShiny: false,
+        moves: ["Growl", "Leech Seed", "Vine Whip", "Poison Powder"],
+        ribbons: ["Event Ribbon"],
+        generation: "gen6",
+        year: 2015
+      },
+      {
+        name: "Collect Pokémon Campaign",
+        location: "In-Life Japan",
+        distributionType: "Local Wireless",
+        region: "Japan",
+        startDate: "1 September 2012",
+        endDate: "30 September 2012",
+        games: ["Black 2", "White 2"],
+        level: 1,
+        OT: "Yours",
+        ID: "Yours",
+        ability: "Overgrow",
+        heldItem: "None",
+        nature: "Any",
+        isShiny: false,
+        moves: ["False Swipe", "Block", "Frenzy Plant", "Weather Ball"],
+        ribbons: [],
+        notes: "This Pokémon comes within an Egg and requires hatching",
+        generation: "gen5",
+        year: 2012
+      },
+      {
+        name: "Pokémon Pia Global Link",
+        location: "Global Link Japan",
+        distributionType: "Global Link",
+        region: "Japan",
+        startDate: "14 October 2010",
+        endDate: "31 May 2011",
+        games: ["Black", "White"],
+        level: 10,
+        OT: "Yours",
+        ID: "Yours",
+        ability: "Chlorophyll",
+        heldItem: "None",
+        nature: "Any",
+        isShiny: false,
+        moves: ["Tackle", "Growl", "Leech Seed", "Vine Whip"],
+        ribbons: [],
+        notes: "This Pokémon is transferred from the Global Link during the event but needs to be captured in Entree Forest at any time afterwards",
+        generation: "gen5",
+        year: 2010
+      },
+      {
+        name: "Bryant Park",
+        location: "In-Life USA",
+        distributionType: "Local Wireless",
+        region: "America",
+        startDate: "8 August 2006",
+        endDate: "8 August 2006",
+        games: ["Ruby", "Sapphire", "Emerald", "FireRed", "LeafGreen"],
+        level: 70,
+        OT: "10 ANIV",
+        ID: "06808",
+        ability: "Overgrow",
+        heldItem: "None",
+        nature: "Any",
+        isShiny: false,
+        moves: ["Sweet Scent", "Growth", "Solar Beam", "Synthesis"],
+        ribbons: [],
+        generation: "gen3",
+        year: 2006
+      },
+      {
+        name: "10th Anniversary",
+        location: "In-Life USA",
+        distributionType: "Local Wireless",
+        region: "America",
+        startDate: "25 February 2006",
+        endDate: "23 July 2006",
+        games: ["Ruby", "Sapphire", "Emerald", "FireRed", "LeafGreen"],
+        level: 70,
+        OT: "10 ANIV",
+        ID: "00010",
+        ability: "Overgrow",
+        heldItem: "None",
+        nature: "Any",
+        isShiny: false,
+        moves: ["Sweet Scent", "Growth", "Solar Beam", "Synthesis"],
+        ribbons: [],
+        generation: "gen3",
+        year: 2006
+      },
+      {
+        name: "Gotta Catch 'Em All Event 4",
+        location: "In-Life Japan",
+        distributionType: "Local Wireless",
+        region: "Japan",
+        startDate: "11 February 2006",
+        endDate: "27 February 2006",
+        games: ["Ruby", "Sapphire", "Emerald", "FireRed", "LeafGreen"],
+        level: 10,
+        OT: "トウキョーオーサカナゴヤフクオカヨコハマサッポロ",
+        ID: "60227",
+        ability: "Overgrow",
+        heldItem: "None",
+        nature: "Any",
+        isShiny: false,
+        moves: ["Tackle", "Growl", "Leech Seed", "Vine Whip"],
+        ribbons: [],
+        generation: "gen3",
+        year: 2006
+      }
+    ];
+  }
+  
+  // For other Pokémon, return an empty array for now
+  // In a real implementation, you would fetch data for each Pokémon
+  return [];
+};
