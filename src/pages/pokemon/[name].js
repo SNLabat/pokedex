@@ -1502,7 +1502,7 @@ const markIcons = {
 };
 
 // Updated RibbonsTab component with table view option
-const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus }) => {
+const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus, mainTypeColor }) => {
   const [failedImages, setFailedImages] = useState({});
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchText, setSearchText] = useState('');
@@ -1633,7 +1633,7 @@ const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus }) => {
 };
 
 // Updated MarksTab component with table-like format
-const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus }) => {
+const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus, mainTypeColor }) => {
   const [failedImages, setFailedImages] = useState({});
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchText, setSearchText] = useState('');
@@ -3166,7 +3166,8 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
             <RibbonsTab 
               pokemon={pokemon} 
               caughtStatus={caughtStatus} 
-              updateRibbonStatus={updateRibbonStatus} 
+              updateRibbonStatus={updateRibbonStatus}
+              mainTypeColor={mainTypeColor}
             />
           </div>
         )}
@@ -3176,7 +3177,8 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
             <MarksTab 
               pokemon={pokemon} 
               caughtStatus={caughtStatus} 
-              updateMarkStatus={updateMarkStatus} 
+              updateMarkStatus={updateMarkStatus}
+              mainTypeColor={mainTypeColor}
             />
           </div>
         )}

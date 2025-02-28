@@ -1,9 +1,17 @@
 import { useState, useEffect } from 'react';
 
-const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus }) => {
+const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus, mainTypeColor }) => {
   const [failedImages, setFailedImages] = useState({});
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchText, setSearchText] = useState('');
+  const [clickedRibbon, setClickedRibbon] = useState(null);
+  
+  // Use theme color from pokemon's main type or default to indigo
+  const themeColor = mainTypeColor || { 
+    mainColor: '#6366f1', // indigo-500
+    darkColor: '#4338ca', // indigo-700 
+    textColor: '#ffffff'  // white
+  };
   
   // Initialize ribbons data
   const ribbons = [
@@ -87,73 +95,95 @@ const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus }) => {
     return caughtStatus.default.ribbons[ribbonId] || false;
   };
 
-  // Toggle ribbon status
+  // Toggle ribbon status with animation effect
   const toggleRibbonStatus = (ribbonId) => {
+    setClickedRibbon(ribbonId);
     updateRibbonStatus(ribbonId);
+    
+    // Clear the animation after a short delay
+    setTimeout(() => {
+      setClickedRibbon(null);
+    }, 300);
   };
 
-  // Status dropdown component
-  const StatusDropdown = ({ ribbonId }) => {
-    const isObtained = getRibbonStatus(ribbonId);
-    
-    return (
-      <select 
-        value={isObtained ? "obtained" : "missing"}
-        onChange={(e) => {
-          if (e.target.value === "obtained" && !isObtained) {
-            toggleRibbonStatus(ribbonId);
-          } else if (e.target.value === "missing" && isObtained) {
-            toggleRibbonStatus(ribbonId);
-          }
-        }}
-        onClick={(e) => e.stopPropagation()} // Prevent row click when clicking dropdown
-        className={`px-2 py-1 rounded text-xs font-medium ${
-          isObtained 
-            ? 'bg-indigo-100 text-indigo-800 border border-indigo-300' 
-            : 'bg-gray-100 text-gray-800 border border-gray-300'
-        }`}
-      >
-        <option value="missing">Missing</option>
-        <option value="obtained">Obtained</option>
-      </select>
-    );
+  // Check search filter
+  const filterRibbons = (ribbon) => {
+    if (!searchText) return true;
+    const searchLower = searchText.toLowerCase();
+    return ribbon.name.toLowerCase().includes(searchLower) || 
+           ribbon.description.toLowerCase().includes(searchLower);
   };
 
   return (
     <div>
+      {/* Search input */}
+      <div className="mb-6">
+        <input
+          type="text"
+          placeholder="Search ribbons..."
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
+          className="w-full bg-gray-700 text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2"
+          style={{ borderColor: themeColor.mainColor, '--tw-ring-color': themeColor.mainColor }}
+        />
+      </div>
+      
       <p className="text-gray-400 mb-6">
-        Select a status for each ribbon to track your collection.
-        Obtained ribbons will be included when exporting your collection data.
+        Click on a ribbon to toggle between Missing and Obtained status.
       </p>
       
-      {Object.entries(ribbonsByGen).map(([gen, genRibbons]) => (
-        genRibbons.length > 0 && (
+      {Object.entries(ribbonsByGen).map(([gen, genRibbons]) => {
+        // Filter ribbons based on search
+        const filteredRibbons = genRibbons.filter(filterRibbons);
+        
+        // Skip empty generations after filtering
+        if (filteredRibbons.length === 0) return null;
+        
+        return (
           <div key={gen} className="mb-8">
             <h3 className="text-xl font-semibold mb-4 border-b border-gray-700 pb-2">
               Generation {gen.replace('gen', '')} Ribbons
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-              {genRibbons.map(ribbon => (
-                <div 
-                  key={ribbon.id}
-                  onClick={() => toggleRibbonStatus(ribbon.id)}
-                  className={`p-4 rounded-lg cursor-pointer transition-all ${
-                    getRibbonStatus(ribbon.id)
-                      ? 'bg-indigo-800 bg-opacity-50 hover:bg-indigo-700'
-                      : 'bg-gray-800 hover:bg-gray-700'
-                  }`}
-                >
-                  <div className="flex justify-between items-center mb-2">
-                    <h4 className="font-medium">{ribbon.name}</h4>
-                    <StatusDropdown ribbonId={ribbon.id} />
+              {filteredRibbons.map(ribbon => {
+                const isObtained = getRibbonStatus(ribbon.id);
+                const isClicked = clickedRibbon === ribbon.id;
+                
+                return (
+                  <div 
+                    key={ribbon.id}
+                    onClick={() => toggleRibbonStatus(ribbon.id)}
+                    className={`p-4 rounded-lg cursor-pointer transition-all transform ${
+                      isClicked ? 'scale-95' : ''
+                    } ${
+                      isObtained 
+                        ? 'bg-opacity-20 hover:bg-opacity-30 border'
+                        : 'bg-gray-800 hover:bg-gray-700 border border-gray-700'
+                    }`}
+                    style={isObtained ? { 
+                      backgroundColor: themeColor.mainColor,
+                      borderColor: themeColor.mainColor
+                    } : {}}
+                  >
+                    <div className="flex justify-between items-center mb-2">
+                      <h4 className="font-medium">{ribbon.name}</h4>
+                      <span className="px-2 py-1 rounded text-xs font-medium"
+                        style={{
+                          backgroundColor: isObtained ? themeColor.mainColor : '#e5e7eb',
+                          color: isObtained ? themeColor.textColor : '#1f2937'
+                        }}
+                      >
+                        {isObtained ? 'Obtained' : 'Missing'}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-400">{ribbon.description}</p>
                   </div>
-                  <p className="text-sm text-gray-400">{ribbon.description}</p>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
-        )
-      ))}
+        );
+      })}
     </div>
   );
 };
