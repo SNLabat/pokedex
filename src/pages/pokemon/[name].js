@@ -2567,7 +2567,7 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
     }
   };
   
-  // Add ribbon toggle function
+  // Update the ribbon toggle function
   const updateRibbonStatus = (ribbonId, formName = 'default') => {
     if (!pokemon) return;
     
@@ -2589,7 +2589,8 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
       }
       
       // Toggle the ribbon status
-      caughtData[pokemon.id][formName].ribbons[ribbonId] = !caughtData[pokemon.id][formName].ribbons[ribbonId];
+      const currentStatus = caughtData[pokemon.id][formName].ribbons[ribbonId];
+      caughtData[pokemon.id][formName].ribbons[ribbonId] = !currentStatus;
       
       // Update state and localStorage
       setCaughtStatus(caughtData[pokemon.id]);
@@ -2621,7 +2622,8 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
       }
       
       // Toggle the mark status
-      caughtData[pokemon.id][formName].marks[markId] = !caughtData[pokemon.id][formName].marks[markId];
+      const currentStatus = caughtData[pokemon.id][formName].marks[markId];
+      caughtData[pokemon.id][formName].marks[markId] = !currentStatus;
       
       // Update state and localStorage
       setCaughtStatus(caughtData[pokemon.id]);
@@ -3162,23 +3164,19 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
         {activeTab === 'ribbons' && (
           <div style={cardStyle} className="rounded-lg p-6">
             <RibbonsTab 
-                pokemon={pokemon} 
-              caughtStatus={caughtStatus[pokemon.id] || {}} 
-              updateRibbonStatus={(ribbonId, status, formName) => 
-                updateRibbonStatus(ribbonId, status, formName)
-              } 
-              />
-                    </div>
-          )}
-          
+              pokemon={pokemon} 
+              caughtStatus={caughtStatus} 
+              updateRibbonStatus={updateRibbonStatus} 
+            />
+          </div>
+        )}
+        
         {activeTab === 'marks' && (
           <div style={cardStyle} className="rounded-lg p-6">
             <MarksTab 
               pokemon={pokemon} 
-              caughtStatus={caughtStatus[pokemon.id] || {}} 
-              updateMarkStatus={(markId, status, formName) => 
-                updateMarkStatus(markId, status, formName)
-              } 
+              caughtStatus={caughtStatus} 
+              updateMarkStatus={updateMarkStatus} 
             />
           </div>
         )}
