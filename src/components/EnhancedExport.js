@@ -28,6 +28,7 @@ const EnhancedExport = ({ caughtData, pokemonData }) => {
     includeRibbons: true,
     includeMarks: true,
     includeUncaught: false,
+    includeSprites: true,
     format: 'simple'
   });
   
@@ -52,6 +53,9 @@ const EnhancedExport = ({ caughtData, pokemonData }) => {
         name: `Unknown #${id}`,
         types: []
       };
+      
+      // Generate sprite URLs
+      const spriteUrls = exportOptions.includeSprites ? getSpriteUrls(pokemon.id) : null;
       
       // Check if any form of this Pokemon is caught
       const forms = caughtData[id];
@@ -89,7 +93,7 @@ const EnhancedExport = ({ caughtData, pokemonData }) => {
         // For detailed format, create separate entries for each form and status
         if (exportOptions.format === 'detailed') {
           if (exportOptions.includeRegular) {
-            exportData.push({
+            const entry = {
               id: pokemon.id,
               dexNum: String(pokemon.id).padStart(3, '0'),
               name: pokemon.name.replace(/-/g, ' '),
@@ -98,11 +102,18 @@ const EnhancedExport = ({ caughtData, pokemonData }) => {
               status: 'Regular',
               types: pokemon.types?.join('/') || '',
               generation: getGeneration(pokemon.id)
-            });
+            };
+            
+            // Add sprite URLs if option is enabled
+            if (exportOptions.includeSprites && spriteUrls) {
+              entry.spriteUrl = spriteUrls.regular;
+            }
+            
+            exportData.push(entry);
           }
           
           if (exportOptions.includeShiny) {
-            exportData.push({
+            const entry = {
               id: pokemon.id,
               dexNum: String(pokemon.id).padStart(3, '0'),
               name: pokemon.name.replace(/-/g, ' '),
@@ -111,7 +122,14 @@ const EnhancedExport = ({ caughtData, pokemonData }) => {
               status: 'Shiny',
               types: pokemon.types?.join('/') || '',
               generation: getGeneration(pokemon.id)
-            });
+            };
+            
+            // Add sprite URLs if option is enabled
+            if (exportOptions.includeSprites && spriteUrls) {
+              entry.spriteUrl = spriteUrls.shiny;
+            }
+            
+            exportData.push(entry);
           }
           
           if (exportOptions.includeSpecialForms) {
@@ -126,7 +144,7 @@ const EnhancedExport = ({ caughtData, pokemonData }) => {
             
             specialForms.forEach(({ key, label }) => {
               if (status[key]) {
-                exportData.push({
+                const entry = {
                   id: pokemon.id,
                   dexNum: String(pokemon.id).padStart(3, '0'),
                   name: pokemon.name.replace(/-/g, ' '),
@@ -135,7 +153,14 @@ const EnhancedExport = ({ caughtData, pokemonData }) => {
                   status: label,
                   types: pokemon.types?.join('/') || '',
                   generation: getGeneration(pokemon.id)
-                });
+                };
+                
+                // Add sprite URLs if option is enabled
+                if (exportOptions.includeSprites && spriteUrls) {
+                  entry.spriteUrl = spriteUrls[key === 'shiny' ? 'shiny' : 'regular'];
+                }
+                
+                exportData.push(entry);
               }
             });
           }
@@ -151,7 +176,7 @@ const EnhancedExport = ({ caughtData, pokemonData }) => {
             
             gameVersions.forEach(({ key, label }) => {
               if (status[key]) {
-                exportData.push({
+                const entry = {
                   id: pokemon.id,
                   dexNum: String(pokemon.id).padStart(3, '0'),
                   name: pokemon.name.replace(/-/g, ' '),
@@ -160,7 +185,14 @@ const EnhancedExport = ({ caughtData, pokemonData }) => {
                   status: label,
                   types: pokemon.types?.join('/') || '',
                   generation: getGeneration(pokemon.id)
-                });
+                };
+                
+                // Add sprite URLs if option is enabled
+                if (exportOptions.includeSprites && spriteUrls) {
+                  entry.spriteUrl = spriteUrls[key === 'shiny' ? 'shiny' : 'regular'];
+                }
+                
+                exportData.push(entry);
               }
             });
           }
@@ -174,7 +206,7 @@ const EnhancedExport = ({ caughtData, pokemonData }) => {
             
             customTags.forEach(({ key, label }) => {
               if (status[key]) {
-                exportData.push({
+                const entry = {
                   id: pokemon.id,
                   dexNum: String(pokemon.id).padStart(3, '0'),
                   name: pokemon.name.replace(/-/g, ' '),
@@ -183,7 +215,14 @@ const EnhancedExport = ({ caughtData, pokemonData }) => {
                   status: label,
                   types: pokemon.types?.join('/') || '',
                   generation: getGeneration(pokemon.id)
-                });
+                };
+                
+                // Add sprite URLs if option is enabled
+                if (exportOptions.includeSprites && spriteUrls) {
+                  entry.spriteUrl = spriteUrls[key === 'shiny' ? 'shiny' : 'regular'];
+                }
+                
+                exportData.push(entry);
               }
             });
           }
@@ -191,7 +230,7 @@ const EnhancedExport = ({ caughtData, pokemonData }) => {
           // Add ribbons if any
           if (exportOptions.includeRibbons && obtainedRibbons.length > 0) {
             obtainedRibbons.forEach(ribbonId => {
-              exportData.push({
+              const entry = {
                 id: pokemon.id,
                 dexNum: String(pokemon.id).padStart(3, '0'),
                 name: pokemon.name.replace(/-/g, ' '),
@@ -200,14 +239,21 @@ const EnhancedExport = ({ caughtData, pokemonData }) => {
                 status: `Ribbon: ${formatRibbonName(ribbonId)}`,
                 types: pokemon.types?.join('/') || '',
                 generation: getGeneration(pokemon.id)
-              });
+              };
+              
+              // Add sprite URLs if option is enabled
+              if (exportOptions.includeSprites && spriteUrls) {
+                entry.spriteUrl = spriteUrls.regular;
+              }
+              
+              exportData.push(entry);
             });
           }
           
           // Add marks if any
           if (exportOptions.includeMarks && obtainedMarks.length > 0) {
             obtainedMarks.forEach(markId => {
-              exportData.push({
+              const entry = {
                 id: pokemon.id,
                 dexNum: String(pokemon.id).padStart(3, '0'),
                 name: pokemon.name.replace(/-/g, ' '),
@@ -216,7 +262,14 @@ const EnhancedExport = ({ caughtData, pokemonData }) => {
                 status: `Mark: ${formatMarkName(markId)}`,
                 types: pokemon.types?.join('/') || '',
                 generation: getGeneration(pokemon.id)
-              });
+              };
+              
+              // Add sprite URLs if option is enabled
+              if (exportOptions.includeSprites && spriteUrls) {
+                entry.spriteUrl = spriteUrls.regular;
+              }
+              
+              exportData.push(entry);
             });
           }
         } 
@@ -269,6 +322,15 @@ const EnhancedExport = ({ caughtData, pokemonData }) => {
               generation: getGeneration(pokemon.id),
               caughtStatus: formStatuses.length > 0 ? formStatuses.join(', ') : 'Not Caught'
             };
+            
+            // Add sprite URLs if option is enabled
+            if (exportOptions.includeSprites && spriteUrls) {
+              if (formStatuses.includes('Shiny')) {
+                exportEntry.spriteUrl = spriteUrls.shiny;
+              } else {
+                exportEntry.spriteUrl = spriteUrls.regular;
+              }
+            }
             
             // Add specific ribbons and marks data for JSON and HTML exports
             if (exportType !== 'csv') {
@@ -347,6 +409,18 @@ const EnhancedExport = ({ caughtData, pokemonData }) => {
       .split('-')
       .map(word => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ');
+  };
+  
+  // Helper function to get sprite URLs for a Pokémon
+  const getSpriteUrls = (id) => {
+    return {
+      regular: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`,
+      shiny: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${id}.png`,
+      officialArtwork: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`,
+      officialArtworkShiny: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/${id}.png`,
+      home: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/${id}.png`,
+      homeShiny: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/${id}.png`
+    };
   };
   
   // Export to CSV
@@ -464,6 +538,11 @@ const EnhancedExport = ({ caughtData, pokemonData }) => {
             border-radius: 5px;
             margin-bottom: 20px;
           }
+          .pokemon-sprite {
+            width: 68px;
+            height: 68px;
+            image-rendering: pixelated;
+          }
         </style>
       </head>
       <body>
@@ -480,13 +559,25 @@ const EnhancedExport = ({ caughtData, pokemonData }) => {
         <table>
           <thead>
             <tr>
-              ${headers.map(header => `<th>${header.charAt(0).toUpperCase() + header.slice(1)}</th>`).join('')}
+              ${headers.map(header => {
+                // Don't show sprite URL column header
+                if (header === 'spriteUrl') return '';
+                return `<th>${header.charAt(0).toUpperCase() + header.slice(1)}</th>`;
+              }).join('')}
+              ${exportOptions.includeSprites ? '<th>Sprite</th>' : ''}
             </tr>
           </thead>
           <tbody>
             ${data.map(row => `
               <tr>
-                ${headers.map(header => `<td>${row[header]}</td>`).join('')}
+                ${headers.map(header => {
+                  // Don't show sprite URL column
+                  if (header === 'spriteUrl') return '';
+                  return `<td>${row[header]}</td>`;
+                }).join('')}
+                ${exportOptions.includeSprites && row.spriteUrl ? 
+                  `<td><img src="${row.spriteUrl}" alt="${row.name}" class="pokemon-sprite"></td>` : 
+                  exportOptions.includeSprites ? '<td>No sprite available</td>' : ''}
               </tr>
             `).join('')}
           </tbody>
@@ -631,6 +722,17 @@ const EnhancedExport = ({ caughtData, pokemonData }) => {
               className="rounded text-red-500 focus:ring-red-500"
             />
             <label htmlFor="includeUncaught" className="text-gray-300">Include Uncaught Pokémon</label>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="includeSprites"
+              checked={exportOptions.includeSprites}
+              onChange={() => toggleOption('includeSprites')}
+              className="rounded text-red-500 focus:ring-red-500"
+            />
+            <label htmlFor="includeSprites" className="text-gray-300">Include Sprites</label>
           </div>
         </div>
       </div>
