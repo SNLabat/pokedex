@@ -3163,8 +3163,10 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
           <div style={cardStyle} className="rounded-lg p-6">
             <RibbonsTab 
                 pokemon={pokemon} 
-              caughtStatus={caughtStatus} 
-              updateRibbonStatus={updateRibbonStatus} 
+              caughtStatus={caughtStatus[pokemon.id] || {}} 
+              updateRibbonStatus={(ribbonId, status, formName) => 
+                updateRibbonStatus(ribbonId, status, formName)
+              } 
               />
                     </div>
           )}
@@ -3173,8 +3175,10 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
           <div style={cardStyle} className="rounded-lg p-6">
             <MarksTab 
               pokemon={pokemon} 
-              caughtStatus={caughtStatus} 
-              updateMarkStatus={updateMarkStatus} 
+              caughtStatus={caughtStatus[pokemon.id] || {}} 
+              updateMarkStatus={(markId, status, formName) => 
+                updateMarkStatus(markId, status, formName)
+              } 
             />
           </div>
         )}
