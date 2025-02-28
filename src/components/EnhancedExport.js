@@ -23,10 +23,12 @@ const EnhancedExport = ({ caughtData, pokemonData }) => {
     includeRegular: true,
     includeShiny: true,
     includeSpecialForms: true,
-    includeGameVersions: false,
-    includeCustomTags: false,
+    includeGameVersions: true,
+    includeCustomTags: true,
+    includeRibbons: true,
+    includeMarks: true,
     includeUncaught: false,
-    format: 'detailed' // 'simple' or 'detailed'
+    format: 'simple'
   });
   
   const toggleOption = (option) => {
@@ -64,6 +66,26 @@ const EnhancedExport = ({ caughtData, pokemonData }) => {
       
       // Process each form
       Object.entries(forms).forEach(([formName, status]) => {
+        // Extract ribbons and marks data if available
+        const obtainedRibbons = [];
+        const obtainedMarks = [];
+        
+        if (exportOptions.includeRibbons && status.ribbons) {
+          Object.entries(status.ribbons).forEach(([ribbonId, isObtained]) => {
+            if (isObtained) {
+              obtainedRibbons.push(ribbonId);
+            }
+          });
+        }
+        
+        if (exportOptions.includeMarks && status.marks) {
+          Object.entries(status.marks).forEach(([markId, isObtained]) => {
+            if (isObtained) {
+              obtainedMarks.push(markId);
+            }
+          });
+        }
+        
         // For detailed format, create separate entries for each form and status
         if (exportOptions.format === 'detailed') {
           if (exportOptions.includeRegular) {
@@ -165,6 +187,38 @@ const EnhancedExport = ({ caughtData, pokemonData }) => {
               }
             });
           }
+          
+          // Add ribbons if any
+          if (exportOptions.includeRibbons && obtainedRibbons.length > 0) {
+            obtainedRibbons.forEach(ribbonId => {
+              exportData.push({
+                id: pokemon.id,
+                dexNum: String(pokemon.id).padStart(3, '0'),
+                name: pokemon.name.replace(/-/g, ' '),
+                form: formName === 'default' ? 'Regular' : formatFormName(formName),
+                caught: 'Yes',
+                status: `Ribbon: ${formatRibbonName(ribbonId)}`,
+                types: pokemon.types?.join('/') || '',
+                generation: getGeneration(pokemon.id)
+              });
+            });
+          }
+          
+          // Add marks if any
+          if (exportOptions.includeMarks && obtainedMarks.length > 0) {
+            obtainedMarks.forEach(markId => {
+              exportData.push({
+                id: pokemon.id,
+                dexNum: String(pokemon.id).padStart(3, '0'),
+                name: pokemon.name.replace(/-/g, ' '),
+                form: formName === 'default' ? 'Regular' : formatFormName(formName),
+                caught: 'Yes',
+                status: `Mark: ${formatMarkName(markId)}`,
+                types: pokemon.types?.join('/') || '',
+                generation: getGeneration(pokemon.id)
+              });
+            });
+          }
         } 
         // For simple format, combine all statuses into a single entry
         else {
@@ -195,9 +249,18 @@ const EnhancedExport = ({ caughtData, pokemonData }) => {
             if (status.favorite) formStatuses.push('Favorite');
           }
           
+          // Add ribbons and marks to the status list
+          if (exportOptions.includeRibbons && obtainedRibbons.length > 0) {
+            formStatuses.push(`Ribbons: ${obtainedRibbons.length}`);
+          }
+          
+          if (exportOptions.includeMarks && obtainedMarks.length > 0) {
+            formStatuses.push(`Marks: ${obtainedMarks.length}`);
+          }
+          
           // Add to export data if we have statuses or if including uncaught
           if (formStatuses.length > 0 || exportOptions.includeUncaught) {
-            exportData.push({
+            const exportEntry = {
               id: pokemon.id,
               dexNum: String(pokemon.id).padStart(3, '0'),
               name: pokemon.name.replace(/-/g, ' '),
@@ -205,7 +268,20 @@ const EnhancedExport = ({ caughtData, pokemonData }) => {
               types: pokemon.types?.join('/') || '',
               generation: getGeneration(pokemon.id),
               caughtStatus: formStatuses.length > 0 ? formStatuses.join(', ') : 'Not Caught'
-            });
+            };
+            
+            // Add specific ribbons and marks data for JSON and HTML exports
+            if (exportType !== 'csv') {
+              if (exportOptions.includeRibbons && obtainedRibbons.length > 0) {
+                exportEntry.ribbons = obtainedRibbons.map(formatRibbonName);
+              }
+              
+              if (exportOptions.includeMarks && obtainedMarks.length > 0) {
+                exportEntry.marks = obtainedMarks.map(formatMarkName);
+              }
+            }
+            
+            exportData.push(exportEntry);
           }
         }
       });
@@ -255,6 +331,22 @@ const EnhancedExport = ({ caughtData, pokemonData }) => {
     if (numId <= 809) return 'VII';
     if (numId <= 905) return 'VIII';
     return 'IX';
+  };
+  
+  // Helper function to format ribbon names
+  const formatRibbonName = (ribbonId) => {
+    return ribbonId
+      .split('-')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
+  
+  // Helper function to format mark names
+  const formatMarkName = (markId) => {
+    return markId
+      .split('-')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
   };
   
   // Export to CSV
@@ -506,6 +598,28 @@ const EnhancedExport = ({ caughtData, pokemonData }) => {
               className="rounded text-red-500 focus:ring-red-500"
             />
             <label htmlFor="includeCustomTags" className="text-gray-300">Custom Tags</label>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="includeRibbons"
+              checked={exportOptions.includeRibbons}
+              onChange={() => toggleOption('includeRibbons')}
+              className="rounded text-red-500 focus:ring-red-500"
+            />
+            <label htmlFor="includeRibbons" className="text-gray-300">Ribbons</label>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="includeMarks"
+              checked={exportOptions.includeMarks}
+              onChange={() => toggleOption('includeMarks')}
+              className="rounded text-red-500 focus:ring-red-500"
+            />
+            <label htmlFor="includeMarks" className="text-gray-300">Marks</label>
           </div>
           
           <div className="flex items-center space-x-2">
