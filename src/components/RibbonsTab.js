@@ -77,16 +77,15 @@ const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus }) => {
 
   // Get the ribbon status for the current Pokémon
   const getRibbonStatus = (ribbonId) => {
-    if (!caughtStatus || !caughtStatus[pokemonForm] || !caughtStatus[pokemonForm].ribbons) {
+    if (!caughtStatus || !caughtStatus.default || !caughtStatus.default.ribbons) {
       return false;
     }
-    return caughtStatus[pokemonForm].ribbons[ribbonId] || false;
+    return caughtStatus.default.ribbons[ribbonId] || false;
   };
 
   // Toggle ribbon status
   const toggleRibbonStatus = (ribbonId) => {
-    const currentStatus = getRibbonStatus(ribbonId);
-    updateRibbonStatus(ribbonId, !currentStatus, pokemonForm);
+    updateRibbonStatus(ribbonId);
   };
 
   return (

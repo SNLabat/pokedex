@@ -78,16 +78,15 @@ const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus }) => {
 
   // Get the mark status for the current Pokémon
   const getMarkStatus = (markId) => {
-    if (!caughtStatus || !caughtStatus[pokemonForm] || !caughtStatus[pokemonForm].marks) {
+    if (!caughtStatus || !caughtStatus.default || !caughtStatus.default.marks) {
       return false;
     }
-    return caughtStatus[pokemonForm].marks[markId] || false;
+    return caughtStatus.default.marks[markId] || false;
   };
 
   // Toggle mark status
   const toggleMarkStatus = (markId) => {
-    const currentStatus = getMarkStatus(markId);
-    updateMarkStatus(markId, !currentStatus, pokemonForm);
+    updateMarkStatus(markId);
   };
 
   return (
