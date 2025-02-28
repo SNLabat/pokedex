@@ -1506,6 +1506,7 @@ const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus, mainTypeColor }
   const [failedImages, setFailedImages] = useState({});
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchText, setSearchText] = useState('');
+  const [clickedRibbon, setClickedRibbon] = useState(null);
   
   // Group ribbons by category
   const ribbonsByCategory = useMemo(() => {
@@ -1526,12 +1527,23 @@ const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus, mainTypeColor }
   const handleImageError = (ribbonId) => {
     setFailedImages(prev => ({ ...prev, [ribbonId]: true }));
   };
+
+  // Handle ribbon click with animation
+  const handleRibbonClick = (ribbonId) => {
+    setClickedRibbon(ribbonId);
+    updateRibbonStatus(ribbonId, pokemon.name);
+    
+    // Clear the animation after a delay
+    setTimeout(() => {
+      setClickedRibbon(null);
+    }, 300);
+  };
   
   return (
     <div className="pt-6">
       <div className="bg-gray-800 rounded-lg p-6">
         <h2 className="text-xl font-bold mb-6">Ribbon Collection</h2>
-        <p className="text-gray-400 mb-4">Track the ribbons you&apos;ve earned with this Pokémon.</p>
+        <p className="text-gray-400 mb-4">Track the ribbons you&apos;ve earned with this Pokémon. Click on a ribbon to toggle its status.</p>
       
         <div className="mb-6">
           {/* Search input */}
@@ -1577,12 +1589,15 @@ const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus, mainTypeColor }
                     };
                     const hasRibbon = caughtStatus.ribbons?.[ribbon.id];
                     const useIconFallback = failedImages[ribbon.id];
+                    const isClicked = clickedRibbon === ribbon.id;
                     
                     return (
                       <tr 
                         key={ribbon.id}
-                        onClick={() => updateRibbonStatus(ribbon.id, pokemon.name)}
-                        className={`hover:bg-gray-600 cursor-pointer transition-colors ${
+                        onClick={() => handleRibbonClick(ribbon.id)}
+                        className={`hover:bg-gray-600 cursor-pointer transition-colors transform ${
+                          isClicked ? 'scale-95' : ''
+                        } ${
                           hasRibbon ? 'bg-indigo-900 bg-opacity-30' : ''
                         }`}
                       >
@@ -1637,6 +1652,7 @@ const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus, mainTypeColor }) =>
   const [failedImages, setFailedImages] = useState({});
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchText, setSearchText] = useState('');
+  const [clickedMark, setClickedMark] = useState(null);
   
   // Group marks by category
   const marksByCategory = useMemo(() => {
@@ -1657,12 +1673,23 @@ const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus, mainTypeColor }) =>
   const handleImageError = (markId) => {
     setFailedImages(prev => ({ ...prev, [markId]: true }));
   };
+
+  // Handle mark click with animation
+  const handleMarkClick = (markId) => {
+    setClickedMark(markId);
+    updateMarkStatus(markId, pokemon.name);
+    
+    // Clear the animation after a delay
+    setTimeout(() => {
+      setClickedMark(null);
+    }, 300);
+  };
   
   return (
     <div className="pt-6">
       <div className="bg-gray-800 rounded-lg p-6">
         <h2 className="text-xl font-bold mb-6">Mark Collection</h2>
-        <p className="text-gray-400 mb-4">Track the marks you&apos;ve found on this Pokémon.</p>
+        <p className="text-gray-400 mb-4">Track the marks you&apos;ve found on this Pokémon. Click on a mark to toggle its status.</p>
         
         <div className="mb-6">
           {/* Search input */}
@@ -1708,12 +1735,15 @@ const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus, mainTypeColor }) =>
                     };
                     const hasMark = caughtStatus.marks?.[mark.id];
                     const useIconFallback = failedImages[mark.id];
+                    const isClicked = clickedMark === mark.id;
                     
                     return (
                       <tr 
                         key={mark.id}
-                        onClick={() => updateMarkStatus(mark.id, pokemon.name)}
-                        className={`hover:bg-gray-600 cursor-pointer transition-colors ${
+                        onClick={() => handleMarkClick(mark.id)}
+                        className={`hover:bg-gray-600 cursor-pointer transition-colors transform ${
+                          isClicked ? 'scale-95' : ''
+                        } ${
                           hasMark ? 'bg-green-600 hover:bg-green-700 text-white' : ''
                         }`}
                       >
