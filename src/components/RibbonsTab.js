@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
 
 const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus }) => {
+  const [failedImages, setFailedImages] = useState({});
+  const [activeCategory, setActiveCategory] = useState('all');
+  const [searchText, setSearchText] = useState('');
+  
   // Initialize ribbons data
   const ribbons = [
     // Gen 3 Contest Ribbons
@@ -88,10 +92,37 @@ const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus }) => {
     updateRibbonStatus(ribbonId);
   };
 
+  // Status dropdown component
+  const StatusDropdown = ({ ribbonId }) => {
+    const isObtained = getRibbonStatus(ribbonId);
+    
+    return (
+      <select 
+        value={isObtained ? "obtained" : "missing"}
+        onChange={(e) => {
+          if (e.target.value === "obtained" && !isObtained) {
+            toggleRibbonStatus(ribbonId);
+          } else if (e.target.value === "missing" && isObtained) {
+            toggleRibbonStatus(ribbonId);
+          }
+        }}
+        onClick={(e) => e.stopPropagation()} // Prevent row click when clicking dropdown
+        className={`px-2 py-1 rounded text-xs font-medium ${
+          isObtained 
+            ? 'bg-indigo-100 text-indigo-800 border border-indigo-300' 
+            : 'bg-gray-100 text-gray-800 border border-gray-300'
+        }`}
+      >
+        <option value="missing">Missing</option>
+        <option value="obtained">Obtained</option>
+      </select>
+    );
+  };
+
   return (
     <div>
       <p className="text-gray-400 mb-6">
-        Click on a ribbon to mark it as "Obtained" or "Missing" for this Pokémon.
+        Select a status for each ribbon to track your collection.
         Obtained ribbons will be included when exporting your collection data.
       </p>
       
@@ -114,13 +145,7 @@ const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus }) => {
                 >
                   <div className="flex justify-between items-center mb-2">
                     <h4 className="font-medium">{ribbon.name}</h4>
-                    <span className={`px-2 py-1 rounded text-xs ${
-                      getRibbonStatus(ribbon.id)
-                        ? 'bg-green-600 text-white'
-                        : 'bg-gray-600 text-gray-300'
-                    }`}>
-                      {getRibbonStatus(ribbon.id) ? 'Obtained' : 'Missing'}
-                    </span>
+                    <StatusDropdown ribbonId={ribbon.id} />
                   </div>
                   <p className="text-sm text-gray-400">{ribbon.description}</p>
                 </div>

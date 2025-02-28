@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
 
 const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus }) => {
+  const [failedImages, setFailedImages] = useState({});
+  const [activeCategory, setActiveCategory] = useState('all');
+  const [searchText, setSearchText] = useState('');
+  
   // Initialize marks data
   const marks = [
     // Mood Marks
@@ -89,10 +93,37 @@ const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus }) => {
     updateMarkStatus(markId);
   };
 
+  // Status dropdown component
+  const StatusDropdown = ({ markId }) => {
+    const isObtained = getMarkStatus(markId);
+    
+    return (
+      <select 
+        value={isObtained ? "obtained" : "missing"}
+        onChange={(e) => {
+          if (e.target.value === "obtained" && !isObtained) {
+            toggleMarkStatus(markId);
+          } else if (e.target.value === "missing" && isObtained) {
+            toggleMarkStatus(markId);
+          }
+        }}
+        onClick={(e) => e.stopPropagation()} // Prevent row click when clicking dropdown
+        className={`px-2 py-1 rounded text-xs font-medium ${
+          isObtained 
+            ? 'bg-green-100 text-green-800 border border-green-300' 
+            : 'bg-gray-100 text-gray-800 border border-gray-300'
+        }`}
+      >
+        <option value="missing">Missing</option>
+        <option value="obtained">Obtained</option>
+      </select>
+    );
+  };
+
   return (
     <div>
       <p className="text-gray-400 mb-6">
-        Click on a mark to toggle it as "Obtained" or "Missing" for this Pokémon.
+        Select a status for each mark to track your collection.
         Obtained marks will be included when exporting your collection data.
       </p>
       
@@ -115,13 +146,7 @@ const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus }) => {
                 >
                   <div className="flex justify-between items-center mb-2">
                     <h4 className="font-medium">{mark.name}</h4>
-                    <span className={`px-2 py-1 rounded text-xs ${
-                      getMarkStatus(mark.id)
-                        ? 'bg-green-600 text-white'
-                        : 'bg-gray-600 text-gray-300'
-                    }`}>
-                      {getMarkStatus(mark.id) ? 'Obtained' : 'Missing'}
-                    </span>
+                    <StatusDropdown markId={mark.id} />
                   </div>
                   <p className="text-sm text-gray-400">{mark.description}</p>
                 </div>
