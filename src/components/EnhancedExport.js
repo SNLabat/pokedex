@@ -29,6 +29,7 @@ const EnhancedExport = ({ caughtData, pokemonData }) => {
     includeMarks: true,
     includeUncaught: false,
     includeSprites: true,
+    includeUnchecked: false,
     format: 'simple'
   });
   
@@ -75,17 +76,27 @@ const EnhancedExport = ({ caughtData, pokemonData }) => {
         const obtainedMarks = [];
         
         if (exportOptions.includeRibbons && status.ribbons) {
-          Object.entries(status.ribbons).forEach(([ribbonId, isObtained]) => {
-            if (isObtained) {
-              obtainedRibbons.push(ribbonId);
+          Object.entries(status.ribbons).forEach(([ribbonId, ribbonStatus]) => {
+            // Only include obtained ribbons or explicitly marked as missing (not unchecked)
+            if (ribbonStatus === true || ribbonStatus === 'obtained' || 
+                (exportOptions.includeUnchecked && (ribbonStatus === false || ribbonStatus === 'missing'))) {
+              obtainedRibbons.push({
+                id: ribbonId,
+                status: ribbonStatus === true || ribbonStatus === 'obtained' ? 'Obtained' : 'Missing'
+              });
             }
           });
         }
         
         if (exportOptions.includeMarks && status.marks) {
-          Object.entries(status.marks).forEach(([markId, isObtained]) => {
-            if (isObtained) {
-              obtainedMarks.push(markId);
+          Object.entries(status.marks).forEach(([markId, markStatus]) => {
+            // Only include obtained marks or explicitly marked as missing (not unchecked)
+            if (markStatus === true || markStatus === 'obtained' || 
+                (exportOptions.includeUnchecked && (markStatus === false || markStatus === 'missing'))) {
+              obtainedMarks.push({
+                id: markId,
+                status: markStatus === true || markStatus === 'obtained' ? 'Obtained' : 'Missing'
+              });
             }
           });
         }
@@ -229,14 +240,14 @@ const EnhancedExport = ({ caughtData, pokemonData }) => {
           
           // Add ribbons if any
           if (exportOptions.includeRibbons && obtainedRibbons.length > 0) {
-            obtainedRibbons.forEach(ribbonId => {
+            obtainedRibbons.forEach(ribbon => {
               const entry = {
                 id: pokemon.id,
                 dexNum: String(pokemon.id).padStart(3, '0'),
                 name: pokemon.name.replace(/-/g, ' '),
                 form: formName === 'default' ? 'Regular' : formatFormName(formName),
                 caught: 'Yes',
-                status: `Ribbon: ${formatRibbonName(ribbonId)}`,
+                status: `Ribbon: ${formatRibbonName(ribbon.id)} (${ribbon.status})`,
                 types: pokemon.types?.join('/') || '',
                 generation: getGeneration(pokemon.id)
               };
@@ -252,14 +263,14 @@ const EnhancedExport = ({ caughtData, pokemonData }) => {
           
           // Add marks if any
           if (exportOptions.includeMarks && obtainedMarks.length > 0) {
-            obtainedMarks.forEach(markId => {
+            obtainedMarks.forEach(mark => {
               const entry = {
                 id: pokemon.id,
                 dexNum: String(pokemon.id).padStart(3, '0'),
                 name: pokemon.name.replace(/-/g, ' '),
                 form: formName === 'default' ? 'Regular' : formatFormName(formName),
                 caught: 'Yes',
-                status: `Mark: ${formatMarkName(markId)}`,
+                status: `Mark: ${formatMarkName(mark.id)} (${mark.status})`,
                 types: pokemon.types?.join('/') || '',
                 generation: getGeneration(pokemon.id)
               };
@@ -304,11 +315,27 @@ const EnhancedExport = ({ caughtData, pokemonData }) => {
           
           // Add ribbons and marks to the status list
           if (exportOptions.includeRibbons && obtainedRibbons.length > 0) {
-            formStatuses.push(`Ribbons: ${obtainedRibbons.length}`);
+            const obtainedCount = obtainedRibbons.filter(r => r.status === 'Obtained').length;
+            const missingCount = obtainedRibbons.filter(r => r.status === 'Missing').length;
+            
+            if (obtainedCount > 0) {
+              formStatuses.push(`Ribbons: ${obtainedCount} obtained`);
+            }
+            if (missingCount > 0) {
+              formStatuses.push(`Ribbons: ${missingCount} missing`);
+            }
           }
           
           if (exportOptions.includeMarks && obtainedMarks.length > 0) {
-            formStatuses.push(`Marks: ${obtainedMarks.length}`);
+            const obtainedCount = obtainedMarks.filter(m => m.status === 'Obtained').length;
+            const missingCount = obtainedMarks.filter(m => m.status === 'Missing').length;
+            
+            if (obtainedCount > 0) {
+              formStatuses.push(`Marks: ${obtainedCount} obtained`);
+            }
+            if (missingCount > 0) {
+              formStatuses.push(`Marks: ${missingCount} missing`);
+            }
           }
           
           // Add to export data if we have statuses or if including uncaught
@@ -335,11 +362,17 @@ const EnhancedExport = ({ caughtData, pokemonData }) => {
             // Add specific ribbons and marks data for JSON and HTML exports
             if (exportType !== 'csv') {
               if (exportOptions.includeRibbons && obtainedRibbons.length > 0) {
-                exportEntry.ribbons = obtainedRibbons.map(formatRibbonName);
+                exportEntry.ribbons = obtainedRibbons.map(ribbon => ({
+                  name: formatRibbonName(ribbon.id),
+                  status: ribbon.status
+                }));
               }
               
               if (exportOptions.includeMarks && obtainedMarks.length > 0) {
-                exportEntry.marks = obtainedMarks.map(formatMarkName);
+                exportEntry.marks = obtainedMarks.map(mark => ({
+                  name: formatMarkName(mark.id),
+                  status: mark.status
+                }));
               }
             }
             
@@ -351,11 +384,240 @@ const EnhancedExport = ({ caughtData, pokemonData }) => {
     
     // Export the data in the chosen format
     if (exportType === 'csv') {
-      exportToCsv(exportData);
+      // Get all unique headers from the export data
+      const allHeaders = new Set();
+      exportData.forEach(entry => {
+        Object.keys(entry).forEach(key => allHeaders.add(key));
+      });
+      
+      // Convert to array and ensure consistent order
+      const headers = Array.from(allHeaders);
+      
+      // Create CSV header row
+      let csv = headers.join(',') + '\n';
+      
+      // Add data rows
+      exportData.forEach(entry => {
+        const row = headers.map(header => {
+          // Handle special formatting for status field
+          if (header === 'status' && entry[header] && (entry[header].startsWith('Ribbon:') || entry[header].startsWith('Mark:'))) {
+            // Format as "Type: Name (Status)" for better readability
+            return `"${entry[header]}"`;
+          }
+          return entry[header] ? `"${entry[header]}"` : '""';
+        });
+        csv += row.join(',') + '\n';
+      });
+      
+      // Create and download the CSV file
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `pokemon_collection_${Date.now()}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     } else if (exportType === 'json') {
-      exportToJson(exportData);
+      // For JSON export, ensure we're handling the new status format
+      const jsonData = exportData.map(entry => {
+        const jsonEntry = { ...entry };
+        
+        // Convert status field to a more structured format if it's a ribbon or mark
+        if (entry.status && (entry.status.startsWith('Ribbon:') || entry.status.startsWith('Mark:'))) {
+          const statusParts = entry.status.match(/(Ribbon|Mark): (.+) \((.+)\)/);
+          if (statusParts) {
+            const [, type, name, status] = statusParts;
+            jsonEntry.statusType = type.toLowerCase();
+            jsonEntry.statusName = name;
+            jsonEntry.statusValue = status;
+          }
+        }
+        
+        return jsonEntry;
+      });
+      
+      // Create and download the JSON file
+      const blob = new Blob([JSON.stringify(jsonData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `pokemon_collection_${Date.now()}.json`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     } else if (exportType === 'html') {
-      exportToHtml(exportData);
+      // For HTML export
+      if (exportData.length === 0) {
+        alert('No data to export');
+        return;
+      }
+      
+      // Generate statistics
+      const timestamp = new Date().toLocaleString();
+      const totalCount = exportData.filter(row => !row.status || (!row.status.startsWith('Ribbon:') && !row.status.startsWith('Mark:'))).length;
+      const uniqueSpecies = new Set(exportData.map(row => row.id));
+      const shinyCount = exportData.filter(row => row.status && row.status.includes('Shiny')).length;
+      const specialFormCount = exportData.filter(row => 
+        row.form && 
+        row.form !== 'Regular' && 
+        !row.form.includes('Shiny')
+      ).length;
+      
+      // Create HTML content with the updated template
+      const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Pokémon Collection Export</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+          }
+          h1, h2 {
+            color: #e53935;
+          }
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+          }
+          th, td {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+          }
+          th {
+            background-color: #f5f5f5;
+            font-weight: bold;
+          }
+          tr:nth-child(even) {
+            background-color: #f9f9f9;
+          }
+          .stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+          }
+          .stat-item {
+            background-color: #f5f5f5;
+            padding: 10px 15px;
+            border-radius: 4px;
+          }
+          .pokemon-sprite {
+            width: 68px;
+            height: 68px;
+            image-rendering: pixelated;
+          }
+          .legend {
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 4px;
+          }
+          .legend-item {
+            display: inline-block;
+            margin-right: 20px;
+          }
+          .obtained {
+            color: #4ade80;
+          }
+          .missing {
+            color: #ef4444;
+          }
+        </style>
+      </head>
+      <body>
+        <h1>Pokémon Collection Export</h1>
+        <p>Generated on ${timestamp}</p>
+        
+        <div class="stats">
+          <div class="stat-item">Total Pokémon: ${totalCount}</div>
+          <div class="stat-item">Unique Species: ${uniqueSpecies.size}</div>
+          <div class="stat-item">Shiny Pokémon: ${shinyCount}</div>
+          <div class="stat-item">Special Forms: ${specialFormCount}</div>
+        </div>
+        
+        <div class="legend">
+          <h3>Status Legend:</h3>
+          <div class="legend-item"><span class="obtained">■</span> Obtained</div>
+          <div class="legend-item"><span class="missing">■</span> Missing</div>
+        </div>
+        
+        <table>
+          <thead>
+            <tr>
+              <th>Dex #</th>
+              <th>Name</th>
+              <th>Form</th>
+              <th>Caught</th>
+              <th>Status</th>
+              <th>Types</th>
+              <th>Generation</th>
+              ${exportOptions.includeSprites ? '<th>Sprite</th>' : ''}
+            </tr>
+          </thead>
+          <tbody>
+            ${exportData.map(row => {
+              let statusCell = '';
+              
+              // Handle ribbons and marks with their status
+              if (row.status && (row.status.startsWith('Ribbon:') || row.status.startsWith('Mark:'))) {
+                const statusParts = row.status.match(/(Ribbon|Mark): (.+) \((.+)\)/);
+                if (statusParts) {
+                  const [, type, name, status] = statusParts;
+                  const statusClass = status === 'Obtained' ? 'obtained' : 'missing';
+                  statusCell = `<td class="${statusClass}">${type}: ${name} (${status})</td>`;
+                } else {
+                  statusCell = `<td>${row.status}</td>`;
+                }
+              } else {
+                statusCell = `<td>${row.status || ''}</td>`;
+              }
+              
+              // Create sprite cell if sprites are included
+              let spriteCell = '';
+              if (exportOptions.includeSprites && row.spriteUrl) {
+                spriteCell = `<td><img src="${row.spriteUrl}" alt="${row.name}" class="pokemon-sprite"></td>`;
+              }
+              
+              return `
+                <tr>
+                  <td>${row.dexNum}</td>
+                  <td>${row.name}</td>
+                  <td>${row.form}</td>
+                  <td>${row.caught}</td>
+                  ${statusCell}
+                  <td>${row.types}</td>
+                  <td>${row.generation}</td>
+                  ${exportOptions.includeSprites ? spriteCell : ''}
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+      </body>
+      </html>
+      `;
+      
+      // Create and download the HTML file
+      const blob = new Blob([htmlContent], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `pokemon_collection_${Date.now()}.html`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
   };
   
@@ -421,183 +683,6 @@ const EnhancedExport = ({ caughtData, pokemonData }) => {
       home: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/${id}.png`,
       homeShiny: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/${id}.png`
     };
-  };
-  
-  // Export to CSV
-  const exportToCsv = (data) => {
-    if (data.length === 0) {
-      alert('No data to export');
-      return;
-    }
-    
-    // Get headers
-    const headers = Object.keys(data[0]);
-    
-    // Create CSV content
-    let csvContent = headers.join(',') + '\n';
-    data.forEach(row => {
-      csvContent += headers.map(header => {
-        const cell = row[header];
-        // Handle values with commas by enclosing in quotes
-        return typeof cell === 'string' && cell.includes(',') 
-          ? `"${cell}"` 
-          : cell;
-      }).join(',') + '\n';
-    });
-    
-    // Create and download the file
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    const timestamp = new Date().toISOString().slice(0, 10);
-    
-    link.setAttribute('href', url);
-    link.setAttribute('download', `pokemon_collection_${timestamp}.csv`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-  
-  // Export to JSON
-  const exportToJson = (data) => {
-    if (data.length === 0) {
-      alert('No data to export');
-      return;
-    }
-    
-    const jsonString = JSON.stringify(data, null, 2);
-    const blob = new Blob([jsonString], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    const timestamp = new Date().toISOString().slice(0, 10);
-    
-    link.setAttribute('href', url);
-    link.setAttribute('download', `pokemon_collection_${timestamp}.json`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-  
-  // Export to HTML
-  const exportToHtml = (data) => {
-    if (data.length === 0) {
-      alert('No data to export');
-      return;
-    }
-    
-    // Get headers
-    const headers = Object.keys(data[0]);
-    
-    // Create HTML content
-    let htmlContent = `
-      <!DOCTYPE html>
-      <html lang="en">
-      <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Pokémon Collection Report</title>
-        <style>
-          body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-          }
-          h1 {
-            color: #e53e3e;
-          }
-          table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-          }
-          th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-          }
-          th {
-            background-color: #f8f8f8;
-            font-weight: bold;
-          }
-          tr:hover {
-            background-color: #f5f5f5;
-          }
-          .timestamp {
-            color: #666;
-            font-style: italic;
-            margin-bottom: 20px;
-          }
-          .stats {
-            background-color: #f8f8f8;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-          }
-          .pokemon-sprite {
-            width: 68px;
-            height: 68px;
-            image-rendering: pixelated;
-          }
-        </style>
-      </head>
-      <body>
-        <h1>Pokémon Collection Report</h1>
-        <p class="timestamp">Generated on ${new Date().toLocaleString()}</p>
-        
-        <div class="stats">
-          <h2>Collection Statistics</h2>
-          <p>Total Pokémon: ${data.filter(row => row.status === 'Regular' || row.caughtStatus).length}</p>
-          <p>Unique Species: ${new Set(data.map(row => row.id)).size}</p>
-          <p>Shiny Pokémon: ${data.filter(row => row.status === 'Shiny' || (row.caughtStatus && row.caughtStatus.includes('Shiny'))).length}</p>
-        </div>
-        
-        <table>
-          <thead>
-            <tr>
-              ${headers.map(header => {
-                // Don't show sprite URL column header
-                if (header === 'spriteUrl') return '';
-                return `<th>${header.charAt(0).toUpperCase() + header.slice(1)}</th>`;
-              }).join('')}
-              ${exportOptions.includeSprites ? '<th>Sprite</th>' : ''}
-            </tr>
-          </thead>
-          <tbody>
-            ${data.map(row => `
-              <tr>
-                ${headers.map(header => {
-                  // Don't show sprite URL column
-                  if (header === 'spriteUrl') return '';
-                  return `<td>${row[header]}</td>`;
-                }).join('')}
-                ${exportOptions.includeSprites && row.spriteUrl ? 
-                  `<td><img src="${row.spriteUrl}" alt="${row.name}" class="pokemon-sprite"></td>` : 
-                  exportOptions.includeSprites ? '<td>No sprite available</td>' : ''}
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      </body>
-      </html>
-    `;
-    
-    // Create and download the file
-    const blob = new Blob([htmlContent], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    const timestamp = new Date().toISOString().slice(0, 10);
-    
-    link.setAttribute('href', url);
-    link.setAttribute('download', `pokemon_collection_${timestamp}.html`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
   };
   
   return (
@@ -733,6 +818,17 @@ const EnhancedExport = ({ caughtData, pokemonData }) => {
               className="rounded text-red-500 focus:ring-red-500"
             />
             <label htmlFor="includeSprites" className="text-gray-300">Include Sprites</label>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="includeUnchecked"
+              checked={exportOptions.includeUnchecked}
+              onChange={() => toggleOption('includeUnchecked')}
+              className="rounded text-red-500 focus:ring-red-500"
+            />
+            <label htmlFor="includeUnchecked" className="text-gray-300">Include Missing Marks/Ribbons</label>
           </div>
         </div>
       </div>

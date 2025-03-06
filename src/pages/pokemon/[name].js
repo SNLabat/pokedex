@@ -1587,9 +1587,32 @@ const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus, mainTypeColor }
                       color: '#AA99CC', 
                       fallback: '🎀'
                     };
-                    const hasRibbon = caughtStatus.ribbons?.[ribbon.id];
+                    const ribbonStatus = caughtStatus.ribbons?.[ribbon.id];
+                    // Convert boolean values to string status for compatibility
+                    let status = 'unchecked';
+                    if (ribbonStatus === 'obtained' || ribbonStatus === true) {
+                      status = 'obtained';
+                    } else if (ribbonStatus === 'missing' || ribbonStatus === false) {
+                      status = 'missing';
+                    }
+                    
                     const useIconFallback = failedImages[ribbon.id];
                     const isClicked = clickedRibbon === ribbon.id;
+                    
+                    // Get background color based on status
+                    let bgColorClass = '';
+                    let statusText = 'Unchecked';
+                    let statusColorClass = 'bg-gray-100 text-gray-800';
+                    
+                    if (status === 'obtained') {
+                      bgColorClass = 'bg-indigo-900 bg-opacity-30';
+                      statusText = 'Obtained';
+                      statusColorClass = 'bg-indigo-100 text-indigo-800';
+                    } else if (status === 'missing') {
+                      bgColorClass = 'bg-red-900 bg-opacity-20';
+                      statusText = 'Missing';
+                      statusColorClass = 'bg-red-100 text-red-800';
+                    }
                     
                     return (
                       <tr 
@@ -1597,9 +1620,7 @@ const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus, mainTypeColor }
                         onClick={() => handleRibbonClick(ribbon.id)}
                         className={`hover:bg-gray-600 cursor-pointer transition-colors transform ${
                           isClicked ? 'scale-95' : ''
-                        } ${
-                          hasRibbon ? 'bg-indigo-900 bg-opacity-30' : ''
-                        }`}
+                        } ${bgColorClass}`}
                       >
                         <td className="py-3 px-4">
                           <div 
@@ -1626,12 +1647,8 @@ const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus, mainTypeColor }
                         <td className="py-3 px-4 text-gray-300">{ribbon.description}</td>
                         <td className="py-3 px-4 text-gray-300">{ribbon.obtainMethod}</td>
                         <td className="py-3 px-4">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            hasRibbon 
-                              ? 'bg-indigo-100 text-indigo-800' 
-                              : 'bg-gray-100 text-gray-800'
-                          }`}>
-                            {hasRibbon ? 'Obtained' : 'Missing'}
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColorClass}`}>
+                            {statusText}
                           </span>
                         </td>
                       </tr>
@@ -1733,9 +1750,32 @@ const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus, mainTypeColor }) =>
                       color: '#99CCFF', 
                       fallback: '❌'
                     };
-                    const hasMark = caughtStatus.marks?.[mark.id];
+                    const markStatus = caughtStatus.marks?.[mark.id];
+                    // Convert boolean values to string status for compatibility
+                    let status = 'unchecked';
+                    if (markStatus === 'obtained' || markStatus === true) {
+                      status = 'obtained';
+                    } else if (markStatus === 'missing' || markStatus === false) {
+                      status = 'missing';
+                    }
+                    
                     const useIconFallback = failedImages[mark.id];
                     const isClicked = clickedMark === mark.id;
+                    
+                    // Get background color based on status
+                    let bgColorClass = '';
+                    let statusText = 'Unchecked';
+                    let statusColorClass = 'bg-gray-100 text-gray-800';
+                    
+                    if (status === 'obtained') {
+                      bgColorClass = 'bg-green-900 bg-opacity-30';
+                      statusText = 'Obtained';
+                      statusColorClass = 'bg-green-100 text-green-800';
+                    } else if (status === 'missing') {
+                      bgColorClass = 'bg-red-900 bg-opacity-20';
+                      statusText = 'Missing';
+                      statusColorClass = 'bg-red-100 text-red-800';
+                    }
                     
                     return (
                       <tr 
@@ -1743,9 +1783,7 @@ const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus, mainTypeColor }) =>
                         onClick={() => handleMarkClick(mark.id)}
                         className={`hover:bg-gray-600 cursor-pointer transition-colors transform ${
                           isClicked ? 'scale-95' : ''
-                        } ${
-                          hasMark ? 'bg-green-600 hover:bg-green-700 text-white' : ''
-                        }`}
+                        } ${bgColorClass}`}
                       >
                         <td className="py-3 px-4">
                           <div 
@@ -1772,10 +1810,8 @@ const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus, mainTypeColor }) =>
                         <td className="py-3 px-4 text-gray-300">{mark.description}</td>
                         <td className="py-3 px-4 text-gray-300">{mark.method}</td>
                         <td className="py-3 px-4">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            hasMark ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                          }`}>
-                            {hasMark ? 'Obtained' : 'Missing'}
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColorClass}`}>
+                            {statusText}
                           </span>
                         </td>
                       </tr>
@@ -2585,6 +2621,35 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
       if (!caughtData[pokemon.id][formName]) {
         caughtData[pokemon.id][formName] = {};
       }
+
+      // Initialize origin marks if needed
+      if (!caughtData[pokemon.id][formName].originMarks) {
+        caughtData[pokemon.id][formName].originMarks = {};
+      }
+      
+      // Handle origin marks when game version is toggled
+      const originMarkMap = {
+        'xyoras': 'pentagon-symbol', // Gen 6 Pentagon
+        'sumo': 'clover-symbol',     // Gen 7 Clover
+        'vc': 'gameboy-symbol',      // Virtual Console GB mark
+        'go': 'go-symbol',           // Pokemon GO mark
+        'lgpe': 'lets-go-symbol',    // Let's Go mark
+        'swsh': 'galar-symbol',      // Gen 8 Galar symbol
+        'bdsp': 'sinnoh-symbol',     // Gen 8 BDSP symbol
+        'pla': 'arceus-symbol',      // Gen 8 PLA symbol
+        'sv': 'paldea-symbol',       // Gen 9 SV symbol
+      };
+
+      if (originMarkMap[statusType]) {
+        // Toggle the origin mark along with the game version
+        if (!caughtData[pokemon.id][formName][statusType]) {
+          // If turning on the game version, add its origin mark
+          caughtData[pokemon.id][formName].originMarks[originMarkMap[statusType]] = true;
+        } else {
+          // If turning off the game version, remove its origin mark
+          delete caughtData[pokemon.id][formName].originMarks[originMarkMap[statusType]];
+        }
+      }
       
       // Toggle the status
       caughtData[pokemon.id][formName][statusType] = !caughtData[pokemon.id][formName][statusType];
@@ -2618,9 +2683,27 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
         caughtData[pokemon.id][formName].ribbons = {};
       }
       
-      // Toggle the ribbon status
+      // Get current status
       const currentStatus = caughtData[pokemon.id][formName].ribbons[ribbonId];
-      caughtData[pokemon.id][formName].ribbons[ribbonId] = !currentStatus;
+      
+      // Cycle through states: undefined/null -> 'missing' -> 'obtained' -> undefined/null
+      let newStatus;
+      if (currentStatus === undefined || currentStatus === null) {
+        newStatus = 'missing';
+      } else if (currentStatus === 'missing' || currentStatus === false) {
+        newStatus = 'obtained';
+      } else if (currentStatus === 'obtained' || currentStatus === true) {
+        newStatus = undefined; // Reset to unchecked
+      } else {
+        newStatus = 'missing'; // Default if in an unexpected state
+      }
+      
+      // Update the status (or remove the property if undefined)
+      if (newStatus === undefined) {
+        delete caughtData[pokemon.id][formName].ribbons[ribbonId];
+      } else {
+        caughtData[pokemon.id][formName].ribbons[ribbonId] = newStatus;
+      }
       
       // Update state and localStorage
       setCaughtStatus(caughtData[pokemon.id]);
@@ -2651,9 +2734,27 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
         caughtData[pokemon.id][formName].marks = {};
       }
       
-      // Toggle the mark status
+      // Get current status
       const currentStatus = caughtData[pokemon.id][formName].marks[markId];
-      caughtData[pokemon.id][formName].marks[markId] = !currentStatus;
+      
+      // Cycle through states: undefined/null -> 'missing' -> 'obtained' -> undefined/null
+      let newStatus;
+      if (currentStatus === undefined || currentStatus === null) {
+        newStatus = 'missing';
+      } else if (currentStatus === 'missing' || currentStatus === false) {
+        newStatus = 'obtained';
+      } else if (currentStatus === 'obtained' || currentStatus === true) {
+        newStatus = undefined; // Reset to unchecked
+      } else {
+        newStatus = 'missing'; // Default if in an unexpected state
+      }
+      
+      // Update the status (or remove the property if undefined)
+      if (newStatus === undefined) {
+        delete caughtData[pokemon.id][formName].marks[markId];
+      } else {
+        caughtData[pokemon.id][formName].marks[markId] = newStatus;
+      }
       
       // Update state and localStorage
       setCaughtStatus(caughtData[pokemon.id]);
@@ -3240,13 +3341,13 @@ export async function getStaticPaths() {
       params: { name: pokemon.name }
     }));
     
-    return { 
+        return {
       paths,
       fallback: true // Change to true instead of 'blocking' for better UX
     };
   } catch (error) {
     console.error("Error in getStaticPaths:", error);
-    return { 
+        return {
       paths: [],
       fallback: true
     };

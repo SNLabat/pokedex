@@ -90,15 +90,33 @@ const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus, mainTypeColor }
   // Get the ribbon status for the current Pokémon
   const getRibbonStatus = (ribbonId) => {
     if (!caughtStatus || !caughtStatus.default || !caughtStatus.default.ribbons) {
-      return false;
+      return 'unchecked';
     }
-    return caughtStatus.default.ribbons[ribbonId] || false;
+    
+    const status = caughtStatus.default.ribbons[ribbonId];
+    if (status === undefined) return 'unchecked';
+    if (status === true) return 'obtained';
+    if (status === false) return 'missing';
+    return status; // In case it's already using the string values
   };
 
-  // Toggle ribbon status with animation effect
-  const toggleRibbonStatus = (ribbonId) => {
+  // Cycle through ribbon statuses: unchecked -> missing -> obtained -> unchecked
+  const cycleRibbonStatus = (ribbonId) => {
     setClickedRibbon(ribbonId);
-    updateRibbonStatus(ribbonId);
+    
+    const currentStatus = getRibbonStatus(ribbonId);
+    let newStatus;
+    
+    if (currentStatus === 'unchecked') {
+      newStatus = 'missing';
+    } else if (currentStatus === 'missing') {
+      newStatus = 'obtained';
+    } else {
+      newStatus = 'unchecked';
+    }
+    
+    // Call the parent component's update function with the new status
+    updateRibbonStatus(ribbonId, newStatus);
     
     // Clear the animation after a short delay
     setTimeout(() => {
@@ -112,6 +130,34 @@ const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus, mainTypeColor }
     const searchLower = searchText.toLowerCase();
     return ribbon.name.toLowerCase().includes(searchLower) || 
            ribbon.description.toLowerCase().includes(searchLower);
+  };
+
+  // Get status color and text based on ribbon status
+  const getStatusStyles = (status) => {
+    switch(status) {
+      case 'obtained':
+        return {
+          bgColor: themeColor.mainColor,
+          textColor: themeColor.textColor,
+          borderColor: themeColor.mainColor,
+          label: 'Obtained'
+        };
+      case 'missing':
+        return {
+          bgColor: '#ef4444', // red-500
+          textColor: '#ffffff',
+          borderColor: '#ef4444',
+          label: 'Missing'
+        };
+      case 'unchecked':
+      default:
+        return {
+          bgColor: '#9ca3af', // gray-400
+          textColor: '#1f2937',
+          borderColor: '#6b7280', // gray-500
+          label: 'Unchecked'
+        };
+    }
   };
 
   return (
@@ -128,9 +174,25 @@ const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus, mainTypeColor }
         />
       </div>
       
-      <p className="text-gray-400 mb-6">
-        Click on a ribbon to toggle between Missing and Obtained status.
-      </p>
+      <div className="mb-6">
+        <p className="text-gray-400 mb-2">
+          Click on a ribbon to cycle through tracking states:
+        </p>
+        <div className="flex space-x-4">
+          <div className="flex items-center">
+            <span className="inline-block w-3 h-3 rounded-full bg-gray-400 mr-2"></span>
+            <span className="text-sm text-gray-300">Unchecked</span>
+          </div>
+          <div className="flex items-center">
+            <span className="inline-block w-3 h-3 rounded-full bg-red-500 mr-2"></span>
+            <span className="text-sm text-gray-300">Missing</span>
+          </div>
+          <div className="flex items-center">
+            <span className="inline-block w-3 h-3 rounded-full mr-2" style={{ backgroundColor: themeColor.mainColor }}></span>
+            <span className="text-sm text-gray-300">Obtained</span>
+          </div>
+        </div>
+      </div>
       
       {Object.entries(ribbonsByGen).map(([gen, genRibbons]) => {
         // Filter ribbons based on search
@@ -146,34 +208,35 @@ const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus, mainTypeColor }
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
               {filteredRibbons.map(ribbon => {
-                const isObtained = getRibbonStatus(ribbon.id);
+                const status = getRibbonStatus(ribbon.id);
                 const isClicked = clickedRibbon === ribbon.id;
+                const statusStyles = getStatusStyles(status);
                 
                 return (
                   <div 
                     key={ribbon.id}
-                    onClick={() => toggleRibbonStatus(ribbon.id)}
+                    onClick={() => cycleRibbonStatus(ribbon.id)}
                     className={`p-4 rounded-lg cursor-pointer transition-all transform ${
                       isClicked ? 'scale-95' : ''
                     } ${
-                      isObtained 
-                        ? 'bg-opacity-20 hover:bg-opacity-30 border'
+                      status !== 'unchecked' 
+                        ? 'bg-opacity-10 hover:bg-opacity-20 border'
                         : 'bg-gray-800 hover:bg-gray-700 border border-gray-700'
                     }`}
-                    style={isObtained ? { 
-                      backgroundColor: themeColor.mainColor,
-                      borderColor: themeColor.mainColor
+                    style={status !== 'unchecked' ? { 
+                      backgroundColor: statusStyles.bgColor,
+                      borderColor: statusStyles.borderColor
                     } : {}}
                   >
                     <div className="flex justify-between items-center mb-2">
                       <h4 className="font-medium">{ribbon.name}</h4>
                       <span className="px-2 py-1 rounded text-xs font-medium"
                         style={{
-                          backgroundColor: isObtained ? themeColor.mainColor : '#e5e7eb',
-                          color: isObtained ? themeColor.textColor : '#1f2937'
+                          backgroundColor: statusStyles.bgColor,
+                          color: statusStyles.textColor
                         }}
                       >
-                        {isObtained ? 'Obtained' : 'Missing'}
+                        {statusStyles.label}
                       </span>
                     </div>
                     <p className="text-sm text-gray-400">{ribbon.description}</p>

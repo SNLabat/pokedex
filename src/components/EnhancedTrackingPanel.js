@@ -1,6 +1,7 @@
 // components/EnhancedTrackingPanel.js
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
+import OriginMarks from './OriginMarks';
 
 // Replace Heroicons with simple SVG components
 const PlusIcon = () => (
@@ -58,6 +59,7 @@ const EnhancedTrackingPanel = ({
 
   // Access the current caught status for this form
   const formStatus = caughtStatus[formName] || {};
+  const originMarks = formStatus.originMarks || {};
 
   // Group tracking options
   const basicOptions = [
@@ -72,6 +74,11 @@ const EnhancedTrackingPanel = ({
 
   const gameOptions = [
     { id: "home", label: "Pokémon HOME", color: "blue" },
+    { id: "xyoras", label: "X/Y/ORAS", color: "blue", generation: 6 },
+    { id: "sumo", label: "Sun/Moon/USUM", color: "blue", generation: 7 },
+    { id: "vc", label: "Virtual Console", color: "blue", description: "Gen 1-2" },
+    { id: "go", label: "Pokémon GO", color: "blue" },
+    { id: "lgpe", label: "Let's Go P/E", color: "blue" },
     { id: "swsh", label: "Sword/Shield", color: "blue" },
     { id: "bdsp", label: "BD/SP", color: "blue" },
     { id: "pla", label: "Legends: Arceus", color: "blue" },
@@ -87,6 +94,14 @@ const EnhancedTrackingPanel = ({
   return (
     <div className={`${theme.bg} bg-opacity-70 rounded-lg p-4 shadow-lg w-full`}>
       <h3 className="text-xl font-semibold mb-4">Tracking Options</h3>
+
+      {/* Origin Marks */}
+      {Object.keys(originMarks).length > 0 && (
+        <div className="mb-4">
+          <h4 className="text-sm font-medium text-gray-400 mb-2">Origin Marks</h4>
+          <OriginMarks originMarks={originMarks} />
+        </div>
+      )}
 
       {/* Basic Options */}
       <div className="mb-4">

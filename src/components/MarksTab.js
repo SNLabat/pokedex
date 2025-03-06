@@ -91,15 +91,33 @@ const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus, mainTypeColor }) =>
   // Get the mark status for the current Pokémon
   const getMarkStatus = (markId) => {
     if (!caughtStatus || !caughtStatus.default || !caughtStatus.default.marks) {
-      return false;
+      return 'unchecked';
     }
-    return caughtStatus.default.marks[markId] || false;
+    
+    const status = caughtStatus.default.marks[markId];
+    if (status === undefined) return 'unchecked';
+    if (status === true) return 'obtained';
+    if (status === false) return 'missing';
+    return status; // In case it's already using the string values
   };
 
-  // Toggle mark status with animation effect
-  const toggleMarkStatus = (markId) => {
+  // Cycle through mark statuses: unchecked -> missing -> obtained -> unchecked
+  const cycleMarkStatus = (markId) => {
     setClickedMark(markId);
-    updateMarkStatus(markId);
+    
+    const currentStatus = getMarkStatus(markId);
+    let newStatus;
+    
+    if (currentStatus === 'unchecked') {
+      newStatus = 'missing';
+    } else if (currentStatus === 'missing') {
+      newStatus = 'obtained';
+    } else {
+      newStatus = 'unchecked';
+    }
+    
+    // Call the parent component's update function with the new status
+    updateMarkStatus(markId, newStatus);
     
     // Clear the animation after a short delay
     setTimeout(() => {
@@ -122,6 +140,34 @@ const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus, mainTypeColor }) =>
 
   // Then apply search filter
   const filteredMarks = categoryFilteredMarks.filter(filterMarks);
+
+  // Get status color and text based on mark status
+  const getStatusStyles = (status) => {
+    switch(status) {
+      case 'obtained':
+        return {
+          bgColor: themeColor.mainColor,
+          textColor: themeColor.textColor,
+          borderColor: themeColor.mainColor,
+          label: 'Obtained'
+        };
+      case 'missing':
+        return {
+          bgColor: '#ef4444', // red-500
+          textColor: '#ffffff',
+          borderColor: '#ef4444',
+          label: 'Missing'
+        };
+      case 'unchecked':
+      default:
+        return {
+          bgColor: '#9ca3af', // gray-400
+          textColor: '#1f2937',
+          borderColor: '#6b7280', // gray-500
+          label: 'Unchecked'
+        };
+    }
+  };
 
   return (
     <div>
@@ -165,40 +211,57 @@ const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus, mainTypeColor }) =>
         </div>
       </div>
       
-      <p className="text-gray-400 mb-6">
-        Click on a mark to toggle between Missing and Obtained status.
-      </p>
+      <div className="mb-6">
+        <p className="text-gray-400 mb-2">
+          Click on a mark to cycle through tracking states:
+        </p>
+        <div className="flex space-x-4">
+          <div className="flex items-center">
+            <span className="inline-block w-3 h-3 rounded-full bg-gray-400 mr-2"></span>
+            <span className="text-sm text-gray-300">Unchecked</span>
+          </div>
+          <div className="flex items-center">
+            <span className="inline-block w-3 h-3 rounded-full bg-red-500 mr-2"></span>
+            <span className="text-sm text-gray-300">Missing</span>
+          </div>
+          <div className="flex items-center">
+            <span className="inline-block w-3 h-3 rounded-full mr-2" style={{ backgroundColor: themeColor.mainColor }}></span>
+            <span className="text-sm text-gray-300">Obtained</span>
+          </div>
+        </div>
+      </div>
       
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {filteredMarks.map(mark => {
-          const isObtained = getMarkStatus(mark.id);
+          const status = getMarkStatus(mark.id);
           const isClicked = clickedMark === mark.id;
+          const statusStyles = getStatusStyles(status);
           
           return (
             <div 
               key={mark.id}
-              onClick={() => toggleMarkStatus(mark.id)}
+              onClick={() => cycleMarkStatus(mark.id)}
               className={`p-4 rounded-lg cursor-pointer transition-all transform ${
                 isClicked ? 'scale-95' : ''
               } ${
-                isObtained 
-                  ? 'bg-opacity-20 hover:bg-opacity-30 border'
+                status !== 'unchecked' 
+                  ? 'bg-opacity-10 hover:bg-opacity-20 border'
                   : 'bg-gray-800 hover:bg-gray-700 border border-gray-700'
               }`}
-              style={isObtained ? { 
-                backgroundColor: themeColor.mainColor,
-                borderColor: themeColor.mainColor
+              style={status !== 'unchecked' ? { 
+                backgroundColor: statusStyles.bgColor,
+                borderColor: statusStyles.borderColor
               } : {}}
             >
               <div className="flex justify-between items-center mb-2">
                 <h4 className="font-medium">{mark.name}</h4>
                 <span className="px-2 py-1 rounded text-xs font-medium"
                   style={{
-                    backgroundColor: isObtained ? themeColor.mainColor : '#e5e7eb',
-                    color: isObtained ? themeColor.textColor : '#1f2937'
+                    backgroundColor: statusStyles.bgColor,
+                    color: statusStyles.textColor
                   }}
                 >
-                  {isObtained ? 'Obtained' : 'Missing'}
+                  {statusStyles.label}
                 </span>
               </div>
               <div className="flex items-center justify-between">
