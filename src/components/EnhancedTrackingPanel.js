@@ -32,6 +32,7 @@ const EnhancedTrackingPanel = ({
   theme
 }) => {
   const [expandedSection, setExpandedSection] = useState(null);
+  const [localStatus, setLocalStatus] = useState(caughtStatus[formName] || {});
   
   const toggleSection = (section) => {
     setExpandedSection(expandedSection === section ? null : section);
@@ -41,9 +42,21 @@ const EnhancedTrackingPanel = ({
   const formStatus = caughtStatus[formName] || {};
   const originMarks = formStatus.originMarks || {};
 
+  // Handle option click with local state update
+  const handleOptionClick = (optionId) => {
+    const newStatus = !formStatus[optionId];
+    // Update local state immediately for visual feedback
+    setLocalStatus(prev => ({
+      ...prev,
+      [optionId]: newStatus
+    }));
+    // Call the parent update function
+    updateCaughtStatus(optionId, formName);
+  };
+
   // Group tracking options
   const basicOptions = [
-    { id: "regular", label: "Regular", color: "green" },
+    { id: "caught", label: "Regular", color: "green" },
     { id: "shiny", label: "Shiny", color: "yellow" },
   ];
 
@@ -54,14 +67,14 @@ const EnhancedTrackingPanel = ({
 
   const generationOptions = [
     { 
-      id: "xyoras",
+      id: "gen6",
       label: "Generation 6",
       description: "X/Y/ORAS",
       color: "blue",
       icon: "/img/origin-marks/pentagon.png"
     },
     { 
-      id: "sumo",
+      id: "gen7",
       label: "Generation 7",
       description: "Sun/Moon/USUM",
       color: "blue",
@@ -82,28 +95,28 @@ const EnhancedTrackingPanel = ({
       icon: "/img/origin-marks/LetsGo.png"
     },
     { 
-      id: "swsh",
+      id: "gen8_swsh",
       label: "Generation 8",
       description: "Sword/Shield",
       color: "blue",
       icon: "/img/origin-marks/galar.png"
     },
     { 
-      id: "bdsp",
+      id: "gen8_bdsp",
       label: "Generation 8",
       description: "BD/SP",
       color: "blue",
       icon: "/img/origin-marks/bdsp.png"
     },
     { 
-      id: "pla",
+      id: "gen8_pla",
       label: "Generation 8",
       description: "Legends: Arceus",
       color: "blue",
       icon: "/img/origin-marks/arceus.png"
     },
     { 
-      id: "sv",
+      id: "gen9",
       label: "Generation 9",
       description: "Scarlet/Violet",
       color: "blue",
@@ -127,6 +140,11 @@ const EnhancedTrackingPanel = ({
     { id: "favorite", label: "Favorite", color: "red" },
   ];
 
+  // Get the effective status (either from local state or props)
+  const getEffectiveStatus = (optionId) => {
+    return localStatus[optionId] !== undefined ? localStatus[optionId] : formStatus[optionId];
+  };
+
   return (
     <div className={`${theme.bg} bg-opacity-70 rounded-lg p-4 shadow-lg w-full`}>
       <h3 className="text-xl font-semibold mb-4">Tracking Options</h3>
@@ -146,8 +164,8 @@ const EnhancedTrackingPanel = ({
             <TrackingOption
               key={option.id}
               {...option}
-              isActive={formStatus[option.id]}
-              onClick={() => updateCaughtStatus(option.id, formName)}
+              isActive={getEffectiveStatus(option.id)}
+              onClick={() => handleOptionClick(option.id)}
             />
           ))}
         </div>
@@ -157,7 +175,7 @@ const EnhancedTrackingPanel = ({
       <div className="mb-2">
         <button
           onClick={() => toggleSection('generation')}
-          className="flex items-center justify-between w-full px-3 py-2 bg-gray-800 rounded-md"
+          className="flex items-center justify-between w-full px-3 py-2 bg-gray-800 rounded-md hover:bg-gray-700 transition-colors"
         >
           <span className="font-medium">Generation of Origin</span>
           {expandedSection === 'generation' ? (
@@ -172,8 +190,8 @@ const EnhancedTrackingPanel = ({
               <TrackingOption
                 key={option.id}
                 {...option}
-                isActive={formStatus[option.id]}
-                onClick={() => updateCaughtStatus(option.id, formName)}
+                isActive={getEffectiveStatus(option.id)}
+                onClick={() => handleOptionClick(option.id)}
               />
             ))}
           </div>
@@ -184,7 +202,7 @@ const EnhancedTrackingPanel = ({
       <div className="mb-2">
         <button
           onClick={() => toggleSection('special')}
-          className="flex items-center justify-between w-full px-3 py-2 bg-gray-800 rounded-md"
+          className="flex items-center justify-between w-full px-3 py-2 bg-gray-800 rounded-md hover:bg-gray-700 transition-colors"
         >
           <span className="font-medium">Special Forms</span>
           {expandedSection === 'special' ? (
@@ -199,8 +217,8 @@ const EnhancedTrackingPanel = ({
               <TrackingOption
                 key={option.id}
                 {...option}
-                isActive={formStatus[option.id]}
-                onClick={() => updateCaughtStatus(option.id, formName)}
+                isActive={getEffectiveStatus(option.id)}
+                onClick={() => handleOptionClick(option.id)}
               />
             ))}
           </div>
@@ -211,7 +229,7 @@ const EnhancedTrackingPanel = ({
       <div className="mb-2">
         <button
           onClick={() => toggleSection('games')}
-          className="flex items-center justify-between w-full px-3 py-2 bg-gray-800 rounded-md"
+          className="flex items-center justify-between w-full px-3 py-2 bg-gray-800 rounded-md hover:bg-gray-700 transition-colors"
         >
           <span className="font-medium">Additional Game Versions</span>
           {expandedSection === 'games' ? (
@@ -226,8 +244,8 @@ const EnhancedTrackingPanel = ({
               <TrackingOption
                 key={option.id}
                 {...option}
-                isActive={formStatus[option.id]}
-                onClick={() => updateCaughtStatus(option.id, formName)}
+                isActive={getEffectiveStatus(option.id)}
+                onClick={() => handleOptionClick(option.id)}
               />
             ))}
           </div>
@@ -238,7 +256,7 @@ const EnhancedTrackingPanel = ({
       <div className="mb-2">
         <button
           onClick={() => toggleSection('custom')}
-          className="flex items-center justify-between w-full px-3 py-2 bg-gray-800 rounded-md"
+          className="flex items-center justify-between w-full px-3 py-2 bg-gray-800 rounded-md hover:bg-gray-700 transition-colors"
         >
           <span className="font-medium">Custom Tags</span>
           {expandedSection === 'custom' ? (
@@ -252,10 +270,9 @@ const EnhancedTrackingPanel = ({
             {customOptions.map((option) => (
               <TrackingOption
                 key={option.id}
-                label={option.label}
-                isActive={formStatus[option.id]}
-                onClick={() => updateCaughtStatus(option.id, formName)}
-                color={option.color}
+                {...option}
+                isActive={getEffectiveStatus(option.id)}
+                onClick={() => handleOptionClick(option.id)}
               />
             ))}
           </div>
