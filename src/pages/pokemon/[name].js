@@ -3229,9 +3229,11 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
               <div className="bg-gray-700 rounded-lg p-4">
                 <h3 className="text-lg font-medium mb-3">Default Form</h3>
                 <EnhancedTrackingPanel
-                  caughtStatus={caughtStatus['default']}
-                  onUpdateStatus={(type, value) => updateCaughtStatus(type, 'default')}
-                  mainTypeColor={mainTypeColor}
+                  pokemonId={pokemon.id}
+                  formName="default"
+                  caughtStatus={caughtStatus}
+                  updateCaughtStatus={updateCaughtStatus}
+                  theme={{ bg: 'bg-gray-800' }}
                 />
               </div>
               
@@ -3273,9 +3275,11 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
                     </div>
                     
                     <EnhancedTrackingPanel
-                      caughtStatus={caughtStatus[formName]}
-                      onUpdateStatus={(type, value) => updateCaughtStatus(type, formName)}
-                      mainTypeColor={mainTypeColor}
+                      pokemonId={pokemon.id}
+                      formName={formName}
+                      caughtStatus={caughtStatus}
+                      updateCaughtStatus={updateCaughtStatus}
+                      theme={{ bg: 'bg-gray-800' }}
                     />
                   </div>
                 );
