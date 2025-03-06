@@ -2626,8 +2626,8 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
       if (!caughtData[pokemon.id][formName].originMarks) {
         caughtData[pokemon.id][formName].originMarks = {};
       }
-      if (!caughtData[pokemon.id][formName].generation) {
-        caughtData[pokemon.id][formName].generation = null;
+      if (!caughtData[pokemon.id][formName].generations) {
+        caughtData[pokemon.id][formName].generations = {};
       }
       
       // Map of generations to their game versions and origin marks
@@ -2680,27 +2680,26 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
       };
 
       // Handle generation selection
-      if (statusType.startsWith('gen')) {
+      if (statusType.startsWith('gen') || statusType === 'vc' || statusType === 'lgpe' || statusType === 'go') {
         const genInfo = generationMap[statusType];
         if (genInfo) {
-          // Toggle generation
-          const newGeneration = caughtData[pokemon.id][formName].generation === statusType ? null : statusType;
-          caughtData[pokemon.id][formName].generation = newGeneration;
-
-          // Clear all origin marks first
-          caughtData[pokemon.id][formName].originMarks = {};
-
-          // If a generation is selected, set its origin mark
-          if (newGeneration) {
-            caughtData[pokemon.id][formName].originMarks[genInfo.mark] = true;
-            // Set caught status to true when a generation is selected
+          // Toggle this specific generation
+          const isCurrentlySelected = !!caughtData[pokemon.id][formName].generations[statusType];
+          caughtData[pokemon.id][formName].generations[statusType] = !isCurrentlySelected;
+          
+          // Toggle the associated mark
+          caughtData[pokemon.id][formName].originMarks[genInfo.mark] = !isCurrentlySelected;
+          
+          // Toggle version flags
+          genInfo.versions.forEach(version => {
+            caughtData[pokemon.id][formName][version] = !isCurrentlySelected;
+          });
+          
+          // Set caught to true if at least one generation is selected
+          const hasAnyGeneration = Object.values(caughtData[pokemon.id][formName].generations).some(Boolean);
+          if (hasAnyGeneration) {
             caughtData[pokemon.id][formName].caught = true;
           }
-
-          // Update version flags based on generation
-          genInfo.versions.forEach(version => {
-            caughtData[pokemon.id][formName][version] = newGeneration !== null;
-          });
         }
       } 
       // Handle basic tracking options

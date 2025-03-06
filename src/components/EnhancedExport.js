@@ -47,6 +47,11 @@ const EnhancedExport = ({ caughtData, pokemonData }) => {
     // Get all Pokemon IDs that have caught data
     const pokemonIds = Object.keys(caughtData);
     
+    if (pokemonIds.length === 0) {
+      alert("No data to export");
+      return;
+    }
+    
     for (const id of pokemonIds) {
       // Find the Pokemon data
       const pokemon = pokemonData.find(p => p.id.toString() === id) || {
@@ -55,331 +60,128 @@ const EnhancedExport = ({ caughtData, pokemonData }) => {
         types: []
       };
       
-      // Generate sprite URLs
+      // Get sprite URLs if option is enabled
       const spriteUrls = exportOptions.includeSprites ? getSpriteUrls(pokemon.id) : null;
       
-      // Check if any form of this Pokemon is caught
-      const forms = caughtData[id];
-      const hasCaughtForms = Object.values(forms).some(form => 
-        (exportOptions.includeRegular && form.regular) ||
-        (exportOptions.includeShiny && form.shiny) ||
-        (exportOptions.includeSpecialForms && (form.alpha || form.alphaShiny || form.mega || form.megaShiny || form.gmax || form.gmaxShiny))
-      );
-      
-      // Skip uncaught Pokemon if not including them
-      if (!exportOptions.includeUncaught && !hasCaughtForms) continue;
+      // Process all forms of this Pokemon
+      const forms = caughtData[id] || {};
       
       // Process each form
       Object.entries(forms).forEach(([formName, status]) => {
-        // Extract ribbons and marks data if available
-        const obtainedRibbons = [];
-        const obtainedMarks = [];
+        if (!status) return; // Skip if status is null or undefined
         
-        if (exportOptions.includeRibbons && status.ribbons) {
-          Object.entries(status.ribbons).forEach(([ribbonId, ribbonStatus]) => {
-            // Only include obtained ribbons or explicitly marked as missing (not unchecked)
-            if (ribbonStatus === true || ribbonStatus === 'obtained' || 
-                (exportOptions.includeUnchecked && (ribbonStatus === false || ribbonStatus === 'missing'))) {
-              obtainedRibbons.push({
-                id: ribbonId,
-                status: ribbonStatus === true || ribbonStatus === 'obtained' ? 'Obtained' : 'Missing'
-              });
-            }
-          });
-        }
-        
-        if (exportOptions.includeMarks && status.marks) {
-          Object.entries(status.marks).forEach(([markId, markStatus]) => {
-            // Only include obtained marks or explicitly marked as missing (not unchecked)
-            if (markStatus === true || markStatus === 'obtained' || 
-                (exportOptions.includeUnchecked && (markStatus === false || markStatus === 'missing'))) {
-              obtainedMarks.push({
-                id: markId,
-                status: markStatus === true || markStatus === 'obtained' ? 'Obtained' : 'Missing'
-              });
-            }
-          });
-        }
-        
-        // For detailed format, create separate entries for each form and status
-        if (exportOptions.format === 'detailed') {
-          if (exportOptions.includeRegular) {
-            const entry = {
-              id: pokemon.id,
-              dexNum: String(pokemon.id).padStart(3, '0'),
-              name: pokemon.name.replace(/-/g, ' '),
-              form: formName === 'default' ? 'Regular' : formatFormName(formName),
-              caught: status.regular ? 'Yes' : 'No',
-              status: 'Regular',
-              types: pokemon.types?.join('/') || '',
-              generation: getGeneration(pokemon.id)
-            };
-            
-            // Add sprite URLs if option is enabled
-            if (exportOptions.includeSprites && spriteUrls) {
-              entry.spriteUrl = spriteUrls.regular;
-            }
-            
-            exportData.push(entry);
-          }
-          
-          if (exportOptions.includeShiny) {
-            const entry = {
-              id: pokemon.id,
-              dexNum: String(pokemon.id).padStart(3, '0'),
-              name: pokemon.name.replace(/-/g, ' '),
-              form: formName === 'default' ? 'Regular' : formatFormName(formName),
-              caught: status.shiny ? 'Yes' : 'No',
-              status: 'Shiny',
-              types: pokemon.types?.join('/') || '',
-              generation: getGeneration(pokemon.id)
-            };
-            
-            // Add sprite URLs if option is enabled
-            if (exportOptions.includeSprites && spriteUrls) {
-              entry.spriteUrl = spriteUrls.shiny;
-            }
-            
-            exportData.push(entry);
-          }
-          
-          if (exportOptions.includeSpecialForms) {
-            const specialForms = [
-              { key: 'alpha', label: 'Alpha' },
-              { key: 'alphaShiny', label: 'Alpha Shiny' },
-              { key: 'mega', label: 'Mega' },
-              { key: 'megaShiny', label: 'Mega Shiny' },
-              { key: 'gmax', label: 'Gigantamax' },
-              { key: 'gmaxShiny', label: 'Gigantamax Shiny' }
-            ];
-            
-            specialForms.forEach(({ key, label }) => {
-              if (status[key]) {
-                const entry = {
-                  id: pokemon.id,
-                  dexNum: String(pokemon.id).padStart(3, '0'),
-                  name: pokemon.name.replace(/-/g, ' '),
-                  form: formName === 'default' ? 'Regular' : formatFormName(formName),
-                  caught: status[key] ? 'Yes' : 'No',
-                  status: label,
-                  types: pokemon.types?.join('/') || '',
-                  generation: getGeneration(pokemon.id)
-                };
-                
-                // Add sprite URLs if option is enabled
-                if (exportOptions.includeSprites && spriteUrls) {
-                  entry.spriteUrl = spriteUrls[key === 'shiny' ? 'shiny' : 'regular'];
-                }
-                
-                exportData.push(entry);
-              }
-            });
-          }
-          
-          if (exportOptions.includeGameVersions) {
-            const gameVersions = [
-              { key: 'home', label: 'Pokémon HOME' },
-              { key: 'swsh', label: 'Sword/Shield' },
-              { key: 'bdsp', label: 'BD/SP' },
-              { key: 'pla', label: 'Legends: Arceus' },
-              { key: 'sv', label: 'Scarlet/Violet' }
-            ];
-            
-            gameVersions.forEach(({ key, label }) => {
-              if (status[key]) {
-                const entry = {
-                  id: pokemon.id,
-                  dexNum: String(pokemon.id).padStart(3, '0'),
-                  name: pokemon.name.replace(/-/g, ' '),
-                  form: formName === 'default' ? 'Regular' : formatFormName(formName),
-                  caught: status[key] ? 'Yes' : 'No',
-                  status: label,
-                  types: pokemon.types?.join('/') || '',
-                  generation: getGeneration(pokemon.id)
-                };
-                
-                // Add sprite URLs if option is enabled
-                if (exportOptions.includeSprites && spriteUrls) {
-                  entry.spriteUrl = spriteUrls[key === 'shiny' ? 'shiny' : 'regular'];
-                }
-                
-                exportData.push(entry);
-              }
-            });
-          }
-          
-          if (exportOptions.includeCustomTags) {
-            const customTags = [
-              { key: 'livingDex', label: 'Living Dex' },
-              { key: 'competitive', label: 'Competitive' },
-              { key: 'favorite', label: 'Favorite' }
-            ];
-            
-            customTags.forEach(({ key, label }) => {
-              if (status[key]) {
-                const entry = {
-                  id: pokemon.id,
-                  dexNum: String(pokemon.id).padStart(3, '0'),
-                  name: pokemon.name.replace(/-/g, ' '),
-                  form: formName === 'default' ? 'Regular' : formatFormName(formName),
-                  caught: status[key] ? 'Yes' : 'No',
-                  status: label,
-                  types: pokemon.types?.join('/') || '',
-                  generation: getGeneration(pokemon.id)
-                };
-                
-                // Add sprite URLs if option is enabled
-                if (exportOptions.includeSprites && spriteUrls) {
-                  entry.spriteUrl = spriteUrls[key === 'shiny' ? 'shiny' : 'regular'];
-                }
-                
-                exportData.push(entry);
-              }
-            });
-          }
-          
-          // Add ribbons if any
-          if (exportOptions.includeRibbons && obtainedRibbons.length > 0) {
-            obtainedRibbons.forEach(ribbon => {
-              const entry = {
-                id: pokemon.id,
-                dexNum: String(pokemon.id).padStart(3, '0'),
-                name: pokemon.name.replace(/-/g, ' '),
-                form: formName === 'default' ? 'Regular' : formatFormName(formName),
-                caught: 'Yes',
-                status: `Ribbon: ${formatRibbonName(ribbon.id)} (${ribbon.status})`,
-                types: pokemon.types?.join('/') || '',
-                generation: getGeneration(pokemon.id)
-              };
-              
-              // Add sprite URLs if option is enabled
-              if (exportOptions.includeSprites && spriteUrls) {
-                entry.spriteUrl = spriteUrls.regular;
-              }
-              
-              exportData.push(entry);
-            });
-          }
-          
-          // Add marks if any
-          if (exportOptions.includeMarks && obtainedMarks.length > 0) {
-            obtainedMarks.forEach(mark => {
-              const entry = {
-                id: pokemon.id,
-                dexNum: String(pokemon.id).padStart(3, '0'),
-                name: pokemon.name.replace(/-/g, ' '),
-                form: formName === 'default' ? 'Regular' : formatFormName(formName),
-                caught: 'Yes',
-                status: `Mark: ${formatMarkName(mark.id)} (${mark.status})`,
-                types: pokemon.types?.join('/') || '',
-                generation: getGeneration(pokemon.id)
-              };
-              
-              // Add sprite URLs if option is enabled
-              if (exportOptions.includeSprites && spriteUrls) {
-                entry.spriteUrl = spriteUrls.regular;
-              }
-              
-              exportData.push(entry);
-            });
-          }
-        } 
         // For simple format, combine all statuses into a single entry
-        else {
-          const formStatuses = [];
-          if (status.regular && exportOptions.includeRegular) formStatuses.push('Regular');
-          if (status.shiny && exportOptions.includeShiny) formStatuses.push('Shiny');
-          
-          if (exportOptions.includeSpecialForms) {
-            if (status.alpha) formStatuses.push('Alpha');
-            if (status.alphaShiny) formStatuses.push('Alpha Shiny');
-            if (status.mega) formStatuses.push('Mega');
-            if (status.megaShiny) formStatuses.push('Mega Shiny');
-            if (status.gmax) formStatuses.push('Gigantamax');
-            if (status.gmaxShiny) formStatuses.push('Gigantamax Shiny');
-          }
-          
-          if (exportOptions.includeGameVersions) {
-            if (status.home) formStatuses.push('HOME');
-            if (status.swsh) formStatuses.push('SwSh');
-            if (status.bdsp) formStatuses.push('BDSP');
-            if (status.pla) formStatuses.push('PLA');
-            if (status.sv) formStatuses.push('SV');
-          }
-          
-          if (exportOptions.includeCustomTags) {
-            if (status.livingDex) formStatuses.push('Living');
-            if (status.competitive) formStatuses.push('Competitive');
-            if (status.favorite) formStatuses.push('Favorite');
-          }
-          
-          // Add ribbons and marks to the status list
-          if (exportOptions.includeRibbons && obtainedRibbons.length > 0) {
-            const obtainedCount = obtainedRibbons.filter(r => r.status === 'Obtained').length;
-            const missingCount = obtainedRibbons.filter(r => r.status === 'Missing').length;
+        const formStatuses = [];
+        
+        // Basic tracking info
+        if (status.caught === true && exportOptions.includeRegular) formStatuses.push('Regular');
+        if (status.shiny === true && exportOptions.includeShiny) formStatuses.push('Shiny');
+        if (status.alpha === true && exportOptions.includeSpecialForms) formStatuses.push('Alpha');
+        if (status.alphaShiny === true && exportOptions.includeSpecialForms) formStatuses.push('Alpha Shiny');
+        
+        // Handle special forms if enabled
+        if (exportOptions.includeSpecialForms) {
+          if (status.mega) formStatuses.push('Mega');
+          if (status.megaShiny) formStatuses.push('Mega Shiny');
+          if (status.gmax) formStatuses.push('Gigantamax');
+          if (status.gmaxShiny) formStatuses.push('Gigantamax Shiny');
+        }
+        
+        // Handle game versions if enabled
+        if (exportOptions.includeGameVersions) {
+          // Check stored generations
+          if (status.generations && typeof status.generations === 'object') {
+            const activeGens = Object.entries(status.generations)
+              .filter(([_, isActive]) => isActive === true)
+              .map(([gen, _]) => {
+                // Map generation codes to readable names
+                const genNames = {
+                  'gen6': 'Gen 6',
+                  'gen7': 'Gen 7',
+                  'gen8_swsh': 'Sword/Shield',
+                  'gen8_bdsp': 'BD/SP',
+                  'gen8_pla': 'Legends Arceus',
+                  'gen9': 'Scarlet/Violet',
+                  'vc': 'Virtual Console',
+                  'lgpe': 'Let\'s Go',
+                  'go': 'Pokémon GO'
+                };
+                return genNames[gen] || gen;
+              });
             
-            if (obtainedCount > 0) {
-              formStatuses.push(`Ribbons: ${obtainedCount} obtained`);
-            }
-            if (missingCount > 0) {
-              formStatuses.push(`Ribbons: ${missingCount} missing`);
+            if (activeGens.length > 0) {
+              formStatuses.push(`Games: ${activeGens.join(', ')}`);
             }
           }
           
-          if (exportOptions.includeMarks && obtainedMarks.length > 0) {
-            const obtainedCount = obtainedMarks.filter(m => m.status === 'Obtained').length;
-            const missingCount = obtainedMarks.filter(m => m.status === 'Missing').length;
+          // Legacy format or explicit game flags
+          if (status.home) formStatuses.push('HOME');
+          if (status.swsh) formStatuses.push('SwSh');
+          if (status.bdsp) formStatuses.push('BDSP');
+          if (status.pla) formStatuses.push('PLA');
+          if (status.sv) formStatuses.push('SV');
+        }
+        
+        // Handle custom tags if enabled
+        if (exportOptions.includeCustomTags) {
+          if (status.livingDex) formStatuses.push('Living');
+          if (status.competitive) formStatuses.push('Competitive');
+          if (status.favorite) formStatuses.push('Favorite');
+        }
+        
+        // Handle ribbons and marks if enabled
+        if (exportOptions.includeRibbons && status.ribbons && typeof status.ribbons === 'object') {
+          const ribbonData = Object.entries(status.ribbons)
+            .filter(([_, ribbonStatus]) => ribbonStatus === true || ribbonStatus === 'obtained')
+            .map(([ribbonId, _]) => ribbonId);
             
-            if (obtainedCount > 0) {
-              formStatuses.push(`Marks: ${obtainedCount} obtained`);
-            }
-            if (missingCount > 0) {
-              formStatuses.push(`Marks: ${missingCount} missing`);
+          if (ribbonData.length > 0) {
+            formStatuses.push(`Ribbons: ${ribbonData.length}`);
+          }
+        }
+        
+        if (exportOptions.includeMarks && status.marks && typeof status.marks === 'object') {
+          const markData = Object.entries(status.marks)
+            .filter(([_, markStatus]) => markStatus === true || markStatus === 'obtained')
+            .map(([markId, _]) => markId);
+            
+          if (markData.length > 0) {
+            formStatuses.push(`Marks: ${markData.length}`);
+          }
+        }
+        
+        // Add to export data if we have statuses or including uncaught
+        if (formStatuses.length > 0 || exportOptions.includeUncaught) {
+          const exportEntry = {
+            id: pokemon.id,
+            dexNum: String(pokemon.id).padStart(3, '0'),
+            name: pokemon.name.replace(/-/g, ' '),
+            form: formName === 'default' ? 'Regular' : formatFormName(formName),
+            types: pokemon.types?.join('/') || '',
+            generation: getGeneration(pokemon.id),
+            caught: (status.caught || status.shiny) ? 'Yes' : 'No',
+            shiny: status.shiny ? 'Yes' : 'No',
+            caughtStatus: formStatuses.length > 0 ? formStatuses.join(', ') : 'Not Caught'
+          };
+          
+          // Add sprite URLs if option is enabled
+          if (exportOptions.includeSprites && spriteUrls) {
+            if (status.shiny) {
+              exportEntry.spriteUrl = spriteUrls.shiny;
+            } else {
+              exportEntry.spriteUrl = spriteUrls.regular;
             }
           }
           
-          // Add to export data if we have statuses or if including uncaught
-          if (formStatuses.length > 0 || exportOptions.includeUncaught) {
-            const exportEntry = {
-              id: pokemon.id,
-              dexNum: String(pokemon.id).padStart(3, '0'),
-              name: pokemon.name.replace(/-/g, ' '),
-              form: formName === 'default' ? 'Regular' : formatFormName(formName),
-              types: pokemon.types?.join('/') || '',
-              generation: getGeneration(pokemon.id),
-              caughtStatus: formStatuses.length > 0 ? formStatuses.join(', ') : 'Not Caught'
-            };
-            
-            // Add sprite URLs if option is enabled
-            if (exportOptions.includeSprites && spriteUrls) {
-              if (formStatuses.includes('Shiny')) {
-                exportEntry.spriteUrl = spriteUrls.shiny;
-              } else {
-                exportEntry.spriteUrl = spriteUrls.regular;
-              }
-            }
-            
-            // Add specific ribbons and marks data for JSON and HTML exports
-            if (exportType !== 'csv') {
-              if (exportOptions.includeRibbons && obtainedRibbons.length > 0) {
-                exportEntry.ribbons = obtainedRibbons.map(ribbon => ({
-                  name: formatRibbonName(ribbon.id),
-                  status: ribbon.status
-                }));
-              }
-              
-              if (exportOptions.includeMarks && obtainedMarks.length > 0) {
-                exportEntry.marks = obtainedMarks.map(mark => ({
-                  name: formatMarkName(mark.id),
-                  status: mark.status
-                }));
-              }
-            }
-            
-            exportData.push(exportEntry);
-          }
+          exportData.push(exportEntry);
         }
       });
+    }
+    
+    // If no data after processing, alert and return
+    if (exportData.length === 0) {
+      alert('No data to export');
+      return;
     }
     
     // Export the data in the chosen format
@@ -399,12 +201,10 @@ const EnhancedExport = ({ caughtData, pokemonData }) => {
       // Add data rows
       exportData.forEach(entry => {
         const row = headers.map(header => {
-          // Handle special formatting for status field
-          if (header === 'status' && entry[header] && (entry[header].startsWith('Ribbon:') || entry[header].startsWith('Mark:'))) {
-            // Format as "Type: Name (Status)" for better readability
-            return `"${entry[header]}"`;
-          }
-          return entry[header] ? `"${entry[header]}"` : '""';
+          // Get value or empty string
+          const value = entry[header] || '';
+          // Properly escape value for CSV
+          return `"${String(value).replace(/"/g, '""')}"`;
         });
         csv += row.join(',') + '\n';
       });
@@ -419,27 +219,10 @@ const EnhancedExport = ({ caughtData, pokemonData }) => {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      URL.revokeObjectURL(url);
     } else if (exportType === 'json') {
-      // For JSON export, ensure we're handling the new status format
-      const jsonData = exportData.map(entry => {
-        const jsonEntry = { ...entry };
-        
-        // Convert status field to a more structured format if it's a ribbon or mark
-        if (entry.status && (entry.status.startsWith('Ribbon:') || entry.status.startsWith('Mark:'))) {
-          const statusParts = entry.status.match(/(Ribbon|Mark): (.+) \((.+)\)/);
-          if (statusParts) {
-            const [, type, name, status] = statusParts;
-            jsonEntry.statusType = type.toLowerCase();
-            jsonEntry.statusName = name;
-            jsonEntry.statusValue = status;
-          }
-        }
-        
-        return jsonEntry;
-      });
-      
-      // Create and download the JSON file
-      const blob = new Blob([JSON.stringify(jsonData, null, 2)], { type: 'application/json' });
+      // For JSON export
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.setAttribute('href', url);
@@ -448,6 +231,7 @@ const EnhancedExport = ({ caughtData, pokemonData }) => {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      URL.revokeObjectURL(url);
     } else if (exportType === 'html') {
       // For HTML export
       if (exportData.length === 0) {

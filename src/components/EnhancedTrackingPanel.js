@@ -45,11 +45,24 @@ const EnhancedTrackingPanel = ({
   // Handle option click with local state update
   const handleOptionClick = (optionId) => {
     const newStatus = !formStatus[optionId];
+    
     // Update local state immediately for visual feedback
-    setLocalStatus(prev => ({
-      ...prev,
-      [optionId]: newStatus
-    }));
+    setLocalStatus(prev => {
+      if (optionId.startsWith('gen') || optionId === 'vc' || optionId === 'lgpe' || optionId === 'go') {
+        return {
+          ...prev,
+          generations: {
+            ...(prev.generations || {}),
+            [optionId]: !formStatus.generations?.[optionId]
+          }
+        };
+      }
+      return {
+        ...prev,
+        [optionId]: newStatus
+      };
+    });
+    
     // Call the parent update function
     updateCaughtStatus(optionId, formName);
   };
@@ -142,6 +155,12 @@ const EnhancedTrackingPanel = ({
 
   // Get the effective status (either from local state or props)
   const getEffectiveStatus = (optionId) => {
+    if (optionId.startsWith('gen') || optionId === 'vc' || optionId === 'lgpe' || optionId === 'go') {
+      // Check generations object for these options
+      return localStatus.generations?.[optionId] !== undefined 
+        ? localStatus.generations[optionId] 
+        : formStatus.generations?.[optionId] || false;
+    }
     return localStatus[optionId] !== undefined ? localStatus[optionId] : formStatus[optionId];
   };
 
@@ -186,14 +205,19 @@ const EnhancedTrackingPanel = ({
         </button>
         {expandedSection === 'generation' && (
           <div className="mt-2 grid grid-cols-1 gap-2">
-            {generationOptions.map((option) => (
-              <TrackingOption
-                key={option.id}
-                {...option}
-                isActive={getEffectiveStatus(option.id)}
-                onClick={() => handleOptionClick(option.id)}
-              />
-            ))}
+            {generationOptions.map((option) => {
+              // Check if this generation is selected by looking at the generations object
+              const isSelected = formStatus.generations && formStatus.generations[option.id] === true;
+              
+              return (
+                <TrackingOption
+                  key={option.id}
+                  {...option}
+                  isActive={isSelected}
+                  onClick={() => handleOptionClick(option.id)}
+                />
+              );
+            })}
           </div>
         )}
       </div>
