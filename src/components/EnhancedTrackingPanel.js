@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import OriginMarks from './OriginMarks';
+import Image from 'next/image';
 
 // Replace Heroicons with simple SVG components
 const PlusIcon = () => (
@@ -22,7 +23,7 @@ const CheckIcon = () => (
   </svg>
 );
 
-const TrackingOption = ({ label, isActive, onClick, color = "green" }) => {
+const TrackingOption = ({ label, isActive, onClick, color = "green", icon = null, description = null }) => {
   const colorClasses = {
     green: "bg-green-500 text-white",
     yellow: "bg-yellow-500 text-black",
@@ -38,7 +39,23 @@ const TrackingOption = ({ label, isActive, onClick, color = "green" }) => {
         isActive ? colorClasses[color] : "bg-gray-700 hover:bg-gray-600 text-gray-300"
       }`}
     >
-      <span>{label}</span>
+      <div className="flex items-center gap-2">
+        <span>{label}</span>
+        {icon && (
+          <div className="w-4 h-4 flex items-center justify-center">
+            <Image
+              src={icon}
+              alt={`${label} mark`}
+              width={12}
+              height={12}
+              className="object-contain"
+            />
+          </div>
+        )}
+        {description && (
+          <span className="text-xs opacity-75">({description})</span>
+        )}
+      </div>
       {isActive && <CheckIcon />}
     </button>
   );
@@ -72,17 +89,73 @@ const EnhancedTrackingPanel = ({
     { id: "alphaShiny", label: "Alpha Shiny", color: "purple" },
   ];
 
+  const generationOptions = [
+    { 
+      id: "xyoras",
+      label: "Generation 6",
+      description: "X/Y/ORAS",
+      color: "blue",
+      icon: "/img/origin-marks/pentagon.png"
+    },
+    { 
+      id: "sumo",
+      label: "Generation 7",
+      description: "Sun/Moon/USUM",
+      color: "blue",
+      icon: "/img/origin-marks/clover.png"
+    },
+    { 
+      id: "vc",
+      label: "Virtual Console",
+      description: "Gen 1-2",
+      color: "blue",
+      icon: "/img/origin-marks/GB.png"
+    },
+    { 
+      id: "lgpe",
+      label: "Let's Go",
+      description: "Pikachu/Eevee",
+      color: "blue",
+      icon: "/img/origin-marks/LetsGo.png"
+    },
+    { 
+      id: "swsh",
+      label: "Generation 8",
+      description: "Sword/Shield",
+      color: "blue",
+      icon: "/img/origin-marks/galar.png"
+    },
+    { 
+      id: "bdsp",
+      label: "Generation 8",
+      description: "BD/SP",
+      color: "blue",
+      icon: "/img/origin-marks/bdsp.png"
+    },
+    { 
+      id: "pla",
+      label: "Generation 8",
+      description: "Legends: Arceus",
+      color: "blue",
+      icon: "/img/origin-marks/arceus.png"
+    },
+    { 
+      id: "sv",
+      label: "Generation 9",
+      description: "Scarlet/Violet",
+      color: "blue",
+      icon: "/img/origin-marks/paldea.png"
+    },
+    { 
+      id: "go",
+      label: "Pokémon GO",
+      color: "blue",
+      icon: "/img/origin-marks/GO.png"
+    }
+  ];
+
   const gameOptions = [
     { id: "home", label: "Pokémon HOME", color: "blue" },
-    { id: "xyoras", label: "X/Y/ORAS", color: "blue", generation: 6 },
-    { id: "sumo", label: "Sun/Moon/USUM", color: "blue", generation: 7 },
-    { id: "vc", label: "Virtual Console", color: "blue", description: "Gen 1-2" },
-    { id: "go", label: "Pokémon GO", color: "blue" },
-    { id: "lgpe", label: "Let's Go P/E", color: "blue" },
-    { id: "swsh", label: "Sword/Shield", color: "blue" },
-    { id: "bdsp", label: "BD/SP", color: "blue" },
-    { id: "pla", label: "Legends: Arceus", color: "blue" },
-    { id: "sv", label: "Scarlet/Violet", color: "blue" },
   ];
 
   const customOptions = [
@@ -109,16 +182,41 @@ const EnhancedTrackingPanel = ({
           {basicOptions.map((option) => (
             <TrackingOption
               key={option.id}
-              label={option.label}
+              {...option}
               isActive={formStatus[option.id]}
               onClick={() => updateCaughtStatus(option.id, formName)}
-              color={option.color}
             />
           ))}
         </div>
       </div>
 
-      {/* Collapsible Sections */}
+      {/* Generation Section */}
+      <div className="mb-2">
+        <button
+          onClick={() => toggleSection('generation')}
+          className="flex items-center justify-between w-full px-3 py-2 bg-gray-800 rounded-md"
+        >
+          <span className="font-medium">Generation of Origin</span>
+          {expandedSection === 'generation' ? (
+            <MinusIcon />
+          ) : (
+            <PlusIcon />
+          )}
+        </button>
+        {expandedSection === 'generation' && (
+          <div className="mt-2 grid grid-cols-1 gap-2">
+            {generationOptions.map((option) => (
+              <TrackingOption
+                key={option.id}
+                {...option}
+                isActive={formStatus[option.id]}
+                onClick={() => updateCaughtStatus(option.id, formName)}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
       {/* Special Forms Section */}
       <div className="mb-2">
         <button
@@ -137,10 +235,9 @@ const EnhancedTrackingPanel = ({
             {specialOptions.map((option) => (
               <TrackingOption
                 key={option.id}
-                label={option.label}
+                {...option}
                 isActive={formStatus[option.id]}
                 onClick={() => updateCaughtStatus(option.id, formName)}
-                color={option.color}
               />
             ))}
           </div>
@@ -153,7 +250,7 @@ const EnhancedTrackingPanel = ({
           onClick={() => toggleSection('games')}
           className="flex items-center justify-between w-full px-3 py-2 bg-gray-800 rounded-md"
         >
-          <span className="font-medium">Game Versions</span>
+          <span className="font-medium">Additional Game Versions</span>
           {expandedSection === 'games' ? (
             <MinusIcon />
           ) : (
@@ -165,10 +262,9 @@ const EnhancedTrackingPanel = ({
             {gameOptions.map((option) => (
               <TrackingOption
                 key={option.id}
-                label={option.label}
+                {...option}
                 isActive={formStatus[option.id]}
                 onClick={() => updateCaughtStatus(option.id, formName)}
-                color={option.color}
               />
             ))}
           </div>
