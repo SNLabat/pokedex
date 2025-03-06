@@ -2605,7 +2605,7 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
   const resistances = getResistances(types);
   const immunities = getImmunities(types);
   
-  // Update caught status to include ribbons and marks
+  // Update caught status to include ribbons, marks, and generation tracking
   const updateCaughtStatus = (statusType, formName = 'default') => {
     if (!pokemon) return;
     
@@ -2622,37 +2622,91 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
         caughtData[pokemon.id][formName] = {};
       }
 
-      // Initialize origin marks if needed
+      // Initialize tracking fields if needed
       if (!caughtData[pokemon.id][formName].originMarks) {
         caughtData[pokemon.id][formName].originMarks = {};
       }
-      
-      // Handle origin marks when game version is toggled
-      const originMarkMap = {
-        'xyoras': 'pentagon-symbol', // Gen 6 Pentagon
-        'sumo': 'clover-symbol',     // Gen 7 Clover
-        'vc': 'gameboy-symbol',      // Virtual Console GB mark
-        'go': 'go-symbol',           // Pokemon GO mark
-        'lgpe': 'lets-go-symbol',    // Let's Go mark
-        'swsh': 'galar-symbol',      // Gen 8 Galar symbol
-        'bdsp': 'sinnoh-symbol',     // Gen 8 BDSP symbol
-        'pla': 'arceus-symbol',      // Gen 8 PLA symbol
-        'sv': 'paldea-symbol',       // Gen 9 SV symbol
-      };
-
-      if (originMarkMap[statusType]) {
-        // Toggle the origin mark along with the game version
-        if (!caughtData[pokemon.id][formName][statusType]) {
-          // If turning on the game version, add its origin mark
-          caughtData[pokemon.id][formName].originMarks[originMarkMap[statusType]] = true;
-        } else {
-          // If turning off the game version, remove its origin mark
-          delete caughtData[pokemon.id][formName].originMarks[originMarkMap[statusType]];
-        }
+      if (!caughtData[pokemon.id][formName].generation) {
+        caughtData[pokemon.id][formName].generation = null;
       }
       
-      // Toggle the status
-      caughtData[pokemon.id][formName][statusType] = !caughtData[pokemon.id][formName][statusType];
+      // Map of generations to their game versions and origin marks
+      const generationMap = {
+        'gen6': {
+          versions: ['xyoras'],
+          mark: 'pentagon-symbol',
+          games: 'X/Y/ORAS'
+        },
+        'gen7': {
+          versions: ['sumo'],
+          mark: 'clover-symbol',
+          games: 'Sun/Moon/USUM'
+        },
+        'vc': {
+          versions: ['vc'],
+          mark: 'gameboy-symbol',
+          games: 'Virtual Console (Gen 1-2)'
+        },
+        'lgpe': {
+          versions: ['lgpe'],
+          mark: 'lets-go-symbol',
+          games: 'Let\'s Go P/E'
+        },
+        'gen8_swsh': {
+          versions: ['swsh'],
+          mark: 'galar-symbol',
+          games: 'Sword/Shield'
+        },
+        'gen8_bdsp': {
+          versions: ['bdsp'],
+          mark: 'sinnoh-symbol',
+          games: 'Brilliant Diamond/Shining Pearl'
+        },
+        'gen8_pla': {
+          versions: ['pla'],
+          mark: 'arceus-symbol',
+          games: 'Legends: Arceus'
+        },
+        'gen9': {
+          versions: ['sv'],
+          mark: 'paldea-symbol',
+          games: 'Scarlet/Violet'
+        },
+        'go': {
+          versions: ['go'],
+          mark: 'go-symbol',
+          games: 'Pokémon GO'
+        }
+      };
+
+      // Handle generation selection
+      if (statusType.startsWith('gen')) {
+        const genInfo = generationMap[statusType];
+        if (genInfo) {
+          // Toggle generation
+          const newGeneration = caughtData[pokemon.id][formName].generation === statusType ? null : statusType;
+          caughtData[pokemon.id][formName].generation = newGeneration;
+
+          // Clear all origin marks first
+          caughtData[pokemon.id][formName].originMarks = {};
+
+          // If a generation is selected, set its origin mark
+          if (newGeneration) {
+            caughtData[pokemon.id][formName].originMarks[genInfo.mark] = true;
+            // Set caught status to true when a generation is selected
+            caughtData[pokemon.id][formName].caught = true;
+          }
+
+          // Update version flags based on generation
+          genInfo.versions.forEach(version => {
+            caughtData[pokemon.id][formName][version] = newGeneration !== null;
+          });
+        }
+      } 
+      // Handle basic tracking options
+      else if (['caught', 'shiny', 'alpha'].includes(statusType)) {
+        caughtData[pokemon.id][formName][statusType] = !caughtData[pokemon.id][formName][statusType];
+      }
       
       // Update state and localStorage
       setCaughtStatus(caughtData[pokemon.id]);
@@ -3170,46 +3224,15 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
           <div style={cardStyle} className="rounded-lg p-6">
             <h2 className="text-xl font-bold mb-6">Collection Tracking</h2>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6">
               {/* Default Form */}
               <div className="bg-gray-700 rounded-lg p-4">
                 <h3 className="text-lg font-medium mb-3">Default Form</h3>
-                <div className="flex flex-col space-y-3">
-                  <div className="flex items-center">
-                    <button
-                      onClick={() => updateCaughtStatus('caught', 'default')}
-                      className={`flex-1 py-2 rounded-lg mr-2 ${
-                        caughtStatus['default']?.caught 
-                          ? 'bg-green-600 text-white' 
-                          : 'bg-gray-600 hover:bg-gray-500'
-                      }`}
-                    >
-                      {caughtStatus['default']?.caught ? 'Caught ✓' : 'Mark as Caught'}
-                    </button>
-                    
-                    <button
-                      onClick={() => updateCaughtStatus('shiny', 'default')}
-                      className={`flex-1 py-2 rounded-lg ${
-                        caughtStatus['default']?.shiny
-                          ? 'bg-yellow-500 text-black'
-                          : 'bg-gray-600 hover:bg-gray-500'
-                      }`}
-                    >
-                      {caughtStatus['default']?.shiny ? 'Shiny ✓' : 'Mark as Shiny'}
-                    </button>
-                          </div>
-                  
-                  <button
-                    onClick={() => updateCaughtStatus('alpha', 'default')}
-                    className={`py-2 rounded-lg ${
-                      caughtStatus['default']?.alpha
-                        ? 'bg-purple-600 text-white'
-                        : 'bg-gray-600 hover:bg-gray-500'
-                    }`}
-                  >
-                    {caughtStatus['default']?.alpha ? 'Alpha ✓' : 'Mark as Alpha'}
-                  </button>
-                        </div>
+                <EnhancedTrackingPanel
+                  caughtStatus={caughtStatus['default']}
+                  onUpdateStatus={(type, value) => updateCaughtStatus(type, 'default')}
+                  mainTypeColor={mainTypeColor}
+                />
               </div>
               
               {/* Alternative Forms */}
@@ -3249,49 +3272,18 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
                       </div>
                     </div>
                     
-                    <div className="flex flex-col space-y-3">
-                      <div className="flex items-center">
-                        <button
-                          onClick={() => updateCaughtStatus('caught', formName)}
-                          className={`flex-1 py-2 rounded-lg mr-2 ${
-                            caughtStatus[formName]?.caught 
-                              ? 'bg-green-600 text-white' 
-                              : 'bg-gray-600 hover:bg-gray-500'
-                          }`}
-                        >
-                          {caughtStatus[formName]?.caught ? 'Caught ✓' : 'Mark as Caught'}
-                        </button>
-                        
-                        <button
-                          onClick={() => updateCaughtStatus('shiny', formName)}
-                          className={`flex-1 py-2 rounded-lg ${
-                            caughtStatus[formName]?.shiny
-                              ? 'bg-yellow-500 text-black'
-                              : 'bg-gray-600 hover:bg-gray-500'
-                          }`}
-                        >
-                          {caughtStatus[formName]?.shiny ? 'Shiny ✓' : 'Mark as Shiny'}
-                        </button>
-                      </div>
-                      
-                      <button
-                        onClick={() => updateCaughtStatus('alpha', formName)}
-                        className={`py-2 rounded-lg ${
-                          caughtStatus[formName]?.alpha
-                            ? 'bg-purple-600 text-white'
-                            : 'bg-gray-600 hover:bg-gray-500'
-                        }`}
-                      >
-                        {caughtStatus[formName]?.alpha ? 'Alpha ✓' : 'Mark as Alpha'}
-                      </button>
-                    </div>
+                    <EnhancedTrackingPanel
+                      caughtStatus={caughtStatus[formName]}
+                      onUpdateStatus={(type, value) => updateCaughtStatus(type, formName)}
+                      mainTypeColor={mainTypeColor}
+                    />
                   </div>
                 );
               })}
-                          </div>
-                        </div>
-                      )}
-          
+            </div>
+          </div>
+        )}
+        
         {activeTab === 'ribbons' && (
           <div style={cardStyle} className="rounded-lg p-6">
             <RibbonsTab 
