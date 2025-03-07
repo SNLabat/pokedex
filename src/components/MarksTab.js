@@ -264,24 +264,11 @@ const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus, mainTypeColor }) =>
                   {statusStyles.label}
                 </span>
               </div>
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-gray-400">{mark.description}</p>
-                {mark.category && (
-                  <span className="text-xs px-2 py-0.5 bg-gray-700 rounded-full capitalize ml-2">
-                    {mark.category}
-                  </span>
-                )}
-              </div>
+              <p className="text-sm text-gray-400">{mark.description}</p>
             </div>
           );
         })}
       </div>
-      
-      {filteredMarks.length === 0 && (
-        <div className="text-center py-8 text-gray-400">
-          No marks found matching your filters.
-        </div>
-      )}
     </div>
   );
 };

@@ -4,6 +4,9 @@ import { useRouter } from 'next/router';
 import OriginMarks from './OriginMarks';
 import TrackingOption from './TrackingOption';
 import Image from 'next/image';
+// Import RibbonsTab and MarksTab components
+import RibbonsTab from './RibbonsTab';
+import MarksTab from './MarksTab';
 
 // Replace Heroicons with simple SVG components
 const PlusIcon = () => (
@@ -66,7 +69,9 @@ const EnhancedTrackingPanel = ({
   updateCaughtStatus,
   caughtStatus,
   theme,
-  pokemon // Add pokemon prop to access sprite data
+  pokemon, // Add pokemon prop to access sprite data
+  updateRibbonStatus, // Add updateRibbonStatus prop
+  updateMarkStatus // Add updateMarkStatus prop
 }) => {
   const [expandedSection, setExpandedSection] = useState('visual'); // Default to visual section open
   const [localStatus, setLocalStatus] = useState(caughtStatus[formName] || {});
@@ -541,6 +546,32 @@ const EnhancedTrackingPanel = ({
           Shinies
         </button>
         <button
+          onClick={() => {
+            setExpandedSection('visual');
+            setSelectedVisualTab('ribbons');
+          }}
+          className={`px-4 py-2 text-sm font-medium ${
+            expandedSection === 'visual' && selectedVisualTab === 'ribbons' 
+              ? 'border-b-2 border-blue-500 text-blue-400' 
+              : 'text-gray-400 hover:text-gray-300'
+          }`}
+        >
+          Ribbons
+        </button>
+        <button
+          onClick={() => {
+            setExpandedSection('visual');
+            setSelectedVisualTab('marks');
+          }}
+          className={`px-4 py-2 text-sm font-medium ${
+            expandedSection === 'visual' && selectedVisualTab === 'marks' 
+              ? 'border-b-2 border-blue-500 text-blue-400' 
+              : 'text-gray-400 hover:text-gray-300'
+          }`}
+        >
+          Marks
+        </button>
+        <button
           onClick={() => setExpandedSection(expandedSection === 'options' ? null : 'options')}
           className={`px-4 py-2 text-sm font-medium ${
             expandedSection === 'options' 
@@ -582,6 +613,18 @@ const EnhancedTrackingPanel = ({
               className={`px-3 py-2 text-sm ${selectedVisualTab === 'shinies' ? 'border-b-2 border-blue-500 font-medium' : 'text-gray-400'}`}
             >
               Shinies
+            </button>
+            <button
+              onClick={() => setSelectedVisualTab('ribbons')}
+              className={`px-3 py-2 text-sm ${selectedVisualTab === 'ribbons' ? 'border-b-2 border-blue-500 font-medium' : 'text-gray-400'}`}
+            >
+              Ribbons
+            </button>
+            <button
+              onClick={() => setSelectedVisualTab('marks')}
+              className={`px-3 py-2 text-sm ${selectedVisualTab === 'marks' ? 'border-b-2 border-blue-500 font-medium' : 'text-gray-400'}`}
+            >
+              Marks
             </button>
           </div>
           
@@ -864,6 +907,30 @@ const EnhancedTrackingPanel = ({
                   />
                 </div>
               </div>
+            </div>
+          )}
+          
+          {/* Ribbons Tab Content */}
+          {selectedVisualTab === 'ribbons' && (
+            <div className="space-y-4">
+              <RibbonsTab 
+                pokemon={pokemon} 
+                caughtStatus={caughtStatus} 
+                updateRibbonStatus={updateRibbonStatus} 
+                mainTypeColor={theme}
+              />
+            </div>
+          )}
+          
+          {/* Marks Tab Content */}
+          {selectedVisualTab === 'marks' && (
+            <div className="space-y-4">
+              <MarksTab 
+                pokemon={pokemon} 
+                caughtStatus={caughtStatus} 
+                updateMarkStatus={updateMarkStatus} 
+                mainTypeColor={theme}
+              />
             </div>
           )}
         </div>

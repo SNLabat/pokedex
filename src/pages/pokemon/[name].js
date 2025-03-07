@@ -3362,6 +3362,8 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
                       formName="default"
                       caughtStatus={caughtStatus}
                       updateCaughtStatus={updateCaughtStatus}
+                      updateRibbonStatus={updateRibbonStatus}
+                      updateMarkStatus={updateMarkStatus}
                       theme={{ bg: 'bg-gray-800' }}
                       pokemon={pokemon}
                     />
@@ -3397,6 +3399,8 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
                           formName={activeFormData.name}
                           caughtStatus={caughtStatus}
                           updateCaughtStatus={updateCaughtStatus}
+                          updateRibbonStatus={updateRibbonStatus}
+                          updateMarkStatus={updateMarkStatus}
                           theme={{ bg: 'bg-gray-800' }}
                           pokemon={activeFormData}
                         />
