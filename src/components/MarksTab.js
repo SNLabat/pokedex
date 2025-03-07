@@ -19,16 +19,9 @@ const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus, mainTypeColor }) =>
     setFailedImages({});
   }, []);
   
-  // Mark icons mapping - including all marks with appropriate fallbacks
+  // Mark icons mapping - only including marks that exist in Scarlet & Violet according to Serebii
   const markIcons = {
-    'lunchtime-mark': { icon: '/img/Ribbons-Marks/lunchtimemark.png', color: '#FFAA33', fallback: '🍱' },
-    'sleepy-time-mark': { icon: '/img/Ribbons-Marks/sleepytimemark.png', color: '#7766EE', fallback: '😴' },
-    'sleepy-mark': { icon: '/img/Ribbons-Marks/sleepymark.png', color: '#7766EE', fallback: '😴' },
-    'lively-mark': { icon: '/img/Ribbons-Marks/livelymark.png', color: '#FFAA33', fallback: '😊' },
-    'dusk-mark': { icon: '/img/Ribbons-Marks/duskmark.png', color: '#7766EE', fallback: '🌆' },
-    'dawn-mark': { icon: '/img/Ribbons-Marks/dawnmark.png', color: '#FFAA33', fallback: '🌅' },
-    'day-mark': { icon: '/img/Ribbons-Marks/daymark.png', color: '#FFAA33', fallback: '☀️' },
-    'night-mark': { icon: '/img/Ribbons-Marks/nightmark.png', color: '#7766EE', fallback: '🌙' },
+    // Weather Marks
     'cloudy-mark': { icon: '/img/Ribbons-Marks/cloudymark.png', color: '#33AADD', fallback: '☁️' },
     'rainy-mark': { icon: '/img/Ribbons-Marks/rainymark.png', color: '#33AADD', fallback: '🌧️' },
     'stormy-mark': { icon: '/img/Ribbons-Marks/stormymark.png', color: '#7766EE', fallback: '⛈️' },
@@ -37,11 +30,25 @@ const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus, mainTypeColor }) =>
     'dry-mark': { icon: '/img/Ribbons-Marks/drymark.png', color: '#FF5544', fallback: '🏜️' },
     'sandstorm-mark': { icon: '/img/Ribbons-Marks/sandstormmark.png', color: '#FFAA33', fallback: '🏜️' },
     'misty-mark': { icon: '/img/Ribbons-Marks/mistymark.png', color: '#33AADD', fallback: '🌫️' },
-    'destiny-mark': { icon: '/img/Ribbons-Marks/destinymark.png', color: '#FFCC33', fallback: '✨' },
+    
+    // Time Marks
+    'dawn-mark': { icon: '/img/Ribbons-Marks/dawnmark.png', color: '#FFAA33', fallback: '🌅' },
+    'day-mark': { icon: '/img/Ribbons-Marks/daymark.png', color: '#FFAA33', fallback: '☀️' },
+    'dusk-mark': { icon: '/img/Ribbons-Marks/duskmark.png', color: '#7766EE', fallback: '🌆' },
+    'night-mark': { icon: '/img/Ribbons-Marks/nightmark.png', color: '#7766EE', fallback: '🌙' },
+    
+    // Method Marks
     'fishing-mark': { icon: '/img/Ribbons-Marks/fishingmark.png', color: '#33AADD', fallback: '🎣' },
     'curry-mark': { icon: '/img/Ribbons-Marks/currymark.png', color: '#FFAA33', fallback: '🍛' },
+    'lunchtime-mark': { icon: '/img/Ribbons-Marks/lunchtimemark.png', color: '#FFAA33', fallback: '🍱' },
+    'sleepy-time-mark': { icon: '/img/Ribbons-Marks/sleepytimemark.png', color: '#7766EE', fallback: '😴' },
+    'destiny-mark': { icon: '/img/Ribbons-Marks/destinymark.png', color: '#FFCC33', fallback: '✨' },
+    
+    // Rare Marks
     'uncommon-mark': { icon: '/img/Ribbons-Marks/uncommonmark.png', color: '#33AA66', fallback: '⭐' },
     'rare-mark': { icon: '/img/Ribbons-Marks/raremark.png', color: '#33AADD', fallback: '⭐⭐' },
+    
+    // Personality Marks
     'rowdy-mark': { icon: '/img/Ribbons-Marks/rowdymark.png', color: '#FF5544', fallback: '😤' },
     'absent-minded-mark': { icon: '/img/Ribbons-Marks/absent-mindedmark.png', color: '#7766EE', fallback: '🤔' },
     'jittery-mark': { icon: '/img/Ribbons-Marks/jitterymark.png', color: '#FF5544', fallback: '😰' },
@@ -69,47 +76,12 @@ const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus, mainTypeColor }) =>
     'humble-mark': { icon: '/img/Ribbons-Marks/humblemark.png', color: '#33AA66', fallback: '🙏' },
     'thorny-mark': { icon: '/img/Ribbons-Marks/thornymark.png', color: '#FF5544', fallback: '🌵' },
     'vigor-mark': { icon: '/img/Ribbons-Marks/vigormark.png', color: '#FF5544', fallback: '💪' },
-    'slump-mark': { icon: '/img/Ribbons-Marks/slumpmark.png', color: '#7766EE', fallback: '😞' },
-    'worried-mark': { icon: '/img/Ribbons-Marks/worriedmark.png', color: '#7766EE', fallback: '😟' },
-    'shield-mark': { icon: '/img/Ribbons-Marks/shieldmark.png', color: '#33AADD', fallback: '🛡️' },
-    'sword-mark': { icon: '/img/Ribbons-Marks/swordmark.png', color: '#FF5544', fallback: '⚔️' },
-    'champion-mark': { icon: '/img/Ribbons-Marks/championmark.png', color: '#FFCC33', fallback: '🏆' },
-    'battle-tree-great-mark': { icon: '/img/Ribbons-Marks/battletreegreatmark.png', color: '#33AA66', fallback: '🌲' },
-    'battle-tree-master-mark': { icon: '/img/Ribbons-Marks/battletreemastermark.png', color: '#FFCC33', fallback: '🌲' },
-    'furious-mark': { icon: '/img/Ribbons-Marks/furiousmark.png', color: '#FF5544', fallback: '😡' }
+    'slump-mark': { icon: '/img/Ribbons-Marks/slumpmark.png', color: '#7766EE', fallback: '😞' }
   };
   
-  // Initialize marks data
+  // Initialize marks data - only including marks that exist in Scarlet & Violet according to Serebii
   const marks = [
-    // Mood Marks
-    { id: 'lively-mark', name: 'Lively Mark', description: 'A mark that shows this Pokémon is lively.', category: 'mood' },
-    { id: 'sleepy-mark', name: 'Sleepy Mark', description: 'A mark that shows this Pokémon is sleepy.', category: 'mood' },
-    { id: 'excited-mark', name: 'Excited Mark', description: 'A mark that shows this Pokémon is excited.', category: 'mood' },
-    { id: 'worried-mark', name: 'Worried Mark', description: 'A mark that shows this Pokémon is worried.', category: 'mood' },
-    { id: 'angry-mark', name: 'Angry Mark', description: 'A mark that shows this Pokémon is angry.', category: 'mood' },
-    { id: 'teary-mark', name: 'Teary Mark', description: 'A mark that shows this Pokémon is teary.', category: 'mood' },
-    { id: 'upbeat-mark', name: 'Upbeat Mark', description: 'A mark that shows this Pokémon is upbeat.', category: 'mood' },
-    { id: 'peeved-mark', name: 'Peeved Mark', description: 'A mark that shows this Pokémon is peeved.', category: 'mood' },
-    { id: 'intellectual-mark', name: 'Intellectual Mark', description: 'A mark that shows this Pokémon is intellectual.', category: 'mood' },
-    { id: 'ferocious-mark', name: 'Ferocious Mark', description: 'A mark that shows this Pokémon is ferocious.', category: 'mood' },
-    { id: 'crafty-mark', name: 'Crafty Mark', description: 'A mark that shows this Pokémon is crafty.', category: 'mood' },
-    { id: 'scowling-mark', name: 'Scowling Mark', description: 'A mark that shows this Pokémon is scowling.', category: 'mood' },
-    { id: 'kindly-mark', name: 'Kindly Mark', description: 'A mark that shows this Pokémon is kindly.', category: 'mood' },
-    { id: 'flustered-mark', name: 'Flustered Mark', description: 'A mark that shows this Pokémon is flustered.', category: 'mood' },
-    { id: 'pumped-up-mark', name: 'Pumped-Up Mark', description: 'A mark that shows this Pokémon is pumped-up.', category: 'mood' },
-    { id: 'zero-energy-mark', name: 'Zero Energy Mark', description: 'A mark that shows this Pokémon has zero energy.', category: 'mood' },
-    { id: 'prideful-mark', name: 'Prideful Mark', description: 'A mark that shows this Pokémon is prideful.', category: 'mood' },
-    { id: 'unsure-mark', name: 'Unsure Mark', description: 'A mark that shows this Pokémon is unsure.', category: 'mood' },
-    { id: 'humble-mark', name: 'Humble Mark', description: 'A mark that shows this Pokémon is humble.', category: 'mood' },
-    { id: 'thorny-mark', name: 'Thorny Mark', description: 'A mark that shows this Pokémon is thorny.', category: 'mood' },
-    { id: 'vigor-mark', name: 'Vigor Mark', description: 'A mark that shows this Pokémon has vigor.', category: 'mood' },
-    { id: 'slump-mark', name: 'Slump Mark', description: 'A mark that shows this Pokémon is in a slump.', category: 'mood' },
-    
-    // Time Marks
-    { id: 'dawn-mark', name: 'Dawn Mark', description: 'A mark that shows this Pokémon was caught in the early morning.', category: 'time' },
-    { id: 'day-mark', name: 'Day Mark', description: 'A mark that shows this Pokémon was caught during the day.', category: 'time' },
-    { id: 'dusk-mark', name: 'Dusk Mark', description: 'A mark that shows this Pokémon was caught in the evening.', category: 'time' },
-    { id: 'night-mark', name: 'Night Mark', description: 'A mark that shows this Pokémon was caught at night.', category: 'time' },
+    // Weather Marks
     { id: 'cloudy-mark', name: 'Cloudy Mark', description: 'A mark that shows this Pokémon was caught on a cloudy day.', category: 'weather' },
     { id: 'rainy-mark', name: 'Rainy Mark', description: 'A mark that shows this Pokémon was caught on a rainy day.', category: 'weather' },
     { id: 'stormy-mark', name: 'Stormy Mark', description: 'A mark that shows this Pokémon was caught on a stormy day.', category: 'weather' },
@@ -118,37 +90,62 @@ const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus, mainTypeColor }) =>
     { id: 'dry-mark', name: 'Dry Mark', description: 'A mark that shows this Pokémon was caught on a very dry day.', category: 'weather' },
     { id: 'sandstorm-mark', name: 'Sandstorm Mark', description: 'A mark that shows this Pokémon was caught on a sandstorm day.', category: 'weather' },
     { id: 'misty-mark', name: 'Misty Mark', description: 'A mark that shows this Pokémon was caught on a misty day.', category: 'weather' },
+    
+    // Time Marks
+    { id: 'dawn-mark', name: 'Dawn Mark', description: 'A mark that shows this Pokémon was caught in the early morning.', category: 'time' },
+    { id: 'day-mark', name: 'Day Mark', description: 'A mark that shows this Pokémon was caught during the day.', category: 'time' },
+    { id: 'dusk-mark', name: 'Dusk Mark', description: 'A mark that shows this Pokémon was caught in the evening.', category: 'time' },
+    { id: 'night-mark', name: 'Night Mark', description: 'A mark that shows this Pokémon was caught at night.', category: 'time' },
+    
+    // Method Marks
     { id: 'fishing-mark', name: 'Fishing Mark', description: 'A mark that shows this Pokémon was caught while fishing.', category: 'method' },
     { id: 'curry-mark', name: 'Curry Mark', description: 'A mark that shows this Pokémon joined after eating curry.', category: 'method' },
+    { id: 'lunchtime-mark', name: 'Lunchtime Mark', description: 'A mark that shows this Pokémon was caught during lunchtime.', category: 'method' },
+    { id: 'sleepy-time-mark', name: 'Sleepy-Time Mark', description: 'A mark that shows this Pokémon was caught while sleeping.', category: 'method' },
+    { id: 'destiny-mark', name: 'Destiny Mark', description: 'A mark that shows this Pokémon was destined to be caught.', category: 'method' },
     
     // Rare Marks
     { id: 'uncommon-mark', name: 'Uncommon Mark', description: 'A mark that shows this Pokémon is somewhat special.', category: 'rare' },
     { id: 'rare-mark', name: 'Rare Mark', description: 'A mark that shows this Pokémon is quite special.', category: 'rare' },
-    { id: 'rowdy-mark', name: 'Rowdy Mark', description: 'A mark that shows this Pokémon is rowdy.', category: 'rare' },
-    { id: 'absent-minded-mark', name: 'Absent-Minded Mark', description: 'A mark that shows this Pokémon is absent-minded.', category: 'rare' },
-    { id: 'jittery-mark', name: 'Jittery Mark', description: 'A mark that shows this Pokémon is jittery.', category: 'rare' },
-    { id: 'excited-mark', name: 'Excited Mark', description: 'A mark that shows this Pokémon is excited.', category: 'rare' },
-    { id: 'charismatic-mark', name: 'Charismatic Mark', description: 'A mark that shows this Pokémon is charismatic.', category: 'rare' },
-    { id: 'calmness-mark', name: 'Calmness Mark', description: 'A mark that shows this Pokémon has calmness.', category: 'rare' },
-    { id: 'intense-mark', name: 'Intense Mark', description: 'A mark that shows this Pokémon is intense.', category: 'rare' },
-    { id: 'zoned-out-mark', name: 'Zoned-Out Mark', description: 'A mark that shows this Pokémon is zoned-out.', category: 'rare' },
-    { id: 'joyful-mark', name: 'Joyful Mark', description: 'A mark that shows this Pokémon is joyful.', category: 'rare' },
-    { id: 'furious-mark', name: 'Furious Mark', description: 'A mark that shows this Pokémon is furious.', category: 'rare' },
-    { id: 'shield-mark', name: 'Shield Mark', description: 'A mark that shows this Pokémon is from Galar.', category: 'special' },
-    { id: 'sword-mark', name: 'Sword Mark', description: 'A mark that shows this Pokémon is from Galar.', category: 'special' },
-    { id: 'champion-mark', name: 'Champion Mark', description: 'A mark that shows this Pokémon was defeated as the Champion.', category: 'special' },
-    { id: 'battle-tree-great-mark', name: 'Battle Tree Great Mark', description: 'A mark that shows this Pokémon has great achievements in the Battle Tree.', category: 'special' },
-    { id: 'battle-tree-master-mark', name: 'Battle Tree Master Mark', description: 'A mark that shows this Pokémon has master achievements in the Battle Tree.', category: 'special' }
+    
+    // Personality Marks
+    { id: 'rowdy-mark', name: 'Rowdy Mark', description: 'A mark that shows this Pokémon is rowdy.', category: 'personality' },
+    { id: 'absent-minded-mark', name: 'Absent-Minded Mark', description: 'A mark that shows this Pokémon is absent-minded.', category: 'personality' },
+    { id: 'jittery-mark', name: 'Jittery Mark', description: 'A mark that shows this Pokémon is jittery.', category: 'personality' },
+    { id: 'excited-mark', name: 'Excited Mark', description: 'A mark that shows this Pokémon is excited.', category: 'personality' },
+    { id: 'charismatic-mark', name: 'Charismatic Mark', description: 'A mark that shows this Pokémon is charismatic.', category: 'personality' },
+    { id: 'calmness-mark', name: 'Calmness Mark', description: 'A mark that shows this Pokémon has calmness.', category: 'personality' },
+    { id: 'intense-mark', name: 'Intense Mark', description: 'A mark that shows this Pokémon is intense.', category: 'personality' },
+    { id: 'zoned-out-mark', name: 'Zoned-Out Mark', description: 'A mark that shows this Pokémon is zoned-out.', category: 'personality' },
+    { id: 'joyful-mark', name: 'Joyful Mark', description: 'A mark that shows this Pokémon is joyful.', category: 'personality' },
+    { id: 'angry-mark', name: 'Angry Mark', description: 'A mark that shows this Pokémon is angry.', category: 'personality' },
+    { id: 'smiley-mark', name: 'Smiley Mark', description: 'A mark that shows this Pokémon is smiley.', category: 'personality' },
+    { id: 'teary-mark', name: 'Teary Mark', description: 'A mark that shows this Pokémon is teary.', category: 'personality' },
+    { id: 'upbeat-mark', name: 'Upbeat Mark', description: 'A mark that shows this Pokémon is upbeat.', category: 'personality' },
+    { id: 'peeved-mark', name: 'Peeved Mark', description: 'A mark that shows this Pokémon is peeved.', category: 'personality' },
+    { id: 'intellectual-mark', name: 'Intellectual Mark', description: 'A mark that shows this Pokémon is intellectual.', category: 'personality' },
+    { id: 'ferocious-mark', name: 'Ferocious Mark', description: 'A mark that shows this Pokémon is ferocious.', category: 'personality' },
+    { id: 'crafty-mark', name: 'Crafty Mark', description: 'A mark that shows this Pokémon is crafty.', category: 'personality' },
+    { id: 'scowling-mark', name: 'Scowling Mark', description: 'A mark that shows this Pokémon is scowling.', category: 'personality' },
+    { id: 'kindly-mark', name: 'Kindly Mark', description: 'A mark that shows this Pokémon is kindly.', category: 'personality' },
+    { id: 'flustered-mark', name: 'Flustered Mark', description: 'A mark that shows this Pokémon is flustered.', category: 'personality' },
+    { id: 'pumped-up-mark', name: 'Pumped-Up Mark', description: 'A mark that shows this Pokémon is pumped-up.', category: 'personality' },
+    { id: 'zero-energy-mark', name: 'Zero Energy Mark', description: 'A mark that shows this Pokémon has zero energy.', category: 'personality' },
+    { id: 'prideful-mark', name: 'Prideful Mark', description: 'A mark that shows this Pokémon is prideful.', category: 'personality' },
+    { id: 'unsure-mark', name: 'Unsure Mark', description: 'A mark that shows this Pokémon is unsure.', category: 'personality' },
+    { id: 'humble-mark', name: 'Humble Mark', description: 'A mark that shows this Pokémon is humble.', category: 'personality' },
+    { id: 'thorny-mark', name: 'Thorny Mark', description: 'A mark that shows this Pokémon is thorny.', category: 'personality' },
+    { id: 'vigor-mark', name: 'Vigor Mark', description: 'A mark that shows this Pokémon has vigor.', category: 'personality' },
+    { id: 'slump-mark', name: 'Slump Mark', description: 'A mark that shows this Pokémon is in a slump.', category: 'personality' }
   ];
 
   // Group marks by category for better organization
   const marksByCategory = {
-    'mood': marks.filter(m => !m.category || m.category === 'mood'),
-    'time': marks.filter(m => m.category === 'time'),
     'weather': marks.filter(m => m.category === 'weather'),
+    'time': marks.filter(m => m.category === 'time'),
     'method': marks.filter(m => m.category === 'method'),
     'rare': marks.filter(m => m.category === 'rare'),
-    'special': marks.filter(m => m.category === 'special')
+    'personality': marks.filter(m => m.category === 'personality')
   };
 
   // Handle image error with retry mechanism
