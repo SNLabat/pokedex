@@ -2633,50 +2633,76 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
       
       // Map of generations to their game versions and origin marks
       const generationMap = {
+        // Generations with origin marks
         'gen6': {
           versions: ['xyoras'],
           mark: 'pentagon-symbol',
-          games: 'X/Y/ORAS'
+          games: 'X/Y/ORAS',
+          hasMark: true
         },
         'gen7': {
           versions: ['sumo'],
           mark: 'clover-symbol',
-          games: 'Sun/Moon/USUM'
+          games: 'Sun/Moon/USUM',
+          hasMark: true
         },
         'vc': {
           versions: ['vc'],
           mark: 'gameboy-symbol',
-          games: 'Virtual Console (Gen 1-2)'
+          games: 'Virtual Console (Gen 1-2)',
+          hasMark: true
         },
         'lgpe': {
           versions: ['lgpe'],
           mark: 'lets-go-symbol',
-          games: 'Let\'s Go P/E'
+          games: 'Let\'s Go P/E',
+          hasMark: true
         },
         'gen8_swsh': {
           versions: ['swsh'],
           mark: 'galar-symbol',
-          games: 'Sword/Shield'
+          games: 'Sword/Shield',
+          hasMark: true
         },
         'gen8_bdsp': {
           versions: ['bdsp'],
           mark: 'sinnoh-symbol',
-          games: 'Brilliant Diamond/Shining Pearl'
+          games: 'Brilliant Diamond/Shining Pearl',
+          hasMark: true
         },
         'gen8_pla': {
           versions: ['pla'],
           mark: 'arceus-symbol',
-          games: 'Legends: Arceus'
+          games: 'Legends: Arceus',
+          hasMark: true
         },
         'gen9': {
           versions: ['sv'],
           mark: 'paldea-symbol',
-          games: 'Scarlet/Violet'
+          games: 'Scarlet/Violet',
+          hasMark: true
         },
         'go': {
           versions: ['go'],
           mark: 'go-symbol',
-          games: 'Pokémon GO'
+          games: 'Pokémon GO',
+          hasMark: true
+        },
+        // Generations without origin marks
+        'gen3': {
+          versions: ['rse', 'frlg'],
+          games: 'Ruby/Sapphire/Emerald/FireRed/LeafGreen',
+          hasMark: false
+        },
+        'gen4': {
+          versions: ['dppt', 'hgss'],
+          games: 'Diamond/Pearl/Platinum/HeartGold/SoulSilver',
+          hasMark: false
+        },
+        'gen5': {
+          versions: ['bw', 'b2w2'],
+          games: 'Black/White/Black 2/White 2',
+          hasMark: false
         }
       };
 
@@ -2688,8 +2714,10 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
           const isCurrentlySelected = !!caughtData[pokemon.id][formName].generations[statusType];
           caughtData[pokemon.id][formName].generations[statusType] = !isCurrentlySelected;
           
-          // Toggle the associated mark
-          caughtData[pokemon.id][formName].originMarks[genInfo.mark] = !isCurrentlySelected;
+          // Toggle the associated mark (if this generation has one)
+          if (genInfo.hasMark && genInfo.mark) {
+            caughtData[pokemon.id][formName].originMarks[genInfo.mark] = !isCurrentlySelected;
+          }
           
           // Toggle version flags
           genInfo.versions.forEach(version => {

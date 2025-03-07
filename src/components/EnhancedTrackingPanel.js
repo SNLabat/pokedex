@@ -117,99 +117,187 @@ const EnhancedTrackingPanel = ({
     { id: "alphaShiny", label: "Alpha Shiny", color: "purple" },
   ];
 
+  // Organize generations by actual generation number
   const generationOptions = [
+    // Generation 1-2 (Game Boy)
+    { 
+      id: "vc",
+      label: "Generation 1-2",
+      description: "Virtual Console",
+      games: "Red/Blue/Yellow/Gold/Silver/Crystal",
+      color: "blue",
+      icon: "/img/origin-marks/GB.png",
+      sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-ii/crystal/${pokemonId}.png`,
+      hasMark: true,
+      markName: "Game Boy",
+      generation: 1,
+      maxPokemonId: 251
+    },
+    // Generation 3 (No Mark)
+    { 
+      id: "gen3",
+      label: "Generation 3",
+      description: "Ruby/Sapphire/Emerald/FireRed/LeafGreen",
+      games: "Ruby/Sapphire/Emerald/FireRed/LeafGreen",
+      color: "blue",
+      sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-iii/emerald/${pokemonId}.png`,
+      hasMark: false,
+      generation: 3,
+      maxPokemonId: 386
+    },
+    // Generation 4 (No Mark)
+    { 
+      id: "gen4",
+      label: "Generation 4",
+      description: "Diamond/Pearl/Platinum/HeartGold/SoulSilver",
+      games: "Diamond/Pearl/Platinum/HeartGold/SoulSilver",
+      color: "blue",
+      sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-iv/platinum/${pokemonId}.png`,
+      hasMark: false,
+      generation: 4,
+      maxPokemonId: 493
+    },
+    // Generation 5 (No Mark)
+    { 
+      id: "gen5",
+      label: "Generation 5",
+      description: "Black/White/Black 2/White 2",
+      games: "Black/White/Black 2/White 2",
+      color: "blue",
+      sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/${pokemonId}.png`,
+      hasMark: false,
+      generation: 5,
+      maxPokemonId: 649
+    },
+    // Generation 6 (Pentagon)
     { 
       id: "gen6",
       label: "Generation 6",
-      description: "X/Y/ORAS",
+      description: "X/Y/Omega Ruby/Alpha Sapphire",
+      games: "X/Y/Omega Ruby/Alpha Sapphire",
       color: "blue",
       icon: "/img/origin-marks/pentagon.png",
-      sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-vi/x-y/${pokemonId}.png`
+      sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-vi/x-y/${pokemonId}.png`,
+      hasMark: true,
+      markName: "Pentagon",
+      generation: 6,
+      maxPokemonId: 721
     },
+    // Generation 7 (Clover)
     { 
       id: "gen7",
       label: "Generation 7",
-      description: "Sun/Moon/USUM",
+      description: "Sun/Moon/Ultra Sun/Ultra Moon",
+      games: "Sun/Moon/Ultra Sun/Ultra Moon",
       color: "blue",
       icon: "/img/origin-marks/clover.png",
-      sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/${pokemonId}.png`
+      sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/${pokemonId}.png`,
+      hasMark: true,
+      markName: "Clover",
+      generation: 7,
+      maxPokemonId: 809
     },
-    { 
-      id: "vc",
-      label: "Virtual Console",
-      description: "Gen 1-2",
-      color: "blue",
-      icon: "/img/origin-marks/GB.png",
-      sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-ii/crystal/${pokemonId}.png`
-    },
+    // Let's Go (Let's Go Mark)
     { 
       id: "lgpe",
       label: "Let's Go",
       description: "Pikachu/Eevee",
+      games: "Let's Go Pikachu/Let's Go Eevee",
       color: "blue",
       icon: "/img/origin-marks/LetsGo.png",
-      sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-vii/icons/${pokemonId}.png`
+      sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-vii/icons/${pokemonId}.png`,
+      hasMark: true,
+      markName: "Let's Go",
+      generation: 7.5,
+      maxPokemonId: 151, // Only Gen 1 Pokémon + Meltan/Melmetal
+      specialCase: true
     },
+    // Generation 8 - Sword/Shield (Galar)
     { 
       id: "gen8_swsh",
       label: "Generation 8",
       description: "Sword/Shield",
+      games: "Sword/Shield",
       color: "blue",
       icon: "/img/origin-marks/galar.png",
-      sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-viii/icons/${pokemonId}.png`
+      sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-viii/icons/${pokemonId}.png`,
+      hasMark: true,
+      markName: "Galar",
+      generation: 8,
+      maxPokemonId: 898
     },
+    // Generation 8 - BDSP (BDSP Mark)
     { 
       id: "gen8_bdsp",
       label: "Generation 8",
-      description: "BD/SP",
+      description: "Brilliant Diamond/Shining Pearl",
+      games: "Brilliant Diamond/Shining Pearl",
       color: "blue",
       icon: "/img/origin-marks/bdsp.png",
-      sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemonId}.png`
+      sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemonId}.png`,
+      hasMark: true,
+      markName: "BDSP",
+      generation: 8.5,
+      maxPokemonId: 493, // Only Gen 1-4 Pokémon
+      specialCase: true
     },
+    // Generation 8 - Legends Arceus (Arceus Mark)
     { 
       id: "gen8_pla",
       label: "Generation 8",
       description: "Legends: Arceus",
+      games: "Legends: Arceus",
       color: "blue",
       icon: "/img/origin-marks/arceus.png",
-      sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemonId}.png`
+      sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemonId}.png`,
+      hasMark: true,
+      markName: "Arceus",
+      generation: 8.7,
+      maxPokemonId: 493, // Mostly Gen 1-4 Pokémon with some exceptions
+      specialCase: true
     },
+    // Generation 9 (Paldea)
     { 
       id: "gen9",
       label: "Generation 9",
       description: "Scarlet/Violet",
+      games: "Scarlet/Violet",
       color: "blue",
       icon: "/img/origin-marks/paldea.png",
-      sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemonId}.png`
+      sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemonId}.png`,
+      hasMark: true,
+      markName: "Paldea",
+      generation: 9,
+      maxPokemonId: 1010
     },
+    // Pokémon GO (GO Mark)
     { 
       id: "go",
       label: "Pokémon GO",
+      description: "Mobile Game",
+      games: "Pokémon GO",
       color: "blue",
       icon: "/img/origin-marks/GO.png",
-      sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemonId}.png`
+      sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemonId}.png`,
+      hasMark: true,
+      markName: "GO",
+      generation: 0, // Special case
+      specialCase: true
     }
   ];
 
   // Filter generations based on Pokémon ID
   const availableGenerations = generationOptions.filter(gen => {
-    if (gen.id === "go") return true; // GO is available for all Pokémon
+    if (gen.specialCase) {
+      // Special cases like GO, Let's Go, BDSP, PLA
+      if (gen.id === "go") return true; // GO is available for all Pokémon
+      if (gen.id === "lgpe" && pokemonId <= 151) return true; // Let's Go only has Gen 1 + Meltan/Melmetal
+      if ((gen.id === "gen8_bdsp" || gen.id === "gen8_pla") && pokemonId <= 493) return true; // BDSP and PLA have Gen 1-4
+      return false;
+    }
     
-    // For other generations, check if the Pokémon exists in that generation
-    const genNumber = parseInt(gen.id.replace(/gen(\d+).*/, '$1'));
-    const maxIds = {
-      1: 151,    // Gen 1: 151 Pokémon
-      2: 251,    // Gen 2: 100 new Pokémon
-      3: 386,    // Gen 3: 135 new Pokémon
-      4: 493,    // Gen 4: 107 new Pokémon
-      5: 649,    // Gen 5: 156 new Pokémon
-      6: 721,    // Gen 6: 72 new Pokémon
-      7: 809,    // Gen 7: 88 new Pokémon
-      8: 898,    // Gen 8: 89 new Pokémon
-      9: 1010    // Gen 9: 112 new Pokémon
-    };
-    
-    return pokemonId <= (maxIds[genNumber] || 1010);
+    // For regular generations, check if the Pokémon exists in that generation
+    return pokemonId <= gen.maxPokemonId;
   });
 
   const gameOptions = [
@@ -235,12 +323,27 @@ const EnhancedTrackingPanel = ({
   // Get shiny sprite URLs
   const getShinySprite = (genId, pokemonId) => {
     switch(genId) {
+      case 'vc':
+        return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-ii/crystal/shiny/${pokemonId}.png`;
+      case 'gen3':
+        return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-iii/emerald/shiny/${pokemonId}.png`;
+      case 'gen4':
+        return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-iv/platinum/shiny/${pokemonId}.png`;
+      case 'gen5':
+        return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/shiny/${pokemonId}.png`;
       case 'gen6':
         return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-vi/x-y/shiny/${pokemonId}.png`;
       case 'gen7':
         return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/shiny/${pokemonId}.png`;
+      case 'lgpe':
+        // Let's Go doesn't have separate shiny sprites in the API, so use the regular shiny
+        return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${pokemonId}.png`;
       case 'gen8_swsh':
         return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-viii/icons/shiny/${pokemonId}.png`;
+      case 'gen8_bdsp':
+      case 'gen8_pla':
+      case 'gen9':
+      case 'go':
       default:
         return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${pokemonId}.png`;
     }
@@ -377,36 +480,145 @@ const EnhancedTrackingPanel = ({
           {/* Generations Tab Content */}
           {selectedVisualTab === 'generations' && (
             <div className="space-y-6">
-              {/* Generation selection buttons */}
-              <div className="flex flex-wrap gap-2">
-                {availableGenerations.map((gen) => (
-                  <button
-                    key={gen.id}
-                    onClick={() => handleOptionClick(gen.id)}
-                    className={`px-3 py-1 rounded-full text-sm flex items-center gap-1
-                      ${getEffectiveStatus(gen.id)
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                      }`}
-                  >
-                    {gen.icon && (
-                      <img 
-                        src={gen.icon} 
-                        alt={`${gen.label} icon`} 
-                        className="w-4 h-4 object-contain"
-                        onError={(e) => e.target.style.display = 'none'}
-                      />
-                    )}
-                    {gen.description}
-                  </button>
-                ))}
+              {/* Generation groups */}
+              <div className="space-y-4">
+                {/* Group generations by era */}
+                <div>
+                  <h4 className="text-sm font-medium text-gray-400 mb-2">Game Boy Era (Gen 1-2)</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {availableGenerations
+                      .filter(gen => gen.generation <= 2)
+                      .map((gen) => (
+                        <button
+                          key={gen.id}
+                          onClick={() => handleOptionClick(gen.id)}
+                          className={`px-3 py-1 rounded-full text-sm flex items-center gap-1
+                            ${getEffectiveStatus(gen.id)
+                              ? 'bg-blue-600 text-white'
+                              : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                            }`}
+                          title={gen.hasMark ? `Origin Mark: ${gen.markName}` : "No Origin Mark"}
+                        >
+                          {gen.icon && (
+                            <img 
+                              src={gen.icon} 
+                              alt={`${gen.label} icon`} 
+                              className="w-4 h-4 object-contain"
+                              onError={(e) => e.target.style.display = 'none'}
+                            />
+                          )}
+                          {gen.description}
+                        </button>
+                      ))}
+                  </div>
+                </div>
+                
+                <div>
+                  <h4 className="text-sm font-medium text-gray-400 mb-2">No Origin Mark Era (Gen 3-5)</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {availableGenerations
+                      .filter(gen => gen.generation >= 3 && gen.generation <= 5)
+                      .map((gen) => (
+                        <button
+                          key={gen.id}
+                          onClick={() => handleOptionClick(gen.id)}
+                          className={`px-3 py-1 rounded-full text-sm flex items-center gap-1
+                            ${getEffectiveStatus(gen.id)
+                              ? 'bg-blue-600 text-white'
+                              : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                            }`}
+                          title="No Origin Mark"
+                        >
+                          {gen.description}
+                        </button>
+                      ))}
+                  </div>
+                </div>
+                
+                <div>
+                  <h4 className="text-sm font-medium text-gray-400 mb-2">Modern Era (Gen 6-9)</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {availableGenerations
+                      .filter(gen => gen.generation >= 6 && gen.generation < 10 && !gen.specialCase)
+                      .map((gen) => (
+                        <button
+                          key={gen.id}
+                          onClick={() => handleOptionClick(gen.id)}
+                          className={`px-3 py-1 rounded-full text-sm flex items-center gap-1
+                            ${getEffectiveStatus(gen.id)
+                              ? 'bg-blue-600 text-white'
+                              : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                            }`}
+                          title={gen.hasMark ? `Origin Mark: ${gen.markName}` : "No Origin Mark"}
+                        >
+                          {gen.icon && (
+                            <img 
+                              src={gen.icon} 
+                              alt={`${gen.label} icon`} 
+                              className="w-4 h-4 object-contain"
+                              onError={(e) => e.target.style.display = 'none'}
+                            />
+                          )}
+                          {gen.description}
+                        </button>
+                      ))}
+                  </div>
+                </div>
+                
+                <div>
+                  <h4 className="text-sm font-medium text-gray-400 mb-2">Special Games</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {availableGenerations
+                      .filter(gen => gen.specialCase)
+                      .map((gen) => (
+                        <button
+                          key={gen.id}
+                          onClick={() => handleOptionClick(gen.id)}
+                          className={`px-3 py-1 rounded-full text-sm flex items-center gap-1
+                            ${getEffectiveStatus(gen.id)
+                              ? 'bg-blue-600 text-white'
+                              : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                            }`}
+                          title={gen.hasMark ? `Origin Mark: ${gen.markName}` : "No Origin Mark"}
+                        >
+                          {gen.icon && (
+                            <img 
+                              src={gen.icon} 
+                              alt={`${gen.label} icon`} 
+                              className="w-4 h-4 object-contain"
+                              onError={(e) => e.target.style.display = 'none'}
+                            />
+                          )}
+                          {gen.description}
+                        </button>
+                      ))}
+                  </div>
+                </div>
               </div>
               
               {/* Generation sprites grid */}
               <div className="grid grid-cols-1 gap-4">
                 {availableGenerations.filter(gen => getEffectiveStatus(gen.id)).map((gen) => (
                   <div key={gen.id} className="bg-gray-800 rounded-lg p-3">
-                    <h4 className="text-sm font-medium mb-2">{gen.label} - {gen.description}</h4>
+                    <div className="flex justify-between items-center mb-2">
+                      <h4 className="text-sm font-medium">{gen.games}</h4>
+                      {gen.hasMark && gen.icon && (
+                        <div className="flex items-center gap-1 text-xs text-gray-400">
+                          <img 
+                            src={gen.icon} 
+                            alt={`${gen.markName} mark`} 
+                            className="w-4 h-4 object-contain"
+                            onError={(e) => e.target.style.display = 'none'}
+                          />
+                          {gen.markName} Mark
+                        </div>
+                      )}
+                      {!gen.hasMark && (
+                        <div className="text-xs text-gray-400">
+                          No Origin Mark
+                        </div>
+                      )}
+                    </div>
                     <div className="grid grid-cols-2 gap-3">
                       <SpriteSelector
                         src={gen.sprite}
