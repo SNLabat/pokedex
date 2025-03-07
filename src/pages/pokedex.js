@@ -108,7 +108,7 @@ export default function PokedexPage({ initialPokemon }) {
     };
     
     fetchData();
-  }, [selectedGen, router.query]);
+  }, [router.query.gen]);
   
   // Apply search filters
   const handleSearch = (filters) => {
