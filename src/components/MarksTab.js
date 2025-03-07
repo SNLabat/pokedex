@@ -5,7 +5,6 @@ const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus, mainTypeColor }) =>
   const [failedImages, setFailedImages] = useState({});
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchText, setSearchText] = useState('');
-  const [retryCount, setRetryCount] = useState({});
   
   // Use theme color from pokemon's main type or default to green
   const themeColor = mainTypeColor || { 
@@ -18,24 +17,9 @@ const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus, mainTypeColor }) =>
   useEffect(() => {
     // Reset failed images when component mounts or when marks change
     setFailedImages({});
-    setRetryCount({});
-    
-    // Preload images for all marks
-    marks.forEach(mark => {
-      const iconData = markIcons[mark.id] || { 
-        icon: `/img/Ribbons-Marks/${mark.id.replace(/-/g, '')}mark.png`,
-        color: '#99CCFF', 
-        fallback: '❓'
-      };
-      
-      if (iconData.icon) {
-        const img = new Image();
-        img.src = iconData.icon;
-      }
-    });
   }, []);
   
-  // Mark icons mapping
+  // Mark icons mapping - including all marks with appropriate fallbacks
   const markIcons = {
     'lunchtime-mark': { icon: '/img/Ribbons-Marks/lunchtimemark.png', color: '#FFAA33', fallback: '🍱' },
     'sleepy-time-mark': { icon: '/img/Ribbons-Marks/sleepytimemark.png', color: '#7766EE', fallback: '😴' },
@@ -169,43 +153,7 @@ const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus, mainTypeColor }) =>
 
   // Handle image error with retry mechanism
   const handleImageError = (markId) => {
-    // Check if we've already tried to load this image
-    const currentRetryCount = retryCount[markId] || 0;
-    
-    if (currentRetryCount < 3) {
-      // Increment retry count
-      setRetryCount(prev => ({ ...prev, [markId]: currentRetryCount + 1 }));
-      
-      // Try alternative image formats based on retry count
-      const iconData = markIcons[markId];
-      if (iconData && iconData.icon) {
-        let newPath = iconData.icon;
-        
-        if (currentRetryCount === 0) {
-          // First retry: If the image path contains "mark.png", try with "ribbon.png" instead
-          if (iconData.icon.includes('mark.png')) {
-            newPath = iconData.icon.replace('mark.png', 'ribbon.png');
-          }
-        } else if (currentRetryCount === 1) {
-          // Second retry: Try with different casing (Mark instead of mark)
-          if (iconData.icon.includes('mark.png')) {
-            newPath = iconData.icon.replace('mark.png', 'Mark.png');
-          } else if (iconData.icon.includes('ribbon.png')) {
-            newPath = iconData.icon.replace('ribbon.png', 'Ribbon.png');
-          }
-        } else if (currentRetryCount === 2) {
-          // Third retry: Try with the mark ID directly
-          newPath = `/img/Ribbons-Marks/${markId.replace(/-/g, '')}.png`;
-        }
-        
-        if (newPath !== iconData.icon) {
-          markIcons[markId].icon = newPath;
-          return; // Don't set as failed yet, try the alternative path
-        }
-      }
-    }
-    
-    // If we've exhausted retries or no alternative format is available, mark as failed
+    // Simply mark the image as failed so we can use the fallback
     setFailedImages(prev => ({ ...prev, [markId]: true }));
   };
 
@@ -330,8 +278,7 @@ const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus, mainTypeColor }) =>
                       height={40}
                       className="object-contain"
                       onError={() => handleImageError(mark.id)}
-                      key={`${mark.id}-${retryCount[mark.id] || 0}`}
-                      priority={true}
+                      unoptimized={true}
                     />
                   )}
                 </div>
