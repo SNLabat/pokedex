@@ -89,15 +89,24 @@ const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus, mainTypeColor }
 
   // Get the ribbon status for the current Pokémon
   const getRibbonStatus = (ribbonId) => {
-    if (!caughtStatus || !caughtStatus.default || !caughtStatus.default.ribbons) {
-      return 'unchecked';
+    // Check if caughtStatus has ribbons directly
+    if (caughtStatus && caughtStatus.ribbons && caughtStatus.ribbons[ribbonId] !== undefined) {
+      const status = caughtStatus.ribbons[ribbonId];
+      if (status === true) return 'obtained';
+      if (status === false) return 'missing';
+      return status;
     }
     
-    const status = caughtStatus.default.ribbons[ribbonId];
-    if (status === undefined) return 'unchecked';
-    if (status === true) return 'obtained';
-    if (status === false) return 'missing';
-    return status; // In case it's already using the string values
+    // Check if caughtStatus has default form with ribbons
+    if (caughtStatus && caughtStatus.default && caughtStatus.default.ribbons && caughtStatus.default.ribbons[ribbonId] !== undefined) {
+      const status = caughtStatus.default.ribbons[ribbonId];
+      if (status === true) return 'obtained';
+      if (status === false) return 'missing';
+      return status;
+    }
+    
+    // Default to unchecked if no status found
+    return 'unchecked';
   };
 
   // Cycle through ribbon statuses: unchecked -> missing -> obtained -> unchecked

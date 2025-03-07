@@ -90,15 +90,24 @@ const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus, mainTypeColor }) =>
 
   // Get the mark status for the current Pokémon
   const getMarkStatus = (markId) => {
-    if (!caughtStatus || !caughtStatus.default || !caughtStatus.default.marks) {
-      return 'unchecked';
+    // Check if caughtStatus has marks directly
+    if (caughtStatus && caughtStatus.marks && caughtStatus.marks[markId] !== undefined) {
+      const status = caughtStatus.marks[markId];
+      if (status === true) return 'obtained';
+      if (status === false) return 'missing';
+      return status;
     }
     
-    const status = caughtStatus.default.marks[markId];
-    if (status === undefined) return 'unchecked';
-    if (status === true) return 'obtained';
-    if (status === false) return 'missing';
-    return status; // In case it's already using the string values
+    // Check if caughtStatus has default form with marks
+    if (caughtStatus && caughtStatus.default && caughtStatus.default.marks && caughtStatus.default.marks[markId] !== undefined) {
+      const status = caughtStatus.default.marks[markId];
+      if (status === true) return 'obtained';
+      if (status === false) return 'missing';
+      return status;
+    }
+    
+    // Default to unchecked if no status found
+    return 'unchecked';
   };
 
   // Cycle through mark statuses: unchecked -> missing -> obtained -> unchecked
