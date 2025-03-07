@@ -5,6 +5,12 @@ const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus, mainTypeColor }
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchText, setSearchText] = useState('');
   const [clickedRibbon, setClickedRibbon] = useState(null);
+  const [localCaughtStatus, setLocalCaughtStatus] = useState(caughtStatus);
+  
+  // Update local state when caughtStatus changes
+  useEffect(() => {
+    setLocalCaughtStatus(caughtStatus);
+  }, [caughtStatus]);
   
   // Use theme color from pokemon's main type or default to indigo
   const themeColor = mainTypeColor || { 
@@ -89,17 +95,17 @@ const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus, mainTypeColor }
 
   // Get the ribbon status for the current Pokémon
   const getRibbonStatus = (ribbonId) => {
-    // Check if caughtStatus has ribbons directly
-    if (caughtStatus && caughtStatus.ribbons && caughtStatus.ribbons[ribbonId] !== undefined) {
-      const status = caughtStatus.ribbons[ribbonId];
+    // Check if localCaughtStatus has ribbons directly
+    if (localCaughtStatus && localCaughtStatus.ribbons && localCaughtStatus.ribbons[ribbonId] !== undefined) {
+      const status = localCaughtStatus.ribbons[ribbonId];
       if (status === true) return 'obtained';
       if (status === false) return 'missing';
       return status;
     }
     
-    // Check if caughtStatus has default form with ribbons
-    if (caughtStatus && caughtStatus.default && caughtStatus.default.ribbons && caughtStatus.default.ribbons[ribbonId] !== undefined) {
-      const status = caughtStatus.default.ribbons[ribbonId];
+    // Check if localCaughtStatus has default form with ribbons
+    if (localCaughtStatus && localCaughtStatus.default && localCaughtStatus.default.ribbons && localCaughtStatus.default.ribbons[ribbonId] !== undefined) {
+      const status = localCaughtStatus.default.ribbons[ribbonId];
       if (status === true) return 'obtained';
       if (status === false) return 'missing';
       return status;

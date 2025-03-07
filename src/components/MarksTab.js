@@ -5,6 +5,12 @@ const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus, mainTypeColor }) =>
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchText, setSearchText] = useState('');
   const [clickedMark, setClickedMark] = useState(null);
+  const [localCaughtStatus, setLocalCaughtStatus] = useState(caughtStatus);
+  
+  // Update local state when caughtStatus changes
+  useEffect(() => {
+    setLocalCaughtStatus(caughtStatus);
+  }, [caughtStatus]);
   
   // Use theme color from pokemon's main type or default to green
   const themeColor = mainTypeColor || { 
@@ -90,17 +96,17 @@ const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus, mainTypeColor }) =>
 
   // Get the mark status for the current Pokémon
   const getMarkStatus = (markId) => {
-    // Check if caughtStatus has marks directly
-    if (caughtStatus && caughtStatus.marks && caughtStatus.marks[markId] !== undefined) {
-      const status = caughtStatus.marks[markId];
+    // Check if localCaughtStatus has marks directly
+    if (localCaughtStatus && localCaughtStatus.marks && localCaughtStatus.marks[markId] !== undefined) {
+      const status = localCaughtStatus.marks[markId];
       if (status === true) return 'obtained';
       if (status === false) return 'missing';
       return status;
     }
     
-    // Check if caughtStatus has default form with marks
-    if (caughtStatus && caughtStatus.default && caughtStatus.default.marks && caughtStatus.default.marks[markId] !== undefined) {
-      const status = caughtStatus.default.marks[markId];
+    // Check if localCaughtStatus has default form with marks
+    if (localCaughtStatus && localCaughtStatus.default && localCaughtStatus.default.marks && localCaughtStatus.default.marks[markId] !== undefined) {
+      const status = localCaughtStatus.default.marks[markId];
       if (status === true) return 'obtained';
       if (status === false) return 'missing';
       return status;
