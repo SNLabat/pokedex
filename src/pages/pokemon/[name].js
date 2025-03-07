@@ -2810,34 +2810,16 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
       // Get current status
       const currentStatus = caughtData[pokemon.id][formName].ribbons[ribbonId];
       
-      // Cycle through states: undefined/null -> 'missing' -> 'obtained' -> undefined/null
-      let newStatus;
-      if (currentStatus === undefined || currentStatus === null) {
-        newStatus = 'missing';
-      } else if (currentStatus === 'missing' || currentStatus === false) {
-        newStatus = 'obtained';
-      } else if (currentStatus === 'obtained' || currentStatus === true) {
-        newStatus = undefined; // Reset to unchecked
-      } else {
-        newStatus = 'missing'; // Default if in an unexpected state
-      }
-      
-      // Update the status (or remove the property if undefined)
-      if (newStatus === undefined) {
+      // Toggle between true and undefined (checkbox checked/unchecked)
+      if (currentStatus === true) {
         delete caughtData[pokemon.id][formName].ribbons[ribbonId];
       } else {
-        caughtData[pokemon.id][formName].ribbons[ribbonId] = newStatus;
+        caughtData[pokemon.id][formName].ribbons[ribbonId] = true;
       }
       
       // Update state and localStorage
-      const newCaughtStatus = {...caughtData[pokemon.id]};
-      setCaughtStatus(newCaughtStatus);
+      setCaughtStatus({...caughtData[pokemon.id]});
       localStorage.setItem('caughtPokemon', JSON.stringify(caughtData));
-      
-      // Force a re-render by updating the state again after a short delay
-      setTimeout(() => {
-        setCaughtStatus({...newCaughtStatus});
-      }, 10);
     } catch (error) {
       console.error('Error updating ribbon status:', error);
     }
@@ -2867,34 +2849,16 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
       // Get current status
       const currentStatus = caughtData[pokemon.id][formName].marks[markId];
       
-      // Cycle through states: undefined/null -> 'missing' -> 'obtained' -> undefined/null
-      let newStatus;
-      if (currentStatus === undefined || currentStatus === null) {
-        newStatus = 'missing';
-      } else if (currentStatus === 'missing' || currentStatus === false) {
-        newStatus = 'obtained';
-      } else if (currentStatus === 'obtained' || currentStatus === true) {
-        newStatus = undefined; // Reset to unchecked
-      } else {
-        newStatus = 'missing'; // Default if in an unexpected state
-      }
-      
-      // Update the status (or remove the property if undefined)
-      if (newStatus === undefined) {
+      // Toggle between true and undefined (checkbox checked/unchecked)
+      if (currentStatus === true) {
         delete caughtData[pokemon.id][formName].marks[markId];
       } else {
-        caughtData[pokemon.id][formName].marks[markId] = newStatus;
+        caughtData[pokemon.id][formName].marks[markId] = true;
       }
       
       // Update state and localStorage
-      const newCaughtStatus = {...caughtData[pokemon.id]};
-      setCaughtStatus(newCaughtStatus);
+      setCaughtStatus({...caughtData[pokemon.id]});
       localStorage.setItem('caughtPokemon', JSON.stringify(caughtData));
-      
-      // Force a re-render by updating the state again after a short delay
-      setTimeout(() => {
-        setCaughtStatus({...newCaughtStatus});
-      }, 10);
     } catch (error) {
       console.error('Error updating mark status:', error);
     }
@@ -3425,11 +3389,7 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
           <div style={cardStyle} className="rounded-lg p-6">
             <RibbonsTab 
               pokemon={pokemon} 
-              caughtStatus={{
-                default: {
-                  ribbons: caughtStatus.default?.ribbons || {}
-                }
-              }}
+              caughtStatus={caughtStatus}
               updateRibbonStatus={updateRibbonStatus}
               mainTypeColor={mainTypeColor}
             />
@@ -3440,11 +3400,7 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
           <div style={cardStyle} className="rounded-lg p-6">
             <MarksTab 
               pokemon={pokemon} 
-              caughtStatus={{
-                default: {
-                  marks: caughtStatus.default?.marks || {}
-                }
-              }}
+              caughtStatus={caughtStatus}
               updateMarkStatus={updateMarkStatus}
               mainTypeColor={mainTypeColor}
             />
