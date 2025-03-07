@@ -74,6 +74,9 @@ export default function TeamBuilderPage() {
         
         <main className="container mx-auto px-4 py-8">
           <h1 className="text-3xl font-bold mb-6">Pokémon Team Builder</h1>
+          <p className="text-gray-400 mb-6">
+            Build your team, create an opponent team, and analyze the matchup to see your chances of winning!
+          </p>
           
           {isLoading ? (
             <div className="flex justify-center items-center h-64">

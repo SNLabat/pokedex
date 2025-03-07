@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { XCircleIcon, SaveIcon, PlusCircleIcon, ChartBarIcon, LightningBoltIcon, TrashIcon, DownloadIcon } from '@heroicons/react/outline';
+import { XCircleIcon, SaveIcon, PlusCircleIcon, ChartBarIcon, LightningBoltIcon, TrashIcon, DownloadIcon, SwitchHorizontalIcon, ShieldExclamationIcon } from '@heroicons/react/outline';
 
 // Component for a single team slot
 const TeamSlot = ({ pokemon, onRemove, index, onDragStart, onDragOver, onDrop }) => {
@@ -351,14 +351,359 @@ const TeamStats = ({ team }) => {
   );
 };
 
+// Matchup Analysis component
+const MatchupAnalysis = ({ playerTeam, opponentTeam }) => {
+  // Skip analysis if either team is empty
+  if (!playerTeam.length || !opponentTeam.length) {
+    return (
+      <div className="bg-gray-800 rounded-lg p-4">
+        <h3 className="text-lg font-medium mb-3 flex items-center">
+          <ShieldExclamationIcon className="h-5 w-5 mr-2" />
+          Team Matchup Analysis
+        </h3>
+        <p className="text-gray-400">Add Pokémon to both teams to see matchup analysis</p>
+      </div>
+    );
+  }
+
+  // Type effectiveness data
+  const typeEffectiveness = {
+    normal: { 
+      weakTo: ['fighting'], 
+      resistantTo: [], 
+      immuneTo: ['ghost'] 
+    },
+    fire: { 
+      weakTo: ['water', 'ground', 'rock'], 
+      resistantTo: ['fire', 'grass', 'ice', 'bug', 'steel', 'fairy'], 
+      immuneTo: [] 
+    },
+    water: { 
+      weakTo: ['electric', 'grass'], 
+      resistantTo: ['fire', 'water', 'ice', 'steel'], 
+      immuneTo: [] 
+    },
+    electric: { 
+      weakTo: ['ground'], 
+      resistantTo: ['electric', 'flying', 'steel'], 
+      immuneTo: [] 
+    },
+    grass: { 
+      weakTo: ['fire', 'ice', 'poison', 'flying', 'bug'], 
+      resistantTo: ['water', 'electric', 'grass', 'ground'], 
+      immuneTo: [] 
+    },
+    ice: { 
+      weakTo: ['fire', 'fighting', 'rock', 'steel'], 
+      resistantTo: ['ice'], 
+      immuneTo: [] 
+    },
+    fighting: { 
+      weakTo: ['flying', 'psychic', 'fairy'], 
+      resistantTo: ['bug', 'rock', 'dark'], 
+      immuneTo: [] 
+    },
+    poison: { 
+      weakTo: ['ground', 'psychic'], 
+      resistantTo: ['grass', 'fighting', 'poison', 'bug', 'fairy'], 
+      immuneTo: [] 
+    },
+    ground: { 
+      weakTo: ['water', 'grass', 'ice'], 
+      resistantTo: ['poison', 'rock'], 
+      immuneTo: ['electric'] 
+    },
+    flying: { 
+      weakTo: ['electric', 'ice', 'rock'], 
+      resistantTo: ['grass', 'fighting', 'bug'], 
+      immuneTo: ['ground'] 
+    },
+    psychic: { 
+      weakTo: ['bug', 'ghost', 'dark'], 
+      resistantTo: ['fighting', 'psychic'], 
+      immuneTo: [] 
+    },
+    bug: { 
+      weakTo: ['fire', 'flying', 'rock'], 
+      resistantTo: ['grass', 'fighting', 'ground'], 
+      immuneTo: [] 
+    },
+    rock: { 
+      weakTo: ['water', 'grass', 'fighting', 'ground', 'steel'], 
+      resistantTo: ['normal', 'fire', 'poison', 'flying'], 
+      immuneTo: [] 
+    },
+    ghost: { 
+      weakTo: ['ghost', 'dark'], 
+      resistantTo: ['poison', 'bug'], 
+      immuneTo: ['normal', 'fighting'] 
+    },
+    dragon: { 
+      weakTo: ['ice', 'dragon', 'fairy'], 
+      resistantTo: ['fire', 'water', 'electric', 'grass'], 
+      immuneTo: [] 
+    },
+    dark: { 
+      weakTo: ['fighting', 'bug', 'fairy'], 
+      resistantTo: ['ghost', 'dark'], 
+      immuneTo: ['psychic'] 
+    },
+    steel: { 
+      weakTo: ['fire', 'fighting', 'ground'], 
+      resistantTo: ['normal', 'grass', 'ice', 'flying', 'psychic', 'bug', 'rock', 'dragon', 'steel', 'fairy'], 
+      immuneTo: ['poison'] 
+    },
+    fairy: { 
+      weakTo: ['poison', 'steel'], 
+      resistantTo: ['fighting', 'bug', 'dark'], 
+      immuneTo: ['dragon'] 
+    }
+  };
+
+  // Calculate advantage scores for each team
+  const calculateTeamAdvantage = () => {
+    let playerScore = 0;
+    let opponentScore = 0;
+    
+    // For each player Pokémon, check effectiveness against opponent team
+    playerTeam.forEach(playerPokemon => {
+      playerPokemon.types.forEach(attackType => {
+        opponentTeam.forEach(opponentPokemon => {
+          // Check if opponent is weak to this type
+          opponentPokemon.types.forEach(defenseType => {
+            if (typeEffectiveness[defenseType].weakTo.includes(attackType)) {
+              playerScore += 1;
+            }
+            if (typeEffectiveness[defenseType].resistantTo.includes(attackType)) {
+              playerScore -= 0.5;
+            }
+            if (typeEffectiveness[defenseType].immuneTo.includes(attackType)) {
+              playerScore -= 1;
+            }
+          });
+        });
+      });
+    });
+    
+    // For each opponent Pokémon, check effectiveness against player team
+    opponentTeam.forEach(opponentPokemon => {
+      opponentPokemon.types.forEach(attackType => {
+        playerTeam.forEach(playerPokemon => {
+          // Check if player is weak to this type
+          playerPokemon.types.forEach(defenseType => {
+            if (typeEffectiveness[defenseType].weakTo.includes(attackType)) {
+              opponentScore += 1;
+            }
+            if (typeEffectiveness[defenseType].resistantTo.includes(attackType)) {
+              opponentScore -= 0.5;
+            }
+            if (typeEffectiveness[defenseType].immuneTo.includes(attackType)) {
+              opponentScore -= 1;
+            }
+          });
+        });
+      });
+    });
+    
+    return { playerScore, opponentScore };
+  };
+  
+  // Calculate win percentage based on advantage scores
+  const calculateWinPercentage = () => {
+    const { playerScore, opponentScore } = calculateTeamAdvantage();
+    
+    // Normalize scores to calculate win percentage
+    const totalScore = Math.abs(playerScore) + Math.abs(opponentScore);
+    if (totalScore === 0) return 50; // Equal teams
+    
+    // Calculate win percentage (capped between 10% and 90%)
+    let winPercentage = 50 + ((playerScore - opponentScore) / totalScore) * 40;
+    winPercentage = Math.min(90, Math.max(10, winPercentage));
+    
+    return Math.round(winPercentage);
+  };
+  
+  // Find key matchup advantages
+  const findKeyMatchups = () => {
+    const advantageMatchups = [];
+    const disadvantageMatchups = [];
+    
+    // Check each player Pokémon against opponent team
+    playerTeam.forEach(playerPokemon => {
+      opponentTeam.forEach(opponentPokemon => {
+        let advantage = 0;
+        
+        // Check player's offensive advantage
+        playerPokemon.types.forEach(attackType => {
+          opponentPokemon.types.forEach(defenseType => {
+            if (typeEffectiveness[defenseType].weakTo.includes(attackType)) {
+              advantage += 1;
+            }
+            if (typeEffectiveness[defenseType].resistantTo.includes(attackType)) {
+              advantage -= 0.5;
+            }
+            if (typeEffectiveness[defenseType].immuneTo.includes(attackType)) {
+              advantage -= 1;
+            }
+          });
+        });
+        
+        // Check opponent's offensive advantage
+        opponentPokemon.types.forEach(attackType => {
+          playerPokemon.types.forEach(defenseType => {
+            if (typeEffectiveness[defenseType].weakTo.includes(attackType)) {
+              advantage -= 1;
+            }
+            if (typeEffectiveness[defenseType].resistantTo.includes(attackType)) {
+              advantage += 0.5;
+            }
+            if (typeEffectiveness[defenseType].immuneTo.includes(attackType)) {
+              advantage += 1;
+            }
+          });
+        });
+        
+        // Record significant advantages/disadvantages
+        if (advantage >= 1.5) {
+          advantageMatchups.push({
+            player: playerPokemon,
+            opponent: opponentPokemon,
+            advantage: advantage
+          });
+        } else if (advantage <= -1.5) {
+          disadvantageMatchups.push({
+            player: playerPokemon,
+            opponent: opponentPokemon,
+            advantage: advantage
+          });
+        }
+      });
+    });
+    
+    // Sort by advantage magnitude
+    advantageMatchups.sort((a, b) => b.advantage - a.advantage);
+    disadvantageMatchups.sort((a, b) => a.advantage - b.advantage);
+    
+    return {
+      advantages: advantageMatchups.slice(0, 3), // Top 3 advantages
+      disadvantages: disadvantageMatchups.slice(0, 3) // Top 3 disadvantages
+    };
+  };
+  
+  const winPercentage = calculateWinPercentage();
+  const keyMatchups = findKeyMatchups();
+  
+  return (
+    <div className="bg-gray-800 rounded-lg p-4">
+      <h3 className="text-lg font-medium mb-3 flex items-center">
+        <ShieldExclamationIcon className="h-5 w-5 mr-2" />
+        Team Matchup Analysis
+      </h3>
+      
+      <div className="space-y-4">
+        {/* Win percentage meter */}
+        <div>
+          <h4 className="text-sm text-gray-400 mb-1">Estimated Win Chance</h4>
+          <div className="relative h-8 bg-gray-700 rounded-full overflow-hidden">
+            <div 
+              className={`absolute top-0 left-0 h-full ${winPercentage > 50 ? 'bg-green-600' : 'bg-red-600'}`}
+              style={{ width: `${winPercentage}%` }}
+            ></div>
+            <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center text-white font-medium">
+              {winPercentage}%
+            </div>
+          </div>
+        </div>
+        
+        {/* Key favorable matchups */}
+        <div>
+          <h4 className="text-sm text-gray-400 mb-1">Favorable Matchups</h4>
+          <div className="space-y-2">
+            {keyMatchups.advantages.length > 0 ? (
+              keyMatchups.advantages.map((matchup, idx) => (
+                <div key={idx} className="bg-gray-700 rounded-md p-2 flex items-center">
+                  <div className="relative w-10 h-10 flex-shrink-0">
+                    <Image
+                      src={matchup.player.sprite || `/img/pokemon/${matchup.player.id}.png`}
+                      alt={matchup.player.name}
+                      layout="fill"
+                      objectFit="contain"
+                    />
+                  </div>
+                  <div className="mx-2 text-green-400">vs</div>
+                  <div className="relative w-10 h-10 flex-shrink-0">
+                    <Image
+                      src={matchup.opponent.sprite || `/img/pokemon/${matchup.opponent.id}.png`}
+                      alt={matchup.opponent.name}
+                      layout="fill"
+                      objectFit="contain"
+                    />
+                  </div>
+                  <div className="ml-2 flex-grow">
+                    <p className="text-xs capitalize">{matchup.player.name.replace('-', ' ')} strong against {matchup.opponent.name.replace('-', ' ')}</p>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-gray-500 text-center py-2">
+                No significant favorable matchups found
+              </div>
+            )}
+          </div>
+        </div>
+        
+        {/* Key unfavorable matchups */}
+        <div>
+          <h4 className="text-sm text-gray-400 mb-1">Unfavorable Matchups</h4>
+          <div className="space-y-2">
+            {keyMatchups.disadvantages.length > 0 ? (
+              keyMatchups.disadvantages.map((matchup, idx) => (
+                <div key={idx} className="bg-gray-700 rounded-md p-2 flex items-center">
+                  <div className="relative w-10 h-10 flex-shrink-0">
+                    <Image
+                      src={matchup.player.sprite || `/img/pokemon/${matchup.player.id}.png`}
+                      alt={matchup.player.name}
+                      layout="fill"
+                      objectFit="contain"
+                    />
+                  </div>
+                  <div className="mx-2 text-red-400">vs</div>
+                  <div className="relative w-10 h-10 flex-shrink-0">
+                    <Image
+                      src={matchup.opponent.sprite || `/img/pokemon/${matchup.opponent.id}.png`}
+                      alt={matchup.opponent.name}
+                      layout="fill"
+                      objectFit="contain"
+                    />
+                  </div>
+                  <div className="ml-2 flex-grow">
+                    <p className="text-xs capitalize">{matchup.player.name.replace('-', ' ')} weak against {matchup.opponent.name.replace('-', ' ')}</p>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-gray-500 text-center py-2">
+                No significant unfavorable matchups found
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Main team builder component
 const TeamBuilder = ({ pokemonList = [] }) => {
   const [team, setTeam] = useState(Array(6).fill(null));
+  const [opponentTeam, setOpponentTeam] = useState(Array(6).fill(null));
   const [savedTeams, setSavedTeams] = useState([]);
   const [teamName, setTeamName] = useState('My Team');
   const [showPokemonList, setShowPokemonList] = useState(false);
+  const [addingToOpponent, setAddingToOpponent] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [draggedPokemon, setDraggedPokemon] = useState(null);
+  const [activeTeamTab, setActiveTeamTab] = useState('player'); // 'player' or 'opponent'
   
   // Load saved teams from localStorage
   useEffect(() => {
@@ -438,18 +783,33 @@ const TeamBuilder = ({ pokemonList = [] }) => {
   
   // Remove Pokemon from team
   const removePokemon = (index) => {
-    const newTeam = [...team];
-    newTeam[index] = null;
-    setTeam(newTeam);
+    if (activeTeamTab === 'player') {
+      const newTeam = [...team];
+      newTeam[index] = null;
+      setTeam(newTeam);
+    } else {
+      const newOpponentTeam = [...opponentTeam];
+      newOpponentTeam[index] = null;
+      setOpponentTeam(newOpponentTeam);
+    }
   };
   
   // Add Pokemon to team
   const addPokemon = (pokemon) => {
-    const emptyIndex = team.findIndex(slot => slot === null);
-    if (emptyIndex !== -1) {
-      const newTeam = [...team];
-      newTeam[emptyIndex] = pokemon;
-      setTeam(newTeam);
+    if (addingToOpponent) {
+      const emptyIndex = opponentTeam.findIndex(slot => slot === null);
+      if (emptyIndex !== -1) {
+        const newTeam = [...opponentTeam];
+        newTeam[emptyIndex] = pokemon;
+        setOpponentTeam(newTeam);
+      }
+    } else {
+      const emptyIndex = team.findIndex(slot => slot === null);
+      if (emptyIndex !== -1) {
+        const newTeam = [...team];
+        newTeam[emptyIndex] = pokemon;
+        setTeam(newTeam);
+      }
     }
     setShowPokemonList(false);
   };
@@ -468,12 +828,20 @@ const TeamBuilder = ({ pokemonList = [] }) => {
     
     if (draggedPokemon === null) return;
     
-    const newTeam = [...team];
-    const temp = newTeam[draggedPokemon];
-    newTeam[draggedPokemon] = newTeam[dropIndex];
-    newTeam[dropIndex] = temp;
+    if (activeTeamTab === 'player') {
+      const newTeam = [...team];
+      const temp = newTeam[draggedPokemon];
+      newTeam[draggedPokemon] = newTeam[dropIndex];
+      newTeam[dropIndex] = temp;
+      setTeam(newTeam);
+    } else {
+      const newTeam = [...opponentTeam];
+      const temp = newTeam[draggedPokemon];
+      newTeam[draggedPokemon] = newTeam[dropIndex];
+      newTeam[dropIndex] = temp;
+      setOpponentTeam(newTeam);
+    }
     
-    setTeam(newTeam);
     setDraggedPokemon(null);
   };
   
@@ -510,29 +878,62 @@ const TeamBuilder = ({ pokemonList = [] }) => {
         </div>
       </div>
       
+      {/* Team tabs */}
+      <div className="flex border-b border-gray-700 mb-4">
+        <button
+          className={`py-2 px-4 font-medium ${activeTeamTab === 'player' ? 'text-red-500 border-b-2 border-red-500' : 'text-gray-400 hover:text-white'}`}
+          onClick={() => setActiveTeamTab('player')}
+        >
+          Your Team
+        </button>
+        <button
+          className={`py-2 px-4 font-medium ${activeTeamTab === 'opponent' ? 'text-blue-500 border-b-2 border-blue-500' : 'text-gray-400 hover:text-white'}`}
+          onClick={() => setActiveTeamTab('opponent')}
+        >
+          Opponent Team
+        </button>
+      </div>
+      
       {/* Team slots */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-        {team.map((pokemon, index) => (
-          <TeamSlot
-            key={index}
-            pokemon={pokemon}
-            index={index}
-            onRemove={removePokemon}
-            onDragStart={handleDragStart}
-            onDragOver={handleDragOver}
-            onDrop={handleDrop}
-          />
-        ))}
+        {activeTeamTab === 'player' ? (
+          team.map((pokemon, index) => (
+            <TeamSlot
+              key={index}
+              pokemon={pokemon}
+              index={index}
+              onRemove={removePokemon}
+              onDragStart={handleDragStart}
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
+            />
+          ))
+        ) : (
+          opponentTeam.map((pokemon, index) => (
+            <TeamSlot
+              key={index}
+              pokemon={pokemon}
+              index={index}
+              onRemove={removePokemon}
+              onDragStart={handleDragStart}
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
+            />
+          ))
+        )}
       </div>
       
       {/* Add Pokemon button */}
       <div className="mb-6">
         <button
-          onClick={() => setShowPokemonList(!showPokemonList)}
-          className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg flex items-center mx-auto"
+          onClick={() => {
+            setAddingToOpponent(activeTeamTab === 'opponent');
+            setShowPokemonList(!showPokemonList);
+          }}
+          className={`${activeTeamTab === 'player' ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'} text-white px-4 py-2 rounded-lg flex items-center mx-auto`}
         >
           <PlusCircleIcon className="h-5 w-5 mr-2" />
-          {showPokemonList ? 'Hide Pokémon List' : 'Add Pokémon'}
+          {showPokemonList ? 'Hide Pokémon List' : `Add Pokémon to ${activeTeamTab === 'player' ? 'Your' : 'Opponent'} Team`}
         </button>
       </div>
       
@@ -572,8 +973,34 @@ const TeamBuilder = ({ pokemonList = [] }) => {
         </div>
       )}
       
-      {/* Team stats */}
-      {team.some(Boolean) && <TeamStats team={team.filter(Boolean)} />}
+      {/* Team stats and matchup analysis */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        {/* Your team stats */}
+        {team.some(Boolean) && (
+          <div>
+            <h3 className="text-lg font-medium mb-2 text-red-500">Your Team Analysis</h3>
+            <TeamStats team={team.filter(Boolean)} />
+          </div>
+        )}
+        
+        {/* Opponent team stats */}
+        {opponentTeam.some(Boolean) && (
+          <div>
+            <h3 className="text-lg font-medium mb-2 text-blue-500">Opponent Team Analysis</h3>
+            <TeamStats team={opponentTeam.filter(Boolean)} />
+          </div>
+        )}
+      </div>
+      
+      {/* Matchup analysis */}
+      {team.some(Boolean) && opponentTeam.some(Boolean) && (
+        <div className="mb-6">
+          <MatchupAnalysis 
+            playerTeam={team.filter(Boolean)} 
+            opponentTeam={opponentTeam.filter(Boolean)} 
+          />
+        </div>
+      )}
       
       {/* Saved teams */}
       {savedTeams.length > 0 && (
@@ -604,10 +1031,17 @@ const TeamBuilder = ({ pokemonList = [] }) => {
                     Export
                   </button>
                   <button
-                    onClick={() => setTeam(savedTeam.pokemon)}
-                    className="text-sm text-blue-400 hover:text-blue-300"
+                    onClick={() => {
+                      if (activeTeamTab === 'player') {
+                        setTeam(savedTeam.pokemon);
+                      } else {
+                        setOpponentTeam(savedTeam.pokemon);
+                      }
+                    }}
+                    className="text-sm text-blue-400 hover:text-blue-300 flex items-center"
                   >
-                    Load
+                    <SwitchHorizontalIcon className="h-4 w-4 mr-1" />
+                    Load to {activeTeamTab === 'player' ? 'Your' : 'Opponent'} Team
                   </button>
                   <button 
                     onClick={() => deleteTeam(savedTeam.id)}
