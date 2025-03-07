@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { XCircleIcon, SaveIcon, PlusCircleIcon, ChartBarIcon, LightningBoltIcon, TrashIcon, DownloadIcon, SwitchHorizontalIcon, ShieldExclamationIcon } from '@heroicons/react/outline';
+import { XCircleIcon, SaveIcon, PlusCircleIcon, ChartBarIcon, LightningBoltIcon, TrashIcon, DownloadIcon, SwitchHorizontalIcon, ShieldExclamationIcon, LightBulbIcon, ExclamationCircleIcon } from '@heroicons/react/outline';
 
 // Component for a single team slot
 const TeamSlot = ({ pokemon, onRemove, index, onDragStart, onDragOver, onDrop }) => {
@@ -693,6 +693,400 @@ const MatchupAnalysis = ({ playerTeam, opponentTeam }) => {
   );
 };
 
+// Team Suggestions component
+const TeamSuggestions = ({ team, pokemonList, opponentTeam = [] }) => {
+  if (!team.length || !pokemonList.length) {
+    return null;
+  }
+
+  // Type effectiveness data
+  const typeEffectiveness = {
+    normal: { 
+      weakTo: ['fighting'], 
+      resistantTo: [], 
+      immuneTo: ['ghost'] 
+    },
+    fire: { 
+      weakTo: ['water', 'ground', 'rock'], 
+      resistantTo: ['fire', 'grass', 'ice', 'bug', 'steel', 'fairy'], 
+      immuneTo: [] 
+    },
+    water: { 
+      weakTo: ['electric', 'grass'], 
+      resistantTo: ['fire', 'water', 'ice', 'steel'], 
+      immuneTo: [] 
+    },
+    electric: { 
+      weakTo: ['ground'], 
+      resistantTo: ['electric', 'flying', 'steel'], 
+      immuneTo: [] 
+    },
+    grass: { 
+      weakTo: ['fire', 'ice', 'poison', 'flying', 'bug'], 
+      resistantTo: ['water', 'electric', 'grass', 'ground'], 
+      immuneTo: [] 
+    },
+    ice: { 
+      weakTo: ['fire', 'fighting', 'rock', 'steel'], 
+      resistantTo: ['ice'], 
+      immuneTo: [] 
+    },
+    fighting: { 
+      weakTo: ['flying', 'psychic', 'fairy'], 
+      resistantTo: ['bug', 'rock', 'dark'], 
+      immuneTo: [] 
+    },
+    poison: { 
+      weakTo: ['ground', 'psychic'], 
+      resistantTo: ['grass', 'fighting', 'poison', 'bug', 'fairy'], 
+      immuneTo: [] 
+    },
+    ground: { 
+      weakTo: ['water', 'grass', 'ice'], 
+      resistantTo: ['poison', 'rock'], 
+      immuneTo: ['electric'] 
+    },
+    flying: { 
+      weakTo: ['electric', 'ice', 'rock'], 
+      resistantTo: ['grass', 'fighting', 'bug'], 
+      immuneTo: ['ground'] 
+    },
+    psychic: { 
+      weakTo: ['bug', 'ghost', 'dark'], 
+      resistantTo: ['fighting', 'psychic'], 
+      immuneTo: [] 
+    },
+    bug: { 
+      weakTo: ['fire', 'flying', 'rock'], 
+      resistantTo: ['grass', 'fighting', 'ground'], 
+      immuneTo: [] 
+    },
+    rock: { 
+      weakTo: ['water', 'grass', 'fighting', 'ground', 'steel'], 
+      resistantTo: ['normal', 'fire', 'poison', 'flying'], 
+      immuneTo: [] 
+    },
+    ghost: { 
+      weakTo: ['ghost', 'dark'], 
+      resistantTo: ['poison', 'bug'], 
+      immuneTo: ['normal', 'fighting'] 
+    },
+    dragon: { 
+      weakTo: ['ice', 'dragon', 'fairy'], 
+      resistantTo: ['fire', 'water', 'electric', 'grass'], 
+      immuneTo: [] 
+    },
+    dark: { 
+      weakTo: ['fighting', 'bug', 'fairy'], 
+      resistantTo: ['ghost', 'dark'], 
+      immuneTo: ['psychic'] 
+    },
+    steel: { 
+      weakTo: ['fire', 'fighting', 'ground'], 
+      resistantTo: ['normal', 'grass', 'ice', 'flying', 'psychic', 'bug', 'rock', 'dragon', 'steel', 'fairy'], 
+      immuneTo: ['poison'] 
+    },
+    fairy: { 
+      weakTo: ['poison', 'steel'], 
+      resistantTo: ['fighting', 'bug', 'dark'], 
+      immuneTo: ['dragon'] 
+    }
+  };
+
+  // All Pokémon types
+  const allTypes = Object.keys(typeEffectiveness);
+
+  // Find type coverage gaps
+  const findTypeCoverageGaps = () => {
+    // Initialize coverage for all types
+    const typeCoverage = {};
+    allTypes.forEach(type => {
+      typeCoverage[type] = 0;
+    });
+
+    // Calculate current coverage
+    team.forEach(pokemon => {
+      pokemon.types.forEach(attackType => {
+        allTypes.forEach(defenseType => {
+          if (typeEffectiveness[defenseType].weakTo.includes(attackType)) {
+            typeCoverage[defenseType]++;
+          }
+        });
+      });
+    });
+
+    // Find types with no coverage
+    const uncoveredTypes = Object.entries(typeCoverage)
+      .filter(([_, count]) => count === 0)
+      .map(([type]) => type);
+
+    return uncoveredTypes;
+  };
+
+  // Find team weaknesses
+  const findTeamWeaknesses = () => {
+    // Initialize weakness counter for all types
+    const weaknessCount = {};
+    allTypes.forEach(type => {
+      weaknessCount[type] = 0;
+    });
+
+    // Count how many Pokémon are weak to each type
+    team.forEach(pokemon => {
+      pokemon.types.forEach(pokeType => {
+        if (typeEffectiveness[pokeType].weakTo) {
+          typeEffectiveness[pokeType].weakTo.forEach(weakType => {
+            weaknessCount[weakType]++;
+          });
+        }
+      });
+    });
+
+    // Find significant weaknesses (more than half the team is weak to)
+    const significantWeaknesses = Object.entries(weaknessCount)
+      .filter(([_, count]) => count >= Math.ceil(team.length / 2))
+      .map(([type]) => type)
+      .sort((a, b) => weaknessCount[b] - weaknessCount[a]);
+
+    return significantWeaknesses;
+  };
+
+  // Find Pokémon that could address gaps or weaknesses
+  const findRecommendedPokemon = () => {
+    const uncoveredTypes = findTypeCoverageGaps();
+    const significantWeaknesses = findTeamWeaknesses();
+    
+    // Pokémon already in the team (to avoid recommending duplicates)
+    const teamPokemonIds = team.map(p => p.id);
+    
+    // Find Pokémon that cover gaps
+    const gapFillers = [];
+    
+    if (uncoveredTypes.length > 0 || significantWeaknesses.length > 0) {
+      // Score each Pokémon in the list based on how well it addresses gaps and weaknesses
+      const scoredPokemon = pokemonList
+        .filter(p => !teamPokemonIds.includes(p.id)) // Exclude Pokémon already in team
+        .map(pokemon => {
+          let score = 0;
+          
+          // Score for covering uncovered types
+          pokemon.types.forEach(type => {
+            uncoveredTypes.forEach(uncoveredType => {
+              if (typeEffectiveness[uncoveredType].weakTo.includes(type)) {
+                score += 2; // Higher score for covering a gap
+              }
+            });
+          });
+          
+          // Score for resisting team weaknesses
+          pokemon.types.forEach(type => {
+            significantWeaknesses.forEach(weakness => {
+              if (typeEffectiveness[type].resistantTo.includes(weakness)) {
+                score += 1; // Score for resisting a weakness
+              }
+              if (typeEffectiveness[type].immuneTo.includes(weakness)) {
+                score += 2; // Higher score for immunity
+              }
+            });
+          });
+          
+          // If opponent team exists, score for effectiveness against it
+          if (opponentTeam.length > 0) {
+            opponentTeam.forEach(opponent => {
+              opponent.types.forEach(oppType => {
+                pokemon.types.forEach(type => {
+                  if (typeEffectiveness[oppType].weakTo.includes(type)) {
+                    score += 0.5; // Small bonus for being effective against opponent
+                  }
+                });
+              });
+            });
+          }
+          
+          return { pokemon, score };
+        })
+        .filter(item => item.score > 0) // Only include Pokémon with positive scores
+        .sort((a, b) => b.score - a.score); // Sort by score descending
+      
+      // Take top recommendations
+      return scoredPokemon.slice(0, 5);
+    }
+    
+    return gapFillers;
+  };
+
+  // Find Pokémon that could be replaced
+  const findReplaceablePokemon = () => {
+    if (team.length < 2) return []; // Need at least 2 Pokémon to suggest replacements
+    
+    // Calculate type overlap within the team
+    const typeOverlap = {};
+    team.forEach(pokemon => {
+      pokemon.types.forEach(type => {
+        typeOverlap[type] = (typeOverlap[type] || 0) + 1;
+      });
+    });
+    
+    // Find Pokémon with overlapping types that could potentially be replaced
+    const replacementCandidates = team.map(pokemon => {
+      let overlapScore = 0;
+      let weaknessScore = 0;
+      
+      // Score based on type overlap
+      pokemon.types.forEach(type => {
+        if (typeOverlap[type] > 1) {
+          overlapScore += typeOverlap[type] - 1;
+        }
+      });
+      
+      // Score based on weaknesses to common types
+      const commonWeaknesses = findTeamWeaknesses();
+      pokemon.types.forEach(type => {
+        commonWeaknesses.forEach(weakness => {
+          if (typeEffectiveness[type].weakTo.includes(weakness)) {
+            weaknessScore += 1;
+          }
+        });
+      });
+      
+      // Calculate total replacement score
+      const totalScore = overlapScore + weaknessScore;
+      
+      return { pokemon, score: totalScore };
+    })
+    .filter(item => item.score > 0) // Only include Pokémon with positive scores
+    .sort((a, b) => b.score - a.score); // Sort by score descending
+    
+    return replacementCandidates.slice(0, 2); // Return top 2 candidates
+  };
+
+  const uncoveredTypes = findTypeCoverageGaps();
+  const significantWeaknesses = findTeamWeaknesses();
+  const recommendedPokemon = findRecommendedPokemon();
+  const replaceablePokemon = findReplaceablePokemon();
+
+  return (
+    <div className="bg-gray-800 rounded-lg p-4">
+      <h3 className="text-lg font-medium mb-3 flex items-center">
+        <LightBulbIcon className="h-5 w-5 mr-2 text-yellow-400" />
+        Team Improvement Suggestions
+      </h3>
+      
+      <div className="space-y-4">
+        {/* Type coverage gaps */}
+        {uncoveredTypes.length > 0 && (
+          <div>
+            <h4 className="text-sm text-gray-400 mb-1">Type Coverage Gaps</h4>
+            <div className="flex flex-wrap gap-2 mb-2">
+              {uncoveredTypes.map(type => (
+                <span 
+                  key={type}
+                  className={`px-2 py-1 rounded-md text-xs capitalize ${getTypeBackgroundClass(type)}`}
+                >
+                  {type}
+                </span>
+              ))}
+            </div>
+            <p className="text-xs text-gray-400">
+              Your team doesn't have moves that are super effective against these types.
+            </p>
+          </div>
+        )}
+        
+        {/* Team weaknesses */}
+        {significantWeaknesses.length > 0 && (
+          <div>
+            <h4 className="text-sm text-gray-400 mb-1">Common Team Weaknesses</h4>
+            <div className="flex flex-wrap gap-2 mb-2">
+              {significantWeaknesses.map(type => (
+                <div 
+                  key={type}
+                  className={`px-2 py-1 rounded-md text-xs flex items-center ${getTypeBackgroundClass(type)}`}
+                >
+                  <ExclamationCircleIcon className="h-3 w-3 mr-1" />
+                  <span className="capitalize">{type}</span>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-gray-400">
+              Multiple Pokémon on your team are weak to these types.
+            </p>
+          </div>
+        )}
+        
+        {/* Recommended Pokémon */}
+        {recommendedPokemon.length > 0 && (
+          <div>
+            <h4 className="text-sm text-gray-400 mb-1">Recommended Additions</h4>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
+              {recommendedPokemon.map(({ pokemon, score }) => (
+                <div key={pokemon.id} className="bg-gray-700 rounded-lg p-2 text-center">
+                  <div className="relative w-12 h-12 mx-auto">
+                    <Image
+                      src={pokemon.sprite || `/img/pokemon/${pokemon.id}.png`}
+                      alt={pokemon.name}
+                      layout="fill"
+                      objectFit="contain"
+                    />
+                  </div>
+                  <p className="text-xs mt-1 capitalize">{pokemon.name.replace('-', ' ')}</p>
+                  <div className="flex flex-wrap justify-center gap-1 mt-1">
+                    {pokemon.types.map(type => (
+                      <span 
+                        key={type} 
+                        className={`px-1 py-0.5 rounded-full text-xs capitalize ${getTypeBackgroundClass(type)}`}
+                        style={{ fontSize: '0.65rem' }}
+                      >
+                        {type}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        
+        {/* Replaceable Pokémon */}
+        {replaceablePokemon.length > 0 && (
+          <div>
+            <h4 className="text-sm text-gray-400 mb-1">Consider Replacing</h4>
+            <div className="grid grid-cols-2 gap-2">
+              {replaceablePokemon.map(({ pokemon, score }) => (
+                <div key={pokemon.id} className="bg-gray-700 rounded-lg p-2 flex items-center">
+                  <div className="relative w-10 h-10 flex-shrink-0">
+                    <Image
+                      src={pokemon.sprite || `/img/pokemon/${pokemon.id}.png`}
+                      alt={pokemon.name}
+                      layout="fill"
+                      objectFit="contain"
+                    />
+                  </div>
+                  <div className="ml-2">
+                    <p className="text-xs capitalize">{pokemon.name.replace('-', ' ')}</p>
+                    <p className="text-xs text-gray-400">
+                      {pokemon.types.some(type => significantWeaknesses.includes(type)) 
+                        ? 'Shares team weakness' 
+                        : 'Type overlap with team'}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        
+        {/* No issues found */}
+        {uncoveredTypes.length === 0 && significantWeaknesses.length === 0 && (
+          <p className="text-sm text-green-400">
+            Your team has good type coverage and no significant weaknesses!
+          </p>
+        )}
+      </div>
+    </div>
+  );
+};
+
 // Main team builder component
 const TeamBuilder = ({ pokemonList = [] }) => {
   const [team, setTeam] = useState(Array(6).fill(null));
@@ -704,6 +1098,7 @@ const TeamBuilder = ({ pokemonList = [] }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [draggedPokemon, setDraggedPokemon] = useState(null);
   const [activeTeamTab, setActiveTeamTab] = useState('player'); // 'player' or 'opponent'
+  const [showSuggestions, setShowSuggestions] = useState(false);
   
   // Load saved teams from localStorage
   useEffect(() => {
@@ -923,18 +1318,28 @@ const TeamBuilder = ({ pokemonList = [] }) => {
         )}
       </div>
       
-      {/* Add Pokemon button */}
-      <div className="mb-6">
+      {/* Action buttons */}
+      <div className="flex flex-wrap justify-center gap-4 mb-6">
         <button
           onClick={() => {
             setAddingToOpponent(activeTeamTab === 'opponent');
             setShowPokemonList(!showPokemonList);
           }}
-          className={`${activeTeamTab === 'player' ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'} text-white px-4 py-2 rounded-lg flex items-center mx-auto`}
+          className={`${activeTeamTab === 'player' ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'} text-white px-4 py-2 rounded-lg flex items-center`}
         >
           <PlusCircleIcon className="h-5 w-5 mr-2" />
           {showPokemonList ? 'Hide Pokémon List' : `Add Pokémon to ${activeTeamTab === 'player' ? 'Your' : 'Opponent'} Team`}
         </button>
+        
+        {activeTeamTab === 'player' && team.some(Boolean) && (
+          <button
+            onClick={() => setShowSuggestions(!showSuggestions)}
+            className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg flex items-center"
+          >
+            <LightBulbIcon className="h-5 w-5 mr-2" />
+            {showSuggestions ? 'Hide Suggestions' : 'Get Team Suggestions'}
+          </button>
+        )}
       </div>
       
       {/* Pokemon selection list */}
@@ -970,6 +1375,17 @@ const TeamBuilder = ({ pokemonList = [] }) => {
               </div>
             ))}
           </div>
+        </div>
+      )}
+      
+      {/* Team suggestions */}
+      {showSuggestions && activeTeamTab === 'player' && team.some(Boolean) && (
+        <div className="mb-6">
+          <TeamSuggestions 
+            team={team.filter(Boolean)} 
+            pokemonList={pokemonList}
+            opponentTeam={opponentTeam.filter(Boolean)}
+          />
         </div>
       )}
       
