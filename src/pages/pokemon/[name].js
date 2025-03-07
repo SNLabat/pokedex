@@ -2573,6 +2573,7 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
   const [isAnimated, setIsAnimated] = useState(false);
   const [activeTab, setActiveTab] = useState('info');
   const [caughtStatus, setCaughtStatus] = useState({});
+  const [activeForm, setActiveForm] = useState('default');
   
   // Get the main type for theming throughout the page
   const mainType = pokemon?.types?.[0]?.type?.name || 'normal';
@@ -3223,66 +3224,117 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
           <div style={cardStyle} className="rounded-lg p-6">
             <h2 className="text-xl font-bold mb-6">Collection Tracking</h2>
             
-            <div className="grid grid-cols-1 gap-6">
-              {/* Default Form */}
-              <div className="bg-gray-700 rounded-lg p-4">
-                <h3 className="text-lg font-medium mb-3">Default Form</h3>
-                <EnhancedTrackingPanel
-                  pokemonId={pokemon.id}
-                  formName="default"
-                  caughtStatus={caughtStatus}
-                  updateCaughtStatus={updateCaughtStatus}
-                  theme={{ bg: 'bg-gray-800' }}
-                />
-              </div>
-              
-              {/* Alternative Forms */}
-              {alternativeForms?.map((form, index) => {
-                if (!form) return null;
-                
-                // Extract form name from full name
-                let formName = form.name;
-                const displayName = properCase(formName.replace(pokemon.name + '-', ''));
-                
-                return (
-                  <div key={index} className="bg-gray-700 rounded-lg p-4">
-                    <h3 className="text-lg font-medium mb-3">{displayName || 'Alternative Form'}</h3>
-                    
-                    <div className="flex items-center mb-3">
-                      <div className="relative w-16 h-16 mr-3">
-                        <Image
-                          src={form.sprites?.other?.['official-artwork']?.front_default || 
-                              form.sprites?.front_default ||
-                              '/img/unknown-pokemon.png'}
-                          alt={formName}
-                          layout="fill"
-                          objectFit="contain"
-                        />
-                      </div>
-                      
-                      <div className="flex gap-1">
-                        {form.types?.map(typeData => (
-                          <span
-                            key={typeData.type.name}
-                            className={`${typeColors[typeData.type.name]?.accent || 'bg-gray-600'} 
-                              px-2 py-1 rounded text-xs capitalize`}
-                          >
-                            {typeData.type.name}
-                          </span>
-                        ))}
-                      </div>
+            {/* Visual Form Selector */}
+            {alternativeForms && alternativeForms.length > 0 && (
+              <div className="mb-6">
+                <h3 className="text-lg font-medium mb-3">Available Forms</h3>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                  {/* Default Form */}
+                  <div 
+                    className={`relative flex flex-col items-center p-3 rounded-lg transition-all cursor-pointer
+                      ${activeForm === 'default' ? 'bg-blue-600 bg-opacity-30 ring-2 ring-blue-500' : 'hover:bg-gray-700'}`}
+                    onClick={() => setActiveForm('default')}
+                  >
+                    <div className="relative w-20 h-20 mb-2">
+                      <Image
+                        src={pokemon.sprites?.other?.['official-artwork']?.front_default || 
+                            pokemon.sprites?.front_default ||
+                            '/img/unknown-pokemon.png'}
+                        alt={pokemon.name}
+                        layout="fill"
+                        objectFit="contain"
+                      />
                     </div>
+                    <div className="text-sm text-center">Default</div>
+                  </div>
+                  
+                  {/* Alternative Forms */}
+                  {alternativeForms.map((form, index) => {
+                    if (!form) return null;
                     
+                    // Extract form name from full name
+                    let formName = form.name;
+                    const displayName = properCase(formName.replace(pokemon.name + '-', ''));
+                    
+                    return (
+                      <div 
+                        key={index}
+                        className={`relative flex flex-col items-center p-3 rounded-lg transition-all cursor-pointer
+                          ${activeForm === formName ? 'bg-blue-600 bg-opacity-30 ring-2 ring-blue-500' : 'hover:bg-gray-700'}`}
+                        onClick={() => setActiveForm(formName)}
+                      >
+                        <div className="relative w-20 h-20 mb-2">
+                          <Image
+                            src={form.sprites?.other?.['official-artwork']?.front_default || 
+                                form.sprites?.front_default ||
+                                '/img/unknown-pokemon.png'}
+                            alt={formName}
+                            layout="fill"
+                            objectFit="contain"
+                          />
+                        </div>
+                        <div className="text-sm text-center">{displayName}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+            
+            <div className="grid grid-cols-1 gap-6">
+              {/* Active Form Tracking Panel */}
+              <div className="bg-gray-700 rounded-lg p-4">
+                {activeForm === 'default' ? (
+                  <>
+                    <h3 className="text-lg font-medium mb-3">Default Form</h3>
                     <EnhancedTrackingPanel
                       pokemonId={pokemon.id}
-                      formName={formName}
+                      formName="default"
                       caughtStatus={caughtStatus}
                       updateCaughtStatus={updateCaughtStatus}
                       theme={{ bg: 'bg-gray-800' }}
+                      pokemon={pokemon}
                     />
-                  </div>
-                );
-              })}
+                  </>
+                ) : (
+                  // Find the active alternative form
+                  (() => {
+                    const activeFormData = alternativeForms?.find(form => form?.name === activeForm);
+                    if (!activeFormData) return null;
+                    
+                    const displayName = properCase(activeFormData.name.replace(pokemon.name + '-', ''));
+                    
+                    return (
+                      <>
+                        <h3 className="text-lg font-medium mb-3">{displayName || 'Alternative Form'}</h3>
+                        
+                        <div className="flex items-center mb-3">
+                          <div className="flex gap-1">
+                            {activeFormData.types?.map(typeData => (
+                              <span
+                                key={typeData.type.name}
+                                className={`${typeColors[typeData.type.name]?.accent || 'bg-gray-600'} 
+                                  px-2 py-1 rounded text-xs capitalize`}
+                              >
+                                {typeData.type.name}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                        
+                        <EnhancedTrackingPanel
+                          pokemonId={pokemon.id}
+                          formName={activeFormData.name}
+                          caughtStatus={caughtStatus}
+                          updateCaughtStatus={updateCaughtStatus}
+                          theme={{ bg: 'bg-gray-800' }}
+                          pokemon={activeFormData}
+                        />
+                      </>
+                    );
+                  })()
+                )}
+              </div>
             </div>
           </div>
         )}
