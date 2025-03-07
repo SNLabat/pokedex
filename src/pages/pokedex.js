@@ -52,13 +52,17 @@ export default function PokedexPage({ initialPokemon }) {
     loadCaughtStatus();
   }, []);
 
-  // Single effect to handle both URL parameters and data fetching
+  // Handle initial URL parameters when the component mounts
   useEffect(() => {
-    // Check for URL query parameters
-    if (router.query.gen && router.query.gen !== selectedGen) {
+    if (router.isReady && router.query.gen) {
       setSelectedGen(router.query.gen);
-      return; // Exit early to avoid fetching data twice
     }
+  }, [router.isReady, router.query.gen]);
+
+  // Effect to fetch data when selectedGen changes
+  useEffect(() => {
+    // Only fetch data if selectedGen is set
+    if (!selectedGen) return;
     
     const fetchData = async () => {
       setIsLoading(true);
@@ -110,7 +114,7 @@ export default function PokedexPage({ initialPokemon }) {
     };
     
     fetchData();
-  }, [selectedGen, router.query.gen]);
+  }, [selectedGen]);
   
   // Apply search filters
   const handleSearch = (filters) => {
@@ -445,6 +449,8 @@ export default function PokedexPage({ initialPokemon }) {
                 <button
                   key={gen.id}
                   onClick={() => {
+                    // Update both the URL and the selectedGen state directly
+                    // This ensures immediate UI update and data fetching
                     setSelectedGen(gen.id);
                     router.push({
                       pathname: '/pokedex',
