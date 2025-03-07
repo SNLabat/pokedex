@@ -2830,8 +2830,14 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
       }
       
       // Update state and localStorage
-      setCaughtStatus(caughtData[pokemon.id]);
+      const newCaughtStatus = {...caughtData[pokemon.id]};
+      setCaughtStatus(newCaughtStatus);
       localStorage.setItem('caughtPokemon', JSON.stringify(caughtData));
+      
+      // Force a re-render by updating the state again after a short delay
+      setTimeout(() => {
+        setCaughtStatus({...newCaughtStatus});
+      }, 10);
     } catch (error) {
       console.error('Error updating ribbon status:', error);
     }
@@ -2881,8 +2887,14 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
       }
       
       // Update state and localStorage
-      setCaughtStatus(caughtData[pokemon.id]);
+      const newCaughtStatus = {...caughtData[pokemon.id]};
+      setCaughtStatus(newCaughtStatus);
       localStorage.setItem('caughtPokemon', JSON.stringify(caughtData));
+      
+      // Force a re-render by updating the state again after a short delay
+      setTimeout(() => {
+        setCaughtStatus({...newCaughtStatus});
+      }, 10);
     } catch (error) {
       console.error('Error updating mark status:', error);
     }
@@ -3413,7 +3425,11 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
           <div style={cardStyle} className="rounded-lg p-6">
             <RibbonsTab 
               pokemon={pokemon} 
-              caughtStatus={caughtStatus} 
+              caughtStatus={{
+                default: {
+                  ribbons: caughtStatus.default?.ribbons || {}
+                }
+              }}
               updateRibbonStatus={updateRibbonStatus}
               mainTypeColor={mainTypeColor}
             />
@@ -3424,7 +3440,11 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
           <div style={cardStyle} className="rounded-lg p-6">
             <MarksTab 
               pokemon={pokemon} 
-              caughtStatus={caughtStatus} 
+              caughtStatus={{
+                default: {
+                  marks: caughtStatus.default?.marks || {}
+                }
+              }}
               updateMarkStatus={updateMarkStatus}
               mainTypeColor={mainTypeColor}
             />
