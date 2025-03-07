@@ -23,60 +23,60 @@ const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus, mainTypeColor }) =>
   const markIcons = {
     // Weather Marks
     'cloudy-mark': { icon: '/img/Ribbons-Marks/cloudymark.png', color: '#33AADD', fallback: '☁️' },
-    'rainy-mark': { icon: '/img/Ribbons-Marks/rainymark.png', color: '#33AADD', fallback: '🌧️' },
-    'stormy-mark': { icon: '/img/Ribbons-Marks/stormymark.png', color: '#7766EE', fallback: '⛈️' },
-    'snowy-mark': { icon: '/img/Ribbons-Marks/snowymark.png', color: '#33AADD', fallback: '❄️' },
+    'rainy-mark': { icon: '/img/Ribbons-Marks/rainymark.png', color: '#33AADD', fallback: '🌧️' }, // Image not found in directory
+    'stormy-mark': { icon: '/img/Ribbons-Marks/stormymark.png', color: '#7766EE', fallback: '⛈️' }, // Image not found in directory
+    'snowy-mark': { icon: '/img/Ribbons-Marks/snowymark.png', color: '#33AADD', fallback: '❄️' }, // Image not found in directory
     'blizzard-mark': { icon: '/img/Ribbons-Marks/blizzardmark.png', color: '#33AADD', fallback: '🌨️' },
     'dry-mark': { icon: '/img/Ribbons-Marks/drymark.png', color: '#FF5544', fallback: '🏜️' },
-    'sandstorm-mark': { icon: '/img/Ribbons-Marks/sandstormmark.png', color: '#FFAA33', fallback: '🏜️' },
+    'sandstorm-mark': { icon: '/img/Ribbons-Marks/sandstormmark.png', color: '#FFAA33', fallback: '🏜️' }, // Image not found in directory
     'misty-mark': { icon: '/img/Ribbons-Marks/mistymark.png', color: '#33AADD', fallback: '🌫️' },
     
     // Time Marks
     'dawn-mark': { icon: '/img/Ribbons-Marks/dawnmark.png', color: '#FFAA33', fallback: '🌅' },
-    'day-mark': { icon: '/img/Ribbons-Marks/daymark.png', color: '#FFAA33', fallback: '☀️' },
+    'day-mark': { icon: '/img/Ribbons-Marks/daymark.png', color: '#FFAA33', fallback: '☀️' }, // Image not found in directory
     'dusk-mark': { icon: '/img/Ribbons-Marks/duskmark.png', color: '#7766EE', fallback: '🌆' },
-    'night-mark': { icon: '/img/Ribbons-Marks/nightmark.png', color: '#7766EE', fallback: '🌙' },
+    'night-mark': { icon: '/img/Ribbons-Marks/nightmark.png', color: '#7766EE', fallback: '🌙' }, // Image not found in directory
     
     // Method Marks
     'fishing-mark': { icon: '/img/Ribbons-Marks/fishingmark.png', color: '#33AADD', fallback: '🎣' },
     'curry-mark': { icon: '/img/Ribbons-Marks/currymark.png', color: '#FFAA33', fallback: '🍛' },
     'lunchtime-mark': { icon: '/img/Ribbons-Marks/lunchtimemark.png', color: '#FFAA33', fallback: '🍱' },
-    'sleepy-time-mark': { icon: '/img/Ribbons-Marks/sleepytimemark.png', color: '#7766EE', fallback: '😴' },
+    'sleepy-time-mark': { icon: '/img/Ribbons-Marks/sleepytimemark.png', color: '#7766EE', fallback: '😴' }, // Image not found in directory
     'destiny-mark': { icon: '/img/Ribbons-Marks/destinymark.png', color: '#FFCC33', fallback: '✨' },
     
     // Rare Marks
-    'uncommon-mark': { icon: '/img/Ribbons-Marks/uncommonmark.png', color: '#33AA66', fallback: '⭐' },
-    'rare-mark': { icon: '/img/Ribbons-Marks/raremark.png', color: '#33AADD', fallback: '⭐⭐' },
+    'uncommon-mark': { icon: '/img/Ribbons-Marks/uncommonmark.png', color: '#33AA66', fallback: '⭐' }, // Image not found in directory
+    'rare-mark': { icon: '/img/Ribbons-Marks/raremark.png', color: '#33AADD', fallback: '⭐⭐' }, // Image not found in directory
     
     // Personality Marks
-    'rowdy-mark': { icon: '/img/Ribbons-Marks/rowdymark.png', color: '#FF5544', fallback: '😤' },
+    'rowdy-mark': { icon: '/img/Ribbons-Marks/rowdymark.png', color: '#FF5544', fallback: '😤' }, // Image not found in directory
     'absent-minded-mark': { icon: '/img/Ribbons-Marks/absent-mindedmark.png', color: '#7766EE', fallback: '🤔' },
     'jittery-mark': { icon: '/img/Ribbons-Marks/jitterymark.png', color: '#FF5544', fallback: '😰' },
     'excited-mark': { icon: '/img/Ribbons-Marks/excitedmark.png', color: '#FFAA33', fallback: '😃' },
     'charismatic-mark': { icon: '/img/Ribbons-Marks/charismaticmark.png', color: '#FFCC33', fallback: '✨' },
     'calmness-mark': { icon: '/img/Ribbons-Marks/calmnessmark.png', color: '#33AA66', fallback: '😌' },
     'intense-mark': { icon: '/img/Ribbons-Marks/intensemark.png', color: '#FF5544', fallback: '😠' },
-    'zoned-out-mark': { icon: '/img/Ribbons-Marks/zonedoutmark.png', color: '#7766EE', fallback: '😶' },
+    'zoned-out-mark': { icon: '/img/Ribbons-Marks/zonedoutmark.png', color: '#7766EE', fallback: '😶' }, // Image not found in directory
     'joyful-mark': { icon: '/img/Ribbons-Marks/joyfulmark.png', color: '#FFAA33', fallback: '😊' },
     'angry-mark': { icon: '/img/Ribbons-Marks/angrymark.png', color: '#FF5544', fallback: '😡' },
-    'smiley-mark': { icon: '/img/Ribbons-Marks/smileymark.png', color: '#FFAA33', fallback: '😄' },
-    'teary-mark': { icon: '/img/Ribbons-Marks/tearymark.png', color: '#33AADD', fallback: '😢' },
-    'upbeat-mark': { icon: '/img/Ribbons-Marks/upbeatmark.png', color: '#FFAA33', fallback: '🥳' },
+    'smiley-mark': { icon: '/img/Ribbons-Marks/smileymark.png', color: '#FFAA33', fallback: '😄' }, // Image not found in directory
+    'teary-mark': { icon: '/img/Ribbons-Marks/tearymark.png', color: '#33AADD', fallback: '😢' }, // Image not found in directory
+    'upbeat-mark': { icon: '/img/Ribbons-Marks/upbeatmark.png', color: '#FFAA33', fallback: '🥳' }, // Image not found in directory
     'peeved-mark': { icon: '/img/Ribbons-Marks/peevedmark.png', color: '#FF5544', fallback: '😒' },
     'intellectual-mark': { icon: '/img/Ribbons-Marks/intellectualmark.png', color: '#33AA66', fallback: '🧠' },
     'ferocious-mark': { icon: '/img/Ribbons-Marks/ferociousmark.png', color: '#FF5544', fallback: '👹' },
     'crafty-mark': { icon: '/img/Ribbons-Marks/craftymark.png', color: '#33AA66', fallback: '🦊' },
-    'scowling-mark': { icon: '/img/Ribbons-Marks/scowlingmark.png', color: '#FF5544', fallback: '😠' },
+    'scowling-mark': { icon: '/img/Ribbons-Marks/scowlingmark.png', color: '#FF5544', fallback: '😠' }, // Image not found in directory
     'kindly-mark': { icon: '/img/Ribbons-Marks/kindlymark.png', color: '#FF77AA', fallback: '🤗' },
     'flustered-mark': { icon: '/img/Ribbons-Marks/flusteredmark.png', color: '#FF77AA', fallback: '😳' },
     'pumped-up-mark': { icon: '/img/Ribbons-Marks/pumped-upmark.png', color: '#FF5544', fallback: '💪' },
-    'zero-energy-mark': { icon: '/img/Ribbons-Marks/zeroenergymark.png', color: '#7766EE', fallback: '😩' },
+    'zero-energy-mark': { icon: '/img/Ribbons-Marks/zeroenergymark.png', color: '#7766EE', fallback: '😩' }, // Image not found in directory
     'prideful-mark': { icon: '/img/Ribbons-Marks/pridefulmark.png', color: '#FFCC33', fallback: '😏' },
-    'unsure-mark': { icon: '/img/Ribbons-Marks/unsuremark.png', color: '#7766EE', fallback: '🤷' },
+    'unsure-mark': { icon: '/img/Ribbons-Marks/unsuremark.png', color: '#7766EE', fallback: '🤷' }, // Image not found in directory
     'humble-mark': { icon: '/img/Ribbons-Marks/humblemark.png', color: '#33AA66', fallback: '🙏' },
-    'thorny-mark': { icon: '/img/Ribbons-Marks/thornymark.png', color: '#FF5544', fallback: '🌵' },
-    'vigor-mark': { icon: '/img/Ribbons-Marks/vigormark.png', color: '#FF5544', fallback: '💪' },
-    'slump-mark': { icon: '/img/Ribbons-Marks/slumpmark.png', color: '#7766EE', fallback: '😞' }
+    'thorny-mark': { icon: '/img/Ribbons-Marks/thornymark.png', color: '#FF5544', fallback: '🌵' }, // Image not found in directory
+    'vigor-mark': { icon: '/img/Ribbons-Marks/vigormark.png', color: '#FF5544', fallback: '💪' }, // Image not found in directory
+    'slump-mark': { icon: '/img/Ribbons-Marks/slumpmark.png', color: '#7766EE', fallback: '😞' } // Image not found in directory
   };
   
   // Initialize marks data - only including marks that exist in Scarlet & Violet according to Serebii
