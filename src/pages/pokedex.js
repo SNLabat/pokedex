@@ -52,10 +52,12 @@ export default function PokedexPage({ initialPokemon }) {
     loadCaughtStatus();
   }, []);
 
+  // Single effect to handle both URL parameters and data fetching
   useEffect(() => {
     // Check for URL query parameters
-    if (router.query.gen) {
+    if (router.query.gen && router.query.gen !== selectedGen) {
       setSelectedGen(router.query.gen);
+      return; // Exit early to avoid fetching data twice
     }
     
     const fetchData = async () => {
@@ -108,7 +110,7 @@ export default function PokedexPage({ initialPokemon }) {
     };
     
     fetchData();
-  }, [router.query.gen]);
+  }, [selectedGen, router.query.gen]);
   
   // Apply search filters
   const handleSearch = (filters) => {
