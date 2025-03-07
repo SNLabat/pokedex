@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 
 const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus, mainTypeColor }) => {
   const [failedImages, setFailedImages] = useState({});
@@ -10,6 +11,53 @@ const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus, mainTypeColor }
     mainColor: '#6366f1', // indigo-500
     darkColor: '#4338ca', // indigo-700 
     textColor: '#ffffff'  // white
+  };
+  
+  // Ribbon icons mapping
+  const ribbonIcons = {
+    'cool-ribbon': { icon: 'https://www.serebii.net/ribbons/coolribbon.png', color: '#FF5544', fallback: '🎀' },
+    'cool-ribbon-super': { icon: 'https://www.serebii.net/ribbons/coolsuperribbon.png', color: '#FF5544', fallback: '🎀' },
+    'cool-ribbon-hyper': { icon: 'https://www.serebii.net/ribbons/coolhyperribbon.png', color: '#FF5544', fallback: '🎀' },
+    'cool-ribbon-master': { icon: 'https://www.serebii.net/ribbons/coolmasterribbon.png', color: '#FF5544', fallback: '🎀' },
+    'beauty-ribbon': { icon: 'https://www.serebii.net/ribbons/beautyribbon.png', color: '#5599FF', fallback: '🎀' },
+    'beauty-ribbon-super': { icon: 'https://www.serebii.net/ribbons/beautysuperribbon.png', color: '#5599FF', fallback: '🎀' },
+    'beauty-ribbon-hyper': { icon: 'https://www.serebii.net/ribbons/beautyhyperribbon.png', color: '#5599FF', fallback: '🎀' },
+    'beauty-ribbon-master': { icon: 'https://www.serebii.net/ribbons/beautymasterribbon.png', color: '#5599FF', fallback: '🎀' },
+    'cute-ribbon': { icon: 'https://www.serebii.net/ribbons/cuteribbon.png', color: '#FF77FF', fallback: '🎀' },
+    'cute-ribbon-super': { icon: 'https://www.serebii.net/ribbons/cutesuperribbon.png', color: '#FF77FF', fallback: '🎀' },
+    'cute-ribbon-hyper': { icon: 'https://www.serebii.net/ribbons/cutehyperribbon.png', color: '#FF77FF', fallback: '🎀' },
+    'cute-ribbon-master': { icon: 'https://www.serebii.net/ribbons/cutemasterribbon.png', color: '#FF77FF', fallback: '🎀' },
+    'smart-ribbon': { icon: 'https://www.serebii.net/ribbons/smartribbon.png', color: '#99DD55', fallback: '🎀' },
+    'smart-ribbon-super': { icon: 'https://www.serebii.net/ribbons/smartsuperribbon.png', color: '#99DD55', fallback: '🎀' },
+    'smart-ribbon-hyper': { icon: 'https://www.serebii.net/ribbons/smarthyperribbon.png', color: '#99DD55', fallback: '🎀' },
+    'smart-ribbon-master': { icon: 'https://www.serebii.net/ribbons/smartmasterribbon.png', color: '#99DD55', fallback: '🎀' },
+    'tough-ribbon': { icon: 'https://www.serebii.net/ribbons/toughribbon.png', color: '#FF9900', fallback: '🎀' },
+    'tough-ribbon-super': { icon: 'https://www.serebii.net/ribbons/toughsuperribbon.png', color: '#FF9900', fallback: '🎀' },
+    'tough-ribbon-hyper': { icon: 'https://www.serebii.net/ribbons/toughhyperribbon.png', color: '#FF9900', fallback: '🎀' },
+    'tough-ribbon-master': { icon: 'https://www.serebii.net/ribbons/toughmasterribbon.png', color: '#FF9900', fallback: '🎀' },
+    'champion-ribbon': { icon: 'https://www.serebii.net/ribbons/championribbon.png', color: '#FFDD44', fallback: '🎀' },
+    'winning-ribbon': { icon: 'https://www.serebii.net/ribbons/winningribbon.png', color: '#FFDD44', fallback: '🎀' },
+    'victory-ribbon': { icon: 'https://www.serebii.net/ribbons/victoryribbon.png', color: '#FFDD44', fallback: '🎀' },
+    'artist-ribbon': { icon: 'https://www.serebii.net/ribbons/artistribbon.png', color: '#FF77FF', fallback: '🎀' },
+    'effort-ribbon': { icon: 'https://www.serebii.net/ribbons/effortribbon.png', color: '#FF5544', fallback: '🎀' },
+    'sinnoh-champ-ribbon': { icon: 'https://www.serebii.net/ribbons/championribbon.png', color: '#FFDD44', fallback: '🎀' },
+    'alert-ribbon': { icon: 'https://www.serebii.net/ribbons/alertribbon.png', color: '#FF5544', fallback: '🎀' },
+    'shock-ribbon': { icon: 'https://www.serebii.net/ribbons/shockribbon.png', color: '#FFDD44', fallback: '🎀' },
+    'downcast-ribbon': { icon: 'https://www.serebii.net/ribbons/downcastribbon.png', color: '#5599FF', fallback: '🎀' },
+    'careless-ribbon': { icon: 'https://www.serebii.net/ribbons/carelessribbon.png', color: '#FF77FF', fallback: '🎀' },
+    'relax-ribbon': { icon: 'https://www.serebii.net/ribbons/relaxribbon.png', color: '#99DD55', fallback: '🎀' },
+    'snooze-ribbon': { icon: 'https://www.serebii.net/ribbons/snoozeribbon.png', color: '#FF9900', fallback: '🎀' },
+    'smile-ribbon': { icon: 'https://www.serebii.net/ribbons/smileribbon.png', color: '#FFDD44', fallback: '🎀' },
+    'gorgeous-ribbon': { icon: 'https://www.serebii.net/ribbons/gorgeousribbon.png', color: '#FF77FF', fallback: '🎀' },
+    'royal-ribbon': { icon: 'https://www.serebii.net/ribbons/royalribbon.png', color: '#FFDD44', fallback: '🎀' },
+    'gorgeous-royal-ribbon': { icon: 'https://www.serebii.net/ribbons/gorgeousroyalribbon.png', color: '#FF77FF', fallback: '🎀' },
+    'kalos-champ-ribbon': { icon: 'https://www.serebii.net/ribbons/kalosribbon.png', color: '#FFDD44', fallback: '🎀' },
+    'hoenn-champ-ribbon': { icon: 'https://www.serebii.net/ribbons/hoennchampionribbon.png', color: '#FFDD44', fallback: '🎀' },
+    'battle-tree-great-ribbon': { icon: 'https://www.serebii.net/ribbons/battletreegreatribbon.png', color: '#FFDD44', fallback: '🎀' },
+    'battle-tree-master-ribbon': { icon: 'https://www.serebii.net/ribbons/battletreemasterribbon.png', color: '#FFDD44', fallback: '🎀' },
+    'galar-champ-ribbon': { icon: 'https://www.serebii.net/ribbons/galarchampribbon.png', color: '#FFDD44', fallback: '🎀' },
+    'tower-master-ribbon': { icon: 'https://www.serebii.net/ribbons/towermasterribbon.png', color: '#FFDD44', fallback: '🎀' },
+    'master-rank-ribbon': { icon: 'https://www.serebii.net/ribbons/masterrankribbon.png', color: '#FFDD44', fallback: '🎀' }
   };
   
   // Initialize ribbons data
@@ -83,6 +131,11 @@ const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus, mainTypeColor }
     'gen9': ribbons.filter(r => r.generation === 'gen9')
   };
 
+  // Handle image error
+  const handleImageError = (ribbonId) => {
+    setFailedImages(prev => ({ ...prev, [ribbonId]: true }));
+  };
+
   // Check if a ribbon is obtained
   const isRibbonObtained = (ribbonId) => {
     // Check if caughtStatus has ribbons directly
@@ -147,6 +200,12 @@ const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus, mainTypeColor }
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
               {filteredRibbons.map(ribbon => {
                 const obtained = isRibbonObtained(ribbon.id);
+                const iconData = ribbonIcons[ribbon.id] || { 
+                  icon: 'https://www.serebii.net/ribbons/classicribbon.png',
+                  color: '#AA99CC', 
+                  fallback: '🎀'
+                };
+                const useIconFallback = failedImages[ribbon.id];
                 
                 return (
                   <div 
@@ -157,9 +216,31 @@ const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus, mainTypeColor }
                         : 'bg-gray-800 hover:bg-gray-700 border border-gray-700'
                     }`}
                   >
-                    <div className="flex justify-between items-center mb-2">
-                      <h4 className="font-medium">{ribbon.name}</h4>
-                      <label className="inline-flex items-center">
+                    <div className="flex items-center mb-2">
+                      <div 
+                        className="w-12 h-12 rounded-full flex items-center justify-center mr-3 bg-gray-800"
+                        style={{ 
+                          border: `2px solid ${iconData.color}`
+                        }}
+                      >
+                        {useIconFallback ? (
+                          <span className="text-lg">{iconData.fallback}</span>
+                        ) : (
+                          <Image 
+                            src={iconData.icon} 
+                            alt={ribbon.name}
+                            width={40}
+                            height={40}
+                            className="object-contain"
+                            onError={() => handleImageError(ribbon.id)}
+                          />
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-medium">{ribbon.name}</h4>
+                        <p className="text-sm text-gray-400">{ribbon.description}</p>
+                      </div>
+                      <label className="inline-flex items-center ml-2">
                         <input
                           type="checkbox"
                           checked={obtained}
@@ -168,7 +249,6 @@ const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus, mainTypeColor }
                         />
                       </label>
                     </div>
-                    <p className="text-sm text-gray-400">{ribbon.description}</p>
                   </div>
                 );
               })}

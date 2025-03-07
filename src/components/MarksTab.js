@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 
 const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus, mainTypeColor }) => {
   const [failedImages, setFailedImages] = useState({});
@@ -10,6 +11,62 @@ const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus, mainTypeColor }) =>
     mainColor: '#10b981', // emerald-500 
     darkColor: '#047857', // emerald-700
     textColor: '#ffffff'  // white
+  };
+  
+  // Mark icons mapping
+  const markIcons = {
+    'lively-mark': { icon: '/img/Ribbons-Marks/livelymark.png', color: '#99DD55', fallback: '❌' },
+    'sleepy-mark': { icon: '/img/Ribbons-Marks/sleepymark.png', color: '#8888AA', fallback: '❌' },
+    'excited-mark': { icon: '/img/Ribbons-Marks/excitedmark.png', color: '#FF5544', fallback: '❌' },
+    'worried-mark': { icon: '/img/Ribbons-Marks/worriedmark.png', color: '#5599FF', fallback: '❌' },
+    'angry-mark': { icon: '/img/Ribbons-Marks/angrymark.png', color: '#FF5544', fallback: '❌' },
+    'teary-mark': { icon: '/img/Ribbons-Marks/tearymark.png', color: '#5599FF', fallback: '❌' },
+    'upbeat-mark': { icon: '/img/Ribbons-Marks/upbeatmark.png', color: '#FFCC44', fallback: '❌' },
+    'peeved-mark': { icon: '/img/Ribbons-Marks/peevedmark.png', color: '#FF5544', fallback: '❌' },
+    'intellectual-mark': { icon: '/img/Ribbons-Marks/intellectualmark.png', color: '#99DD55', fallback: '❌' },
+    'ferocious-mark': { icon: '/img/Ribbons-Marks/ferociousmark.png', color: '#FF5544', fallback: '❌' },
+    'crafty-mark': { icon: '/img/Ribbons-Marks/craftymark.png', color: '#99DD55', fallback: '❌' },
+    'scowling-mark': { icon: '/img/Ribbons-Marks/scowlingmark.png', color: '#FF5544', fallback: '❌' },
+    'kindly-mark': { icon: '/img/Ribbons-Marks/kindlymark.png', color: '#99DD55', fallback: '❌' },
+    'flustered-mark': { icon: '/img/Ribbons-Marks/flusteredmark.png', color: '#FF77FF', fallback: '❌' },
+    'pumped-up-mark': { icon: '/img/Ribbons-Marks/pumped-upmark.png', color: '#FF5544', fallback: '❌' },
+    'zero-energy-mark': { icon: '/img/Ribbons-Marks/zeroenergymark.png', color: '#8888AA', fallback: '❌' },
+    'prideful-mark': { icon: '/img/Ribbons-Marks/pridefulmark.png', color: '#FFCC44', fallback: '❌' },
+    'unsure-mark': { icon: '/img/Ribbons-Marks/unsuremark.png', color: '#8888AA', fallback: '❌' },
+    'humble-mark': { icon: '/img/Ribbons-Marks/humblemark.png', color: '#99DD55', fallback: '❌' },
+    'thorny-mark': { icon: '/img/Ribbons-Marks/thornymark.png', color: '#FF5544', fallback: '❌' },
+    'vigor-mark': { icon: '/img/Ribbons-Marks/vigormark.png', color: '#FF5544', fallback: '❌' },
+    'slump-mark': { icon: '/img/Ribbons-Marks/slumpmark.png', color: '#8888AA', fallback: '❌' },
+    'dawn-mark': { icon: '/img/Ribbons-Marks/dawnmark.png', color: '#FFCC44', fallback: '❌' },
+    'day-mark': { icon: '/img/Ribbons-Marks/daymark.png', color: '#FFCC44', fallback: '❌' },
+    'dusk-mark': { icon: '/img/Ribbons-Marks/duskmark.png', color: '#8888AA', fallback: '❌' },
+    'night-mark': { icon: '/img/Ribbons-Marks/nightmark.png', color: '#8888AA', fallback: '❌' },
+    'cloudy-mark': { icon: '/img/Ribbons-Marks/cloudymark.png', color: '#8888AA', fallback: '❌' },
+    'rainy-mark': { icon: '/img/Ribbons-Marks/rainymark.png', color: '#5599FF', fallback: '❌' },
+    'stormy-mark': { icon: '/img/Ribbons-Marks/stormymark.png', color: '#5599FF', fallback: '❌' },
+    'snowy-mark': { icon: '/img/Ribbons-Marks/snowymark.png', color: '#5599FF', fallback: '❌' },
+    'blizzard-mark': { icon: '/img/Ribbons-Marks/blizzardmark.png', color: '#5599FF', fallback: '❌' },
+    'dry-mark': { icon: '/img/Ribbons-Marks/drymark.png', color: '#FF9900', fallback: '❌' },
+    'sandstorm-mark': { icon: '/img/Ribbons-Marks/sandstormmark.png', color: '#FF9900', fallback: '❌' },
+    'misty-mark': { icon: '/img/Ribbons-Marks/mistymark.png', color: '#8888AA', fallback: '❌' },
+    'fishing-mark': { icon: '/img/Ribbons-Marks/fishingmark.png', color: '#5599FF', fallback: '❌' },
+    'curry-mark': { icon: '/img/Ribbons-Marks/currymark.png', color: '#FF9900', fallback: '❌' },
+    'uncommon-mark': { icon: '/img/Ribbons-Marks/uncommonmark.png', color: '#99DD55', fallback: '❌' },
+    'rare-mark': { icon: '/img/Ribbons-Marks/raremark.png', color: '#5599FF', fallback: '❌' },
+    'rowdy-mark': { icon: '/img/Ribbons-Marks/rowdymark.png', color: '#FF5544', fallback: '❌' },
+    'absent-minded-mark': { icon: '/img/Ribbons-Marks/absentmindedmark.png', color: '#8888AA', fallback: '❌' },
+    'jittery-mark': { icon: '/img/Ribbons-Marks/jitterymark.png', color: '#FF5544', fallback: '❌' },
+    'charismatic-mark': { icon: '/img/Ribbons-Marks/charismaticmark.png', color: '#FFCC44', fallback: '❌' },
+    'calmness-mark': { icon: '/img/Ribbons-Marks/calmnessmark.png', color: '#8888AA', fallback: '❌' },
+    'intense-mark': { icon: '/img/Ribbons-Marks/intensemark.png', color: '#FF5544', fallback: '❌' },
+    'zoned-out-mark': { icon: '/img/Ribbons-Marks/zonedoutmark.png', color: '#8888AA', fallback: '❌' },
+    'joyful-mark': { icon: '/img/Ribbons-Marks/joyfulmark.png', color: '#FFCC44', fallback: '❌' },
+    'furious-mark': { icon: '/img/Ribbons-Marks/furiousmark.png', color: '#FF5544', fallback: '❌' },
+    'shield-mark': { icon: '/img/Ribbons-Marks/shieldmark.png', color: '#5599FF', fallback: '❌' },
+    'sword-mark': { icon: '/img/Ribbons-Marks/swordmark.png', color: '#FF5544', fallback: '❌' },
+    'champion-mark': { icon: '/img/Ribbons-Marks/championmark.png', color: '#FFCC44', fallback: '❌' },
+    'battle-tree-great-mark': { icon: '/img/Ribbons-Marks/battletreegreatmark.png', color: '#FFCC44', fallback: '❌' },
+    'battle-tree-master-mark': { icon: '/img/Ribbons-Marks/battletreemastermark.png', color: '#FFCC44', fallback: '❌' }
   };
   
   // Initialize marks data
@@ -82,6 +139,11 @@ const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus, mainTypeColor }) =>
     'method': marks.filter(m => m.category === 'method'),
     'rare': marks.filter(m => m.category === 'rare'),
     'special': marks.filter(m => m.category === 'special')
+  };
+
+  // Handle image error
+  const handleImageError = (markId) => {
+    setFailedImages(prev => ({ ...prev, [markId]: true }));
   };
 
   // Check if a mark is obtained
@@ -172,6 +234,12 @@ const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus, mainTypeColor }) =>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {filteredMarks.map(mark => {
           const obtained = isMarkObtained(mark.id);
+          const iconData = markIcons[mark.id] || { 
+            icon: 'https://www.serebii.net/ribbons/raremark.png',
+            color: '#99CCFF', 
+            fallback: '❌'
+          };
+          const useIconFallback = failedImages[mark.id];
           
           return (
             <div 
@@ -182,9 +250,36 @@ const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus, mainTypeColor }) =>
                   : 'bg-gray-800 hover:bg-gray-700 border border-gray-700'
               }`}
             >
-              <div className="flex justify-between items-center mb-2">
-                <h4 className="font-medium">{mark.name}</h4>
-                <label className="inline-flex items-center">
+              <div className="flex items-center mb-2">
+                <div 
+                  className="w-12 h-12 rounded-full flex items-center justify-center mr-3 bg-gray-800"
+                  style={{ 
+                    border: `2px solid ${iconData.color}`
+                  }}
+                >
+                  {useIconFallback ? (
+                    <span className="text-lg">{iconData.fallback}</span>
+                  ) : (
+                    <Image 
+                      src={iconData.icon} 
+                      alt={mark.name}
+                      width={40}
+                      height={40}
+                      className="object-contain"
+                      onError={() => handleImageError(mark.id)}
+                    />
+                  )}
+                </div>
+                <div className="flex-1">
+                  <h4 className="font-medium">{mark.name}</h4>
+                  <p className="text-sm text-gray-400">{mark.description}</p>
+                  {mark.category && (
+                    <span className="text-xs px-2 py-0.5 bg-gray-700 rounded-full capitalize mt-1 inline-block">
+                      {mark.category}
+                    </span>
+                  )}
+                </div>
+                <label className="inline-flex items-center ml-2">
                   <input
                     type="checkbox"
                     checked={obtained}
@@ -193,12 +288,6 @@ const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus, mainTypeColor }) =>
                   />
                 </label>
               </div>
-              <p className="text-sm text-gray-400">{mark.description}</p>
-              {mark.category && (
-                <span className="text-xs px-2 py-0.5 bg-gray-700 rounded-full capitalize mt-2 inline-block">
-                  {mark.category}
-                </span>
-              )}
             </div>
           );
         })}
