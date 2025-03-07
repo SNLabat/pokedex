@@ -82,36 +82,7 @@ const EnhancedTrackingPanel = ({
   };
 
   // Handle option click with local state update
-  const handleOptionClick = (optionId, genId = null) => {
-    // If genId is provided, we're toggling a generation-specific status
-    if (genId) {
-      // Get the current generation status
-      const genStatus = formStatus.generations?.[genId] || {};
-      const newGenStatus = !genStatus[optionId];
-      
-      // Update local state immediately for visual feedback
-      setLocalStatus(prev => {
-        const prevGenerations = prev.generations || {};
-        const prevGenStatus = prevGenerations[genId] || {};
-        
-        return {
-          ...prev,
-          generations: {
-            ...prevGenerations,
-            [genId]: {
-              ...prevGenStatus,
-              [optionId]: newGenStatus
-            }
-          }
-        };
-      });
-      
-      // Call the parent update function with the generation-specific option
-      updateCaughtStatus(`${genId}_${optionId}`, formName);
-      return;
-    }
-    
-    // Handle regular (non-generation-specific) options
+  const handleOptionClick = (optionId) => {
     const newStatus = !formStatus[optionId];
     
     // Update local state immediately for visual feedback
@@ -408,18 +379,7 @@ const EnhancedTrackingPanel = ({
   }, [pokemon, pokemonId]);
 
   // Get the effective status (either from local state or props)
-  const getEffectiveStatus = (optionId, genId = null) => {
-    // If genId is provided, we're checking a generation-specific status
-    if (genId) {
-      const localGenStatus = localStatus.generations?.[genId] || {};
-      const formGenStatus = formStatus.generations?.[genId] || {};
-      
-      return localGenStatus[optionId] !== undefined 
-        ? localGenStatus[optionId] 
-        : formGenStatus[optionId] || false;
-    }
-    
-    // Handle regular (non-generation-specific) options
+  const getEffectiveStatus = (optionId) => {
     if (optionId.startsWith('gen') || optionId === 'vc' || optionId === 'lgpe' || optionId === 'go') {
       // Check generations object for these options
       return localStatus.generations?.[optionId] !== undefined 
@@ -527,7 +487,7 @@ const EnhancedTrackingPanel = ({
                   <h4 className="text-sm font-medium text-gray-400 mb-2">Game Boy Era (Gen 1-2)</h4>
                   <div className="flex flex-wrap gap-2">
                     {availableGenerations
-                      .filter(gen => gen.generation <= 2 && gen.id !== 'go')
+                      .filter(gen => gen.generation <= 2)
                       .map((gen) => (
                         <button
                           key={gen.id}
@@ -664,15 +624,15 @@ const EnhancedTrackingPanel = ({
                         src={gen.sprite}
                         alt={`${gen.label} sprite`}
                         label="Regular"
-                        isSelected={getEffectiveStatus('caught', gen.id)}
-                        onClick={() => handleOptionClick('caught', gen.id)}
+                        isSelected={getEffectiveStatus('caught') && !getEffectiveStatus('shiny')}
+                        onClick={() => handleOptionClick('caught')}
                       />
                       <SpriteSelector
                         src={getShinySprite(gen.id, pokemonId)}
                         alt={`${gen.label} shiny sprite`}
                         label="Shiny"
-                        isSelected={getEffectiveStatus('shiny', gen.id)}
-                        onClick={() => handleOptionClick('shiny', gen.id)}
+                        isSelected={getEffectiveStatus('shiny')}
+                        onClick={() => handleOptionClick('shiny')}
                       />
                     </div>
                   </div>

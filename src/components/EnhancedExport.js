@@ -317,7 +317,73 @@ const EnhancedExport = ({ caughtData, pokemonData }) => {
           .missing {
             color: #ef4444;
           }
+          .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+          }
+          .origin-mark-stats, .generation-stats {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+          }
+          .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            background-color: #e53935;
+            color: white;
+            font-size: 0.8em;
+            margin-left: 5px;
+          }
+          .tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 20px;
+          }
+          .tab {
+            padding: 10px 15px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            border-bottom: none;
+            margin-bottom: -1px;
+          }
+          .tab.active {
+            background-color: #fff;
+            border-color: #ddd;
+            border-bottom-color: #fff;
+          }
+          .tab-content {
+            display: none;
+          }
+          .tab-content.active {
+            display: block;
+          }
         </style>
+        <script>
+          function switchTab(tabId) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(tab => {
+              tab.classList.remove('active');
+            });
+            
+            // Deactivate all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+              tab.classList.remove('active');
+            });
+            
+            // Activate selected tab and content
+            document.getElementById(tabId).classList.add('active');
+            document.getElementById(tabId + '-content').classList.add('active');
+          }
+          
+          // Initialize with the first tab active
+          window.onload = function() {
+            switchTab('tab-main');
+          }
+        </script>
       </head>
       <body>
         <h1>Pokémon Collection Export</h1>
@@ -330,64 +396,266 @@ const EnhancedExport = ({ caughtData, pokemonData }) => {
           <div class="stat-item">Special Forms: ${specialFormCount}</div>
         </div>
         
-        <div class="legend">
-          <h3>Status Legend:</h3>
-          <div class="legend-item"><span class="obtained">■</span> Obtained</div>
-          <div class="legend-item"><span class="missing">■</span> Missing</div>
+        <div class="tabs">
+          <div id="tab-main" class="tab active" onclick="switchTab('tab-main')">Main Collection</div>
+          <div id="tab-generations" class="tab" onclick="switchTab('tab-generations')">Generations</div>
+          <div id="tab-origin-marks" class="tab" onclick="switchTab('tab-origin-marks')">Origin Marks</div>
         </div>
         
-        <table>
-          <thead>
-            <tr>
-              <th>Dex #</th>
-              <th>Name</th>
-              <th>Form</th>
-              <th>Caught</th>
-              <th>Status</th>
-              <th>Types</th>
-              <th>Generation</th>
-              ${exportOptions.includeSprites ? '<th>Sprite</th>' : ''}
-            </tr>
-          </thead>
-          <tbody>
-            ${exportData.map(row => {
-              let statusCell = '';
-              
-              // Handle ribbons and marks with their status
-              if (row.status && (row.status.startsWith('Ribbon:') || row.status.startsWith('Mark:'))) {
-                const statusParts = row.status.match(/(Ribbon|Mark): (.+) \((.+)\)/);
-                if (statusParts) {
-                  const [, type, name, status] = statusParts;
-                  const statusClass = status === 'Obtained' ? 'obtained' : 'missing';
-                  statusCell = `<td class="${statusClass}">${type}: ${name} (${status})</td>`;
+        <div id="tab-main-content" class="tab-content active">
+          <div class="legend">
+            <h3>Status Legend:</h3>
+            <div class="legend-item"><span class="obtained">■</span> Obtained</div>
+            <div class="legend-item"><span class="missing">■</span> Missing</div>
+          </div>
+          
+          <table>
+            <thead>
+              <tr>
+                <th>Dex #</th>
+                <th>Name</th>
+                <th>Form</th>
+                <th>Caught</th>
+                <th>Status</th>
+                <th>Types</th>
+                <th>Generation</th>
+                ${exportOptions.includeSprites ? '<th>Sprite</th>' : ''}
+              </tr>
+            </thead>
+            <tbody>
+              ${exportData.map(row => {
+                let statusCell = '';
+                
+                // Handle ribbons and marks with their status
+                if (row.caughtStatus && (row.caughtStatus.startsWith('Ribbon:') || row.caughtStatus.startsWith('Mark:'))) {
+                  const statusParts = row.caughtStatus.match(/(Ribbon|Mark): (.+) \((.+)\)/);
+                  if (statusParts) {
+                    const [, type, name, status] = statusParts;
+                    const statusClass = status === 'Obtained' ? 'obtained' : 'missing';
+                    statusCell = `<td class="${statusClass}">${type}: ${name} (${status})</td>`;
+                  } else {
+                    statusCell = `<td>${row.caughtStatus}</td>`;
+                  }
                 } else {
-                  statusCell = `<td>${row.status}</td>`;
+                  statusCell = `<td>${row.caughtStatus || ''}</td>`;
                 }
-              } else {
-                statusCell = `<td>${row.status || ''}</td>`;
-              }
-              
-              // Create sprite cell if sprites are included
-              let spriteCell = '';
-              if (exportOptions.includeSprites && row.spriteUrl) {
-                spriteCell = `<td><img src="${row.spriteUrl}" alt="${row.name}" class="pokemon-sprite"></td>`;
-              }
-              
-              return `
-                <tr>
-                  <td>${row.dexNum}</td>
-                  <td>${row.name}</td>
-                  <td>${row.form}</td>
-                  <td>${row.caught}</td>
-                  ${statusCell}
-                  <td>${row.types}</td>
-                  <td>${row.generation}</td>
-                  ${exportOptions.includeSprites ? spriteCell : ''}
-                </tr>
-              `;
-            }).join('')}
-          </tbody>
-        </table>
+                
+                // Create sprite cell if sprites are included
+                let spriteCell = '';
+                if (exportOptions.includeSprites && row.spriteUrl) {
+                  spriteCell = `<td><img src="${row.spriteUrl}" alt="${row.name}" class="pokemon-sprite"></td>`;
+                }
+                
+                return `
+                  <tr>
+                    <td>${row.dexNum}</td>
+                    <td>${row.name}</td>
+                    <td>${row.form}</td>
+                    <td>${row.caught}</td>
+                    ${statusCell}
+                    <td>${row.types}</td>
+                    <td>${row.generation}</td>
+                    ${exportOptions.includeSprites ? spriteCell : ''}
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+        
+        <div id="tab-generations-content" class="tab-content">
+          <h2>Generation Statistics</h2>
+          <p>This tab shows which generations your Pokémon come from.</p>
+          
+          <div class="generation-stats">
+            <h3>Pokémon by Generation</h3>
+            <div class="stats-grid">
+              ${Object.entries(exportData.reduce((acc, row) => {
+                Object.keys(row).forEach(key => {
+                  if (key.startsWith('gen_') && row[key] === 'Yes') {
+                    const genName = key.replace('gen_', '');
+                    acc[genName] = (acc[genName] || 0) + 1;
+                  }
+                });
+                return acc;
+              }, {})).map(([gen, count]) => {
+                const genDisplayNames = {
+                  'Virtual_Console': 'Virtual Console (Gen 1-2)',
+                  'Gen3': 'Gen 3 (RSE/FRLG)',
+                  'Gen4': 'Gen 4 (DPPt/HGSS)',
+                  'Gen5': 'Gen 5 (BW/B2W2)',
+                  'Gen6': 'Gen 6 (XY/ORAS)',
+                  'Gen7': 'Gen 7 (SM/USUM)',
+                  'SwSh': 'Sword/Shield',
+                  'BDSP': 'Brilliant Diamond/Shining Pearl',
+                  'PLA': 'Legends Arceus',
+                  'SV': 'Scarlet/Violet',
+                  'LetsGo': 'Let\'s Go Pikachu/Eevee',
+                  'GO': 'Pokémon GO'
+                };
+                
+                const displayName = genDisplayNames[gen] || gen;
+                return `<div class="stat-item">${displayName} <span class="badge">${count}</span></div>`;
+              }).join('')}
+            </div>
+          </div>
+          
+          <table>
+            <thead>
+              <tr>
+                <th>Dex #</th>
+                <th>Name</th>
+                <th>Form</th>
+                ${Object.keys(exportData.reduce((acc, row) => {
+                  Object.keys(row).forEach(key => {
+                    if (key.startsWith('gen_') && row[key] === 'Yes') {
+                      const genName = key.replace('gen_', '');
+                      acc[genName] = true;
+                    }
+                  });
+                  return acc;
+                }, {})).map(gen => {
+                  const genDisplayNames = {
+                    'Virtual_Console': 'VC',
+                    'Gen3': 'Gen 3',
+                    'Gen4': 'Gen 4',
+                    'Gen5': 'Gen 5',
+                    'Gen6': 'Gen 6',
+                    'Gen7': 'Gen 7',
+                    'SwSh': 'SwSh',
+                    'BDSP': 'BDSP',
+                    'PLA': 'PLA',
+                    'SV': 'SV',
+                    'LetsGo': 'LGPE',
+                    'GO': 'GO'
+                  };
+                  
+                  return `<th>${genDisplayNames[gen] || gen}</th>`;
+                }).join('')}
+              </tr>
+            </thead>
+            <tbody>
+              ${exportData.map(row => {
+                const genColumns = Object.keys(exportData.reduce((acc, r) => {
+                  Object.keys(r).forEach(key => {
+                    if (key.startsWith('gen_') && r[key] === 'Yes') {
+                      const genName = key.replace('gen_', '');
+                      acc[genName] = true;
+                    }
+                  });
+                  return acc;
+                }, {})).map(gen => {
+                  const genKey = `gen_${gen}`;
+                  const hasGen = row[genKey] === 'Yes';
+                  return `<td class="${hasGen ? 'obtained' : 'missing'}">${hasGen ? '✓' : '✗'}</td>`;
+                }).join('');
+                
+                return `
+                  <tr>
+                    <td>${row.dexNum}</td>
+                    <td>${row.name}</td>
+                    <td>${row.form}</td>
+                    ${genColumns}
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+        
+        <div id="tab-origin-marks-content" class="tab-content">
+          <h2>Origin Mark Statistics</h2>
+          <p>This tab shows which origin marks your Pokémon have.</p>
+          
+          <div class="origin-mark-stats">
+            <h3>Pokémon by Origin Mark</h3>
+            <div class="stats-grid">
+              ${Object.entries(exportData.reduce((acc, row) => {
+                Object.keys(row).forEach(key => {
+                  if (key.startsWith('mark_') && row[key] === 'Yes') {
+                    const markName = key.replace('mark_', '');
+                    acc[markName] = (acc[markName] || 0) + 1;
+                  }
+                });
+                return acc;
+              }, {})).map(([mark, count]) => {
+                const markDisplayNames = {
+                  'gb': 'Game Boy',
+                  'pentagon': 'Pentagon (Gen 6)',
+                  'clover': 'Clover (Gen 7)',
+                  'letsgo': 'Let\'s Go',
+                  'galar': 'Galar (SwSh)',
+                  'bdsp': 'BDSP',
+                  'arceus': 'Arceus (PLA)',
+                  'paldea': 'Paldea (SV)',
+                  'go': 'GO'
+                };
+                
+                const displayName = markDisplayNames[mark] || mark;
+                return `<div class="stat-item">${displayName} <span class="badge">${count}</span></div>`;
+              }).join('')}
+            </div>
+          </div>
+          
+          <table>
+            <thead>
+              <tr>
+                <th>Dex #</th>
+                <th>Name</th>
+                <th>Form</th>
+                ${Object.keys(exportData.reduce((acc, row) => {
+                  Object.keys(row).forEach(key => {
+                    if (key.startsWith('mark_') && row[key] === 'Yes') {
+                      const markName = key.replace('mark_', '');
+                      acc[markName] = true;
+                    }
+                  });
+                  return acc;
+                }, {})).map(mark => {
+                  const markDisplayNames = {
+                    'gb': 'Game Boy',
+                    'pentagon': 'Pentagon',
+                    'clover': 'Clover',
+                    'letsgo': 'Let\'s Go',
+                    'galar': 'Galar',
+                    'bdsp': 'BDSP',
+                    'arceus': 'Arceus',
+                    'paldea': 'Paldea',
+                    'go': 'GO'
+                  };
+                  
+                  return `<th>${markDisplayNames[mark] || mark}</th>`;
+                }).join('')}
+              </tr>
+            </thead>
+            <tbody>
+              ${exportData.map(row => {
+                const markColumns = Object.keys(exportData.reduce((acc, r) => {
+                  Object.keys(r).forEach(key => {
+                    if (key.startsWith('mark_') && r[key] === 'Yes') {
+                      const markName = key.replace('mark_', '');
+                      acc[markName] = true;
+                    }
+                  });
+                  return acc;
+                }, {})).map(mark => {
+                  const markKey = `mark_${mark}`;
+                  const hasMark = row[markKey] === 'Yes';
+                  return `<td class="${hasMark ? 'obtained' : 'missing'}">${hasMark ? '✓' : '✗'}</td>`;
+                }).join('');
+                
+                return `
+                  <tr>
+                    <td>${row.dexNum}</td>
+                    <td>${row.name}</td>
+                    <td>${row.form}</td>
+                    ${markColumns}
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
       </body>
       </html>
       `;
