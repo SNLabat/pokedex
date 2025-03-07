@@ -2710,9 +2710,19 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
       if (statusType.startsWith('gen') || statusType === 'vc' || statusType === 'lgpe' || statusType === 'go') {
         const genInfo = generationMap[statusType];
         if (genInfo) {
-          // Toggle this specific generation
-          const isCurrentlySelected = !!caughtData[pokemon.id][formName].generations[statusType];
-          caughtData[pokemon.id][formName].generations[statusType] = !isCurrentlySelected;
+          // Initialize generation data if needed
+          if (!caughtData[pokemon.id][formName].generations[statusType]) {
+            caughtData[pokemon.id][formName].generations[statusType] = {
+              caught: false,
+              shiny: false,
+              alpha: false,
+              alphaShiny: false
+            };
+          }
+          
+          // Toggle this specific generation's caught status
+          const isCurrentlySelected = !!caughtData[pokemon.id][formName].generations[statusType].caught;
+          caughtData[pokemon.id][formName].generations[statusType].caught = !isCurrentlySelected;
           
           // Toggle the associated mark (if this generation has one)
           if (genInfo.hasMark && genInfo.mark) {
@@ -2724,15 +2734,47 @@ export default function PokemonDetail({ pokemon, species, evolutionChain, altern
             caughtData[pokemon.id][formName][version] = !isCurrentlySelected;
           });
           
-          // Set caught to true if at least one generation is selected
-          const hasAnyGeneration = Object.values(caughtData[pokemon.id][formName].generations).some(Boolean);
-          if (hasAnyGeneration) {
-            caughtData[pokemon.id][formName].caught = true;
-          }
+          // Set caught to true if at least one generation is caught
+          const hasAnyGeneration = Object.values(caughtData[pokemon.id][formName].generations)
+            .some(gen => gen.caught);
+          caughtData[pokemon.id][formName].caught = hasAnyGeneration;
         }
       } 
-      // Handle basic tracking options
-      else if (['caught', 'shiny', 'alpha'].includes(statusType)) {
+      // Handle shiny/alpha statuses for a specific generation
+      else if (['shiny', 'alpha', 'alphaShiny'].includes(statusType) && formStatus.activeGeneration) {
+        const activeGen = formStatus.activeGeneration;
+        // Make sure the generation data exists
+        if (!caughtData[pokemon.id][formName].generations[activeGen]) {
+          caughtData[pokemon.id][formName].generations[activeGen] = {
+            caught: true, // Set to true since we're modifying a property for this generation
+            shiny: false,
+            alpha: false,
+            alphaShiny: false
+          };
+        }
+        
+        // Toggle the specific status for this generation
+        caughtData[pokemon.id][formName].generations[activeGen][statusType] = 
+          !caughtData[pokemon.id][formName].generations[activeGen][statusType];
+          
+        // Update form-level caught status as an aggregate
+        if (statusType === 'shiny') {
+          caughtData[pokemon.id][formName].shiny = Object.values(caughtData[pokemon.id][formName].generations)
+            .some(gen => gen.shiny);
+        } else if (statusType === 'alpha') {
+          caughtData[pokemon.id][formName].alpha = Object.values(caughtData[pokemon.id][formName].generations)
+            .some(gen => gen.alpha);
+        } else if (statusType === 'alphaShiny') {
+          caughtData[pokemon.id][formName].alphaShiny = Object.values(caughtData[pokemon.id][formName].generations)
+            .some(gen => gen.alphaShiny);
+        }
+      }
+      // Set an active generation for form-specific operations
+      else if (statusType === 'setActiveGeneration') {
+        caughtData[pokemon.id][formName].activeGeneration = formStatus.newActiveGeneration;
+      }
+      // Handle caught status globally (if no active generation)
+      else if (['caught', 'shiny', 'alpha', 'alphaShiny'].includes(statusType) && !formStatus.activeGeneration) {
         caughtData[pokemon.id][formName][statusType] = !caughtData[pokemon.id][formName][statusType];
       }
       

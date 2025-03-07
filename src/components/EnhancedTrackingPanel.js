@@ -71,6 +71,7 @@ const EnhancedTrackingPanel = ({
   const [expandedSection, setExpandedSection] = useState('visual'); // Default to visual section open
   const [localStatus, setLocalStatus] = useState(caughtStatus[formName] || {});
   const [selectedVisualTab, setSelectedVisualTab] = useState('generations');
+  const [activeGeneration, setActiveGeneration] = useState(null);
   
   // Access the current caught status for this form
   const formStatus = caughtStatus[formName] || {};
@@ -83,27 +84,131 @@ const EnhancedTrackingPanel = ({
 
   // Handle option click with local state update
   const handleOptionClick = (optionId) => {
-    const newStatus = !formStatus[optionId];
-    
-    // Update local state immediately for visual feedback
-    setLocalStatus(prev => {
-      if (optionId.startsWith('gen') || optionId === 'vc' || optionId === 'lgpe' || optionId === 'go') {
+    // If selecting a generation, set it as active and toggle it
+    if (optionId.startsWith('gen') || optionId === 'vc' || optionId === 'lgpe' || optionId === 'go') {
+      const newStatus = !getEffectiveGenerationStatus(optionId, 'caught');
+      
+      setLocalStatus(prev => {
+        if (!prev.generations) prev.generations = {};
+        
+        // Initialize generation if needed
+        if (!prev.generations[optionId]) {
+          prev.generations[optionId] = {
+            caught: false,
+            shiny: false,
+            alpha: false,
+            alphaShiny: false
+          };
+        }
+        
+        // Update generation
         return {
           ...prev,
           generations: {
             ...(prev.generations || {}),
-            [optionId]: !formStatus.generations?.[optionId]
+            [optionId]: {
+              ...(prev.generations[optionId] || {}),
+              caught: newStatus
+            }
           }
         };
+      });
+      
+      // Set the clicked generation as active if it's now selected
+      if (newStatus) {
+        setActiveGeneration(optionId);
+        setLocalStatus(prev => ({
+          ...prev,
+          activeGeneration: optionId
+        }));
+      } else if (activeGeneration === optionId) {
+        // Clear active generation if we're deselecting the current one
+        setActiveGeneration(null);
+        setLocalStatus(prev => ({
+          ...prev,
+          activeGeneration: null
+        }));
       }
-      return {
-        ...prev,
-        [optionId]: newStatus
-      };
-    });
+      
+      // Call the parent update function
+      updateCaughtStatus(optionId, formName);
+    } 
+    // Handle form toggle (caught, shiny, etc.) 
+    else if (['caught', 'shiny', 'alpha', 'alphaShiny'].includes(optionId)) {
+      // If we have an active generation, update that generation's status
+      if (activeGeneration) {
+        const currentStatus = getEffectiveGenerationStatus(activeGeneration, optionId);
+        
+        setLocalStatus(prev => {
+          if (!prev.generations) prev.generations = {};
+          if (!prev.generations[activeGeneration]) {
+            prev.generations[activeGeneration] = {
+              caught: true, // We're modifying this generation, so it should be caught
+              shiny: false,
+              alpha: false,
+              alphaShiny: false
+            };
+          }
+          
+          return {
+            ...prev,
+            generations: {
+              ...(prev.generations || {}),
+              [activeGeneration]: {
+                ...(prev.generations[activeGeneration] || {}),
+                [optionId]: !currentStatus
+              }
+            }
+          };
+        });
+        
+        // Also pass the active generation to updateCaughtStatus
+        setLocalStatus(prev => ({
+          ...prev,
+          activeGeneration: activeGeneration
+        }));
+      } else {
+        // Global toggle (no specific generation)
+        const newStatus = !formStatus[optionId];
+        setLocalStatus(prev => ({
+          ...prev,
+          [optionId]: newStatus
+        }));
+      }
+      
+      // Call the parent update function
+      updateCaughtStatus(optionId, formName);
+    }
+  };
+
+  // Get the effective status for a specific generation property
+  const getEffectiveGenerationStatus = (genId, property) => {
+    // First check local state
+    if (localStatus.generations?.[genId]?.[property] !== undefined) {
+      return localStatus.generations[genId][property];
+    }
+    // Then check form status
+    if (formStatus.generations?.[genId]?.[property] !== undefined) {
+      return formStatus.generations[genId][property];
+    }
+    // Default to false
+    return false;
+  };
+
+  // Get the effective status (either from local state or props)
+  const getEffectiveStatus = (optionId) => {
+    // If we have an active generation and the option is a form property (caught, shiny, etc.)
+    if (activeGeneration && ['caught', 'shiny', 'alpha', 'alphaShiny'].includes(optionId)) {
+      return getEffectiveGenerationStatus(activeGeneration, optionId);
+    }
     
-    // Call the parent update function
-    updateCaughtStatus(optionId, formName);
+    // For generation toggles
+    if (optionId.startsWith('gen') || optionId === 'vc' || optionId === 'lgpe' || optionId === 'go') {
+      return getEffectiveGenerationStatus(optionId, 'caught');
+    }
+    
+    // Default to the global property
+    return localStatus[optionId] !== undefined ? localStatus[optionId] : formStatus[optionId];
   };
 
   // Group tracking options
@@ -378,19 +483,22 @@ const EnhancedTrackingPanel = ({
     }
   }, [pokemon, pokemonId]);
 
-  // Get the effective status (either from local state or props)
-  const getEffectiveStatus = (optionId) => {
-    if (optionId.startsWith('gen') || optionId === 'vc' || optionId === 'lgpe' || optionId === 'go') {
-      // Check generations object for these options
-      return localStatus.generations?.[optionId] !== undefined 
-        ? localStatus.generations[optionId] 
-        : formStatus.generations?.[optionId] || false;
-    }
-    return localStatus[optionId] !== undefined ? localStatus[optionId] : formStatus[optionId];
-  };
-
   return (
     <div className={`${theme.bg} bg-opacity-70 rounded-lg p-4 shadow-lg w-full`}>
+      {/* Status indicator */}
+      {activeGeneration && (
+        <div className="mb-4 px-3 py-2 bg-yellow-500 bg-opacity-20 border border-yellow-500 rounded text-sm">
+          <span className="flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>
+              Editing <strong className="text-yellow-300">{activeGeneration.toUpperCase()}</strong> status - any caught/shiny changes will apply to this generation only
+            </span>
+          </span>
+        </div>
+      )}
+      
       {/* Main Tabs */}
       <div className="flex border-b border-gray-700 mb-4">
         <button
@@ -492,12 +600,14 @@ const EnhancedTrackingPanel = ({
                         <button
                           key={gen.id}
                           onClick={() => handleOptionClick(gen.id)}
-                          className={`px-3 py-1 rounded-full text-sm flex items-center gap-1
+                          className={`px-3 py-1 rounded-full text-sm flex items-center gap-1 relative
                             ${getEffectiveStatus(gen.id)
                               ? 'bg-blue-600 text-white'
                               : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                            }`}
-                          title={gen.hasMark ? `Origin Mark: ${gen.markName}` : "No Origin Mark"}
+                            }
+                            ${activeGeneration === gen.id ? 'ring-2 ring-yellow-400' : ''}
+                          `}
+                          title={gen.hasMark ? `Origin Mark: ${gen.markName}${activeGeneration === gen.id ? ' (Active)' : ''}` : `No Origin Mark${activeGeneration === gen.id ? ' (Active)' : ''}`}
                         >
                           {gen.icon && (
                             <img 
@@ -508,6 +618,9 @@ const EnhancedTrackingPanel = ({
                             />
                           )}
                           {gen.description}
+                          {activeGeneration === gen.id && (
+                            <span className="absolute -top-2 -right-2 w-4 h-4 bg-yellow-400 rounded-full flex items-center justify-center text-xs text-black font-bold">✓</span>
+                          )}
                         </button>
                       ))}
                   </div>
@@ -522,14 +635,27 @@ const EnhancedTrackingPanel = ({
                         <button
                           key={gen.id}
                           onClick={() => handleOptionClick(gen.id)}
-                          className={`px-3 py-1 rounded-full text-sm flex items-center gap-1
+                          className={`px-3 py-1 rounded-full text-sm flex items-center gap-1 relative
                             ${getEffectiveStatus(gen.id)
                               ? 'bg-blue-600 text-white'
                               : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                            }`}
-                          title="No Origin Mark"
+                            }
+                            ${activeGeneration === gen.id ? 'ring-2 ring-yellow-400' : ''}
+                          `}
+                          title={gen.hasMark ? `Origin Mark: ${gen.markName}${activeGeneration === gen.id ? ' (Active)' : ''}` : `No Origin Mark${activeGeneration === gen.id ? ' (Active)' : ''}`}
                         >
+                          {gen.icon && (
+                            <img 
+                              src={gen.icon} 
+                              alt={`${gen.label} icon`} 
+                              className="w-4 h-4 object-contain"
+                              onError={(e) => e.target.style.display = 'none'}
+                            />
+                          )}
                           {gen.description}
+                          {activeGeneration === gen.id && (
+                            <span className="absolute -top-2 -right-2 w-4 h-4 bg-yellow-400 rounded-full flex items-center justify-center text-xs text-black font-bold">✓</span>
+                          )}
                         </button>
                       ))}
                   </div>
@@ -544,12 +670,14 @@ const EnhancedTrackingPanel = ({
                         <button
                           key={gen.id}
                           onClick={() => handleOptionClick(gen.id)}
-                          className={`px-3 py-1 rounded-full text-sm flex items-center gap-1
+                          className={`px-3 py-1 rounded-full text-sm flex items-center gap-1 relative
                             ${getEffectiveStatus(gen.id)
                               ? 'bg-blue-600 text-white'
                               : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                            }`}
-                          title={gen.hasMark ? `Origin Mark: ${gen.markName}` : "No Origin Mark"}
+                            }
+                            ${activeGeneration === gen.id ? 'ring-2 ring-yellow-400' : ''}
+                          `}
+                          title={gen.hasMark ? `Origin Mark: ${gen.markName}${activeGeneration === gen.id ? ' (Active)' : ''}` : `No Origin Mark${activeGeneration === gen.id ? ' (Active)' : ''}`}
                         >
                           {gen.icon && (
                             <img 
@@ -560,6 +688,9 @@ const EnhancedTrackingPanel = ({
                             />
                           )}
                           {gen.description}
+                          {activeGeneration === gen.id && (
+                            <span className="absolute -top-2 -right-2 w-4 h-4 bg-yellow-400 rounded-full flex items-center justify-center text-xs text-black font-bold">✓</span>
+                          )}
                         </button>
                       ))}
                   </div>
@@ -574,12 +705,14 @@ const EnhancedTrackingPanel = ({
                         <button
                           key={gen.id}
                           onClick={() => handleOptionClick(gen.id)}
-                          className={`px-3 py-1 rounded-full text-sm flex items-center gap-1
+                          className={`px-3 py-1 rounded-full text-sm flex items-center gap-1 relative
                             ${getEffectiveStatus(gen.id)
                               ? 'bg-blue-600 text-white'
                               : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                            }`}
-                          title={gen.hasMark ? `Origin Mark: ${gen.markName}` : "No Origin Mark"}
+                            }
+                            ${activeGeneration === gen.id ? 'ring-2 ring-yellow-400' : ''}
+                          `}
+                          title={gen.hasMark ? `Origin Mark: ${gen.markName}${activeGeneration === gen.id ? ' (Active)' : ''}` : `No Origin Mark${activeGeneration === gen.id ? ' (Active)' : ''}`}
                         >
                           {gen.icon && (
                             <img 
@@ -590,6 +723,9 @@ const EnhancedTrackingPanel = ({
                             />
                           )}
                           {gen.description}
+                          {activeGeneration === gen.id && (
+                            <span className="absolute -top-2 -right-2 w-4 h-4 bg-yellow-400 rounded-full flex items-center justify-center text-xs text-black font-bold">✓</span>
+                          )}
                         </button>
                       ))}
                   </div>
@@ -670,18 +806,30 @@ const EnhancedTrackingPanel = ({
           {/* Shinies Tab Content */}
           {selectedVisualTab === 'shinies' && (
             <div className="space-y-4">
+              {activeGeneration && (
+                <div className="px-3 py-2 bg-yellow-500 bg-opacity-20 border border-yellow-500 rounded text-sm">
+                  <span className="flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>
+                      Editing shiny status for <strong className="text-yellow-300">{activeGeneration.toUpperCase()}</strong>
+                    </span>
+                  </span>
+                </div>
+              )}
               <div className="grid grid-cols-2 gap-4">
                 <SpriteSelector
                   src={pokemon?.sprites?.front_default || `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemonId}.png`}
                   alt="Regular sprite"
-                  label="Regular"
+                  label={`Regular${activeGeneration ? ` (${activeGeneration.toUpperCase()})` : ''}`}
                   isSelected={getEffectiveStatus('caught') && !getEffectiveStatus('shiny')}
                   onClick={() => handleOptionClick('caught')}
                 />
                 <SpriteSelector
                   src={pokemon?.sprites?.front_shiny || `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${pokemonId}.png`}
                   alt="Shiny sprite"
-                  label="Shiny"
+                  label={`Shiny${activeGeneration ? ` (${activeGeneration.toUpperCase()})` : ''}`}
                   isSelected={getEffectiveStatus('shiny')}
                   onClick={() => handleOptionClick('shiny')}
                 />
@@ -689,13 +837,20 @@ const EnhancedTrackingPanel = ({
               
               {/* Official Artwork */}
               <div className="mt-4">
-                <h4 className="text-sm font-medium text-gray-400 mb-2">Official Artwork</h4>
+                <h4 className="text-sm font-medium text-gray-400 mb-2">
+                  Official Artwork
+                  {activeGeneration && (
+                    <span className="ml-2 px-2 py-0.5 bg-yellow-500 bg-opacity-20 text-yellow-400 rounded-full text-xs font-normal">
+                      For {activeGeneration.toUpperCase()}
+                    </span>
+                  )}
+                </h4>
                 <div className="grid grid-cols-2 gap-4">
                   <SpriteSelector
                     src={pokemon?.sprites?.other?.['official-artwork']?.front_default || 
                         `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemonId}.png`}
                     alt="Official Artwork"
-                    label="Regular"
+                    label={`Regular${activeGeneration ? ` (${activeGeneration.toUpperCase()})` : ''}`}
                     isSelected={getEffectiveStatus('caught') && !getEffectiveStatus('shiny')}
                     onClick={() => handleOptionClick('caught')}
                   />
@@ -703,7 +858,7 @@ const EnhancedTrackingPanel = ({
                     src={pokemon?.sprites?.other?.['official-artwork']?.front_shiny || 
                         `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/${pokemonId}.png`}
                     alt="Shiny Official Artwork"
-                    label="Shiny"
+                    label={`Shiny${activeGeneration ? ` (${activeGeneration.toUpperCase()})` : ''}`}
                     isSelected={getEffectiveStatus('shiny')}
                     onClick={() => handleOptionClick('shiny')}
                   />
@@ -717,7 +872,14 @@ const EnhancedTrackingPanel = ({
       {/* Basic Options - Always visible */}
       {expandedSection !== 'visual' && (
         <div className="mb-4">
-          <h4 className="text-sm font-medium text-gray-400 mb-2">Basic Options</h4>
+          <h4 className="text-sm font-medium text-gray-400 mb-2">
+            Basic Options 
+            {activeGeneration && (
+              <span className="ml-2 px-2 py-0.5 bg-yellow-500 bg-opacity-20 text-yellow-400 rounded-full text-xs font-normal">
+                For {activeGeneration.toUpperCase()}
+              </span>
+            )}
+          </h4>
           <div className="grid grid-cols-2 gap-2">
             {basicOptions.map((option) => (
               <TrackingOption
@@ -725,6 +887,7 @@ const EnhancedTrackingPanel = ({
                 {...option}
                 isActive={getEffectiveStatus(option.id)}
                 onClick={() => handleOptionClick(option.id)}
+                description={activeGeneration ? `${option.label} in ${activeGeneration.toUpperCase()}` : null}
               />
             ))}
           </div>
