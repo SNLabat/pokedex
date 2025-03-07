@@ -124,8 +124,9 @@ const RibbonsTab = ({ pokemon, caughtStatus, updateRibbonStatus, mainTypeColor }
       newStatus = 'unchecked';
     }
     
-    // Call the parent component's update function with the new status
-    updateRibbonStatus(ribbonId, newStatus);
+    // Call the parent component's update function with the ribbon ID
+    // The updateRibbonStatus function in PokemonDetail will handle the cycling of states
+    updateRibbonStatus(ribbonId);
     
     // Clear the animation after a short delay
     setTimeout(() => {

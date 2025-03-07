@@ -125,8 +125,9 @@ const MarksTab = ({ pokemon, caughtStatus, updateMarkStatus, mainTypeColor }) =>
       newStatus = 'unchecked';
     }
     
-    // Call the parent component's update function with the new status
-    updateMarkStatus(markId, newStatus);
+    // Call the parent component's update function with the mark ID
+    // The updateMarkStatus function in PokemonDetail will handle the cycling of states
+    updateMarkStatus(markId);
     
     // Clear the animation after a short delay
     setTimeout(() => {
