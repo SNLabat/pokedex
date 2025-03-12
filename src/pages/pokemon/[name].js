@@ -621,7 +621,7 @@ const pokemonRibbons = [
   
   // Battle Ribbons - Galar
   { id: 'tower-master', name: 'Tower Master Ribbon', category: 'battle', description: 'A Ribbon awarded for winning against a champion in the Battle Tower', obtainMethod: 'Defeat Leon in one of the higher tiers of the Battle Tower' },
-  { id: 'master-rank', name: 'Master Rank Ribbon', category: 'battle', description: 'A Ribbon awarded for winning against a Trainer in the Master Ball Tier of Ranked Battles', obtainMethod: 'Defeat a Master Ball tier trainer in Ranked Battle' },
+  { id: 'master-rank', name: 'Master Rank Ribbon', category: 'battle', description: 'A Ribbon awarded for winning against a trainer in the Master Ball Tier of Ranked Battles', obtainMethod: 'Defeat a Master Ball tier trainer in Ranked Battle' },
   
   // Memory Ribbons
   { id: 'contest-memory', name: 'Contest Memory Ribbon', category: 'memory', description: 'A commemorative Ribbon representing all the Ribbons you collected in far-off lands for contests', obtainMethod: 'Transfer a Pokémon who had ribbons from Contests in Ruby, Sapphire or Emerald, or Super Contests in Diamond, Pearl or Platinum' },
